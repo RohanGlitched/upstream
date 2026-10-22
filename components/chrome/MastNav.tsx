@@ -10,8 +10,15 @@ const NAV = [
   { href: "/desk", label: "Ask" },
   { href: "/case", label: "Investigations" },
   { href: "/plants", label: "Plants" },
-  { href: "/backtest", label: "Proof" },
+  { href: "/backtest", label: "Accuracy" },
   { href: "/how", label: "How it works" },
+];
+
+// The judge's path from the front page, repeated in the phone menu so the open menu says where to begin.
+const PATH = [
+  { href: "/#why", n: "1", label: "Read a why", note: "carboplatin, line by line, every claim on its row" },
+  { href: "/desk", n: "2", label: "Ask about a drug", note: "replays recorded runs of the live agent" },
+  { href: "/backtest", n: "3", label: "Check the accuracy", note: "the model alone against Upstream" },
 ];
 
 type Theme = "light" | "dark";
@@ -73,6 +80,24 @@ export function MastNav({ status }: { status: ReactNode }) {
             );
           })}
         </ul>
+        <div className="mast-path">
+          <p className="mast-path__h">Where to start</p>
+          <ol>
+            {PATH.map((p) => (
+              <li key={p.n}>
+                <Link href={p.href} onClick={() => setOpen(false)}>
+                  <span className="mast-path__n" aria-hidden="true">
+                    {p.n}
+                  </span>
+                  <span>
+                    <b>{p.label}</b>
+                    <small>{p.note}</small>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ol>
+        </div>
       </nav>
       <div className="mast-tools">
         {status}

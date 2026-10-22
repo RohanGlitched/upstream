@@ -17,6 +17,8 @@ export interface Flag {
   signal: string;
   headline: string;
   slug?: string;
+  /** The presentation the days are for (the shortest shelf), e.g. "10 mg/mL injection, 60 mL vial". */
+  presentation?: string;
 }
 
 export interface WatchRun {
@@ -110,6 +112,7 @@ export function ReportBody({ w, cases }: { w: WatchRun; cases: Set<string> }) {
         <span className="po-what">
           <b>{flagName(f)}</b>
           <span>
+            {f.presentation ? `${f.presentation}, ` : ""}
             {f.hospital.replace(/^Corvale /, "")}
             {typeof f.systemDays === "number" ? `, ${f.systemDays < 10 ? f.systemDays.toFixed(1) : Math.round(f.systemDays)} days system-wide` : ""}
           </span>

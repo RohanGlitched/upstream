@@ -13,6 +13,29 @@ export function ToTop() {
   const top = useRef<HTMLDivElement>(null);
   const [down, setDown] = useState(false);
   const [blocked, setBlocked] = useState(false);
+  // On a phone the button hides while the reader scrolls down and comes back when they scroll up.
+  const [hidden, setHidden] = useState(false);
+
+  useEffect(() => {
+    const phone = window.matchMedia("(max-width: 720px)");
+    let last = window.scrollY;
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        const y = window.scrollY;
+        if (Math.abs(y - last) < 6) return;
+        setHidden(phone.matches && y > last);
+        last = y;
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
 
   useEffect(() => {
     const s = top.current;
@@ -46,11 +69,11 @@ export function ToTop() {
     brand?.focus({ preventScroll: true });
   };
 
-  const show = down && !blocked;
+  const show = down && !blocked && !hidden;
   return (
     <>
       <div ref={top} className="totop-sentinel" aria-hidden="true" />
-      <button type="button" aria-label="Back to top" className={`totop${show ? " is-on" : ""}`} onClick={go} tabIndex={show ? 0 : -1} aria-hidden={show ? undefined : true}>
+      <button type="button" aria-label="Back to top" className={`totop${show ? " is-on" : ""}`} title="Back to top" onClick={go} tabIndex={show ? 0 : -1} aria-hidden={show ? undefined : true}>
         <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
           <path d="M8 13V3.5M3.5 7.5 8 3l4.5 4.5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
         </svg>

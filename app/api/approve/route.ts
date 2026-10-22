@@ -3,7 +3,8 @@
 // hospital, single sign-on). Anything the body says about who is approving is ignored. Without a valid session the
 // approval is refused; a buyer's session is refused by Scout, which issues decision.record only to a pharmacist or
 // the director. The decision must be one of the case's ranked options (a short note may be attached, stored as
-// quoted data). The memo contract must be the one issued for this case and drug, and unexpired.
+// quoted data; a note that gives dosing or order instructions is refused). The memo contract must be the one issued
+// for this case and drug, unexpired, and not already used for an approval (409 if it was).
 import { getCase } from "@/src/lib/cases";
 import { approveDecision } from "@/src/agent/memo";
 import { HMEM, openMemory } from "@/src/engines/hmem";
@@ -28,7 +29,9 @@ export async function POST(req: Request) {
   if (!c || !slug) return Response.json({ error: "No such case." }, { status: 404 });
   try {
     // A refusal is a normal answer (200 with status "refused") so the audit trail of what was checked comes back too.
-    return Response.json(await approveDecision(c, slug, b.contract, { id: s.session.sub, name: s.session.name, role: s.session.role }, String(b.decision ?? ""), memory, String(b.note ?? "")));
+    // The exception is a memo contract already used for an approval: 409, with the message in "error" for the page.
+    const r = await approveDecision(c, slug, b.contract, { id: s.session.sub, name: s.session.name, role: s.session.role }, String(b.decision ?? ""), memory, String(b.note ?? ""));
+    return r.conflict ? Response.json({ ...r, error: r.reason }, { status: 409 }) : Response.json(r);
   } catch (e) {
     return Response.json({ status: "refused", reason: (e as Error).message.slice(0, 200), audit: [] }, { status: 400 });
   }

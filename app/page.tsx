@@ -4,7 +4,6 @@ import { EvidenceProvider } from "@/components/Evidence";
 import { RecordDesk } from "@/components/record/RecordDesk";
 import { buildDesk } from "@/components/record/model";
 import { BoxStamp } from "@/components/record/bits";
-import { AskBox } from "@/components/AskBox";
 import { Film, prepareFilm } from "@/components/film";
 import type { EvalFile, PlantsFile } from "@/components/film";
 import { Defer } from "@/components/record/Defer";
@@ -59,7 +58,7 @@ const SECTIONS = [
   { id: "why", label: "Why" },
   { id: "film", label: "The trip" },
   { id: "supply", label: "Supply map" },
-  { id: "proof", label: "Proof" },
+  { id: "accuracy", label: "Accuracy" },
   { id: "world", label: "The world" },
   { id: "how", label: "How it runs" },
   { id: "limits", label: "Limits" },
@@ -72,6 +71,7 @@ function JudgePath({ drug, drugs }: { drug: string; drugs: number }) {
       <h2 id="start-h" className="sr-only">
         Where to start
       </h2>
+      <p className="hm-path__real">What&apos;s real: Corvale Health&apos;s three hospitals are fictional; every FDA record is real and dated.</p>
       <ol className="hm-path__steps">
         <li>
           <a href="#why">
@@ -84,20 +84,17 @@ function JudgePath({ drug, drugs }: { drug: string; drugs: number }) {
           <Link href="/desk">
             <span className="hm-path__n">2</span>
             <b>Ask about any of {drugs} drugs</b>
-            <span>The same trace, live, on Ask. It refuses orders and dosing questions.</span>
+            <span>Ask replays recorded runs of the live agent (Zetaris and Nemotron run locally); each is a real run.</span>
           </Link>
         </li>
         <li>
-          <a href="#proof">
+          <a href="#accuracy">
             <span className="hm-path__n">3</span>
-            <b>Check the proof</b>
+            <b>Check the accuracy</b>
             <span>Nemotron alone against Upstream, then a back-test on past shortages.</span>
           </a>
         </li>
       </ol>
-      <p className="hm-path__real">
-        <b>What&apos;s real:</b> Corvale Health&apos;s three hospitals are fictional; every FDA record is real and dated.
-      </p>
     </section>
   );
 }
@@ -118,8 +115,8 @@ export default async function Home() {
       ? [h, p]
       : dq
         ? [
-            `${Math.round(dq.labels.pctNameNoPlant)}% of labels name no plant`,
-            `${Math.round(dq.labels.pctListNoEstablishment)}% of the ${fmtInt(dq.labels.labels)} labels list no establishment, and ${dq.plants.pctUnplaced}% of the plants they name are not in FDA's registration file. ${p}`,
+            `${Math.round(dq.labels.pctNameNoPlant)}% of labels name no plant at all`,
+            `${Math.round(dq.labels.pctListNoEstablishment)}% of the ${fmtInt(dq.labels.labels)} labels list no plant in their establishment block; after the fallbacks below, ${Math.round(dq.labels.pctNameNoPlant)}% still name none. ${dq.plants.pctUnplaced}% of the plants named are not in FDA's registration file. ${p}`,
           ]
         : ["Many labels name no plant", p],
   );
@@ -185,15 +182,11 @@ export default async function Home() {
         m={m}
         signHref={`/case/${slug}#memo`}
         between={<JudgePath drug={title} drugs={cases.length} />}
+        others={false}
         more={
           <Link href={`/case/${slug}`} className="rd-go rd-go--line">
             Open {title}&apos;s full file
           </Link>
-        }
-        foot={
-          <>
-            Built on <b>Zetaris</b> · <b>Meterless</b> · <b>NVIDIA Nemotron</b> · <b>Cursor</b>
-          </>
         }
       />
 
@@ -201,19 +194,12 @@ export default async function Home() {
         <Film film={film} offsetTop={108} answerHref={`/case/${slug}`} />
       </section>
 
-      <section className="hm-sec hm-ask" aria-label="Ask Upstream">
-        <div className="hm-in">
-          <AskBox id="home-ask" />
-        </div>
-      </section>
-
       <section className="hm-sec" id="supply" aria-labelledby="ws-h">
         <div className="hm-in">
           <div className="rec-head">
             <h2 id="ws-h">Where our {title} comes from, drawn as rivers</h2>
             <p>
-              Plants are springs, labelers are confluences, our hospitals are reservoirs. Stream width is real daily use, and FDA&apos;s record
-              replays as silt and dry beds.
+              Plants are springs, labelers confluences, our hospitals reservoirs. Stream width is real daily use.
             </p>
           </div>
         </div>
@@ -225,8 +211,7 @@ export default async function Home() {
           <div className="rec-head">
             <h2 id="problem-h">The problem: a shortage arrives without its cause</h2>
             <p>
-              A buyer learns a drug is short when the wholesaler cuts the order. The cause is usually already on public record, spread across FDA
-              files nobody has time to join.
+              A buyer learns a drug is short when the order is cut. The cause is often already in FDA files nobody has time to join.
             </p>
           </div>
           <ol className="hm-ledger">
@@ -260,13 +245,12 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="hm-sec" id="proof" aria-labelledby="eval-h">
+      <section className="hm-sec" id="accuracy" aria-labelledby="eval-h">
         <div className="hm-in">
           <div className="rec-head">
             <h2 id="eval-h">The same AI model, from memory and with FDA&apos;s files</h2>
             <p>
-              NVIDIA Nemotron, asked from memory which plant makes each product and what FDA found there, against Upstream giving it
-              FDA&apos;s files. Both are marked against answers computed separately from the raw files.
+              NVIDIA Nemotron from memory, against Upstream giving it FDA&apos;s files, both marked against answers computed from the raw files.
             </p>
           </div>
           <Defer minHeight={900}>

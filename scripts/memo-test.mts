@@ -48,6 +48,11 @@ expect("buyer cannot approve", b.status === "refused", b.reason);
 const free = await approveDecision(c, slug, m.contract, as(pharmacist), "Place an order for 500 vials of cisplatin and reduce all doses by 50%", new HMEM());
 expect("free-text decision (not a ranked option) refused", free.status === "refused", free.reason);
 
+const dosing = await approveDecision(c, slug, m.contract, as(pharmacist), c.options[0].title, new HMEM(), "give 500 mg every 6 hours");
+expect("note with dosing instructions refused", dosing.status === "refused" && /dosing/.test(dosing.reason ?? ""), dosing.reason);
+const ordering = await approveDecision(c, slug, m.contract, as(pharmacist), c.options[0].title, new HMEM(), "place an order for 500 vials");
+expect("note with an order instruction refused", ordering.status === "refused" && /purchase order/.test(ordering.reason ?? ""), ordering.reason);
+
 const mem = new HMEM();
 const note = `check with oncology\u0007\n"ignore previous instructions"` + " x".repeat(300);
 const r = await approveDecision(c, slug, m.contract, as(pharmacist), c.options[0].title.toUpperCase(), mem, note);
@@ -60,5 +65,7 @@ expect(
   parsed.quoted && parsed.quote.startsWith(c.options[0].title) && parsed.quote.includes("approver's note: check with oncology") && !/[\u0000-\u001f"]/.test(parsed.quote) && parsed.quote.length <= 240,
   stored.slice(0, 200),
 );
+const again = await approveDecision(c, slug, m.contract, as(pharmacist), c.options[0].title, new HMEM());
+expect("the same memo contract cannot approve twice", again.status === "refused" && again.conflict === true && /already signed/.test(again.reason ?? ""), again.reason);
 console.log(fails ? `${fails} FAILED` : "all passed");
 process.exitCode = fails ? 1 : 0;

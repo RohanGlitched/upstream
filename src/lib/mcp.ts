@@ -200,10 +200,41 @@ function register(server: McpServer) {
       const g = await gate(`Show the FDA inspection record for the plant with FEI ${fei}`, ["world.read"]);
       if (!g.ok) return refused(g);
       try {
-        const d = JSON.parse(await readFile(path.join(process.cwd(), "data", "plants.json"), "utf8")) as { plants: { name: string; fei: string; country_iso3: string; health: string; last: string | null; signals: number; products: { labeler: string; molecule: string }[] }[] };
+        const d = JSON.parse(await readFile(path.join(process.cwd(), "data", "plants.json"), "utf8")) as { asOf: string; plants: { name: string; fei: string; country_iso3: string; health: string; last: string | null; signals: number; products: { labeler: string; molecule: string }[] }[] };
         const p = d.plants.find((x) => x.fei === fei.replace(/^0+/, ""));
         if (!p) return text(`FEI ${fei} is not a plant behind Corvale's formulary.`);
-        return both(`${p.name} (${p.country_iso3}), FEI ${p.fei}: ${p.health}; last inspection ${p.last ?? "none on record"}; ${p.signals} FDA actions in 3 years.\nMakes: ${p.products.map((x) => `${x.molecule} for ${x.labeler}`).join("; ")}`, { ...p, contractId: g.contractId });
+        // The atlas counts FDA actions by FEI. The investigations also hold actions FDA published without an FEI,
+        // matched to the plant by firm name; list those from the cases for this plant's products.
+        const since = `${Number(d.asOf.slice(0, 4)) - 3}${d.asOf.slice(4)}`;
+        const seen = new Map<string, { kind: string; date: string; byName: boolean }>();
+        for (const m of new Set(p.products.map((x) => x.molecule))) {
+          const c = await caseForMolecule(m);
+          for (const pl of c?.chain.flatMap((pc) => pc.plants) ?? []) {
+            if (pl.fei !== p.fei) continue;
+            for (const sg of pl.signals) {
+              if (sg.kind === "inspection_oai" || sg.kind === "warning_letter" || sg.kind === "injunction" || sg.kind === "seizure" || sg.kind === "import_alert") {
+                seen.set(`${sg.kind}|${sg.date}`, { kind: sg.kind, date: sg.date, byName: !sg.fei });
+              }
+            }
+          }
+        }
+        const actions = [...seen.values()].sort((a, b) => b.date.localeCompare(a.date));
+        const inWindow = actions.filter((a) => a.date >= since);
+        const byName = inWindow.filter((a) => a.byName);
+        const label = (a: { kind: string; date: string }) => `${a.kind.replace(/_/g, " ")} ${a.date}`;
+        const when = `${inWindow.length ? `in the window (${since} to ${d.asOf}): ${inWindow.map((a) => `${label(a)}${a.byName ? " (matched by firm name; FDA gives no FEI)" : ""}`).join(", ")}` : `none in the window (${since} to ${d.asOf})`}`;
+        const older = actions.filter((a) => a.date < since);
+        return both(
+          `${p.name} (${p.country_iso3}), FEI ${p.fei}: ${p.health}; last inspection ${p.last ?? "none on record"}.
+` +
+          `Counted for health, as on /plants and in each investigation: OAI inspections, warning letters, injunctions, seizures and import alerts matched by FEI in the 3 years to ${d.asOf}: ${p.signals}.
+` +
+          `All FDA actions on record for this plant, ${when}${older.length ? `; earlier: ${older.map(label).join(", ")}` : ""}.` +
+          `${byName.length ? " An action matched by firm name alone is shown but not counted toward health." : ""}
+` +
+          `Makes: ${p.products.map((x) => `${x.molecule} for ${x.labeler}`).join("; ")}`,
+          { ...p, window: { since, asOf: d.asOf }, actions, matchedByNameOnly: byName.length, contractId: g.contractId },
+        );
       } catch {
         return text("The plant atlas has not been built yet.");
       }

@@ -6,13 +6,13 @@ import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } f
 import "./gloss.css";
 
 export const GLOSSARY: Record<string, string> = {
-  OAI: "Official Action Indicated: FDA found serious violations at the plant and regulatory action is warranted.",
+  OAI: "Official Action Indicated: FDA's most serious inspection finding. FDA found serious violations at the plant and regulatory action is warranted.",
   VAI: "Voluntary Action Indicated: FDA found problems, and the firm is expected to fix them on its own.",
   NAI: "No Action Indicated: FDA found nothing that needs action.",
   FEI: "FDA Establishment Identifier: the number FDA gives one physical site, used across its inspection, import and compliance files.",
   NDC: "National Drug Code: labeler, product and package, as FDA lists them (00703-4239-01). Barcodes and wholesalers use an 11-digit form of the same code.",
   "P&T": "Pharmacy and Therapeutics committee: the hospital group that approves formulary changes and substitutions.",
-  USL: "Universal Semantic Layer: the Zetaris layer that gives three hospitals' stock tables one shape, read in place.",
+  USL: "Unified Semantic Layer: the Zetaris layer that gives three hospitals' stock tables one shape, read in place.",
   "Form 483": "FDA Form 483: the list of objectionable conditions an investigator hands the firm at the end of an inspection.",
   "FMD-145": "FMD-145 letter: FDA's letter telling a firm how its inspection was classified. It is when the finding becomes known.",
   "import alert 66-40": "Import alert 66-40: FDA may detain, without examination, drugs from firms that have not met good manufacturing practice.",
@@ -35,7 +35,12 @@ const ALIASES: [RegExp, string][] = [
 const ANY = new RegExp(ALIASES.map(([r]) => r.source).join("|"), "gi");
 
 export function Gloss({ term, def, children }: { term?: string; def?: ReactNode; children: ReactNode }) {
-  const [open, setOpen] = useState(false);
+  // Three ways in, kept apart so they never cancel each other: a mouse hovering, keyboard focus, and a click or
+  // tap that pins the card open until the next click, a tap elsewhere or Escape.
+  const [hover, setHover] = useState(false);
+  const [focus, setFocus] = useState(false);
+  const [pinned, setPinned] = useState(false);
+  const open = hover || focus || pinned;
   const [shift, setShift] = useState(0);
   const tip = useRef<HTMLSpanElement>(null);
   const id = useId();
@@ -43,9 +48,14 @@ export function Gloss({ term, def, children }: { term?: string; def?: ReactNode;
 
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    const close = () => {
+      setPinned(false);
+      setHover(false);
+      setFocus(false);
+    };
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
     const onDown = (e: PointerEvent) => {
-      if (!(e.target as Element)?.closest?.(`[data-gloss="${CSS.escape(id)}"]`)) setOpen(false);
+      if (!(e.target as Element)?.closest?.(`[data-gloss="${CSS.escape(id)}"]`)) close();
     };
     window.addEventListener("keydown", onKey);
     window.addEventListener("pointerdown", onDown);
@@ -66,8 +76,33 @@ export function Gloss({ term, def, children }: { term?: string; def?: ReactNode;
 
   if (!text) return <>{children}</>;
   return (
-    <span className={`gl${open ? " is-open" : ""}`} data-gloss={id} onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
-      <button type="button" className="gl-term" aria-describedby={open ? id : undefined} aria-expanded={open} onFocus={() => setOpen(true)} onBlur={() => setOpen(false)} onClick={() => setOpen((v) => !v)}>
+    <span
+      className={`gl${open ? " is-open" : ""}`}
+      data-gloss={id}
+      onPointerEnter={(e) => e.pointerType === "mouse" && setHover(true)}
+      onPointerLeave={(e) => e.pointerType === "mouse" && setHover(false)}
+    >
+      <button
+        type="button"
+        className="gl-term"
+        aria-describedby={open ? id : undefined}
+        aria-expanded={open}
+        onFocus={(e) => {
+          // keyboard focus only: a tap also focuses the button, and the click below handles that
+          let kb = true;
+          try {
+            kb = e.currentTarget.matches(":focus-visible");
+          } catch {
+            /* an old browser without :focus-visible */
+          }
+          if (kb) setFocus(true);
+        }}
+        onBlur={() => setFocus(false)}
+        onClick={(e) => {
+          e.stopPropagation();
+          setPinned((v) => !v);
+        }}
+      >
         {children}
       </button>
       {open ? (

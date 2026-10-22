@@ -99,7 +99,7 @@ export default async function CaseIndex() {
       <section className="ci-body" aria-label="The cabinet">
         <div className="cp-in">
           {rows.length ? (
-            <Cabinet rows={rows} />
+            <Cabinet rows={rows} quietWatch={watch?.quiet} />
           ) : (
             <div className="notice">
               <span className="notice__mark" aria-hidden="true">i</span>

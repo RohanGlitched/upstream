@@ -13,6 +13,15 @@ const carbo = load("carboplatin");
 const ev = (pred: (text: string) => boolean) => Object.values(carbo.evidence).find((e) => pred(`${e.label} ${JSON.stringify(e.fields)}`))?.id ?? "E0";
 const oaiInspection = ev((l) => /^FDA inspection 1191818/.test(l));
 const lakesideStock = ev((l) => /^Corvale Lakeside holds/.test(l));
+const lakeside60 = ev((l) => /^Corvale Lakeside holds .*60 mL/.test(l));
+const east60 = ev((l) => /^Corvale East holds .*60 mL/.test(l));
+const importGap = ev((l) => /^Import alert 66-40 listing published 2023-06-01/.test(l));
+const warningGap = ev((l) => /^Warning Letter issued/.test(l));
+const monthsLine = ev((l) => /has been on FDA's list for/.test(l));
+const option1 = ev((l) => /^Option ranked 1 by rule: Transfer/.test(l));
+const teyroLabel = ev((l) => /names Teyro Labs/.test(l));
+const teyroInspection = ev((l) => /^FDA inspection 1291008/.test(l));
+const sponsorLabel = ev((l) => /names PHARMACHEMIE/.test(l));
 const letterGap = ev((l) => /OAI classification letter/.test(l));
 const importAlert = ev((l) => /^Import alert 66-40, 2023-06-01/.test(l));
 const warning = ev((l) => /warning letter/i.test(l));
@@ -31,10 +40,33 @@ const lies: [string, string, string[]][] = [
   ["unknown citation", "The plant was inspected in 2022.", ["E999"]],
   ["no citation", "The plant was classified OAI.", []],
   ["wrong number", "The OAI letter came 32 days before FDA posted the shortage.", [letterGap]],
+  // Round 2: a judge's cleverer sentences, each of which got past the earlier verifier.
+  ["small number in words", "Three plants on our labels were classified OAI.", [oaiInspection]],
+  ["hyphenated count", "Corvale Lakeside holds a 9-day supply of the 60 mL vial.", [lakeside60]],
+  ["negated denial of a cause", "FDA did not deny the OAI finding caused the shortage.", [oaiInspection]],
+  ["unlisted causal verb", "The carboplatin shortage stems from the Intas OAI inspection 1191818.", [oaiInspection]],
+  ["false negation cover", "Teyro Labs, without a doubt, was classified OAI.", [teyroLabel]],
+  ["swapped stock fields", "Corvale East holds 3.6 vials of the 60 mL vial and uses 54 a day.", [east60]],
+  ["inverted subject", "FDA posted the shortage 23 days before the OAI classification letter to Intas.", [letterGap]],
+  ["abbreviated month", "FDA inspection 1191818 at Intas ended Dec 3, 2022 and was classified OAI.", [oaiInspection]],
+  ["firm outside the case", "Hikma's plant also received an OAI classification.", [oaiInspection]],
+  ["gap from another event", "The warning letter was issued 34 days after FDA posted the shortage.", [importGap, warningGap]],
+  ["class from another line", "Teyro Labs was classified OAI on 2022-12-02.", [teyroLabel, oaiInspection]],
+  ["invented status", "FDA lists this shortage as resolved.", [monthsLine]],
+  ["invented confirmation", "FDA has confirmed Intas will resume supply within 42 months.", [monthsLine]],
+  ["number word under ten", "Corvale Lakeside has nine days of stock.", [lakeside60]],
+  ["wrong after-transfer figure", "After the transfer Corvale East would keep 16 days of stock.", [option1]],
+  ["false absence", "No FDA action at Intas preceded the shortage posting.", [oaiInspection]],
+  ["false only", "Teyro Labs has only NAI inspections.", [teyroLabel, teyroInspection]],
+  ["sponsor as manufacturer", "Teva's carboplatin is manufactured by PHARMACHEMIE BV.", [sponsorLabel]],
 ];
 const truths: [string, string, string[]][] = [
   ["inspection", "FDA inspection 1191818 at Intas ended 2022-12-02 and was classified OAI.", [oaiInspection]],
   ["gap", "The OAI letter came 23 days before FDA posted the shortage.", [letterGap]],
+  ["stock on hand", "Corvale Lakeside holds 2 vials of the 60 mL vial, 1.5 days on hand.", [lakeside60]],
+  ["true absence", "No OAI classification appears for Teyro Labs Private Limited.", [teyroLabel, teyroInspection]],
+  ["gap for the right event", "FDA published the import alert listing 34 days after FDA posted the shortage.", [importGap]],
+  ["after-transfer figure", "Transferring 3 vials would bring Lakeside to 4 days of stock.", [option1]],
 ];
 
 let caught = 0;

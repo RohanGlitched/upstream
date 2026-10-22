@@ -237,6 +237,8 @@ export function Memo({ slug, molecule, asOf, staff, decisions }: { slug: string;
 
   const signed = result?.status === "approved";
   const expired = result?.status === "refused" && /expired/i.test(result.reason ?? "");
+  // A memo signed once cannot be signed again (409): the way on is a fresh memo.
+  const spent = !!approveError && /already signed/i.test(approveError);
   // The name on the line: the signed-in person's (from the server), or the one picked, as a ghost.
   const lineName = session?.name ?? picked?.name ?? "";
 
@@ -446,7 +448,16 @@ export function Memo({ slug, molecule, asOf, staff, decisions }: { slug: string;
                   </span>
                 </div>
               ) : null}
-              {approveError ? <p className="memo-err">{approveError}</p> : null}
+              {approveError ? (
+                <p className="memo-err">
+                  {approveError}{" "}
+                  {spent ? (
+                    <button type="button" className="btn btn--quiet btn--small" onClick={draft}>
+                      Type the memo again
+                    </button>
+                  ) : null}
+                </p>
+              ) : null}
               {result?.status === "refused" ? (
                 <p className="memo-err">
                   Refused: {result.reason}{" "}

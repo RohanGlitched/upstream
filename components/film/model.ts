@@ -234,9 +234,13 @@ export function buildFilm(c: Case, plantsFile: PlantsFile | null, ev: EvalFile |
       : /Transfer\s+([\d.]+)\s+from\s+(Corvale \w+)\s+to\s+(Corvale \w+)/i.exec(opt.title);
     if (m) {
       const n = +m[1];
+      // The option's own before and after days are the one source; the film only computes them for older recordings.
+      const st = opt.transfer;
       const rows = [...hosps].sort((a, b) => a.days - b.days).map((h) => {
-        const b = h.key === m[2] ? (h.onHand - n) / h.use : h.key === m[3] ? (h.onHand + n) / h.use : h.days;
-        return { key: h.key, src: h.key === "Corvale Lakeside" ? "CSV cabinet exports" : "Postgres", a: h.days, b, low: h.days < 7 };
+        const isFrom = h.key === m[2], isTo = h.key === m[3];
+        const a = st && isFrom ? st.fromDays : st && isTo ? st.toDays : h.days;
+        const b = st && isFrom ? st.fromAfter : st && isTo ? st.toAfter : isFrom ? (h.onHand - n) / h.use : isTo ? (h.onHand + n) / h.use : h.days;
+        return { key: h.key, src: h.key === "Corvale Lakeside" ? "CSV cabinet exports" : "Postgres", a, b, low: a < 7 };
       });
       const to = rows.find((r) => r.key === m[3])!, from = rows.find((r) => r.key === m[2])!;
       answer = {

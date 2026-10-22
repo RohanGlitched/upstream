@@ -289,7 +289,7 @@ export function BatchRecord({ c }: { c: Case }) {
           id="market"
           n="E"
           title="Who else makes it"
-          desc={`Every labeler of ${tallMan(c.molecule.toLowerCase())} in the same form, the plants its label names, and whether FDA lists it short.`}
+          desc={`Every labeler of ${tallMan(c.molecule.toLowerCase())} in the same form, the plants named on its label or FDA's application file, and whether FDA lists it short.`}
         >
           {shownMarket.length ? (
             <table className="br-mk">

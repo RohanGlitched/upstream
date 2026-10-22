@@ -9,7 +9,7 @@ import { createUpstreamScout } from "../engines/scout/upstream.ts";
 import { UpstreamWorld, src } from "../engines/world-model.ts";
 import { openMemory, type HMEM } from "../engines/hmem.ts";
 import * as Q from "./sql";
-import { baseMolecule, daysBetween, firmKey, formTerm, moleculeTerm, num, round, str, tallMan } from "./util";
+import { baseMolecule, daysBetween, firmKey, moleculeRegex, formTerm, moleculeTerm, num, round, str, tallMan } from "./util";
 import { explain } from "./explain";
 import type {
   Case, DataQualityNote, Evidence, GateEntry, Health, Hospital, MarketLine, MemoryLine, OptionLine, Plant,
@@ -97,7 +97,20 @@ function ndc11Of(pkg: string): string {
 }
 
 // Relabelers and repackagers: buying from one is not a new source of supply.
-const REPACKAGER = /repack|prepack|medication solutions|proficient rx|nucare|direct[_ -]?rx|quality care|preferred pharmaceuticals|bryant ranch|rebel distributors|aphena|pd-rx|lake erie medical|unit dose services|american health packaging|medvantx|asclemed|henry schein|denton pharma|northwind|safecor|cardinal health 107|golden state medical|lifestar/i;
+const REPACKAGER = /repack|prepack|medication solutions|proficient rx|nucare|direct[_ -]?rx|quality care|preferred pharmaceuticals|bryant ranch|rebel distributors|aphena|pd-rx|lake erie medical|unit dose services|american health packaging|medvantx|asclemed|henry schein|denton pharma|northwind|safecor|cardinal health|golden state medical|lifestar|pharmacy|distribution|distributors?\b|purchasing|sportpharm|healthfirst|health first|advanced rx|dental|benco|darby|patterson|safco|medline|mckesson|amerisource|morris & dickson|general injectables|med-pro|enovachem|hf acquisition|rx pak|stat rx|aidarex|blenheim|keltman|physicians total care|dispensing solutions|readymeds|altura|medsource|clint pharmaceuticals|coupler|h\.j\. harkins|st\. mary|remedyrepack|a-s medication/i;
+
+/** The route a product or FDA listing is for, from its name or form. */
+function routeClass(text: string): string | null {
+  const t = text.toLowerCase();
+  // Multi-ingredient solutions (cardioplegia, irrigation, Ringer's) are their own products, not this drug's form.
+  if (/cardiopleg|irrigation|dialysis|ringer/.test(t)) return "mixture";
+  if (/ophthalmic|\beye\b|otic/.test(t)) return "eye";
+  if (/inhal|nebuli|aerosol|respiratory/.test(t)) return "lung";
+  if (/topical|cream|ointment|\bgel\b|lotion|transdermal|patch/.test(t)) return "skin";
+  if (/inject|infusion|intravenous|\biv\b|vial|syringe|premix|parenteral|intramuscular|subcutaneous/.test(t)) return "injection";
+  if (/tablet|capsule|oral|chewable|lozenge|extended-release|delayed-release|suspension|syrup|elixir/.test(t)) return "oral";
+  return null;
+}
 
 // DEA schedules for the molecules a hospital formulary is likely to hold (21 CFR 1308.12 to 1308.15).
 const SCHEDULE_II = /^(fentanyl|morphine|hydromorphone|oxycodone|oxymorphone|methadone|meperidine|remifentanil|sufentanil|alfentanil|hydrocodone|tapentadol|levorphanol|codeine sulfate|cocaine|methylphenidate|amphetamine|dextroamphetamine|lisdexamfetamine|pentobarbital)\b/;
@@ -387,20 +400,29 @@ export async function investigate(opts: InvestigateOptions): Promise<Case> {
   }
 
   // ---- Shortage status ------------------------------------------------------------------------------------
-  const curRows = curR?.rows ?? [];
+  // FDA lists shortages by product name and form ("Potassium Chloride Extended-Release Tablets"): only rows in a form
+  // we stock (by route: injection, oral, eye, skin, lung) belong to this case.
+  const ourRoutes = new Set([...ourProducts.values()].map((r) => routeClass(`${str(r.dosage_form)} ${str(r.route)}`)).filter(Boolean));
+  const sameRoute = (name: string) => {
+    const k = routeClass(name);
+    return !k || !ourRoutes.size || ourRoutes.has(k);
+  };
+  const curRows = (curR?.rows ?? []).filter((r) => sameRoute(str(r.generic_name)));
+  const histRows = (histR?.rows ?? []).filter((r) => sameRoute(str(r.generic)));
   const ourPkgs = new Set([...ourProducts.values()].map((r) => str(r.package_ndc)));
   const currentRows = curRows.filter((r) => str(r.status) === "Current");
   const firstPosting = currentRows.map((r) => str(r.initial_posting_date)).filter(Boolean).sort()[0]
-    ?? (histR?.rows ?? []).map((r) => str(r.first_posting)).filter(Boolean).sort()[0] ?? null;
+    ?? histRows.map((r) => str(r.first_posting)).filter(Boolean).sort()[0] ?? null;
   const companies = new Map<string, ShortageStatus["companies"][number]>();
-  curRows.forEach((r, i) => {
+  (curR?.rows ?? []).forEach((r, i) => {
+    if (!sameRoute(str(r.generic_name))) return;
     const k = str(r.company_name);
     const prev = companies.get(k);
     if (!prev || str(r.update_date) > prev.updated) {
       companies.set(k, { company: k, status: str(r.status), updated: str(r.update_date), info: str(r.related_info), evidence: ledger.cite(curR, i, `FDA shortage list: ${k}, ${r.status}`) });
     }
   });
-  const reasons = [...new Set((histR?.rows ?? []).flatMap((r) => str(r.reasons).split("|")).map((s) => s.trim()).filter(Boolean))];
+  const reasons = [...new Set(histRows.flatMap((r) => str(r.reasons).split("|")).map((s) => s.trim()).filter(Boolean))];
   const shortage: ShortageStatus = {
     listed: currentRows.length > 0, status: currentRows.length ? "Current" : curRows[0] ? str(curRows[0].status) : null,
     firstPosting, companies: [...companies.values()].sort((a, b) => a.company.localeCompare(b.company)), reasons,
@@ -542,13 +564,14 @@ export async function investigate(opts: InvestigateOptions): Promise<Case> {
       rule = from === to ? "same product, alternate manufacturer" : "same molecule, alternate concentration or vial size";
     }
     const listedAlt = activeByNdc.get(str(r.alt_ndc11));
+    if (!new RegExp(moleculeRegex(term), "i").test(str(r.alternative))) rule = "protocol change to a different drug";
     options.push({
       kind: rule.startsWith("same product") ? "alternate_manufacturer" : rule.startsWith("IV-to-PO") ? "iv_to_po" : rule.startsWith("protocol") ? "interchange" : "alternate_concentration",
       rank: (rule.startsWith("same product") ? 2 : rule.startsWith("same molecule") ? 3 : 4) + (listedAlt ? 2 : 0),
       title: `${rule.charAt(0).toUpperCase()}${rule.slice(1)}: ${tallMan(str(r.alternative))} ${str(r.alt_strength)}${r.alt_labeler ? ` from ${str(r.alt_labeler)}` : ""}`,
       detail: `${str(r.notes)} Approved by ${str(r.approved_by)} on ${str(r.approved_on)}.${listedAlt ? ` FDA lists this product ${str(listedAlt.status)} (posted ${str(listedAlt.initial_posting_date)}).` : ""}`,
-      why: rule.startsWith("protocol") ? "A different drug; only per the treating oncologist." : "Already approved by the P&T committee.",
-      needs: rule.startsWith("protocol") ? "treating oncologist" : "pharmacist", evidence: [ledger.cite(ixR, i, `P&T interchange: ${str(r.rule)}`)],
+      why: rule.startsWith("protocol") ? "A different drug; only per the treating prescriber." : "Already approved by the P&T committee.",
+      needs: rule.startsWith("protocol") ? "treating prescriber" : "pharmacist", evidence: [ledger.cite(ixR, i, `P&T interchange: ${str(r.rule)}`)],
     });
   });
   options.sort((a, b) => a.rank - b.rank);

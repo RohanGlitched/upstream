@@ -193,7 +193,7 @@ export function Film({ film, caseData, plants = null, evalData = null, offsetTop
 
         <div className="fm-intro" data-f="intro">
           <h2 className="fm-h1">Follow one vial upstream to the plant that made it short.</h2>
-          <p className="fm-lede">Upstream reads stock where each hospital keeps it, follows the label to the plant FDA registered, and reads that plant&rsquo;s inspection file. Scroll to make the trip with one {D.drug} vial.</p>
+          <p className="fm-lede">From each hospital&rsquo;s stock, along the label to the plant FDA registered, and into its inspection file. Scroll to make the trip.</p>
           <p className="fm-cue"><i />Scroll to zoom in</p>
         </div>
         <div className="fm-callout" data-f="callout" aria-hidden="true"><b>{D.callout.big}</b><span>{D.callout.small}</span></div>

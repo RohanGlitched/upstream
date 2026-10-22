@@ -6,6 +6,7 @@
 // own stated reason (the shortage list's reasons, a recall's reason). Sentences that fail are dropped and returned
 // with the reason; section headers and list numbers stay.
 import type { Case, Evidence } from "./types";
+import { caseClaimProblem } from "./verify";
 
 const MONTHS = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
 const MON = "jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?";
@@ -143,7 +144,7 @@ const ITEM = /^(\d+[.)]|[-*•])\s+/;
 const REMOVED = "[Removed by the verifier; see the dropped sentences below.]";
 
 /** Check a memo-shaped text line by line: headers and list markers stay, failing sentences are dropped. */
-export function groundText(text: string, h: Haystack): { text: string } & Grounding {
+export function groundText(text: string, h: Haystack, extra?: (sentence: string) => string | null): { text: string } & Grounding {
   const g: Grounding = { checked: 0, tokens: 0, dropped: [] };
   const out: string[] = [];
   for (const rawLine of text.replace(/\r/g, "").split("\n")) {
@@ -172,6 +173,7 @@ export function groundText(text: string, h: Haystack): { text: string } & Ground
     for (const s of sentences(body)) {
       g.checked++;
       const r = checkSentence(s, h);
+      if (!r.reason && extra) r.reason = extra(s);
       g.tokens += r.tokens;
       if (r.reason) g.dropped.push({ text: s, reason: r.reason });
       else kept.push(s);
@@ -212,7 +214,8 @@ export function caseHaystack(c: Case): Haystack {
 }
 
 export function groundMemo(draft: string, c: Case): { text: string } & Grounding {
-  return groundText(draft, caseHaystack(c));
+  // Names, classifications, sponsors, absences and status words are checked as the case's own sentences are.
+  return groundText(draft, caseHaystack(c), (s) => caseClaimProblem(s, c));
 }
 
 // ------------------------------------------------------------------ the morning brief's sources

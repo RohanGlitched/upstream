@@ -114,6 +114,40 @@ function Balloon({ n }: { n: number }) {
   );
 }
 
+// FDA's files as registered with Zetaris, each with its public source: moved here from the footer, with row counts.
+const FDA_FILES: { key: string; name: string; href: string }[] = [
+  { key: "ndc_packages", name: "NDC directory", href: "https://open.fda.gov/apis/drug/ndc/" },
+  { key: "spl_establishments", name: "Label establishments", href: "https://dailymed.nlm.nih.gov/dailymed/" },
+  { key: "registrations", name: "Establishment registrations", href: "https://www.fda.gov/drugs/drug-approvals-and-databases/drug-establishments-current-registration-site" },
+  { key: "inspections", name: "Inspection classifications", href: "https://datadashboard.fda.gov/ora/cd/inspections.htm" },
+  { key: "citations", name: "Form 483 citations", href: "https://datadashboard.fda.gov/ora/cd/inspectioncitations.htm" },
+  { key: "compliance_actions", name: "Warning letters and actions", href: "https://datadashboard.fda.gov/ora/cd/complianceactions.htm" },
+  { key: "import_alerts", name: "Import alerts", href: "https://www.accessdata.fda.gov/cms_ia/ialist.html" },
+  { key: "recalls", name: "Recalls", href: "https://open.fda.gov/apis/drug/enforcement/" },
+  { key: "shortage_current", name: "Drug shortages", href: "https://www.accessdata.fda.gov/scripts/drugshortages/" },
+  { key: "shortage_episodes", name: "Shortage history", href: "https://www.accessdata.fda.gov/scripts/drugshortages/" },
+  { key: "shortage_presentations", name: "Shortage presentations", href: "https://www.accessdata.fda.gov/scripts/drugshortages/" },
+  { key: "dmf_api", name: "Drug master files", href: "https://www.fda.gov/drugs/drug-master-files-dmfs/list-drug-master-files-dmfs" },
+];
+
+// The two Cursor sessions, as docs/cursor/README.md records them.
+const CURSOR_SESSIONS: { n: string; title: string; id: string; prompt: string; made: string }[] = [
+  {
+    n: "1",
+    title: "Build the hospital generator",
+    id: "9c40599f-bff6-4e05-a69d-d67beea8e07b",
+    prompt: "Implement `data/hospital/SPEC.md` completely, run the generator against the real FDA inputs, run the tests and fix anything that fails. Do not change the spec; do not commit.",
+    made: "11.5 minutes, 14 file edits and 24 shell runs: `generate.py`, `common_generics.txt`, `scenarios.example.json` and `test_generate.py`.",
+  },
+  {
+    n: "2",
+    title: "Apply the pharmacist's fixes",
+    id: "329b3dc5-3c5e-476e-9963-3035a4d4d499",
+    prompt: "Apply every fix in `data/hospital/FIXES-1.md` (a pharmacist's review of session 1's output), write `scenarios.json`, re-run until the tests pass.",
+    made: "8 edits to `generate.py` and 5 shell runs, then Cursor's free plan hit its usage limit; the rest of FIXES-1 was finished by hand and `audit.py` checks it.",
+  },
+];
+
 export default async function How() {
   const [readme, conf, scout, notes, manifest, rawE, dq, plans] = await Promise.all([
     engineReadme(),
@@ -142,7 +176,7 @@ export default async function How() {
         [
           "Corvale's three hospitals: the generated stock, usage and formulary data",
           "Cursor",
-          "Cursor's agent wrote the Corvale hospital data generator (`data/hospital/generate.py`) and applied a pharmacist's fixes (session logs: `docs/cursor`)",
+          "Cursor's agent wrote the Corvale hospital data generator (`data/hospital/generate.py`) and applied a pharmacist's fixes (session summary: `docs/cursor`)",
           "Build tool, not a runtime engine",
         ],
       ]
@@ -328,6 +362,27 @@ export default async function How() {
         </ol>
       </Sheet>
 
+      <section id="sources" className="hw-srcs" aria-labelledby="sources-h">
+        <div className="hw-srcs__in">
+          <h2 id="sources-h">Sources, with dates</h2>
+          <p className="hw-note">
+            Corvale General and Corvale East are Postgres servers read in place; Corvale Lakeside is nightly CSV cabinet exports. All three are
+            fictional. FDA&apos;s files are real and public, {manifest ? `cleaned into CSVs on ${fmtDate(manifest.built)}` : "cleaned once into CSVs"} and read
+            by Zetaris as file tables.
+          </p>
+          <ul className="hw-srcs__list">
+            {FDA_FILES.map((f) => (
+              <li key={f.key}>
+                <a href={f.href} rel="noopener noreferrer">
+                  {f.name}
+                </a>
+                <span className="hw-type">{n(f.key) ?? ""}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
       <Sheet
         id="usl"
         n="A-2"
@@ -380,6 +435,33 @@ export default async function How() {
         ) : (
           <p className="hw-empty">The engine README is not on this copy.</p>
         )}
+        <section className="hw-cursor" aria-labelledby="cursor-h">
+          <h3 id="cursor-h">What Cursor built: two headless sessions</h3>
+          <ol>
+            {CURSOR_SESSIONS.map((x) => (
+              <li key={x.id}>
+                <p className="hw-cursor__t">
+                  <b>
+                    Session {x.n}: {x.title}
+                  </b>{" "}
+                  <span className="hw-type">{x.id}</span>
+                </p>
+                <p>
+                  <span className="hw-cursor__k">Prompt</span> <InlineMd text={x.prompt} />
+                </p>
+                <p>
+                  <span className="hw-cursor__k">Produced</span> <InlineMd text={x.made} />
+                </p>
+              </li>
+            ))}
+          </ol>
+          <p className="hw-note">
+            The agent, the Zetaris setup, the Meterless engines and this site were written outside Cursor.{" "}
+            <a href="https://github.com/RohanGlitched/upstream/tree/main/docs/cursor" rel="noopener noreferrer">
+              The session summary in docs/cursor
+            </a>
+          </p>
+        </section>
       </Sheet>
 
       <Sheet

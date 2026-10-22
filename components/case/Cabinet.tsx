@@ -31,13 +31,14 @@ const STATE = {
 
 const DRAWERS: { k: Exclude<Drawer, "all">; label: string; note: string }[] = [
   { k: "act", label: "Act today", note: "short on a shelf and on FDA's record" },
-  { k: "watch", label: "On watch", note: "something on FDA's record to keep an eye on" },
+  { k: "watch", label: "On watch", note: "something on FDA's record, or a shelf under 3 days, to keep an eye on" },
   { k: "quiet", label: "Quiet", note: "stocked, and nothing on FDA's record" },
 ];
 
 const days = (d: number | null) => (d === null ? "n/a" : d < 10 ? d.toFixed(1) : String(Math.round(d)));
 
-export function Cabinet({ rows }: { rows: CabinetRow[] }) {
+/** quietWatch: the overnight watch's own quiet count (data/watch/latest.json), which also counts drugs with no recording. */
+export function Cabinet({ rows, quietWatch }: { rows: CabinetRow[]; quietWatch?: number }) {
   const [q, setQ] = useState("");
   const [sort, setSort] = useState<Sort>("days");
   const [drawer, setDrawer] = useState<Drawer>("all");
@@ -78,7 +79,11 @@ export function Cabinet({ rows }: { rows: CabinetRow[] }) {
             <span className="cab-holder">
               <span className="cab-card">
                 <b>{d.label}</b>
-                <span>{d.note}</span>
+                <span>
+                  {d.k === "quiet" && quietWatch !== undefined && quietWatch !== counts.quiet
+                    ? `${d.note}; the watch counted ${quietWatch}, ${quietWatch - counts.quiet} with no recording`
+                    : d.note}
+                </span>
               </span>
             </span>
             <span className="cab-count">{counts[d.k]}</span>

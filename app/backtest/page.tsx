@@ -8,9 +8,9 @@ import { fmtDate } from "@/components/lib/format";
 import "./backtest-page.css";
 
 export const metadata: Metadata = {
-  title: "Back-test",
+  title: "Accuracy",
   description:
-    "The trace run over FDA's shortage history and over products that never went short: what it explains, what it doesn't predict, and Nemotron alone against Upstream.",
+    "NVIDIA Nemotron alone against Upstream, the verifier against planted errors, then the back-test over FDA's shortage history: it explains, it does not forecast.",
 };
 
 // Local copies: the components are client modules, so their helpers can't be called from this server page.
@@ -28,6 +28,10 @@ function isEval(x: unknown): x is EvalTrace {
   const o = x as EvalTrace;
   return Boolean(o && o.summary && o.summary.upstream && Array.isArray(o.rows));
 }
+const frac = (x: string | undefined) => {
+  const m = /(\d+)\/(\d+)/.exec(x ?? "");
+  return m ? `${m[1]} of ${m[2]}` : null;
+};
 function windowText(w: BacktestSummary["window"]): string {
   if (!w) return "FDA's shortage history";
   if (typeof w === "string") return w.replace(/;.*$/, "");
@@ -46,13 +50,73 @@ export default async function BacktestPage() {
 
   return (
     <div className="btp">
-      <section className="btp-hero" aria-labelledby="bt-title">
+      <section className="btp-hero" aria-labelledby="acc-title">
         <div className="wrap btp-hero__grid">
           <div className="btp-hero__text">
-            <h1 id="bt-title">Does the public record explain past shortages?</h1>
+            <h1 id="acc-title">The model alone against Upstream</h1>
             <p>
-              The same trace Upstream runs for a buyer, run over FDA&apos;s shortage history and over products that never went
-              short. It tests whether the trail is there, not whether a shortage could have been called in advance.
+              The same NVIDIA Nemotron model, asked from memory which plant makes each product and what FDA last found there, and then
+              given FDA&apos;s files through Upstream. Both are marked against answers computed separately from FDA&apos;s raw files.
+            </p>
+          </div>
+          {ev ? (
+            <aside className="btp-card" aria-label="The result">
+              <div className="btp-card__row">
+                <span>Result</span>
+                <span className="btp-type">{ev.summary.truthRows} marked rows</span>
+              </div>
+              <dl>
+                <div>
+                  <dt>Model alone</dt>
+                  <dd>
+                    {frac(ev.summary.baseline?.dateCorrect) ?? "none"} inspection dates right
+                    {ev.summary.baseline?.inventedDates ? `, ${ev.summary.baseline.inventedDates} invented` : ""}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Upstream</dt>
+                  <dd>
+                    {frac(ev.summary.upstream.plantFound)} plants found, {frac(ev.summary.upstream.lastInspectionMatch)} last inspections right
+                  </dd>
+                </div>
+                {verifier ? (
+                  <div>
+                    <dt>Verifier</dt>
+                    <dd>
+                      caught {verifier.adversarial.caught} of {verifier.adversarial.of} sentences with planted errors
+                    </dd>
+                  </div>
+                ) : null}
+              </dl>
+              <p className="btp-card__ans">
+                <span>Then the back-test.</span> Over FDA&apos;s shortage history the trail explains; it does not forecast.{" "}
+                <a href="#backtest">Read it</a>
+              </p>
+            </aside>
+          ) : null}
+        </div>
+      </section>
+
+      <section className="btp-eval" aria-labelledby="ev-title" id="proof">
+        <div className="wrap">
+          <header className="btp-eval__head">
+            <h2 id="ev-title">Nemotron alone against Upstream, pair by pair</h2>
+            <p>
+              Upstream&apos;s plant and last-inspection answers, marked against ground truth from FDA&apos;s raw files, beside the same
+              model answering from memory. Then the verifier, handed sentences with planted errors.
+            </p>
+          </header>
+          <EvalCompare full data={ev} verifier={verifier} />
+        </div>
+      </section>
+
+      <section className="btp-hero btp-hero--bt" id="backtest" aria-labelledby="bt-title">
+        <div className="wrap btp-hero__grid">
+          <div className="btp-hero__text">
+            <h2 id="bt-title">The back-test: it explains, it does not forecast</h2>
+            <p>
+              Separately, does the public record explain past shortages? The same trace, run over FDA&apos;s shortage history and
+              over products that never went short. It tests whether the trail is there, not whether a shortage could be called in advance.
             </p>
           </div>
           <aside className="btp-card" aria-label="Study record">
@@ -135,19 +199,6 @@ export default async function BacktestPage() {
       </section>
 
       <BacktestFull data={b} />
-
-      <section className="btp-eval" aria-labelledby="ev-title" id="proof">
-        <div className="wrap">
-          <header className="btp-eval__head">
-            <h2 id="ev-title">Nemotron alone against Upstream</h2>
-            <p>
-              Separately from the back-test: is the trace itself right? Upstream&apos;s plant and last-inspection answers, marked
-              pair by pair against ground truth from FDA&apos;s raw files, beside the same model answering from memory.
-            </p>
-          </header>
-          <EvalCompare full data={ev} verifier={verifier} />
-        </div>
-      </section>
 
       <section className="btp-next" aria-label="Next">
         <div className="wrap btp-next__in">

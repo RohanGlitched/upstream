@@ -6,7 +6,8 @@ import crypto from "node:crypto";
 import { RateLimiter } from "../engines/scout/guard";
 import { staffById, type StaffRole } from "../agent/staff";
 
-const SECRET = process.env.SCOUT_SIGNING_SECRET ?? "upstream-local-dev-secret";
+// Without SCOUT_SIGNING_SECRET the secret is random per process: no public fallback can mint a session.
+const SECRET = process.env.SCOUT_SIGNING_SECRET ?? crypto.randomBytes(32).toString("hex");
 const PURPOSE = "upstream.session.v1";
 export const SESSION_TTL_MS = 15 * 60 * 1000;
 

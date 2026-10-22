@@ -112,8 +112,9 @@ export function tallMan(name: string): string {
   return name.replace(/[A-Za-z]+/g, (w) => TALL_MAN[w.toLowerCase()] ?? w);
 }
 
-const SALT_FIRST = new Set(["sodium", "potassium", "calcium", "magnesium", "sterile", "ferric", "zinc"]);
-/** Base molecule: first word, or first two when the first is a salt word ("sodium bicarbonate"). */
+// Words that do not name a drug on their own: "sodium bicarbonate", "insulin glargine" are the drugs.
+const SALT_FIRST = new Set(["sodium", "potassium", "calcium", "magnesium", "sterile", "ferric", "zinc", "insulin"]);
+/** Base molecule: first word, or first two when the first is a salt word ("sodium bicarbonate", "insulin aspart"). */
 export function baseMolecule(name: string): string {
   const w = name.toLowerCase().replace(/[^a-z0-9 ]/g, " ").split(/\s+/).filter(Boolean);
   if (!w.length) return name;

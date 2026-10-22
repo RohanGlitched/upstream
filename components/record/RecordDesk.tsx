@@ -46,7 +46,7 @@ function short(name: string): string {
 // One rounding for days everywhere on the desk (shelf, slip, cards): a tenth of a day.
 const fmtDays = (d: number | null) => (d === null ? "n/a" : d.toFixed(1));
 
-const HEADLINE_OAI = "a plant FDA classified Official Action Indicated (serious violations)";
+const HEADLINE_OAI = "Official Action Indicated: FDA's most serious inspection finding. A finding, not proof of what caused the shortage.";
 
 /* ---------- the answer: the explanation's sentences with their rows ---------- */
 
@@ -86,6 +86,16 @@ function WhyLines({
             ? "Each sentence was kept only after a check found its dates, numbers and sources in the rows it cites. Open a mark to read that row."
             : "No sentence the model wrote passed the check, so none is shown. The record below still stands."}
         </p>
+        {m.why.length ? (
+          <p className="rd-whykey">
+            <span>
+              <b className="rd-cite rd-cite--key" aria-hidden="true">E</b> a row Zetaris returned
+            </span>
+            <span>
+              <b className="rd-cite rd-cite--key" aria-hidden="true">D</b> a figure derived from rows
+            </span>
+          </p>
+        ) : null}
       </div>
       {m.why.length ? (
         <ol className="rd-why">
@@ -173,10 +183,26 @@ function Headline({ text }: { text: string }) {
   return (
     <>
       {text.slice(0, at)}
-      <Gloss def={`OAI: ${HEADLINE_OAI}. A finding, not proof of what caused the shortage.`}>OAI</Gloss>
+      <Gloss def={HEADLINE_OAI}>OAI</Gloss>
       {text.slice(at + 3)}
     </>
   );
+}
+
+/** One line under the proof: the ranked first option, from the option's own structured transfer where it has one. */
+function moveLine(m: DeskModel, memo: boolean): string | null {
+  const b = m.best;
+  if (!b) return null;
+  const who = b.needs.replace(/\s*\(.*\)$/, "").split(",")[0].trim();
+  const t = b.transfer;
+  let what: string;
+  if (t) {
+    const unit = t.unit && !/^each$/i.test(t.unit) ? (t.qty === 1 ? t.unit : `${t.unit}s`) : t.qty === 1 ? "unit" : "units";
+    const at = (h: string) => h.replace(/^Corvale /, "");
+    what = `transfer ${t.qty} ${unit} ${at(t.from)} → ${at(t.to)}`;
+  } else what = b.title.replace(/^./, (c) => c.toLowerCase()).replace(/,? (Inc\.?|LLC|Corp\.?|Corporation|Limited|Ltd\.?)$/i, "");
+  const tail = who ? (memo ? `; memo ready for the ${who}` : `; the ${who} signs`) : "";
+  return `Best move: ${what}${tail}.`;
 }
 
 /* ---------- the supply: shelf label, carton, establishment block, other plants ---------- */
@@ -222,8 +248,14 @@ function ShelfLabel({ m }: { m: DeskModel }) {
                   ) : null}
                 </span>
                 <span className="rd-days__v">
-                  {fmtDays(s.days)}
-                  <span className="rd-days__u"> d</span>
+                  {s.days === null ? (
+                    <span className="rd-days__u">no use</span>
+                  ) : (
+                    <>
+                      {fmtDays(s.days)}
+                      <span className="rd-days__u"> d</span>
+                    </>
+                  )}
                 </span>
               </li>
             );
@@ -233,10 +265,10 @@ function ShelfLabel({ m }: { m: DeskModel }) {
           <span className="rd-shelf__k">
             <Gloss term="NDC">NDC</Gloss>
           </span>
-          {m.ndcs.slice(0, 4).map((n) => (
-            <span key={n} className="rd-type">{n}</span>
+          {m.ndcs.slice(0, 3).map((n) => (
+            <span key={n} className="rd-type rd-shelf__ndc">{n}</span>
           ))}
-          {m.ndcs.length > 4 ? <span className="rd-type">+{m.ndcs.length - 4}</span> : null}
+          {m.ndcs.length > 3 ? <span className="rd-shelf__more">+{m.ndcs.length - 3} more</span> : null}
         </div>
       </div>
     </article>
@@ -466,7 +498,9 @@ function HangCard({ h }: { h: Hang }) {
           ) : null}
           {oai && h.history.length > 1 ? (
             <table className="rd-hist">
-              <caption>Every inspection FDA holds for this FEI</caption>
+              <caption>
+                {h.history.length > 6 ? `The last 6 of ${h.history.length} inspections FDA classified OAI or VAI at this FEI` : "Inspections FDA classified OAI or VAI at this FEI"}
+              </caption>
               <tbody>
                 {h.history.slice(-6).map((x) => (
                   <tr key={x.date} className={x.now ? "is-now" : x.cls === "OAI" ? "is-oai" : undefined}>
@@ -777,6 +811,7 @@ export function RecordDesk({
   foot,
   whyId = "why",
   play = true,
+  others = true,
 }: {
   m: DeskModel;
   as?: "h1" | "h2";
@@ -793,6 +828,8 @@ export function RecordDesk({
   foot?: ReactNode;
   whyId?: string;
   play?: boolean;
+  /** the cards for our other labels' plants beside the establishment block; the front page leaves them to the full file */
+  others?: boolean;
 }) {
   const root = useRef<HTMLElement>(null);
   const rec = useRef<HTMLDivElement>(null);
@@ -917,6 +954,7 @@ export function RecordDesk({
     `${v.seconds} s`,
   ];
   const level = as === "h1" ? "h2" : "h3";
+  const move = moveLine(m, Boolean(signHref));
 
   return (
     <section ref={root} className={`rd${playing ? " rd--play" : ""}`} aria-labelledby={`rd-h-${m.slug}`}>
@@ -945,6 +983,7 @@ export function RecordDesk({
                 {m.state === "check" ? <span>. The link needs a pharmacist&apos;s look.</span> : null}
               </span>
             </p>
+            {move ? <p className="rd-move">{move}</p> : null}
             <div className="rd-actions">
               <a href={`#${whyId}`} className="rd-go">
                 Read why, line by line
@@ -984,7 +1023,7 @@ export function RecordDesk({
                 <Insert m={m} />
                 <span className="rd-pinref" data-pin="insert" />
               </div>
-              <OtherPlants m={m} />
+              {others ? <OtherPlants m={m} /> : null}
             </div>
           </div>
         </div>

@@ -76,10 +76,27 @@ export interface ApprovalResult {
   reason?: string;
   memoryId?: string;
   decisionContractId?: string;
+  /** The memo contract was already used for an approval: the route answers 409. */
+  conflict?: boolean;
   audit: { at: string; actor: string; action: string }[];
 }
 
 export const NOTE_MAX = 160;
+
+// Memo contracts already spent on an approval. A memo.draft contract lasts five minutes and is not single-use on its
+// own, so one signed memo could otherwise approve the same decision twice. In memory only: on the hosted demo each
+// serverless instance keeps its own set, so this holds per instance; a hospital deployment would keep it in H-MEM.
+const spentMemoContracts = new Set<string>();
+export const MEMO_SPENT = "This memo was already signed; type the memo again to record another decision.";
+
+/** Whether a note gives dosing or order instructions, by Scout's own read of it (the same classifier that refuses
+ *  them at the desk). Returns the reason to show, or null. Other flags (an odd phrase) stay quoted data. */
+async function noteInstruction(note: string, approver: Approver): Promise<string | null> {
+  if (!note) return null;
+  const d = await createUpstreamScout({ signingSecret: SECRET }).decide({ prompt: note, user: { id: approver.id, role: approver.role }, surface: "chat" });
+  if (d.risk.level !== "block" || !["clinical.dosing_advice", "order.place"].includes(d.intent.primary)) return null;
+  return `The note reads as a ${d.intent.primary === "order.place" ? "purchase order" : "dosing"} instruction, and Upstream records neither. Remove it from the note; Scout: ${d.risk.reason ?? "refused"}`;
+}
 
 const norm = (s: string) => quoteDecision(s).toLowerCase();
 
@@ -112,6 +129,11 @@ export async function approveDecision(
   const chosen = chooseOption(c, optionTitle, note);
   if (!chosen) return { status: "refused", reason: "The decision must be one of this case's ranked options. A free-text note can be attached to the chosen option.", audit };
   const decision = quoteDecision(chosen.text);
+  const bad = await noteInstruction(quoteDecision(note).slice(0, NOTE_MAX).trim(), approver);
+  if (bad) {
+    audit.push({ at: now(), actor: "scout", action: "note refused: dosing or order instruction" });
+    return { status: "refused", reason: bad, audit };
+  }
   const m = verifyContract(memoContract, "memo.draft", { secret: SECRET, expectSubject: subject });
   if (!m.ok) {
     const why =
@@ -121,14 +143,22 @@ export async function approveDecision(
     audit.push({ at: now(), actor: "scout", action: `memo contract refused: ${m.reason}` });
     return { status: "refused", reason: why, audit };
   }
-  audit.push({ at: now(), actor: "scout", action: `memo contract ${m.contract.contractId.slice(-8)} verified for ${slug}` });
+  const memoId = m.contract.contractId;
+  if (spentMemoContracts.has(memoId)) {
+    audit.push({ at: now(), actor: "scout", action: `memo contract ${memoId.slice(-8)} refused: already used` });
+    return { status: "refused", reason: MEMO_SPENT, conflict: true, audit };
+  }
+  audit.push({ at: now(), actor: "scout", action: `memo contract ${memoId.slice(-8)} verified for ${slug}` });
   audit.push({ at: now(), actor: "session", action: `${approver.name} signed in as ${approver.role}` });
 
+  // Claimed here, before any await, so two concurrent approvals cannot both pass; given back if the approval is refused.
+  spentMemoContracts.add(memoId);
   const scout = createUpstreamScout({ signingSecret: SECRET });
   // The decision text is data, not part of the prompt Scout classifies: a decision that mentions a
   // transfer must not be read as a request to draft one.
   const d = await scout.decide({ prompt: `Record our approved ${baseMolecule(c.molecule)} shortage decision`, user: { id: approver.id, role: approver.role }, surface: "chat", subject });
   if (!d.executionContract || d.risk.level === "block") {
+    spentMemoContracts.delete(memoId);
     audit.push({ at: now(), actor: "scout", action: `decision.record refused for role ${approver.role}` });
     const why = canApprove(approver.role) ? d.risk.reason ?? "Scout issued no contract to record a decision." : `${approver.name} is signed in as a ${approver.role}; only a pharmacist or the director can approve. Scout: ${d.risk.reason ?? "no contract issued"}`;
     return { status: "refused", reason: why, audit };
@@ -148,6 +178,9 @@ export async function approveDecision(
     drug: baseMolecule(c.molecule), decision, approvedBy: approver.name,
     rationale: c.explanation?.headline ?? `${c.molecule} shortage`,
     evidenceRefs: [`case:${c.id}`, `contract:${approved.contractId}`, `option:${chosen.option.rank}`, ...chosen.option.evidence.slice(0, 3)],
+  }).catch((e) => {
+    spentMemoContracts.delete(memoId); // nothing was recorded, so the memo can be used again
+    throw e;
   });
   audit.push({ at: now(), actor: "h-mem", action: `decision stored as ${rec.id}, quoted as ${approver.name.split(",")[0]}'s words` });
   return { status: "approved", memoryId: rec.id, decisionContractId: approved.contractId, audit };

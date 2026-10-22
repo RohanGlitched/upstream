@@ -117,6 +117,18 @@ export function Investigation({ initial, onFile, date, brief }: { initial?: stri
   const ctl = useRef<AbortController | null>(null);
   const last = useRef<string | null>(null);
   const live = useRef<HTMLDivElement>(null);
+  // No stream event for 15 seconds: say so and offer a retry, while still listening in case the answer comes.
+  const [stalled, setStalled] = useState(false);
+  const stall = useRef<number | null>(null);
+  const quiet = useCallback((on: boolean) => {
+    if (stall.current !== null) window.clearTimeout(stall.current);
+    stall.current = null;
+    setStalled(false);
+    if (on) stall.current = window.setTimeout(() => setStalled(true), 15_000);
+  }, []);
+  useEffect(() => () => {
+    if (stall.current !== null) window.clearTimeout(stall.current);
+  }, []);
 
   const go = useCallback(async (question: string, opts: { restore?: boolean } = {}) => {
     const text = question.trim();
@@ -144,6 +156,7 @@ export function Investigation({ initial, onFile, date, brief }: { initial?: stri
     let mode: Mode | null = null;
     const t0 = performance.now();
     setRun({ k: "running", q: text, decision, steps: [], mode, t0 });
+    quiet(true);
     requestAnimationFrame(() => live.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
     try {
       const r = await fetch("/api/investigate", {
@@ -154,6 +167,7 @@ export function Investigation({ initial, onFile, date, brief }: { initial?: stri
       });
       if (!r.ok || !r.body) {
         const body = (await r.json().catch(() => null)) as { error?: string } | null;
+        quiet(false);
         setRun({ k: "error", q: text, message: body?.error ?? `The server answered ${r.status}.` });
         return;
       }
@@ -164,6 +178,7 @@ export function Investigation({ initial, onFile, date, brief }: { initial?: stri
       for (;;) {
         const { value, done } = await reader.read();
         if (done) break;
+        quiet(true);
         buf += dec.decode(value, { stream: true });
         let nl: number;
         while ((nl = buf.indexOf("\n")) >= 0) {
@@ -222,12 +237,14 @@ export function Investigation({ initial, onFile, date, brief }: { initial?: stri
           }
         }
       }
+      quiet(false);
       if (!finished) setRun({ k: "error", q: text, message: "The stream ended before Upstream sent an answer." });
     } catch (e) {
       if ((e as Error).name === "AbortError") return;
+      quiet(false);
       setRun({ k: "error", q: text, message: "The request did not reach the server. Check the connection and try again." });
     }
-  }, []);
+  }, [quiet]);
 
   // Start (or put back) the question in the address bar whenever it changes: on arrival, and on Back from the
   // full file. The timer survives React's double-invoked effects in development: the first is cleared before it
@@ -336,6 +353,20 @@ export function Investigation({ initial, onFile, date, brief }: { initial?: stri
 
       <div ref={live} className="inv-out" aria-live="polite" aria-busy={busy}>
         {run.k === "running" || run.k === "done" ? <Folder run={run} /> : null}
+        {run.k === "running" && stalled ? (
+          <div className="notice inv-stall" role="status">
+            <span className="notice__mark" aria-hidden="true">
+              i
+            </span>
+            <h3>This is taking longer than usual</h3>
+            <p>
+              Nothing has arrived for 15 seconds; a cold server can take a minute. The desk keeps listening, and the answer lands here if it comes.
+            </p>
+            <button type="button" className="btn btn--quiet btn--small" onClick={() => go(run.q)}>
+              Retry
+            </button>
+          </div>
+        ) : null}
 
         {run.k === "unrecorded" ? (
           <div className="notice">
@@ -403,7 +434,7 @@ function Folder({ run }: { run: Extract<Run, { k: "running" } | { k: "done" }> }
             <div className="inv-contract is-wait">Scout is reading the request</div>
           )}
           {run.mode ? (
-            <span className={`mode${run.mode === "live" ? " mode--live" : ""}`}>{run.mode === "live" ? "Live: querying Zetaris now" : "Replay of a recorded investigation"}</span>
+            <span className={`mode${run.mode === "live" ? " mode--live" : ""}`}>{run.mode === "live" ? "Live: querying Zetaris now" : "Replay of a recorded live run"}</span>
           ) : null}
         </div>
         {done ? (
@@ -451,10 +482,19 @@ function Folder({ run }: { run: Extract<Run, { k: "running" } | { k: "done" }> }
 }
 
 function ClarifyNote({ ask, onAsk }: { ask: Clarify; onAsk: (q: string) => void }) {
-  const named = ask.term ? cap(ask.term) : null;
+  // Scout's term can carry the generic too ("semaglutide ozempic"): name the brand alone, then the generic once.
+  const gen = (ask.generic ?? "").toLowerCase().split(/\s+/).filter(Boolean);
+  const bare = ask.term
+    ? ask.term
+        .split(/\s+/)
+        .filter((w) => !gen.includes(w.toLowerCase().replace(/[^a-z0-9-]/g, "")))
+        .join(" ")
+    : null;
+  const named = bare ? cap(bare) : ask.term ? cap(ask.term) : null;
   const drug = ask.generic ?? ask.term;
   let head: string;
-  if (named && ask.generic && ask.onFormulary) head = `${named} is sold as ${ask.generic}, which is on Corvale's formulary`;
+  if (ask.generic && !bare) head = `${cap(ask.generic)} ${ask.onFormulary ? "is" : "is not"} on Corvale's formulary`;
+  else if (named && ask.generic && ask.onFormulary) head = `${named} is sold as ${ask.generic}, which is on Corvale's formulary`;
   else if (named && ask.generic) head = `${named} (${ask.generic}) is not on Corvale's formulary`;
   else if (named && ask.suggestions.length) head = `\u201c${ask.term}\u201d is not a drug on Corvale's formulary`;
   else head = "Scout could not tell which drug this asks about";

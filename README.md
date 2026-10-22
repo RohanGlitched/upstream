@@ -7,7 +7,7 @@ A hospital pharmacy buyer asks *"Carboplatin is short again. Why, and what do we
 
 > Our Accord carboplatin is made at Intas Pharmaceuticals' plant in Sanand, India (FEI 3004011473). FDA's inspection there ended 2022-12-02 and was classified OAI; the classification letter is dated 2023-04-05, **23 days before FDA posted the carboplatin shortage** on 2023-04-28. An import alert followed on 2023-06-01 and a warning letter on 2023-07-28. Corvale Lakeside has 1.5 days of the 60 mL vials and 2.5 days of the 5 mL vials; Corvale East can send 3 and 10 of them and still keep two weeks (counted in vials, presentation by presentation).
 
-Every sentence carries citation ids (`E16`, `D8`). Each id opens the Zetaris query and the row it came from, and a verifier drops any sentence whose dates or numbers are not in the rows it cites.
+Every sentence carries citation ids (`E16`, `D8`). Each id opens the Zetaris query and the row it came from, and a deterministic verifier drops any sentence the cited rows do not support: its dates, numbers and counts, the field a stock figure claims to be, the event and direction of a day gap, a plant's OAI/VAI/NAI on the same row as the plant, and any cause, status change or absence the record does not state. Against 30 false sentences written to slip past it (`scripts/verifier-adversarial.mts`, two rounds of judges), it drops 30 and keeps all 6 true ones.
 
 **Live site:** [upstream-shortage.vercel.app](https://upstream-shortage.vercel.app) (replays recorded live runs) · **Video:** _(link)_ · **Deck:** `docs/deck.pdf`
 
@@ -86,7 +86,7 @@ Conformance with their unmodified suites: **H-MEM 13/13, World Model 8/8, Markov
 - The model never decides a fact:
   - the state (confirmed, check, no signal) is decided by rule;
   - every sentence must cite evidence ids;
-  - a deterministic verifier checks each date and number against the cited rows, and drops the sentence otherwise;
+  - a deterministic verifier (`src/agent/verify.ts`) checks dates, numbers, counts, stock fields, day-gap events and direction, firm and classification pairs, causes, status words and absence claims against the cited rows, and drops the sentence otherwise. It is pattern-based, so it is a strong filter, not a proof: `data/eval/verifier.json` lists the false sentences it was tested on;
   - citation repairs are counted.
 - `nemotron-3-super` is listed in the catalogue but returned 404 when we tested it on Oct 22, so it is not used.
 

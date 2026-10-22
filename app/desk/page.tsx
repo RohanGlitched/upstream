@@ -82,7 +82,9 @@ export default async function Desk({ searchParams }: { searchParams: Promise<{ q
             <h2 id="ask-h">Ask Upstream</h2>
             <p>
               Type the question the way you would say it. Each step is filed as it finishes, then the whole record is laid out on the desk.{" "}
-              <span className={`mode${live ? " mode--live" : ""}`}>{live ? "Live: questions run against Zetaris" : "Replay: this copy streams recorded investigations"}</span>
+              <span className={`mode${live ? " mode--live" : ""}`}>{live
+                  ? "Live: questions run against Zetaris"
+                  : "Replay: Ask replays recorded runs of the live agent (Zetaris and Nemotron run locally); every recording is a real run"}</span>
             </p>
           </div>
         </div>

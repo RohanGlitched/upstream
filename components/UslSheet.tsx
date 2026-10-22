@@ -261,6 +261,16 @@ export function UslSheet({ dq, explain }: { dq: FdaDq | null; explain: ExplainFi
                   </p>
                 ) : null;
               })()}
+              {(() => {
+                const pk = rule(dq.rules, "inspection", "inspection_id");
+                return pk?.invalid ? (
+                  <p>
+                    The inspection key fails on {fmtInt(pk.invalid)} rows ({pct(pk.invalid, pk.total)}): FDA classifies one inspection separately for each program
+                    area it covered (drug quality, compounding, bioresearch), and its export repeats some rows, so an inspection id can appear more than once.
+                    The rule is kept as a warning; Upstream reads every row and cites the one it uses.
+                  </p>
+                ) : null;
+              })()}
               <p>
                 Units: every stock row is in a shared unit of use. East&apos;s package counts agree with FDA&apos;s for{" "}
                 {(() => {

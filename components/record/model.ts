@@ -195,9 +195,39 @@ export interface DeskModel {
 
 /* ---------- helpers ---------- */
 
+// The source-row slip reads in words: Zetaris's column names, and the few coded values, as a buyer would say them.
+const FIELD_LABEL: Record<string, string> = {
+  fei: "FEI", country: "country", hospital: "hospital", on_hand: "on hand", daily_use: "used a day", legal_name: "firm",
+  presentation: "presentation", days_on_hand: "days on hand", days: "days", classification: "FDA's classification",
+  inspection_id: "inspection", end_date: "inspection ended", known_date: "known from", known_date_basis: "dated by",
+  kind: "kind", needs: "signed by", ndc11: "NDC (11-digit)", generic_name: "drug", package_ndc: "NDC",
+  as_of: "as of", status: "status", posted: "posted", product_labeler: "labeler", plant: "plant", operations: "operations",
+  link: "how the plant is linked", last_inspection: "last inspection", company_name: "company",
+  initial_posting_date: "first posted", update_date: "updated", related_info: "FDA's note", listed: "on FDA's list",
+  item_key: "hospital item", ndc_as_recorded: "NDC as recorded", description: "description", unit: "unit",
+  pkg_units: "units a package", unit_basis: "counted in", ndc_match: "NDC match", labeler_name: "labeler",
+  spl_set_id: "label set id", dosage_form: "dosage form", route: "route", strength: "strength", unit_content: "content a unit",
+  pkg_unit: "package unit", date: "date", months: "months", action_date: "action date", action_type: "action",
+  case_id: "case", letter: "letter dated", recall_number: "recall", recalling_firm: "recalling firm",
+  initiation_date: "recall started", report_date: "reported", reason: "reason", product_description: "product",
+  alternative: "alternative", alt_ndc11: "alternative NDC", alt_strength: "alternative strength", alt_labeler: "alternative labeler",
+  approved_by: "approved by", approved_on: "approved on", notes: "notes", note: "note", alert: "import alert",
+  firm: "firm", address: "address", date_published: "published", fei_match: "FEI matched by", firm_key: "firm key",
+};
+const VALUE_LABEL: Record<string, string> = {
+  fmd145_letter: "FDA's classification letter",
+  end_plus_90_estimate: "inspection end plus 90 days (an estimate)",
+  alternate_manufacturer: "another manufacturer",
+  alternate_concentration: "another concentration",
+  transfer: "transfer between hospitals",
+  name_and_city: "name and city",
+};
+const fieldLabel = (k: string) => FIELD_LABEL[k] ?? k.replace(/_/g, " ");
+const valueLabel = (v: string) => VALUE_LABEL[v] ?? v;
+
 /** "10 mg/mL injection, 60 mL vial" reads on a shelf as "60 mL vial". */
 function unitLabel(label: string, short: string): string {
-  const tail = label.split(",").pop()?.trim() ?? "";
+  const tail = (label.split(",").pop()?.trim() ?? "").replace(/\s+each$/i, "");
   return /\d/.test(tail) ? tail : short;
 }
 
@@ -804,12 +834,18 @@ export function buildDesk(c: Case, slug: string): DeskModel {
   const v = c.explanation?.verifier;
   const state = c.explanation?.state ?? null;
   const shelfWord = hospitals === 1 ? "shelf" : "shelves";
+  // A sponsor-only "plant" is FDA's application holder, not a site the label names: say where each came from.
+  const sponsorOnly = plantsAll.filter((p) => p.linkQuality === "sponsor only").length;
   const plantPhrase =
     plantsAll.length === 0
       ? "the labels behind it, which name no plant"
-      : plantsAll.length === 1
-        ? "the plant its label names"
-        : `the ${plantsAll.length} plants its labels name`;
+      : sponsorOnly === 0
+        ? plantsAll.length === 1
+          ? "the plant its label names"
+          : `the ${plantsAll.length} plants its labels name`
+        : sponsorOnly === plantsAll.length
+          ? `the ${plantsAll.length === 1 ? "application holder" : `${plantsAll.length} application holders`} in FDA's application file, since its labels name no plant`
+          : `the ${plantsAll.length} plants named on its labels or FDA's application file`;
   const dek =
     `Upstream followed the ${c.molecule.toLowerCase()} on our ${shelfWord} upstream to ${plantPhrase}, then read every inspection, warning letter and import alert FDA holds for ${placed === 1 ? "that plant" : placed ? `the ${placed} it could place` : "them"}. ` +
     (hangs.length ? "The red thread below is FDA's record, laid out to scale." : "FDA's record has nothing to hang on the thread, and the desk says so.");
@@ -835,7 +871,7 @@ export function buildDesk(c: Case, slug: string): DeskModel {
       fields: Object.entries(e.fields ?? {})
         .filter(([, v]) => v !== null && v !== "")
         .slice(0, 9)
-        .map(([k, v]) => [k.replace(/_/g, " "), String(v)]),
+        .map(([k, v]) => [fieldLabel(k), valueLabel(String(v))]),
     };
   }
 
