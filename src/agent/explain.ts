@@ -45,15 +45,28 @@ function derive(c: Case): Evidence[] {
     add(`FDA's shortage list gives ${FDA_DB_START} as the first posting, the earliest date its database holds: the shortage began on or before then, so no gap is measured from it`, { posted: FDA_DB_START, note: "database start date" });
     if (!c.shortage.listed) add(`${c.molecule} is not on FDA's current shortage list as of ${c.asOf}`, { as_of: c.asOf, listed: "no" });
   } else if (posted) {
+    // One dated event per line, with the firm and FEI it happened at: an inspection's end date and its
+    // classification letter are two lines, so a sentence cannot pair the letter's date with the end date's gap.
     for (const t of c.timeline) {
       if (t.kind === "today" || t.kind === "shortage_posted" || t.daysBeforePosting === null) continue;
       const rel = t.daysBeforePosting >= 0 ? `${t.daysBeforePosting} days before` : `${-t.daysBeforePosting} days after`;
-      add(`${t.label} — ${rel} FDA posted the shortage on ${posted}`, { date: t.date, posted, days: Math.abs(t.daysBeforePosting) });
+      const f = (t.evidence && c.evidence[t.evidence]?.fields) || {};
+      const firm = String(f.legal_name ?? f.firm ?? f.recalling_firm ?? "") || null;
+      const fei = f.fei ? String(f.fei) : null;
+      const what = t.label.replace(/; classification letter \d{4}-\d{2}-\d{2}/, "");
+      const at = firm && t.kind !== "recall" ? ` at ${firm}${fei ? ` (FEI ${fei})` : ""}` : "";
+      const lbl = /^FDA inspection \d+/.test(what) ? what.replace(/^(FDA inspection \d+)/, `$1${at}`) : `${what}${at}`;
+      add(`${lbl} — ${rel} FDA posted the shortage on ${posted}`, { date: t.date, posted, days: Math.abs(t.daysBeforePosting), firm, fei });
     }
+    const letters = new Set<string>();
     for (const pc of c.chain) for (const p of pc.plants) for (const s of p.signals) {
-      if (s.kind !== "inspection_oai" || s.knownBasis !== "fmd145_letter" || !s.knownDate) continue;
+      if ((s.kind !== "inspection_oai" && s.kind !== "inspection_vai") || s.knownBasis !== "fmd145_letter" || !s.knownDate) continue;
+      const id = s.text.match(/inspection (\d+)/)?.[1] ?? s.knownDate;
+      if (letters.has(id)) continue;
+      letters.add(id);
       const gap = daysBetween(s.knownDate, posted);
-      add(`FDA's OAI classification letter to ${p.name} is dated ${s.knownDate}, ${Math.abs(gap)} days ${gap >= 0 ? "before" : "after"} FDA posted the shortage on ${posted}`, { letter: s.knownDate, posted, days: Math.abs(gap) });
+      const cls = s.kind === "inspection_oai" ? "OAI" : "VAI";
+      add(`FDA's ${cls} classification letter for inspection ${id} at ${p.name}${p.fei ? ` (FEI ${p.fei})` : ""} is dated ${s.knownDate}, ${Math.abs(gap)} days ${gap >= 0 ? "before" : "after"} FDA posted the shortage on ${posted}`, { letter: s.knownDate, posted, days: Math.abs(gap), fei: p.fei });
     }
     // A shortage that is not on the current list gets no running total.
     if (!c.shortage.listed) {
@@ -114,8 +127,9 @@ Use only the numbered evidence lines you are given. Every sentence must cite the
 Write dates exactly as they appear in the evidence (YYYY-MM-DD), and use only numbers that appear in the cited lines.
 Say what FDA's records show and when; do not claim a cause FDA has not stated. Never give dosing or clinical advice.
 If the drug is not on FDA's current shortage list, say so and never say it is listed, remains listed or has been on the list for a time; an earlier, resolved episode may be mentioned as past. Never claim there was no FDA action unless the evidence says so for every plant. Write every number as digits copied from the cited lines, including small counts and numbers under ten (write 3, not three). When a sentence names a company or plant, or says OAI, VAI or NAI, cite a line that contains it.
-The headline says what the record shows, never a cause: for example "FDA's records trace our supply to a plant classified OAI <N> days before the posting" (with N taken from a D line), not "the shortage is caused by" or "linked to". The headline names at most one number of days; when several plants or postings qualify, name the count of plants and the closest one.
-Day counts and durations are in the D lines: cite the D line whenever you use one.
+The headline says what the record shows, never a cause: for example "FDA's records trace our supply to a plant classified OAI <N> days before the posting" (with N taken from a D line), not "the shortage is caused by" or "linked to". The headline names at most one number of days; when several plants or postings qualify, name the count of plants and the closest one. When the state is confirmed, the headline names an FDA action dated before the posting (a D line that says "before"), never one after it.
+Day counts and durations are in the D lines: cite the D line whenever you use one. When a sentence gives a day count, the date it states with that count is the date on the same D line (an inspection's end date and its classification letter are separate lines with separate counts).
+When a sentence names a firm or plant together with an FDA action and a date, cite the line that holds all three.
 Plain sentence case, calm, specific. 4 to 7 sentences. Reply with JSON only:
 {"headline": "...", "headline_cites": ["E1"], "sentences": [{"text": "...", "cites": ["E3", "D2"]}]}`;
 
@@ -138,7 +152,7 @@ export async function explain(c: Case): Promise<Explanation> {
   // Written by rule when the model's own headline is refused: it names the plant, the finding and the gap.
   const KIND: Record<string, string> = { inspection_oai: "an OAI inspection", warning_letter: "a warning letter", import_alert: "an import alert", injunction: "an injunction", seizure: "a seizure" };
   const lead = c.chain.flatMap((pc) => pc.plants.filter((p) => p.linkQuality === "registered plant").flatMap((p) => p.signals.map((s) => ({ p, s }))))
-    .filter(({ s }) => s.kind in KIND && c.shortage.firstPosting && daysBetween(s.date, c.shortage.firstPosting) >= 0)
+    .filter(({ s }) => s.kind in KIND && c.shortage.firstPosting && daysBetween(s.date, c.shortage.firstPosting) >= 0 && daysBetween(s.date, c.shortage.firstPosting) <= 365 * 3)
     .sort((a, b) => b.s.date.localeCompare(a.s.date))[0];
   const fallbackHeadline = state === "confirmed" && lead
     ? `FDA's records show ${KIND[lead.s.kind]} at ${lead.p.name}${lead.p.fei ? ` (FEI ${lead.p.fei})` : ""}, a plant on our labels, ${daysBetween(lead.s.date, c.shortage.firstPosting!)} days before the shortage posting`
@@ -169,7 +183,10 @@ export async function explain(c: Case): Promise<Explanation> {
     }
     let headline = fallbackHeadline;
     if (j.headline) {
-      const res = check({ text: j.headline, cites: j.headline_cites ?? [] });
+      // A confirmed state rests on an action before the posting: a headline that leads with one after it misstates why.
+      const late = state === "confirmed" && /\b\d[\d,]*\s+days?\s+after\b|\bafter (?:the |FDA'?s? )?(?:shortage )?post/i.test(j.headline)
+        ? "a confirmed headline must name the FDA action before the posting, not one after it" : null;
+      const res = late ?? check({ text: j.headline, cites: j.headline_cites ?? [] });
       if (typeof res === "string") rejected.push({ text: j.headline, reason: `headline: ${res}` });
       else headline = res.text;
     }

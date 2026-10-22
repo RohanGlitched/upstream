@@ -34,6 +34,25 @@ for (const [k, t, ci] of lies) {
   const memo = caseClaimProblem(t, c);
   console.log(`${why ? "dropped" : "MISSED "} | memo:${memo ? "flag" : "PASS"} | ${k} | ${why ?? ""}`);
 }
+// A firm's action pinned on another firm (heparin): the 2017-02-14 warning letter went to Hospira (FEI 1925262), but the
+// sentence gives it to Baxter's FEI 2618677 by citing the gap line plus a Baxter warning letter from 2013.
+{
+  const h = load("heparin");
+  const find = (re: RegExp) => (Object.values(h.evidence) as any[]).find((e) => re.test(`${e.label} ${JSON.stringify(e.fields)}`));
+  const gap = find(/^Warning Letter issued 2017-02-14/);
+  const baxter = find(/^Warning Letter 2013-05-31.*"fei":"2618677"/);
+  const why = judge(h, `Baxter's plant (FEI 2618677) received a Warning Letter on 2017-02-14, ${gap?.fields.days} days before the posting.`, [gap?.id, baxter?.id]);
+  console.log(`${why ? "dropped" : "MISSED "} | firm action from another plant (heparin) | ${why ?? ""}`);
+  // The same gap with the right firm passes.
+  const ok = judge(h, `Hospira's plant (FEI 1925262) received a Warning Letter on 2017-02-14, ${gap?.fields.days} days before the posting.`, [gap?.id, find(/^Warning Letter 2017-02-14/)?.id].filter(Boolean));
+  console.log(`${ok ? `WRONGLY DROPPED (${ok})` : "passed "} | true firm action (heparin)`);
+  // A letter's date paired with the end date's gap (bacteriostatic, cisplatin, potassium chloride): one dated event per line.
+  const k = load("potassium-chloride");
+  const kf = (re: RegExp) => (Object.values(k.evidence) as any[]).find((e) => re.test(`${e.label} ${JSON.stringify(e.fields)}`));
+  const end = kf(/^FDA inspection 1106244.*days (before|after)/);
+  const lie = judge(k, `FDA inspection 1106244 ended 2019-09-06 and was classified OAI, with a classification letter dated 2020-05-25, ${end?.fields.days} days before the posting.`, [end?.id, kf(/classification letter.*1106244/)?.id].filter(Boolean));
+  console.log(`${lie ? "dropped" : "MISSED "} | letter date with the end date's gap (potassium chloride) | ${lie ?? ""}`);
+}
 for (const slug of ["carboplatin", "cisplatin", "heparin", "vancomycin"]) {
   const cc = load(slug);
   let ok = 0, n = 0;

@@ -25,7 +25,8 @@ export default async function Desk({ searchParams }: { searchParams: Promise<{ q
   const morning = w?.ranAt.slice(0, 10) ?? cases.map((c) => c.askedAt.slice(0, 10)).sort().at(-1) ?? new Date().toISOString().slice(0, 10);
   const day = DAYS[new Date(morning + "T00:00:00Z").getUTCDay()];
   const act = w ? w.flagged.filter((f) => f.state === "act") : [];
-  const lowest = [...act].sort((a, b) => (a.minDays ?? 1e9) - (b.minDays ?? 1e9))[0];
+  // The shortest shelf across every flagged drug, not only the ones to act on (a watch drug can be lower).
+  const lowest = w ? [...w.flagged].filter((f) => f.minDays !== null).sort((a, b) => (a.minDays ?? 1e9) - (b.minDays ?? 1e9))[0] : undefined;
   // What the desk says when a buyer asks for the morning brief: the report's counts and its shortest shelves.
   const onFile = new Set(cases.map((c) => c.slug));
   const brief: BriefSummary | null = w

@@ -1,0 +1,88 @@
+{
+ "id": "Q-8ef113",
+ "sql": "WITH ours AS (SELECT ndc11, package_ndc, lower(generic_name) AS molecule, spl_set_id FROM lightning.metastore.upstream.upstream_usl.product WHERE ndc11 IN ('00002814701', '00169770321', '00264446000', '70518372103', '72162162406', '00487610501', '00409488710', '55150031525', '67296214704', '00409338221', '00006542315', '66267019610', '69945009420', '00002250661', '10122082056', '00093408563')), plants AS (SELECT o.molecule, st.fei, st.firm_name FROM ours o JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = o.spl_set_id JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns) SELECT 'shortage' AS kind, o.molecule, sc.company_name AS firm, sc.status AS detail, sc.initial_posting_date AS dt FROM ours o JOIN fda.shortage_current sc ON sc.package_ndc = o.package_ndc WHERE sc.status = 'Current' UNION ALL SELECT 'oai', p.molecule, p.firm_name, i.inspection_id, i.end_date FROM plants p JOIN lightning.metastore.upstream.upstream_usl.inspection i ON i.fei = p.fei WHERE i.classification = 'OAI' AND i.end_date >= '2023-10-21' UNION ALL SELECT 'action', p.molecule, p.firm_name, ca.action_type, ca.action_date FROM plants p JOIN fda.compliance_actions ca ON ca.fei = p.fei WHERE ca.action_date >= '2023-10-21' UNION ALL SELECT 'import_alert', p.molecule, p.firm_name, ia.alert, ia.date_published FROM plants p JOIN fda.import_alerts ia ON ia.fei = p.fei WHERE ia.date_published >= '2023-10-21'",
+ "columns": [
+  "kind",
+  "molecule",
+  "firm",
+  "detail",
+  "dt"
+ ],
+ "rows": [
+  {
+   "kind": "shortage",
+   "molecule": "sufentanil citrate",
+   "firm": "Hospira, Inc., a Pfizer Company",
+   "detail": "Current",
+   "dt": "2022-05-03"
+  },
+  {
+   "kind": "shortage",
+   "molecule": "water",
+   "firm": "Hospira, Inc., a Pfizer Company",
+   "detail": "Current",
+   "dt": "2021-11-23"
+  },
+  {
+   "kind": "shortage",
+   "molecule": "sterile water",
+   "firm": "Nephron Pharmaceuticals Corporation",
+   "detail": "Current",
+   "dt": "2021-11-23"
+  },
+  {
+   "kind": "shortage",
+   "molecule": "technetium tc 99m pyrophosphate",
+   "firm": "Curium US LLC",
+   "detail": "Current",
+   "dt": "2023-12-27"
+  },
+  {
+   "kind": "oai",
+   "molecule": "succinylcholine chloride",
+   "firm": "EUGIA PHARMA SPECIALITIES LIMITED",
+   "detail": "1228546",
+   "dt": "2024-02-02"
+  },
+  {
+   "kind": "oai",
+   "molecule": "succinylcholine chloride",
+   "firm": "EUGIA PHARMA SPECIALITIES LIMITED",
+   "detail": "1301166",
+   "dt": "2026-02-06"
+  },
+  {
+   "kind": "oai",
+   "molecule": "sterile water",
+   "firm": "Nephron SC, LLC",
+   "detail": "1229051",
+   "dt": "2024-02-09"
+  },
+  {
+   "kind": "oai",
+   "molecule": "sterile water",
+   "firm": "Nephron SC, LLC",
+   "detail": "1247772",
+   "dt": "2024-09-25"
+  },
+  {
+   "kind": "action",
+   "molecule": "succinylcholine chloride",
+   "firm": "EUGIA PHARMA SPECIALITIES LIMITED",
+   "detail": "Warning Letter",
+   "dt": "2024-08-15"
+  }
+ ],
+ "ms": 5402,
+ "mode": "replay",
+ "ranAt": "2026-10-22T18:33:54.667Z",
+ "sources": [
+  "fda.ndc_packages",
+  "fda.spl_establishments",
+  "fda.registrations",
+  "fda.shortage_current",
+  "fda.inspections",
+  "fda.compliance_actions",
+  "fda.import_alerts"
+ ]
+}

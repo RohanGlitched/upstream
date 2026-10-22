@@ -505,13 +505,14 @@ function buildHangs(c: Case): Hang[] {
       }
       case "shortage_posted": {
         const h = blankHang(id, "posting", t.date);
-        const ours = c.shortage.companies.find((x) => x.evidence === t.evidence) ?? c.shortage.companies[0];
+        // A posting from FDA's history (not on the list today) is a resolved episode: no current company's entry is it.
+        const ours = c.shortage.companies.find((x) => x.evidence === t.evidence) ?? (c.shortage.listed ? c.shortage.companies[0] : undefined);
         const pf = ev?.fields ?? {};
         h.title = String(pf.generic_name ?? `${drugTitle(c.molecule)}`);
         h.firm = ours?.company ?? String(pf.company_name ?? "");
-        h.ref = String(pf.package_ndc ?? c.shortage.ourNdcsListed[0] ?? "");
+        h.ref = String(pf.package_ndc ?? (c.shortage.listed ? c.shortage.ourNdcsListed[0] : "") ?? "");
         h.lines = [
-          { k: "Status", v: c.shortage.status ?? (c.shortage.listed ? "Current" : "Resolved") },
+          { k: "Status", v: c.shortage.listed ? (c.shortage.status ?? "Current") : "Resolved" },
           { k: "First posted", v: t.date },
           ...(h.firm ? [{ k: "Company", v: h.firm.replace(/,? (Inc\.?|LLC|Corp\.?|Corporation|Limited|Ltd\.?)$/i, "") }] : []),
           ...(h.ref ? [{ k: "NDC", v: h.ref }] : []),
@@ -800,9 +801,14 @@ export function buildDesk(c: Case, slug: string): DeskModel {
     td.evidence = ourCo?.evidence ? [ourCo.evidence] : [];
     td.tone = "carbon";
   } else {
-    td.title = posted ? "RESOLVED" : "NOT LISTED";
+    // No presentation is Current. FDA may still list some as To Be Discontinued: say that, not "resolved".
+    const ending = c.shortage.companies.filter((x) => x.status === "To Be Discontinued");
+    td.title = ending.length ? "TO BE DISCONTINUED" : posted ? "RESOLVED" : "NOT LISTED";
     td.ref = null;
-    td.note = posted ? `FDA marks this shortage ${c.shortage.status?.toLowerCase() ?? "resolved"}.` : "Not on FDA's shortage list today.";
+    td.note = ending.length
+      ? `None is Current; FDA lists ${ending.map((x) => x.company.replace(/,? (Inc\.?|LLC|Corp\.?|Corporation|Limited)$/i, "")).join(", ")} as to be discontinued.`
+      : posted ? `FDA's earlier shortage, first posted ${posted}, is resolved.` : "Not on FDA's shortage list today.";
+    td.evidence = ending.map((x) => x.evidence).filter(Boolean);
     td.tone = "ink";
   }
   const hangsAll = [...hangs, td];

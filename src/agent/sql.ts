@@ -74,25 +74,28 @@ WHERE firm_key IN (${inList(firmKeys)}) AND initiation_date >= '2020-01-01'
 ORDER BY initiation_date`;
 }
 
-/** FDA's shortage list today for this molecule (one row per presentation). */
-export function shortageCurrentSql(term: string): string {
-  return `SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info
+/** FDA's shortage list today for this molecule (one row per presentation), and any row for one of our own package
+ *  NDCs whatever FDA names it ("Bacteriostatic Water" sits under "Sterile Water Injection"; a single amino acid's
+ *  product under "Amino Acid Injection"). */
+export function shortageCurrentSql(term: string, packageNdcs: string[] = []): string {
+  return `SELECT generic_name, company_name, status, dosage_form, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info
 FROM fda.shortage_current
-WHERE ${isMolecule("generic_name", term)}
+WHERE ${isMolecule("generic_name", term)}${packageNdcs.length ? ` OR package_ndc IN (${inList(packageNdcs)})` : ""}
 ORDER BY status, company_name, package_ndc`;
 }
 
 /** FDA's shortage history for this molecule: the first posting and stated reasons, from archived snapshots. */
-export function shortageHistorySql(term: string): string {
+export function shortageHistorySql(term: string, packageNdcs: string[] = []): string {
   return `SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons
 FROM fda.shortage_episodes
-WHERE ${isMolecule("generic", term)}
+WHERE ${isMolecule("generic", term)}${packageNdcs.length ? `
+   OR lower(generic) IN (SELECT lower(generic_name) FROM fda.shortage_current WHERE package_ndc IN (${inList(packageNdcs)}))` : ""}
 ORDER BY first_posting`;
 }
 
 /** Everyone else who makes this molecule in the same form, and the plants their labels name. */
 export function marketSql(term: string, dosageWord: string): string {
-  return `SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id,
+  return `SELECT p.ndc11, p.package_ndc, p.labeler_name, p.generic_name, p.dosage_form, p.spl_set_id,
        ps.establishment, ps.est_duns, st.fei, st.country_iso3
 FROM ${USL}.product p
 LEFT JOIN ${USL}.product_site ps ON ps.set_id = p.spl_set_id

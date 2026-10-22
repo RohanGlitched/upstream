@@ -57,7 +57,7 @@ export function formTerm(text: string): string | null {
 
 // Salt, ester and hydrate words that may sit next to an active ingredient without changing the molecule:
 // "heparin" matches HEPARIN SODIUM, but "calcium chloride" never matches LEUCOVORIN CALCIUM.
-const SALTS = [
+export const SALTS = [
   "sodium", "disodium", "potassium", "dipotassium", "calcium", "magnesium", "hydrochloride", "dihydrochloride", "hcl",
   "hydrobromide", "sulfate", "sulphate", "phosphate", "acetate", "citrate", "chloride", "bromide", "besylate", "mesylate",
   "maleate", "tartrate", "bitartrate", "succinate", "fumarate", "gluconate", "lactate", "tromethamine", "bicarbonate",
@@ -76,7 +76,11 @@ function core(term: string): string | null {
   if (!words.length) return null;
   // A biosimilar's four-letter suffix (filgrastim-sndz) is the same molecule; pegfilgrastim is not.
   const w = words.map((x) => `${x}(?:-[a-z]{4})?`);
-  return w.map((x, i) => (i === 0 ? `(?:${S}${SEP})*${x}` : `${SEP}${x}`) + `(?:${SEP}${S})*`).join("");
+  // "Sterile water" and "water" are the same product on different labels: "sterile" is optional.
+  if (words[0] === "sterile" && words.length > 1) w[0] = "(?:sterile)?";
+  // Salt words before the ingredient sit in the same name ("potassium chloride"), never across a comma: "sodium
+  // chloride, sodium lactate, potassium chloride" is Lactated Ringer's, not potassium chloride.
+  return w.map((x, i) => (i === 0 ? `(?:${S} +)*${x}` : `${i === 1 && words[0] === "sterile" ? `(?:${SEP})?` : SEP}${x}`) + `(?:${SEP}${S})*`).join("");
 }
 
 /** Java/JS regex (no backslashes, so it survives a Lightning SQL literal) matching a lower-cased generic name or
@@ -118,5 +122,29 @@ const SALT_FIRST = new Set(["sodium", "potassium", "calcium", "magnesium", "ster
 export function baseMolecule(name: string): string {
   const w = name.toLowerCase().replace(/[^a-z0-9 ]/g, " ").split(/\s+/).filter(Boolean);
   if (!w.length) return name;
+  // A label that says only "water" is sterile water for injection: one drug, one case.
+  if (w[0] === "water") return "sterile water";
   return SALT_FIRST.has(w[0]) && w[1] ? `${w[0]} ${w[1]}` : w[0];
+}
+
+// Words in a product name that are not an ingredient: the form, the container, a preservative note.
+const FORM_START = /\b(injections?|injectable|intraperitoneal|tablets?|capsules?|solutions?|suspensions?|irrigant|irrigation|concentrate|for (?:injection|oral|suspension|solution)|cream|ointment|gel|lotion|powder|oral|ophthalmic|topical|inhalation|aerosol|premix\w*|in plastic|kit|extended|delayed|film|usp|vials?|bags?|syringes?)\b/i;
+const NOT_INGREDIENT = /preservative|\bfree\b|sulfite|plastic|container|\bdose\b|ready|bulk|pharmacy|package|cartridge|\bpen\b|lyophil|liposom|release|coated|chewable|disintegrating/i;
+const SALT_SET = new Set(SALTS);
+
+/** The ingredients a product or listing name holds, each without its salt ("lidocaine hydrochloride and epinephrine"
+ *  -> {epinephrine, lidocaine}; a name that is only salt words keeps them: "potassium chloride"). */
+export function ingredientsOf(name: string): string[] {
+  let t = name.toLowerCase();
+  const at = t.search(FORM_START);
+  if (at > 0) t = t.slice(0, at);
+  const out = new Set<string>();
+  for (const piece of t.split(/,|\band\b|\bwith\b|\bin\b|\/|\+|;/)) {
+    if (NOT_INGREDIENT.test(piece)) continue;
+    const words = piece.replace(/[0-9.]+ ?%?/g, " ").replace(/[^a-z -]/g, " ").split(/\s+/).filter((x) => x.length > 1);
+    if (!words.length) continue;
+    const core = words.filter((x) => !SALT_SET.has(x));
+    out.add((core.length ? core : words).join(" "));
+  }
+  return [...out].sort();
 }

@@ -99,7 +99,9 @@ async function clarifyOrRefuse(g: Extract<Gate, { ok: false }>, drug: string) {
 }
 
 /** FDA's listing in words: a null status with a posting date means FDA posted it before and does not list it now. */
-function listing(s: { status: string | null; firstPosting: string | null }): string {
+function listing(s: { status: string | null; firstPosting: string | null; listed?: boolean }): string {
+  // To Be Discontinued with nothing Current: the posting date is an earlier, resolved episode's, not this status's.
+  if (s.status === "To Be Discontinued" && s.listed === false) return `no presentation Current; some marked To Be Discontinued${s.firstPosting ? `; FDA first posted an earlier shortage on ${s.firstPosting}` : ""}`;
   if (s.status) return `${s.status} since ${s.firstPosting ?? "an unknown date"}`;
   return s.firstPosting ? `not currently listed (resolved); FDA first posted it on ${s.firstPosting}` : "not on FDA's shortage list";
 }

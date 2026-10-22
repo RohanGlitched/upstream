@@ -9,7 +9,7 @@ import { createUpstreamScout } from "../engines/scout/upstream.ts";
 import { UpstreamWorld, src } from "../engines/world-model.ts";
 import { openMemory, type HMEM } from "../engines/hmem.ts";
 import * as Q from "./sql";
-import { baseMolecule, daysBetween, firmKey, moleculeRegex, formTerm, moleculeTerm, num, round, str, tallMan } from "./util";
+import { baseMolecule, daysBetween, firmKey, ingredientsOf, moleculeRegex, formTerm, moleculeTerm, num, round, str, tallMan } from "./util";
 import { explain } from "./explain";
 import type {
   Case, DataQualityNote, Evidence, GateEntry, Health, Hospital, MarketLine, MemoryLine, OptionLine, Plant,
@@ -103,12 +103,17 @@ const REPACKAGER = /repack|prepack|medication solutions|proficient rx|nucare|dir
 function routeClass(text: string): string | null {
   const t = text.toLowerCase();
   // Multi-ingredient solutions (cardioplegia, irrigation, Ringer's) are their own products, not this drug's form.
-  if (/cardiopleg|irrigation|dialysis|ringer/.test(t)) return "mixture";
+  if (/cardiopleg|dialysis|ringer|intraperitoneal/.test(t)) return "mixture";
+  // Irrigation is not an injection: "Sterile Water Irrigant" is not our sterile water for injection.
+  if (/irrigat/.test(t)) return "irrigation";
   if (/ophthalmic|\beye\b|otic/.test(t)) return "eye";
   if (/inhal|nebuli|aerosol|respiratory/.test(t)) return "lung";
   if (/topical|cream|ointment|\bgel\b|lotion|transdermal|patch/.test(t)) return "skin";
   if (/inject|infusion|intravenous|\biv\b|vial|syringe|premix|parenteral|intramuscular|subcutaneous/.test(t)) return "injection";
-  if (/tablet|capsule|oral|chewable|lozenge|extended-release|delayed-release|suspension|syrup|elixir/.test(t)) return "oral";
+  // Oral forms stay apart: an extended-release capsule listing is not our extended-release tablet.
+  if (/tablet|chewable|lozenge/.test(t)) return "tablet";
+  if (/capsule/.test(t)) return "capsule";
+  if (/oral|extended-release|delayed-release|suspension|syrup|elixir/.test(t)) return "oral liquid";
   return null;
 }
 
@@ -277,8 +282,9 @@ export async function investigate(opts: InvestigateOptions): Promise<Case> {
     });
 
   // ---- 3. FDA's shortage list, today and since it began --------------------------------------------------
-  const [curR, histR] = await run("fda_shortage", "What FDA says about this shortage", "Read FDA's current shortage list and its history for this drug.",
-    [Q.shortageCurrentSql(term), Q.shortageHistorySql(term)],
+  const ourPackageNdcs = [...ourProducts.values()].map((r) => str(r.package_ndc)).filter(Boolean);
+  const [curR, histR] = await run("fda_shortage", "What FDA says about this shortage", "Read FDA's current shortage list and its history for this drug, and any listing that names one of our own package NDCs.",
+    [Q.shortageCurrentSql(term, ourPackageNdcs), Q.shortageHistorySql(term, ourPackageNdcs)],
     (rs) => {
       const cur = rs[0].rows.filter((r) => str(r.status) === "Current");
       return cur.length ? `On FDA's list as Current for ${new Set(cur.map((r) => r.company_name)).size} companies.` : "Not on FDA's current shortage list.";
@@ -407,15 +413,25 @@ export async function investigate(opts: InvestigateOptions): Promise<Case> {
     const k = routeClass(name);
     return !k || !ourRoutes.size || ourRoutes.has(k);
   };
-  const curRows = (curR?.rows ?? []).filter((r) => sameRoute(str(r.generic_name)));
-  const histRows = (histR?.rows ?? []).filter((r) => sameRoute(str(r.generic)));
-  const ourPkgs = new Set([...ourProducts.values()].map((r) => str(r.package_ndc)));
+  // A combination product is its own drug: "Potassium Chloride, Sodium Chloride, Calcium Chloride, and Magnesium
+  // Chloride Injection" (a cardioplegic) is not potassium chloride. A multi-ingredient listing counts only when we
+  // stock that same combination.
+  const ourSets = new Set([...ourProducts.values()].map((r) => ingredientsOf(str(r.generic_name)).join("+")));
+  const sameProduct = (name: string) => {
+    const ing = ingredientsOf(name);
+    return ing.length <= 1 || ourSets.has(ing.join("+"));
+  };
+  const ourPkgs = new Set(ourPackageNdcs);
+  // Our own package NDC on FDA's list is always this case's, whatever heading FDA files it under.
+  const curIn = (r: Row) => ourPkgs.has(str(r.package_ndc)) || (sameRoute(`${str(r.generic_name)} ${str(r.dosage_form)}`) && sameProduct(str(r.generic_name)));
+  const curRows = (curR?.rows ?? []).filter(curIn);
+  const histRows = (histR?.rows ?? []).filter((r) => sameRoute(str(r.generic)) && sameProduct(str(r.generic)));
   const currentRows = curRows.filter((r) => str(r.status) === "Current");
   const firstPosting = currentRows.map((r) => str(r.initial_posting_date)).filter(Boolean).sort()[0]
     ?? histRows.map((r) => str(r.first_posting)).filter(Boolean).sort()[0] ?? null;
   const companies = new Map<string, ShortageStatus["companies"][number]>();
   (curR?.rows ?? []).forEach((r, i) => {
-    if (!sameRoute(str(r.generic_name))) return;
+    if (!curIn(r)) return;
     const k = str(r.company_name);
     const prev = companies.get(k);
     if (!prev || str(r.update_date) > prev.updated) {
@@ -430,7 +446,7 @@ export async function investigate(opts: InvestigateOptions): Promise<Case> {
   };
   let postingEvidence: string | null = null;
   if (firstPosting && curR) {
-    const idx = curR.rows.findIndex((r) => str(r.initial_posting_date) === firstPosting);
+    const idx = curR.rows.findIndex((r) => curIn(r) && str(r.initial_posting_date) === firstPosting);
     if (idx >= 0) postingEvidence = ledger.cite(curR, idx, `FDA first posted the shortage ${firstPosting}`);
   }
   if (canWrite && shortage.listed) {
@@ -441,6 +457,8 @@ export async function investigate(opts: InvestigateOptions): Promise<Case> {
   // ---- Market ------------------------------------------------------------------------------------------
   const marketBy = new Map<string, MarketLine>();
   for (const r of marketR?.rows ?? []) {
+    // Other makers of this drug, not of a combination that contains it (Lactated Ringer's is not potassium chloride).
+    if (r.generic_name && !sameProduct(str(r.generic_name))) continue;
     const k = str(r.labeler_name);
     const m = marketBy.get(k) ?? { labeler: k, ndc11: str(r.ndc11), dosageForm: str(r.dosage_form), plants: [], onShortageList: false, inOurStock: false };
     if (ourProducts.has(str(r.ndc11))) m.inOurStock = true;
@@ -453,14 +471,20 @@ export async function investigate(opts: InvestigateOptions): Promise<Case> {
   }
   // Current and To Be Discontinued both count: a product being discontinued is no place to move a patient's supply.
   const activeRows = curRows.filter((r) => str(r.status) !== "Resolved");
-  const listedKeys = new Set(activeRows.map((r) => firmKey(str(r.company_name))));
-  const listedMatch = (name: string) => {
+  // A company's listing counts against a market line only in that line's form: Teva's extended-release tablets on
+  // FDA's list say nothing about Teva's injection.
+  const listedMatch = (name: string, form: string) => {
     const f = firmKey(name);
-    return !!f && [...listedKeys].some((k) => k && (f.startsWith(k) || k.startsWith(f)));
+    const route = routeClass(form);
+    return !!f && activeRows.some((r) => {
+      const k = firmKey(str(r.company_name));
+      const rr = routeClass(`${str(r.generic_name)} ${str(r.dosage_form)}`);
+      return !!k && (f.startsWith(k) || k.startsWith(f)) && (!route || !rr || rr === route);
+    });
   };
   // A labeler counts as short if it, or any plant its label names, is a company on FDA's current list
   // (BPI Labs distributes Gland Pharma's product; Natco markets Teyro Labs').
-  const market = [...marketBy.values()].map((m) => ({ ...m, onShortageList: listedMatch(m.labeler) || m.plants.some((p) => listedMatch(p.name)) }));
+  const market = [...marketBy.values()].map((m) => ({ ...m, onShortageList: listedMatch(m.labeler, m.dosageForm) || m.plants.some((p) => listedMatch(p.name, m.dosageForm)) }));
 
   // ---- 6. Interchanges the P&T committee already approved ------------------------------------------------
   const [ixR] = await run("interchange", "What our P&T committee already approved", "Read Corvale General's approved interchanges for these items.",

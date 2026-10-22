@@ -1,4 +1,5 @@
-<!-- cover: docs/cover.png is added with the first deploy -->
+![Upstream](docs/cover.png)
+
 # Upstream
 
 **Why is it short? Upstream traces a drug shortage from a hospital's shelf to the factory, and cites every step.**
@@ -9,7 +10,7 @@ A hospital pharmacy buyer asks *"Carboplatin is short again. Why, and what do we
 
 Every sentence carries citation ids (`E16`, `D8`). Each id opens the Zetaris query and the row it came from, and a deterministic verifier drops any sentence the cited rows do not support: its dates, numbers and counts, the field a stock figure claims to be, the event and direction of a day gap, a plant's OAI/VAI/NAI on the same row as the plant, and any cause, status change or absence the record does not state. Against 44 false sentences written by three rounds of judges to slip past it (`scripts/verifier-adversarial.mts`, `scripts/verifier-final-round.mts`), it drops all 44 and keeps every true one tested.
 
-**Live site:** [upstream-shortage.vercel.app](https://upstream-shortage.vercel.app) (replays recorded live runs) · **Video:** _(link)_ · **Deck:** `docs/deck.pdf`
+**Live site:** [upstream-shortage.vercel.app](https://upstream-shortage.vercel.app) (replays recorded live runs) · **Video:** _(link)_ · **Deck:** [docs/deck.pdf](docs/deck.pdf)
 
 Built for the Open Agent Hackathon 2026, Track 2 "The Agent That Can Explain Why", on **Zetaris**, **Meterless** and **NVIDIA Nemotron**, with part of the build done in **Cursor**.
 
@@ -75,14 +76,14 @@ FDA: 12 cleaned CSVs ───────┘    in place; FDA as    stock in un
 | Decide what is asked, how risky it is, and what the agent may touch; refuse orders and dosing | **Scout Intent** (our implementation of the spec) | `scout.decide()` → HMAC-signed execution contract; `assertContract()` before every tool |
 | Remember what we decided last time, and who approved it | **H-MEM** | `rememberDecision()` only after a signed-in pharmacist or the director approves; the decision is stored as the approver's quoted words; `recallForDrug()` |
 | Hold the supply chain as grounded entities shared by the steps | **World Model** | `upsert` / `relate` with provenance; writes about unknown ids are refused |
-| Watch the whole formulary overnight at flat cost | **Markovian** | `FormularyWatch`: 215 drugs in 18 chunks, cursor and findings kept in World Model |
+| Watch the whole formulary overnight at flat cost | **Markovian** | `FormularyWatch`: 220 drugs in 19 chunks, cursor and findings kept in World Model |
 
 Conformance with their unmodified suites: **H-MEM 13/13, World Model 8/8, Markovian 8/8, Scout harness PASS** (`CONFORMANCE.md`; the README there says what the Scout harness does not check).
 
 ### NVIDIA Nemotron
 - **Nemotron 3 Ultra** writes the explanation and the P&T memo.
 - **Nemotron 3.5 Lightning** writes the overnight brief.
-- The memo and the brief have no citations, so they get a grounding check after the model call: every date and number must be in the case's evidence lines (or the watch rows), causal claims ("caused", "due to", "led to") are dropped unless FDA's stated reason names that cause, and the page shows what was checked and dropped. Over the 214 recorded memos: 3,380 sentences checked, 38 dropped.
+- The memo and the brief have no citations, so they get a grounding check after the model call: every date and number must be in the case's evidence lines (or the watch rows), causal claims ("caused", "due to", "led to") are dropped unless FDA's stated reason names that cause, and the page shows what was checked and dropped. The memo also gets the case-wide checks for plant names, classifications, sponsors, absences and status words.
 - The model never decides a fact:
   - the state (confirmed, check, no signal) is decided by rule;
   - every sentence must cite evidence ids;
@@ -91,7 +92,7 @@ Conformance with their unmodified suites: **H-MEM 13/13, World Model 8/8, Markov
 - `nemotron-3-super` is listed in the catalogue but returned 404 when we tested it on Oct 22, so it is not used.
 
 ### Cursor
-Cursor's agent built the Corvale hospital data generator from a written spec (`data/hospital/SPEC.md`; the session logs are in `docs/cursor/`). A pharmacist review then found clinically wrong interchange pairs. They were fixed under `data/hospital/FIXES-1.md`, with an audit script and tests.
+Cursor's agent built the Corvale hospital data generator from a written spec (`data/hospital/SPEC.md`; the two sessions are summarised in `docs/cursor/README.md`). A pharmacist review then found clinically wrong interchange pairs. They were fixed under `data/hospital/FIXES-1.md`, with an audit script and tests.
 
 ## What a pharmacist would check, and what we did
 - **Interchanges:** only pairs a P&T committee could defend.

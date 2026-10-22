@@ -37,7 +37,9 @@ const t0 = Date.now();
 for (const base of names.slice(0, limit)) {
   const slug = base.replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
   if (skip && existsSync(path.join(dir, `${slug}.json`))) continue;
-  const display = [...(groups.get(base) ?? [base])].sort((a, b) => a.length - b.length)[0];
+  // The shortest name that starts with the base ("sterile water", not the bare "water" some labels use).
+  const aliases = [...(groups.get(base) ?? [base])].sort((a, b) => a.length - b.length);
+  const display = aliases.find((n) => n.startsWith(base)) ?? aliases[0];
   const world = new UpstreamWorld({ storage: "memory" });
   try {
     const c = await investigate({ question: `Why is ${display} short, and what do we do?`, drug: base, formulary, memory, world });

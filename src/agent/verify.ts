@@ -289,6 +289,40 @@ export function verifySentence(s: Sentence, c: Case): string | null {
     }
     const named = EVENTS.filter(([inSentence]) => inSentence.test(s.text));
     if (named.length && !holders.some((l) => named.some(([, inLine]) => inLine.test(l)))) return `the ${m[1]}-${m[2]} gap in the cited rows is about a different event`;
+    // The date the sentence gives with the gap must be the date that line measured it from: "letter dated
+    // 2020-05-25, 819 days before" fails when 819 days is from the inspection's end date.
+    const held = cited.filter((e, i) => phrase.test(lines[i]) && (e.fields.date || e.fields.letter));
+    if (held.length) {
+      const skip = new Set([...held.map((e) => String(e.fields.posted ?? "")), c.asOf]);
+      const near = [...text.matchAll(/\b\d{4}-\d{2}-\d{2}\b/g)].filter((d) => !skip.has(d[0]));
+      const stated = near.filter((d) => d.index! < m.index!).pop() ?? near.find((d) => d.index! > m.index!);
+      if (stated && !held.some((e) => [e.fields.date, e.fields.letter].map(String).includes(stated[0]))) {
+        return `the ${m[1]}-${m[2]} gap in the cited rows is measured from ${held.map((e) => e.fields.date ?? e.fields.letter).join(" or ")}, not from ${stated[0]}`;
+      }
+    }
+  }
+
+  // A firm or plant named with an FDA action and a date: one cited line must hold the firm (or its FEI), the action
+  // and that date. "Baxter's plant received a warning letter on 2017-02-14" fails when the letter went to Hospira.
+  {
+    const firmsHere = claimedFirms(s.text, c);
+    const feis = [...s.text.matchAll(/\bFEI\s*#?\s*(\d{5,12})\b/gi)].map((x) => x[1]);
+    const ids = [...firmsHere, ...feis];
+    const acts = [...s.text.matchAll(/\b(warning letters?|import alerts?|OAI|recall(?:s|ed)?|injunctions?|seizures?)\b/gi)]
+      .filter((x) => !negated(s.text, x.index!))
+      .map((x) => x[1].toLowerCase().replace(/(?:s|ed)$/, "").replace(/^oai$/, "OAI"));
+    if (ids.length && acts.length) {
+      const words = [...new Set(acts)].map((a) => (a === "OAI" ? "\\bOAI\\b" : a.replace(/ /g, "\\s+")));
+      if (/\b(VAI|NAI|inspect\w*)\b/.test(s.text)) words.push("\\bVAI\\b", "\\bNAI\\b", "inspection");
+      const actRe = new RegExp(words.join("|"), "i");
+      for (const d of datesIn(s.text)) {
+        const tok = d.iso ?? d.ym!;
+        if (tok === c.shortage?.firstPosting || tok === c.asOf) continue;
+        const ok = lines.some((l) => l.includes(tok) && actRe.test(l) && ids.some((k) => l.toLowerCase().includes(k)));
+        const who = new Map([...firmKeys(c), ...outsideFirms(s.text, c, firmKeys(c))]);
+        if (!ok) return `no cited line gives ${ids.map((k) => who.get(k) ?? `FEI ${k}`).join(" or ")} the ${acts[0]} dated ${tok}`;
+      }
+    }
   }
 
   // A firm and the classification the sentence gives it must sit on one cited line.
