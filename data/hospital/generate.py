@@ -1310,6 +1310,21 @@ def abbreviate_mfr(name: str) -> str:
     return abbr[:18]
 
 
+def east_description(item: dict[str, Any], strength: str) -> str:
+    """East's item master style: 'CARBOPLATIN 10MG/ML 60ML MDV' (upper case, compact units, container code)."""
+    name = re.sub(r"\s*\(.*?\)", "", item["generic_name"]).upper()
+    s = re.sub(r"\s+", "", (strength or "").upper()).replace("/1", "")
+    pack = (item.get("packaging_description") or "").upper()
+    vol = re.search(r"(\d+(?:\.\d+)?)\s*ML IN 1 (VIAL|BAG|SYRINGE|AMPULE|BOTTLE|CARTRIDGE)", pack)
+    kind = vol.group(2) if vol else ""
+    code = {"VIAL": "MDV" if "MULTI-DOSE" in pack else "SDV", "BAG": "BAG", "SYRINGE": "SYR", "AMPULE": "AMP", "BOTTLE": "BTL", "CARTRIDGE": "CART"}.get(kind, "")
+    form = (item.get("dosage_form") or "").upper()
+    if not code:
+        code = "TAB" if "TABLET" in form else "CAP" if "CAPSULE" in form else ""
+    parts = [name, s, f"{vol.group(1)}ML" if vol else "", code]
+    return re.sub(r"\s+", " ", " ".join(x for x in parts if x)).strip()[:60]
+
+
 def write_corvale_east(
     out_dir: Path,
     general_items: list[dict[str, Any]],
@@ -1419,8 +1434,7 @@ def write_corvale_east(
         ivals = []
         for item in east_items:
             strength = item.get("strength") or ""
-            descr = f"{item['generic_name']} {strength} {item.get('packaging_description') or item['dosage_form']}"
-            descr = re.sub(r"\s+", " ", descr).strip().upper()[:120]
+            descr = east_description(item, strength)
             pkg_size = item.get("pack_size") if item.get("pack_size") is not None else 1
             ivals.append(
                 f"  ({sql_str(item['east_id'])}, {sql_str(descr)}, "

@@ -28,7 +28,8 @@ export async function POST(req: Request) {
         } else {
           const scout = createUpstreamScout({ signingSecret: process.env.SCOUT_SIGNING_SECRET ?? "upstream-replay" });
           const d = await scout.decide({ prompt: question, user: { id: "visitor", role: "buyer" }, surface: "chat" });
-          send({ type: "decision", intent: d.intent.primary, risk: d.risk.level, reason: d.risk.reason ?? null, clarification: d.clarification?.question ?? null });
+          send({ type: "decision", intent: d.intent.primary, risk: d.risk.level, reason: d.risk.reason ?? null, clarification: d.clarification?.question ?? null,
+            drug: String(d.intent.parameters.drug ?? "") || null, contractId: d.executionContract?.contractId ?? null, scope: d.executionContract?.scope.capabilities ?? [] });
           if (d.risk.level === "block" || !d.executionContract) {
             send({ type: "refused", reason: d.risk.reason ?? d.clarification?.question ?? "Scout issued no contract for this request." });
           } else {

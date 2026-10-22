@@ -241,10 +241,16 @@ export async function investigate(opts: InvestigateOptions): Promise<Case> {
       for (const x of insp) {
         const c = str(x.classification);
         if (c !== "OAI" && c !== "VAI") continue;
+        // What FDA wrote down at an OAI inspection (Form 483 observations), so the "why" can say what was found.
+        const obs = c === "OAI" && citR ? citR.rows.filter((o) => str(o.inspection_id) === str(x.inspection_id)) : [];
+        const obsText = obs.length
+          ? `; Form 483: ${[...new Set(obs.map((o) => str(o.short_description)))].slice(0, 3).join("; ")}${obs.length > 3 ? ` (${obs.length} observations)` : ""}`
+          : "";
+        if (obs.length && citR) ledger.cite(citR, citR.rows.indexOf(obs[0]), `Form 483 at inspection ${x.inspection_id}: ${str(obs[0].short_description)}`.slice(0, 120));
         signals.push({
           kind: c === "OAI" ? "inspection_oai" : "inspection_vai", date: str(x.end_date), knownDate: str(x.known_date), knownBasis: str(x.known_date_basis),
-          fei, firm: str(x.legal_name), text: `FDA inspection ${x.inspection_id} ended ${x.end_date}, classified ${c}${x.known_date_basis === "fmd145_letter" ? `; classification letter ${x.known_date}` : ""}`,
-          evidence: ledger.cite(inspR, inspR.rows.indexOf(x), `FDA inspection ${x.inspection_id} (${c})`),
+          fei, firm: str(x.legal_name), text: `FDA inspection ${x.inspection_id} ended ${x.end_date}, classified ${c}${x.known_date_basis === "fmd145_letter" ? `; classification letter ${x.known_date}` : ""}${obsText}`,
+          evidence: ledger.cite(inspR, inspR.rows.indexOf(x), `FDA inspection ${x.inspection_id} (${c})${obsText}`.slice(0, 300)),
         });
       }
       for (const x of acts) {
