@@ -9,7 +9,7 @@ A hospital pharmacy buyer asks *"Carboplatin is short again. Why, and what do we
 
 Every sentence carries citation ids (`E16`, `D8`). Each id opens the Zetaris query and the row it came from, and a verifier drops any sentence whose dates or numbers are not in the rows it cites.
 
-**Live site:** _(replays recorded live runs)_ · **Video:** _(link)_ · **Deck:** `docs/deck.pdf`
+**Live site:** [upstream-shortage.vercel.app](https://upstream-shortage.vercel.app) (replays recorded live runs) · **Video:** _(link)_ · **Deck:** `docs/deck.pdf`
 
 Built for the Open Agent Hackathon 2026, Track 2 "The Agent That Can Explain Why", on **Zetaris**, **Meterless** and **NVIDIA Nemotron**, with part of the build done in **Cursor**.
 
