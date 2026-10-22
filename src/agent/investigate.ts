@@ -26,6 +26,10 @@ export interface InvestigateOptions {
   memory?: HMEM;
   onStep?: (step: Step) => void;
   surface?: "chat" | "api" | "watch";
+  /** Override the drug Scout extracts (batch runs over the whole formulary). */
+  drug?: string;
+  /** Extra drug names Scout's lexicon should recognise (the formulary). */
+  formulary?: string[];
   /** skip the model-written explanation (watch runs and tests) */
   explain?: boolean;
 }
@@ -73,7 +77,7 @@ export async function investigate(opts: InvestigateOptions): Promise<Case> {
   const tallyStart = { ...tally };
 
   // ---- Scout: what is being asked, how risky, and what the agent may touch ------------------------------
-  const scout = createUpstreamScout({ signingSecret: SIGNING_SECRET });
+  const scout = createUpstreamScout({ signingSecret: SIGNING_SECRET, formulary: opts.formulary });
   const d = await scout.decide({ prompt: question, user, surface: opts.surface ?? "chat" });
   const contract: ExecutionContract | undefined = d.executionContract;
   const blank = (clarification: string | null): Case => ({
@@ -106,7 +110,7 @@ export async function investigate(opts: InvestigateOptions): Promise<Case> {
   const canWrite = guard("world.write", "record the supply chain in World Model");
   const prov = (kind: string) => src(kind, "upstream-investigator", new Date().toISOString());
 
-  const term = String(d.intent.parameters.drug ?? "").toLowerCase().split(/\s+/)[0] || question.toLowerCase().match(/[a-z]{5,}/)?.[0] || "";
+  const term = (opts.drug ?? String(d.intent.parameters.drug ?? "")).toLowerCase().split(/\s+/)[0] || question.toLowerCase().match(/[a-z]{5,}/)?.[0] || "";
 
   async function run(key: Step["key"], title: string, purpose: string, sqls: string[], finding: (rs: QueryResult[]) => string, limit = 2000) {
     const s0 = Date.now();

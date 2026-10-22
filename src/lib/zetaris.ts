@@ -146,8 +146,12 @@ export interface QueryOptions {
   mode?: "auto" | "live" | "replay";
 }
 
+// Batch runs: statements whose result is the same for every case (RUN DQ over the whole system) run once per process.
+const memo = new Map<string, QueryResult>();
+
 export async function query(sql: string, opts: QueryOptions = {}): Promise<QueryResult> {
   const id = queryId(sql);
+  if (process.env.ZETARIS_MEMO_DQ === "1" && /^\s*RUN DQ/i.test(sql) && memo.has(id)) return memo.get(id)!;
   const mode = opts.mode ?? (process.env.UPSTREAM_MODE as QueryOptions["mode"]) ?? "auto";
   if (mode === "replay" || (mode === "auto" && !liveConfig())) {
     const rec = await readRecord(id);
@@ -167,6 +171,7 @@ export async function query(sql: string, opts: QueryOptions = {}): Promise<Query
     sources: sourcesOf(sql),
   };
   if (process.env.ZETARIS_RECORD !== "0") await writeRecord(result);
+  if (process.env.ZETARIS_MEMO_DQ === "1" && /^\s*RUN DQ/i.test(sql)) memo.set(id, result);
   return result;
 }
 

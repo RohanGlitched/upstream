@@ -89,15 +89,24 @@ function datesIn(text: string): { iso?: string; ym?: string }[] {
   return out;
 }
 
+/** "1,286" and "1286" are the same number: drop digit-grouping commas before comparing. */
+const ungroup = (s: string) => s.replace(/(\d),(?=\d{3}\b)/g, "$1");
+
 /** Numbers of two or more digits, outside dates and NDC/FEI-looking codes. */
 function numbersIn(text: string): string[] {
-  const stripped = text.replace(/\b\d{4}-\d{2}-\d{2}\b/g, " ").replace(/\b\d{1,2} [A-Za-z]+ \d{4}\b/g, " ").replace(/\b[A-Za-z]+ \d{1,2},? \d{4}\b/g, " ").replace(/\b[A-Za-z]+ \d{4}\b/g, " ");
+  // Remove dates (checked separately) before collecting numbers; only real month names count as dates.
+  const mon = MONTHS.join("|");
+  const stripped = ungroup(text)
+    .replace(/\b\d{4}-\d{2}-\d{2}\b/g, " ")
+    .replace(new RegExp(`\\b\\d{1,2} (${mon}) \\d{4}\\b`, "gi"), " ")
+    .replace(new RegExp(`\\b(${mon}) \\d{1,2},? \\d{4}\\b`, "gi"), " ")
+    .replace(new RegExp(`\\b(${mon}) \\d{4}\\b`, "gi"), " ");
   return [...stripped.matchAll(/(?<![\w.-])(\d{2,}(?:\.\d+)?)(?![\w-])/g)].map((m) => m[1]);
 }
 
 /** Missing dates and numbers: the tokens a sentence uses that its cited lines do not contain. */
 function missingTokens(s: Sentence, c: Case): string[] {
-  const hay = s.cites.filter((id) => c.evidence[id]).map((id) => line(c.evidence[id])).join(" ");
+  const hay = ungroup(s.cites.filter((id) => c.evidence[id]).map((id) => line(c.evidence[id])).join(" "));
   const out: string[] = [];
   for (const d of datesIn(s.text)) {
     const tok = d.iso ?? d.ym!;
@@ -115,7 +124,7 @@ export function repairCites(s: Sentence, c: Case, pack: Evidence[]): Sentence | 
   if (!missing.length || s.cites.some((id) => !c.evidence[id])) return null;
   const add: string[] = [];
   for (const tok of missing) {
-    const hits = pack.filter((e) => line(e).includes(tok));
+    const hits = pack.filter((e) => ungroup(line(e)).includes(tok));
     if (hits.length !== 1) return null;
     if (!s.cites.includes(hits[0].id) && !add.includes(hits[0].id)) add.push(hits[0].id);
   }
@@ -127,7 +136,7 @@ export function verifySentence(s: Sentence, c: Case): string | null {
   if (!s.cites?.length) return "cites nothing";
   const unknown = s.cites.filter((id) => !c.evidence[id]);
   if (unknown.length) return `cites unknown evidence ${unknown.join(", ")}`;
-  const hay = s.cites.map((id) => line(c.evidence[id])).join(" ");
+  const hay = ungroup(s.cites.map((id) => line(c.evidence[id])).join(" "));
   for (const d of datesIn(s.text)) {
     if (d.iso && !hay.includes(d.iso)) return `date ${d.iso} is not in the cited evidence`;
     if (d.ym && !hay.includes(d.ym)) return `month ${d.ym} is not in the cited evidence`;

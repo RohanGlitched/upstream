@@ -17,4 +17,7 @@ assert.deepEqual(fixed?.cites, ["E1", "D1"]);
 assert.equal(repairCites({ text: "It came 24 days before.", cites: ["E1"] }, c, Object.values(ev)), null);
 assert.equal(verifySentence({ text: "Written as 2 December 2022.", cites: ["E1"] }, c), null);
 assert.equal(verifySentence({ text: "Written as December 2, 2022.", cites: ["E1"] }, c), null);
-console.log("verifier: 9 checks passed");
+ev.D2 = { id: "D2", queryId: "derived", row: -1, label: "Corvale East holds 1286 units", fields: { on_hand: 1286 } };
+assert.equal(verifySentence({ text: "Corvale East holds 1,286 units.", cites: ["D2"] }, c), null);
+assert.match(verifySentence({ text: "Corvale East holds 1,287 units.", cites: ["D2"] }, c)!, /1287/);
+console.log("verifier: 11 checks passed");
