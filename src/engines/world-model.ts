@@ -235,7 +235,7 @@ export class UpstreamWorld {
 
   // ---------------------------------------------------------- writes
 
-  upsert(type: EntityType, key: string, input: { name?: string; attrs?: Record<string, unknown>; source: Provenance }): Promise<Entity> {
+  async upsert(type: EntityType, key: string, input: { name?: string; attrs?: Record<string, unknown>; source: Provenance }): Promise<Entity> {
     const k = keyFor(type, key);
     return this.engine.upsertEntity({
       type: ENTITY_KEYS[type].engineType,

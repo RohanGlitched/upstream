@@ -45,17 +45,40 @@ export function sourcesOf(sql: string): string[] {
 }
 
 function liveConfig() {
-  const key = process.env.ZETARIS_API_KEY;
-  const org = process.env.ZETARIS_ORG_ID;
   const base = (process.env.ZETARIS_REST_URL ?? "http://localhost:8888/api/v1.0").replace(/\/$/, "");
-  return key && org ? { key, org, base } : null;
+  const ui = (process.env.ZETARIS_BASE_URL ?? "http://localhost:3000").replace(/\/$/, "");
+  const key = process.env.ZETARIS_API_KEY;
+  const user = process.env.ZETARIS_USERNAME;
+  const password = process.env.ZETARIS_PASSWORD;
+  if (!key && !(user && password)) return null;
+  return { base, ui, key, user, password, org: process.env.ZETARIS_ORG_ID };
+}
+
+// Without an API key, sign in the way Zetaris's own scripts do and reuse the token until it expires.
+let session: { token: string; org: string; exp: number } | null = null;
+
+async function auth(cfg: NonNullable<ReturnType<typeof liveConfig>>): Promise<{ token: string; org: string }> {
+  if (cfg.key) return { token: cfg.key, org: cfg.org ?? "1" };
+  if (session && session.exp > Date.now() + 60_000) return session;
+  const res = await fetch(`${cfg.ui}/api/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Request-ID": randomUUID() },
+    body: JSON.stringify({ username: cfg.user, password: cfg.password }),
+    signal: AbortSignal.timeout(30_000),
+  });
+  if (!res.ok) throw new ZetarisError(`Zetaris sign-in failed: HTTP ${res.status}`);
+  const j = (await res.json()) as { idToken?: string; orgId?: number };
+  if (!j.idToken) throw new ZetarisError("Zetaris sign-in returned no token.");
+  const claims = JSON.parse(Buffer.from(j.idToken.split(".")[1], "base64url").toString()) as { exp?: number };
+  session = { token: j.idToken, org: String(cfg.org ?? j.orgId ?? 1), exp: (claims.exp ?? 0) * 1000 };
+  return session;
 }
 
 /** Turn whatever shape the REST API returns into named rows. */
 export function toRows(payload: unknown): { columns: string[]; rows: Row[] } {
   const p = payload as Record<string, unknown> | null;
   const data = (p?.data ?? p?.rows ?? p?.result ?? payload) as unknown;
-  const colsRaw = (p?.columns ?? p?.schema ?? p?.header ?? (p?.metadata as Record<string, unknown>)?.columns) as unknown;
+  const colsRaw = (p?.headers ?? p?.columns ?? p?.schema ?? p?.header) as unknown;
   let columns: string[] = Array.isArray(colsRaw)
     ? colsRaw.map((c) => (typeof c === "string" ? c : String((c as Record<string, unknown>).name ?? (c as Record<string, unknown>).label ?? "")))
     : [];
@@ -72,12 +95,13 @@ export function toRows(payload: unknown): { columns: string[]; rows: Row[] } {
 
 async function runLive(sql: string, limit: number): Promise<{ columns: string[]; rows: Row[] }> {
   const cfg = liveConfig();
-  if (!cfg) throw new ZetarisError("Zetaris is not configured (ZETARIS_API_KEY, ZETARIS_ORG_ID).", sql);
+  if (!cfg) throw new ZetarisError("Zetaris is not configured (ZETARIS_API_KEY, or ZETARIS_USERNAME and ZETARIS_PASSWORD).", sql);
+  const { token, org } = await auth(cfg);
   const res = await fetch(`${cfg.base}/sql-editor/sqls/run`, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${cfg.key}`,
-      "X-Org-ID": cfg.org,
+      Authorization: `Bearer ${token}`,
+      "X-Org-ID": org,
       "X-Request-ID": randomUUID(),
       "Content-Type": "application/json",
     },
