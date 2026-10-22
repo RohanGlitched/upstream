@@ -533,5 +533,52 @@ class TestHelpers(unittest.TestCase):
         self.assertIsNotNone(find_scenario(item, smap))
 
 
+class TestPharmacistFixes(unittest.TestCase):
+    """FIXES-1.md: one test per fix, run against the real generated output."""
+
+    @classmethod
+    def setUpClass(cls):
+        out = Path(__file__).resolve().parent / "out"
+        if not (out / "formulary_master.csv").is_file():
+            raise unittest.SkipTest("run generate.py first")
+        cls.out = out
+        cls.rows = list(csv.DictReader(open(out / "formulary_master.csv", encoding="utf8")))
+
+    def test_1_shortage_items_are_parenteral_and_fda_listed(self):
+        from generate import is_parenteral
+        shortage = [r for r in self.rows if r["from_shortage"] == "True"]
+        self.assertTrue(shortage)
+        for r in shortage:
+            self.assertTrue(is_parenteral(r["dosage_form"], r["route"]), r["generic_name"])
+        listed = sum(r["ndc_source"] == "fda_shortage_listing" for r in shortage)
+        self.assertGreaterEqual(listed / len(shortage), 0.8)
+
+    def test_2_interchanges_pass_the_audit(self):
+        import audit
+        self.assertEqual(audit.main(), 0)
+
+    def test_3_strengths_follow_ismp(self):
+        for r in self.rows:
+            self.assertNotRegex(r["strength"], r"(^|[^0-9])\.\d|ug|µg|\[iU\]|\[USP'U\]", r["strength"])
+
+    def test_4_classes_for_syringe_colours(self):
+        cls = {r["generic_name"].lower(): r["therapeutic_class"] for r in self.rows}
+        for name, want in cls.items():
+            if name.startswith("atropine"):
+                self.assertEqual(want, "anticholinergic")
+            if name.startswith("norepinephrine") or name.startswith("vasopressin"):
+                self.assertEqual(want, "vasopressor")
+
+    def test_5_scenarios_hold(self):
+        sql = (self.out / "corvale_general.sql").read_text(encoding="utf8")
+        self.assertIn("cisplatin", sql.lower())
+        cab = (self.out / "lakeside" / "cabinet_export_20261021.csv").read_text(encoding="utf8")
+        self.assertNotIn("CISplatin", cab)  # absent at Lakeside by scenario
+
+    def test_6_tall_man_on_lakeside(self):
+        cab = (self.out / "lakeside" / "cabinet_export_20261021.csv").read_text(encoding="utf8")
+        self.assertRegex(cab, r"CARBOplatin|HYDROmorphone|DOPamine|methylPREDNISolone|KETorolac")
+
+
 if __name__ == "__main__":
     unittest.main()

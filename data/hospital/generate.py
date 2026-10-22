@@ -749,6 +749,7 @@ def pick_packages(
             else:
                 route_s = str(route)
             pkgs.append({
+                "strength_raw": strength,
                 "product_ndc": p.get("product_ndc"),
                 "package_ndc": pkg_ndc,
                 "ndc11": ndc11,
@@ -758,7 +759,7 @@ def pick_packages(
                 "dosage_form": p.get("dosage_form") or "",
                 "route": route_s,
                 "active_ingredients": ings,
-                "strength": strength,
+                "strength": ismp_human_text(strength),
                 "manufacturer_name": (openfda.get("manufacturer_name") or [None])[0],
                 "spl_set_id": (openfda.get("spl_set_id") or [None])[0],
                 "packaging_description": pack.get("description") or "",
@@ -789,6 +790,31 @@ def pick_packages(
     return chosen[:n]
 
 
+def build_package_index(products: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """Every marketed package, keyed by each normalised digit form of its NDC."""
+    index: dict[str, dict[str, Any]] = {}
+    for p in products:
+        for pkg in pick_packages([p], random.Random(0), n=10_000):
+            for key in ndc_digit_keys(pkg["package_ndc"]):
+                index.setdefault(key, pkg)
+    return index
+
+
+def pick_distinct_labelers(pkgs: list[dict[str, Any]], n: int) -> list[dict[str, Any]]:
+    """First package of each labeler in listing order, up to n."""
+    chosen: list[dict[str, Any]] = []
+    labelers: set[str] = set()
+    for pkg in pkgs:
+        lab = normalize_ws(pkg["labeler_name"])
+        if lab in labelers:
+            continue
+        labelers.add(lab)
+        chosen.append(pkg)
+        if len(chosen) >= n:
+            break
+    return chosen
+
+
 # ---------------------------------------------------------------------------
 # Formulary build
 # ---------------------------------------------------------------------------
@@ -800,6 +826,7 @@ def build_formulary(
     rng: random.Random,
 ) -> list[dict[str, Any]]:
     idx = build_ndc_index(ndc_products)
+    pkg_index = build_package_index(ndc_products)
     items: list[dict[str, Any]] = []
     seen_ndc11: set[str] = set()
 
@@ -811,15 +838,26 @@ def build_formulary(
         n_shortage = sum(1 for i in items if i["from_shortage"])
         if n_shortage >= shortage_item_cap:
             break
-        products = find_matching_products(row["generic"], idx)
-        if not products:
-            continue
-        # Stay near ~120: mostly 1 package; allow extras only under the target.
-        if n_shortage >= shortage_target:
-            n_pkg = 1
+        # Prefer the exact package NDCs FDA lists for this shortage (FIXES-1 rule 1).
+        listed = []
+        for raw_ndc in (row.get("ndcs") or "").split("|"):
+            for key in ndc_digit_keys(raw_ndc):
+                pkg = pkg_index.get(key)
+                if pkg and is_parenteral(pkg["dosage_form"], pkg["route"]) and pkg not in listed:
+                    listed.append(pkg)
+                    break
+        if listed:
+            ndc_source = "fda_shortage_listing"
+            packages = pick_distinct_labelers(listed, 2 if n_shortage < shortage_target else 1)
         else:
-            n_pkg = 1 if rng.random() < 0.85 else min(3, shortage_target - n_shortage)
-        packages = pick_packages(products, rng, n=max(1, n_pkg))
+            ndc_source = "directory_search"
+            products = [
+                p for p in find_matching_products(row["generic"], idx)
+                if is_parenteral(p.get("dosage_form") or "", "|".join(p.get("route") or []))
+            ]
+            if not products:
+                continue
+            packages = pick_packages(products, rng, n=1)
         for pkg in packages:
             if pkg["ndc11"] in seen_ndc11:
                 continue
@@ -830,6 +868,7 @@ def build_formulary(
             items.append({
                 **pkg,
                 "source_query": row["generic"],
+                "ndc_source": ndc_source,
                 "from_shortage": True,
                 "therapeutic_class": tclass,
                 "is_critical": is_critical(gname, tclass, pkg["dosage_form"]),
@@ -859,6 +898,7 @@ def build_formulary(
             items.append({
                 **pkg,
                 "source_query": line,
+                "ndc_source": "directory_search",
                 "from_shortage": False,
                 "therapeutic_class": tclass,
                 "is_critical": is_critical(gname, tclass, pkg["dosage_form"]),
@@ -878,6 +918,78 @@ def build_formulary(
     for i, item in enumerate(items, start=1):
         item["item_id"] = i
     return items
+
+
+# ---------------------------------------------------------------------------
+# Therapeutic interchange (FIXES-1 rule 2)
+# ---------------------------------------------------------------------------
+
+def molecule_key(item: dict[str, Any]) -> str:
+    """First active ingredient, normalised; falls back to the generic name."""
+    ings = item.get("active_ingredients") or []
+    name = (ings[0].get("name") if ings else "") or item.get("generic_name") or ""
+    return normalize_ws(name)
+
+
+def route_set(item: dict[str, Any]) -> set[str]:
+    return {r.strip().upper() for r in (item.get("route") or "").split("|") if r.strip()}
+
+
+def routes_compatible(a: dict[str, Any], b: dict[str, Any]) -> bool:
+    """Same route family: they share a route, and both are parenteral or both are not."""
+    if is_parenteral(a.get("dosage_form", ""), a.get("route", "")) != is_parenteral(
+        b.get("dosage_form", ""), b.get("route", "")
+    ):
+        return False
+    return bool(route_set(a) & route_set(b))
+
+
+def build_interchange_pairs(items: list[dict[str, Any]]) -> list[tuple[dict, dict, str, str]]:
+    by_mol: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for i in items:
+        by_mol[molecule_key(i)].append(i)
+    pairs: list[tuple[dict, dict, str, str]] = []
+    seen: set[tuple[int, int]] = set()
+
+    def add(src: dict, alt: dict, rule: str, note: str) -> None:
+        key = (src["item_id"], alt["item_id"])
+        if src["item_id"] == alt["item_id"] or src["ndc11"] == alt["ndc11"] or key in seen:
+            return
+        seen.add(key)
+        pairs.append((src, alt, rule, note))
+
+    for src in sorted((i for i in items if i["from_shortage"]), key=lambda i: i["item_id"]):
+        mol = molecule_key(src)
+        same = [x for x in by_mol[mol] if x["item_id"] != src["item_id"]]
+        alt_mfr = [
+            x for x in same
+            if (x.get("strength_raw") or x["strength"]) == (src.get("strength_raw") or src["strength"])
+            and normalize_ws(x["dosage_form"]) == normalize_ws(src["dosage_form"])
+            and routes_compatible(src, x)
+            and normalize_ws(x["labeler_name"]) != normalize_ws(src["labeler_name"])
+        ]
+        if alt_mfr:
+            add(src, alt_mfr[0], RULE_ALT_MFR,
+                f"Same product from {alt_mfr[0]['labeler_name']}; substitute NDC, no clinical change.")
+            continue
+        alt_conc = [x for x in same if routes_compatible(src, x)]
+        if alt_conc:
+            add(src, alt_conc[0], RULE_ALT_CONC,
+                "Recalculate dose and volume; pharmacist verification required.")
+            continue
+        if any(m in mol for m in IV_TO_PO_MOLECULES) and is_parenteral(src["dosage_form"], src["route"]):
+            oral = [x for x in same if "ORAL" in route_set(x)]
+            if oral:
+                add(src, oral[0], RULE_IV_PO,
+                    "Patients able to take oral medication, per the P&T IV-to-PO protocol.")
+
+    # The one cross-molecule pair, and only in this direction.
+    cis = [i for i in items if "cisplatin" in molecule_key(i) and i["from_shortage"]]
+    carbo = [i for i in items if molecule_key(i).startswith("carboplatin")]
+    if cis and carbo:
+        add(cis[0], carbo[0], RULE_ONC,
+            "Not interchangeable in all regimens; per treating oncologist.")
+    return pairs
 
 
 def _unit_of_use(pkg: dict[str, Any]) -> str:
@@ -1058,92 +1170,17 @@ def write_corvale_general(
                 status,
             ))
 
-    # Therapeutic interchange ~40 shortage drugs
-    shortage_items = [i for i in items if i["from_shortage"]]
-    by_generic: dict[str, list[dict[str, Any]]] = defaultdict(list)
-    for i in items:
-        by_generic[normalize_ws(i["generic_name"])].append(i)
+    # Therapeutic interchange: only pairs a P&T committee could defend (FIXES-1 rule 2).
+    pairs = build_interchange_pairs(items)
 
-    pairs: list[tuple[dict, dict, str]] = []
-    # Same molecule, different NDC/presentation.
-    for g, group in by_generic.items():
-        if len(pairs) >= INTERCHANGE_TARGET:
-            break
-        shortage_members = [x for x in group if x["from_shortage"]]
-        if not shortage_members:
-            continue
-        alts = [x for x in group if x["item_id"] != shortage_members[0]["item_id"]]
-        if not alts:
-            # Cross-group conservative alternatives for common molecules.
-            continue
-        src = shortage_members[0]
-        alt = rng.choice(alts)
-        rule = (
-            "protocol-specific, oncologist approval"
-            if src["therapeutic_class"] == "oncology"
-            else "same molecule, alternate concentration/presentation"
-        )
-        pairs.append((src, alt, rule))
-
-    # Plausible cross-molecule pairs (conservative P&T style).
-    CROSS = [
-        ("rocuronium", "vecuronium", "alternate neuromuscular blocker"),
-        ("ondansetron", "granisetron", "5-HT3 class alternative"),
-        ("morphine", "hydromorphone", "opioid equianalgesic alternative"),
-        ("cefepime", "ceftriaxone", "alternate cephalosporin — ID approval"),
-        ("norepinephrine", "phenylephrine", "vasopressor alternative — ICU"),
-        ("pantoprazole", "famotidine", "acid suppression alternative"),
-        ("propofol", "midazolam", "sedation alternative — ICU protocol"),
-        ("enoxaparin", "heparin", "anticoagulant alternative"),
-    ]
-    for a_key, b_key, rule in CROSS:
-        if len(pairs) >= INTERCHANGE_TARGET:
-            break
-        a_items = [i for i in shortage_items if a_key in normalize_ws(i["generic_name"])]
-        b_items = [i for i in items if b_key in normalize_ws(i["generic_name"])]
-        if a_items and b_items:
-            src, alt = a_items[0], b_items[0]
-            if src["item_id"] != alt["item_id"]:
-                r = (
-                    "protocol-specific, oncologist approval"
-                    if src["therapeutic_class"] == "oncology"
-                    else rule
-                )
-                pairs.append((src, alt, r))
-
-    # Pad with more same-molecule pairs from shortage list.
-    for src in shortage_items:
-        if len(pairs) >= INTERCHANGE_TARGET:
-            break
-        group = by_generic[normalize_ws(src["generic_name"])]
-        alts = [x for x in group if x["item_id"] != src["item_id"]]
-        if not alts:
-            # Find another item same class.
-            alts = [
-                x for x in items
-                if x["therapeutic_class"] == src["therapeutic_class"]
-                and x["item_id"] != src["item_id"]
-            ][:5]
-        if not alts:
-            continue
-        alt = alts[0]
-        if any(p[0]["item_id"] == src["item_id"] for p in pairs):
-            continue
-        rule = (
-            "protocol-specific, oncologist approval"
-            if src["therapeutic_class"] == "oncology"
-            else "P&T approved shortage interchange"
-        )
-        pairs.append((src, alt, rule))
-
-    for src, alt, rule in pairs[:INTERCHANGE_TARGET]:
+    for src, alt, rule, note in pairs:
         ti_rows.append((
             src["item_id"],
             alt["item_id"],
             rule,
             rng.choice(APPROVERS),
             (AS_OF_DATE - timedelta(days=rng.randint(30, 400))).isoformat(),
-            f"Shortage mitigation for {src['generic_name']}",
+            note,
         ))
 
     path = out_dir / "corvale_general.sql"
@@ -1448,7 +1485,10 @@ def write_lakeside(
             continue
         pool.append(item)
     rng.shuffle(pool)
-    selected = pool[:LAKESIDE_TARGET]
+    # Items with a Lakeside scenario are always stocked there, so the story holds.
+    forced = [i for i in pool if (find_scenario(i, smap) or {}).get("lakeside")]
+    rest = [i for i in pool if i not in forced]
+    selected = (forced + rest)[:LAKESIDE_TARGET]
     selected.sort(key=lambda i: i["ndc11"])
 
     stations = ["ED-1", "ICU-A", "OR-2", "MEDSURG-3", "PHARM"]
@@ -1468,9 +1508,9 @@ def write_lakeside(
         med_id = f"LS-{i + 1:04d}"
         strength = item.get("strength") or ""
         desc = f"{tall_man_name(item['generic_name'])} {strength}"
-        if item.get("pack_size"):
-            desc += f" {item['pack_size']} mL"
-        desc += " vial" if "vial" in (item.get("unit_of_use") or "") else ""
+        unit_of_use = item.get("unit_of_use") or ""
+        if item.get("pack_size") and unit_of_use in ("vial", "bag", "syringe", "ampule"):
+            desc += f" {item['pack_size']} mL {unit_of_use}"
         desc = re.sub(r"\s+", " ", desc).strip()
 
         if i in blank_set:
@@ -1489,7 +1529,13 @@ def write_lakeside(
         else:
             ndc_out = item["package_ndc"]
 
-        qty = rng.randint(0, 40)
+        # A 120-bed critical access hospital uses about a fifth of the flagship's volume.
+        units30d = round(daily_base(item) * 30 * 0.2 * rng.uniform(0.7, 1.3), 1)
+        sc_lake = (find_scenario(item, smap) or {}).get("lakeside") or {}
+        days = sc_lake.get("days_on_hand") if isinstance(sc_lake, dict) else None
+        if days is None:
+            days = rng.uniform(5, 30)
+        qty = max(0, int(round(units30d / 30 * days)))
         unit = item.get("unit_of_use") or "each"
         station = rng.choice(stations)
         cabinet_rows.append({
@@ -1502,7 +1548,7 @@ def write_lakeside(
         })
         usage_rows.append({
             "MedID": med_id,
-            "Units30d": str(round(daily_base(item) * 30 * rng.uniform(0.7, 1.3), 1)),
+            "Units30d": str(units30d),
         })
 
     cab_path = lakeside_dir / "cabinet_export_20261021.csv"
@@ -1550,7 +1596,8 @@ def write_formulary_master(out_dir: Path, items: list[dict[str, Any]]) -> None:
         "item_id", "ndc11", "package_ndc", "product_ndc", "generic_name",
         "brand_name", "strength", "dosage_form", "route", "labeler_name",
         "therapeutic_class", "is_critical", "from_shortage", "unit_of_use",
-        "pack_size", "source_query",
+        "pack_size", "source_query", "ndc_source", "strength_raw", "spl_set_id",
+        "manufacturer_name",
     ]
     with open(path, "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=fields)
