@@ -10,7 +10,7 @@ A hospital pharmacy buyer asks *"Carboplatin is short again. Why, and what do we
 
 Every sentence carries citation ids (`E16`, `D8`). Each id opens the Zetaris query and the row it came from, and a deterministic verifier drops any sentence the cited rows do not support: its dates, numbers and counts, the field a stock figure claims to be, the event and direction of a day gap, a plant's OAI/VAI/NAI on the same row as the plant, and any cause, status change or absence the record does not state. Against 44 false sentences written by three rounds of judges to slip past it (`scripts/verifier-adversarial.mts`, `scripts/verifier-final-round.mts`), it drops all 44 and keeps every true one tested.
 
-**Live site:** [upstream-shortage.vercel.app](https://upstream-shortage.vercel.app) (replays recorded live runs) · **Video:** _(link)_ · **Deck:** [docs/deck.pdf](docs/deck.pdf)
+**Live site:** [upstream-shortage.vercel.app](https://upstream-shortage.vercel.app) (replays recorded live runs) · **Video:** [youtu.be/BETWCr_0JCQ](https://youtu.be/BETWCr_0JCQ) · **Deck:** [docs/deck.pdf](docs/deck.pdf)
 
 Built for the Open Agent Hackathon 2026, Track 2 "The Agent That Can Explain Why", on **Zetaris**, **Meterless** and **NVIDIA Nemotron**, with part of the build done in **Cursor**.
 
