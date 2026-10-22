@@ -55,11 +55,11 @@ function liveConfig() {
 }
 
 // Without an API key, sign in the way Zetaris's own scripts do and reuse the token until it expires.
-let session: { token: string; org: string; exp: number } | null = null;
+let session: { token: string; org: string; exp: number; margin: number } | null = null;
 
-async function auth(cfg: NonNullable<ReturnType<typeof liveConfig>>): Promise<{ token: string; org: string }> {
+async function auth(cfg: NonNullable<ReturnType<typeof liveConfig>>, fresh = false): Promise<{ token: string; org: string }> {
   if (cfg.key) return { token: cfg.key, org: cfg.org ?? "1" };
-  if (session && session.exp > Date.now() + 60_000) return session;
+  if (!fresh && session && session.exp > Date.now() + session.margin) return session;
   const res = await fetch(`${cfg.ui}/api/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json", "X-Request-ID": randomUUID() },
@@ -69,8 +69,18 @@ async function auth(cfg: NonNullable<ReturnType<typeof liveConfig>>): Promise<{ 
   if (!res.ok) throw new ZetarisError(`Zetaris sign-in failed: HTTP ${res.status}`);
   const j = (await res.json()) as { idToken?: string; orgId?: number };
   if (!j.idToken) throw new ZetarisError("Zetaris sign-in returned no token.");
-  const claims = JSON.parse(Buffer.from(j.idToken.split(".")[1], "base64url").toString()) as { exp?: number };
-  session = { token: j.idToken, org: String(cfg.org ?? j.orgId ?? 1), exp: (claims.exp ?? 0) * 1000 };
+  const claims = JSON.parse(Buffer.from(j.idToken.split(".")[1], "base64url").toString()) as {
+    exp?: number;
+    nbf?: number;
+    iat?: number;
+  };
+  const exp = (claims.exp ?? 0) * 1000;
+  // The token's "not before" is rounded up to the next second: a call in the same second is refused
+  // (JwtNotBeforeException, surfaced only as HTTP 400 "Bad Request"). Wait it out.
+  const nbf = (claims.nbf ?? 0) * 1000;
+  if (nbf > Date.now()) await new Promise((r) => setTimeout(r, nbf - Date.now() + 250));
+  const lifetime = exp - (claims.iat ?? claims.nbf ?? 0) * 1000;
+  session = { token: j.idToken, org: String(cfg.org ?? j.orgId ?? 1), exp, margin: Math.min(60_000, lifetime / 4) };
   return session;
 }
 
@@ -96,21 +106,25 @@ export function toRows(payload: unknown): { columns: string[]; rows: Row[] } {
 async function runLive(sql: string, limit: number): Promise<{ columns: string[]; rows: Row[] }> {
   const cfg = liveConfig();
   if (!cfg) throw new ZetarisError("Zetaris is not configured (ZETARIS_API_KEY, or ZETARIS_USERNAME and ZETARIS_PASSWORD).", sql);
-  const { token, org } = await auth(cfg);
-  const res = await fetch(`${cfg.base}/sql-editor/sqls/run`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "X-Org-ID": org,
-      "X-Request-ID": randomUUID(),
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ queryId: randomUUID(), sql, source: "SqlEditor", limit }),
-    signal: AbortSignal.timeout(Number(process.env.ZETARIS_TIMEOUT_MS ?? 120_000)),
-  });
-  const text = await res.text();
-  if (!res.ok) throw new ZetarisError(`Zetaris returned HTTP ${res.status}: ${text.slice(0, 300)}`, sql);
-  return toRows(text ? JSON.parse(text) : null);
+  for (let attempt = 0; ; attempt++) {
+    const { token, org } = await auth(cfg, attempt > 0);
+    const res = await fetch(`${cfg.base}/sql-editor/sqls/run`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "X-Org-ID": org,
+        "X-Request-ID": randomUUID(),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ queryId: randomUUID(), sql, source: "SqlEditor", limit }),
+      signal: AbortSignal.timeout(Number(process.env.ZETARIS_TIMEOUT_MS ?? 120_000)),
+    });
+    const text = await res.text();
+    // A bare "Bad Request" is how an auth failure surfaces; sign in again once before giving up.
+    if (res.status === 400 && text.includes('"Bad Request"') && attempt === 0 && !cfg.key) continue;
+    if (!res.ok) throw new ZetarisError(`Zetaris returned HTTP ${res.status}: ${text.slice(0, 300)}`, sql);
+    return toRows(text ? JSON.parse(text) : null);
+  }
 }
 
 async function readRecord(id: string): Promise<QueryResult | null> {

@@ -24,3 +24,28 @@ BEGIN
 END
 \$\$;
 SQL
+
+# The pharmacy's own stock-position report: on hand and 28-day average use, computed in this database.
+if [ "$HOSPITAL_SCHEMA" = "cg" ]; then
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<'SQL'
+CREATE OR REPLACE VIEW public.stock_position WITH (security_barrier) AS
+SELECT f.item_id, f.ndc11, f.generic_name, f.strength, f.unit_of_use,
+       inv.on_hand, coalesce(u.units_28d, 0) / 28.0 AS daily_use
+FROM cg.formulary_item f
+JOIN (SELECT item_id, sum(qty_units) AS on_hand FROM cg.inventory_snapshot GROUP BY item_id) inv USING (item_id)
+LEFT JOIN (SELECT item_id, sum(units) AS units_28d FROM cg.dispense_daily
+           WHERE day > DATE '2026-10-21' - 28 GROUP BY item_id) u USING (item_id);
+GRANT SELECT ON public.stock_position TO zetaris_reader;
+SQL
+else
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<'SQL'
+CREATE OR REPLACE VIEW public.stock_position WITH (security_barrier) AS
+SELECT i.id, i.pkg_ndc, i.descr, i.pkg_size, i.uom,
+       s.on_hand_pkgs, coalesce(w.pkgs_28d, 0) / 28.0 AS daily_use_pkgs
+FROM east.items i
+JOIN east.stock s USING (id)
+LEFT JOIN (SELECT id, sum(pkgs_used) AS pkgs_28d FROM east.usage_weekly
+           WHERE week_start > DATE '2026-10-21' - 28 GROUP BY id) w USING (id);
+GRANT SELECT ON public.stock_position TO zetaris_reader;
+SQL
+fi
