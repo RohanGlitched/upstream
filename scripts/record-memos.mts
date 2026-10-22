@@ -23,11 +23,11 @@ async function one(f: string) {
       console.log(`${String(++done).padStart(3)} ${f}`, m.refused ? `refused: ${m.refused}` : `${m.draft.split(/\s+/).length} words`);
       return;
     } catch (e) {
-      if (attempt >= 5) {
+      if (attempt >= 9) {
         console.log(f, `FAIL ${(e as Error).message.slice(0, 120)}`);
         return;
       }
-      await new Promise((r) => setTimeout(r, 10_000 * (attempt + 1) + Math.random() * 5_000));
+      await new Promise((r) => setTimeout(r, 15_000 * (attempt + 1) + Math.random() * 10_000));
     }
   }
 }

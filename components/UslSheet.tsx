@@ -310,7 +310,8 @@ export function UslSheet({ dq, explain }: { dq: FdaDq | null; explain: ExplainFi
           <p className="hw-note">
             The interchange query&apos;s NDC list reaches Corvale General&apos;s Postgres as a pushed filter, and every JDBC scan reads only the columns it needs. The stock
             query&apos;s molecule filter is not pushed into the hospitals: it runs in Zetaris over the three USL stock tables, which read each hospital&apos;s small
-            stock_position view whole.
+            stock_position view whole. That is cheap for three hospitals (826 stock rows); for a network of hundreds, the stock query would read the
+            JDBC tables directly with the NDC list as a pushed filter, as the interchange query already does, and keep the USL for the key rules.
           </p>
         </div>
       ) : null}

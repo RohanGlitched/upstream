@@ -269,12 +269,15 @@ export function buildModel(c: Case): WsModel {
   const unit = Object.entries(unitCount).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "vial";
 
   // hospitals that stock it
+  // A reservoir's days are the shortest presentation's, the same figure the shelf label and the record give.
+  const shortest = c.presentations?.find((p) => !p.key.startsWith("unplaced:"));
   const hospitals: WsHospital[] = [];
   for (const h of HOSPITALS) {
     const lines = c.stock.filter((s) => s.hospital === h.key);
     if (!lines.length) continue;
-    const onHand = lines.reduce((a, s) => a + s.onHand, 0);
-    const use = lines.reduce((a, s) => a + s.dailyUse, 0);
+    const ph = shortest?.hospitals.find((x) => x.hospital === h.key);
+    const onHand = ph ? ph.onHand : lines.reduce((a, s) => a + s.onHand, 0);
+    const use = ph ? ph.dailyUse : lines.reduce((a, s) => a + s.dailyUse, 0);
     hospitals.push({
       key: h.key, short: h.short, source: HOSP_SOURCE[h.key], onHand, use,
       days: use > 0 ? onHand / use : null, unit: lines[0].unit, evidence: lines.map((s) => s.evidence),

@@ -47,7 +47,7 @@ function numbersIn(text: string): string[] {
 }
 
 /** Single digits count too when they are a quantity: "9 days", "3 plants", "a 9-day supply". */
-const UNIT = "days?|weeks?|months?|years?|vials?|units?|packages?|bags?|doses?|syringes?|plants?|sites?|inspections?|labelers?|manufacturers?|makers?|companies|recalls?|letters?|alerts?|hospitals?|options?|lines?|rows?";
+const UNIT = "days?|weeks?|months?|years?|vials?|units?|packages?|bags?|doses?|syringes?|plants?|sites?|inspections?|labelers?|manufacturers?|makers?|companies|recalls?|letters?|alerts?|hospitals?|options?|lines?|rows?|mL|mg|mcg|g|L";
 function smallCounts(text: string): string[] {
   return [...stripDates(normal(text)).matchAll(new RegExp(`(?<![\\w.,-])(\\d(?:\\.\\d+)?)\\s+(?:${UNIT})\\b`, "gi"))].map((m) => m[1]);
 }
@@ -98,8 +98,8 @@ export function repairCites(s: Sentence, c: Case, pack: Evidence[]): Sentence | 
   return verifySentence(fixed, c) ? null : fixed;
 }
 
-const NUMBER_WORDS = /\b(two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|million|dozen)\b/i;
-const CAUSAL = /\b(caus(?:e|es|ed|ing)|due to|led to|leads to|lead to|leading to|resulted in|results in|result of|as a result|because|responsible for|blamed?|triggered|stems? from|stemmed from|owing to|attributable to|drove|driven by|contributed to|root cause|thanks to)\b/i;
+const NUMBER_WORDS = /\b(two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|million|dozen|twice|double|triple|half|quarter|(?<![\d.]\s)a (?:day|week|month|year)|several days|several weeks|several months|several years)\b/i;
+const CAUSAL = /\b(caus(?:e|es|ed|ing)|due to|led to|leads to|lead to|leading to|resulted in|results in|result of|as a result|because|responsible for|blamed?|triggered|stems? from|stemmed from|owing to|attributable to|drove|driven by|contributed to|root cause|thanks to|is the reason|the reason (?:for|why)|reason (?:that|why)|explains why|accounts? for|(?:is|lies|was) behind|source of the shortage)\b/i;
 // Words that change a status: each must be in the record the sentence cites (by its first six letters).
 const STATUS = /\b(resolved|resolution|recalled|discontinu\w*|resum\w*|restock\w*|back in stock|confirmed|confirms|withdr\w*|lifted|reinstat\w*)\b/i;
 const CLASSES = ["OAI", "VAI", "NAI"];
@@ -142,6 +142,11 @@ function outsideFirms(text: string, c: Case, inCase: Map<string, string>): Map<s
     if (new RegExp(`\\b${key.charAt(0).toUpperCase()}${key.slice(1)}\\b`).test(text)) out.set(key, name);
   }
   return out;
+}
+
+/** FDA's long names for a classification, read as the short ones so the same checks apply. */
+function shortClasses(text: string): string {
+  return text.replace(/\bOfficial Action Indicated\b/gi, "OAI").replace(/\bVoluntary Action Indicated\b/gi, "VAI").replace(/\bNo Action Indicated\b/gi, "NAI");
 }
 
 /** OAI/VAI/NAI the sentence asserts (not ones it says are absent). */
@@ -190,11 +195,16 @@ function absenceProblem(text: string, c: Case, named: string[], firms: Map<strin
   // "before the posting" / "precedes": only actions dated before the case's posting count.
   const timed = /\b(before|precede[sd]?|prior to|ahead of|earlier than)\b/i.test(text) && c.shortage?.firstPosting;
   const inScope = (x: { s: Signal }) => !timed || x.s.date < c.shortage!.firstPosting!;
-  const m = text.match(/\b(?:no|never|without any)\s+(?:\w+\s+){0,2}?(warning letters?|import alerts?|recalls?|OAI|actions?|enforcement|signals?|findings?)\b/i);
+  const m = text.match(/\b(?:no|never|without any|zero|0)\s+(?:\w+\s+){0,2}?(warning letters?|import alerts?|recalls?|OAI|actions?|enforcement|signals?|findings?)\b/i);
   if (m) {
     const kinds = ACTION_KINDS.find(([re]) => re.test(m[1]))?.[1] ?? [];
     const hit = scope.find((x) => kinds.includes(x.s.kind) && inScope(x));
     if (hit) return `"${m[0]}" is false: the record holds ${hit.s.kind.replace(/_/g, " ")} ${hit.s.date} at ${hit.plant}`;
+  }
+  // "never inspected": false if any cited-or-case row is an FDA inspection of that plant.
+  if (/\bnever (?:been )?inspected\b|\bno (?:FDA )?inspections?\b/i.test(text)) {
+    const insp = Object.values(c.evidence ?? {}).find((e) => "inspection_id" in e.fields && (!named.length || named.some((k) => line(e).toLowerCase().includes(k))));
+    if (insp) return `the record holds FDA inspection ${insp.fields.inspection_id} for ${who}`;
   }
   const only = text.match(/\bonly\s+(?:\w+\s+){0,2}?(VAI|NAI)\b/);
   if (only) {
@@ -223,7 +233,16 @@ export function verifySentence(s: Sentence, c: Case): string | null {
   const lines = citedLines(s, c);
   const hay = lines.join(" ");
   const low = hay.toLowerCase();
+  s = { ...s, text: shortClasses(s.text) };
   const text = normal(s.text);
+  if (/\b\d{1,2}\/\d{1,2}\/\d{2,4}\b|\b\d{4}\/\d{1,2}\/\d{1,2}\b/.test(s.text)) return "dates must be written as the evidence writes them (YYYY-MM-DD)";
+  // "no longer on the list", "off the list": an ending the record must state.
+  const ended = s.text.match(/\bno longer (?:on|listed|in shortage|short)\b|\boff (?:the|FDA'?s) (?:shortage )?list\b|\bremoved from\b|\b(?:has|have) ended\b|\bis over\b|\bcleared\b/i);
+  if (ended && !/resolved|not on fda'?s current|listed=no|not listed/i.test(hay)) return `"${ended[0]}" is a status the cited record does not state`;
+  // An inspection the sentence says was "not classified VAI" must not be VAI in its cited row.
+  for (const m of s.text.matchAll(/\b(\d{6,8})\b[^.]*?\bnot\s+(?:been\s+)?classified\s+(OAI|VAI|NAI)\b/g)) {
+    if (lines.some((l) => l.includes(m[1]) && new RegExp(`\\b${m[2]}\\b`).test(l))) return `inspection ${m[1]} was classified ${m[2]} in the cited row`;
+  }
 
   for (const d of datesIn(s.text)) {
     if (d.iso && !hay.includes(d.iso)) return `date ${d.iso} is not in the cited evidence`;
@@ -236,11 +255,19 @@ export function verifySentence(s: Sentence, c: Case): string | null {
 
   // A stock figure must be the field it says it is ("holds 3.6" when 3.6 is the daily use fails).
   const cited = s.cites.map((id) => c.evidence[id]).filter(Boolean);
+  // A transfer's direction must be the cited option's: "from Lakeside to East" is not "from East to Lakeside".
+  for (const m of text.matchAll(/\bfrom (?:Corvale )?(General|East|Lakeside)\b.{0,40}?\bto (?:Corvale )?(General|East|Lakeside)\b/gi)) {
+    const moves = cited.filter((e) => "from" in e.fields && "to" in e.fields);
+    if (moves.length && !moves.some((e) => String(e.fields.from).endsWith(m[1]) && String(e.fields.to).endsWith(m[2]))) return `the cited transfer does not run from ${m[1]} to ${m[2]}`;
+  }
   for (const fc of FIELD_CLAIMS) {
     for (const m of text.matchAll(fc.re)) {
       const v = num(m[1]);
       if (Number.isNaN(v)) continue;
-      const holders = cited.filter((e) => fc.fields.some((f) => f in e.fields));
+      // The figure belongs to the hospital named just before it, when the sentence names one.
+      const site = [...text.slice(0, m.index!).matchAll(/\b(General|East|Lakeside)\b/g)].pop()?.[1];
+      const holders = cited.filter((e) => fc.fields.some((f) => f in e.fields) && (!site || !e.fields.hospital || String(e.fields.hospital).endsWith(site)));
+      if (site && !holders.length && cited.some((e) => fc.fields.some((f) => f in e.fields))) return `no cited row gives Corvale ${site} that ${fc.what} figure`;
       if (!holders.length) continue;
       if (!holders.some((e) => fc.fields.some((f) => same(num(e.fields[f]), v)))) return `${m[1]} is not the ${fc.what} figure in the cited rows`;
     }
@@ -298,6 +325,7 @@ export function verifySentence(s: Sentence, c: Case): string | null {
 /** For text with no citations (the P&T memo): the same name, classification, sponsor, absence and status rules,
  *  checked against every row the case holds. */
 export function caseClaimProblem(text: string, c: Case): string | null {
+  text = shortClasses(text);
   const lines = Object.values(c.evidence ?? {}).map((e) => normal(line(e, true)));
   const low = lines.join(" ").toLowerCase();
   const firms = new Map([...firmKeys(c), ...outsideFirms(text, c, firmKeys(c))]);

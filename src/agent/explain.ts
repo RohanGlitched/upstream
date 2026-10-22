@@ -141,7 +141,7 @@ export async function explain(c: Case): Promise<Explanation> {
     .filter(({ s }) => s.kind in KIND && c.shortage.firstPosting && daysBetween(s.date, c.shortage.firstPosting) >= 0)
     .sort((a, b) => b.s.date.localeCompare(a.s.date))[0];
   const fallbackHeadline = state === "confirmed" && lead
-    ? `FDA's records show ${KIND[lead.s.kind]} at ${lead.p.name}, a plant on our labels, ${daysBetween(lead.s.date, c.shortage.firstPosting!)} days before the shortage posting`
+    ? `FDA's records show ${KIND[lead.s.kind]} at ${lead.p.name}${lead.p.fei ? ` (FEI ${lead.p.fei})` : ""}, a plant on our labels, ${daysBetween(lead.s.date, c.shortage.firstPosting!)} days before the shortage posting`
     : state === "confirmed" ? `FDA's records trace this shortage to a plant on our own labels`
     : state === "check"
       ? posted ? "The public record is incomplete; check the flagged links" : "Not on FDA's shortage list; FDA's record shows actions at plants on our labels"

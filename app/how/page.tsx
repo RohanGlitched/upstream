@@ -720,7 +720,19 @@ export default async function How() {
               <pre tabIndex={0}>npx next dev -p 3240</pre>
             </li>
             <li>
-              <span>Run live against Zetaris (optional)</span>
+              <span>Build Corvale&apos;s three systems and FDA&apos;s 12 tables</span>
+              <pre tabIndex={0}>{"python data/hospital/generate.py\npython data/fda/build_bundle.py"}</pre>
+            </li>
+            <li>
+              <span>Start the hospital databases and mount the files into Zetaris</span>
+              <pre tabIndex={0}>{"docker compose -f infra/hospital/docker-compose.yml \\\n  --env-file infra/hospital/.env up -d\nbash infra/zetaris/stage-files.sh"}</pre>
+            </li>
+            <li>
+              <span>Register sources and build the semantic layer, in order</span>
+              <pre tabIndex={0}>{"npx tsx scripts/zsql.mts zetaris/01-hospitals.sql\nnpx tsx scripts/zsql.mts zetaris/02-fda.sql\nnpx tsx scripts/zsql.mts zetaris/03-lakeside.sql\nnpx tsx scripts/zsql.mts zetaris/04-usl.sql"}</pre>
+            </li>
+            <li>
+              <span>Run live against Zetaris</span>
               <pre tabIndex={0}>UPSTREAM_LIVE=1 npx next dev -p 3240</pre>
             </li>
           </ol>

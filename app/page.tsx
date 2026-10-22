@@ -101,6 +101,7 @@ function JudgePath({ drug, drugs }: { drug: string; drugs: number }) {
 
 export default async function Home() {
   const c = await loadCase("carboplatin");
+  const watch = await readJson<{ drugs: number; chunks: number }>("data/watch/latest.json");
   if (!c) notFound();
   const [plants, trace, backtest, manifest, cases, dq] = await Promise.all([
     readJson<PlantsFile>("data/plants.json"),
@@ -171,7 +172,7 @@ export default async function Home() {
       who: "Overnight, every drug",
       engine: "Meterless Markovian",
       what: "The watch walks the whole formulary in fixed-size chunks with a fresh contract for each, so the morning report costs the same at 30 drugs or 300.",
-      here: "215 drugs, 18 chunks, a flat prompt",
+      here: watch ? `${watch.drugs} drugs, ${watch.chunks} chunks, a flat prompt` : "the whole formulary, a flat prompt",
     },
   ];
 

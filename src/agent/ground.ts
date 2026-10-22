@@ -13,7 +13,7 @@ const MON = "jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|au
 const monthNo = (m: string) => String(MONTHS.findIndex((x) => x.startsWith(m.toLowerCase().slice(0, 3))) + 1).padStart(2, "0");
 const UNIT = "days?|weeks?|months?|years?|hours?|vials?|units?|bags?|doses?|packages?|packs?|cartons?|bottles?|syringes?|mg|mcg|g|ml|l|percent";
 const NUMBER_WORDS = /\b(two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand)\b/i;
-const CAUSAL = /\b(caus(?:ed|es|ing)|due to|led to|leads? to|leading to|result(?:ed|s)? in|as a result of)\b/gi;
+const CAUSAL = /\b(caus(?:ed|es|ing)|due to|led to|leads? to|leading to|result(?:ed|s)? in|resulting from|as a result of|driven by|drove|because of|stems? from|owing to|attributable to)\b/gi;
 const NEGATION = /\b(not|never|no|nor|neither|without|cannot)\b|n't\b/i;
 
 export interface Dropped {

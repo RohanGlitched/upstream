@@ -57,8 +57,11 @@ export async function draftMemo(c: Case, slug: string, user = { id: "buyer-1", r
   // The model's text is checked after the call: every date and number must be in the case's evidence lines,
   // and causal claims FDA did not make are dropped.
   const g = groundMemo(r.text.trim(), c);
+  // A draft names who must approve each action; it never says an action is already approved. (Interchanges the
+  // P&T committee approved earlier are on file, so "already approved by the P&T committee" stays.)
+  const draft = g.text.replace(/\b(?<!already )approved by (the )?(pharmacy director|director|pharmacist|buyer|treating prescriber|treating oncologist)/gi, "for approval by $1$2");
   return {
-    draft: g.text, contract, contractId: contract.contractId, expiresAt: contract.expiresAt, risk: d.risk.level,
+    draft, contract, contractId: contract.contractId, expiresAt: contract.expiresAt, risk: d.risk.level,
     needs: "A signed-in Corvale pharmacist or the director approves the decision before Upstream records it.",
     verifier: { checked: g.checked, tokens: g.tokens, dropped: g.dropped },
   };
