@@ -3,7 +3,7 @@
 // The batch record as a desk: the shelf label, the carton with its real barcodes, the label's establishment
 // block, and FDA's record hung from a red thread laid along a true-to-scale ruler. Data-driven for any case.
 import Link from "next/link";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { useEvidence } from "../Evidence";
 import { Gloss, Glossed } from "../Gloss";
 import type { DeskModel, Hang, PlantCard } from "./model";
@@ -50,67 +50,119 @@ const HEADLINE_OAI = "a plant FDA classified Official Action Indicated (serious 
 
 /* ---------- the answer: the explanation's sentences with their rows ---------- */
 
-function Why({ m }: { m: DeskModel }) {
+const LEDE = (
+  <>
+    <b>Upstream</b> explains why a hospital drug is short: it follows the drug from our shelf to the factory on its label and FDA&apos;s record
+    of that factory, and checks every sentence against the rows.
+  </>
+);
+
+/** The verified sentences as a numbered list, one per line, each mark at the line's end opening its row underneath. */
+function WhyLines({
+  m,
+  id,
+  level,
+  more,
+  foot,
+}: {
+  m: DeskModel;
+  id: string;
+  level: "h2" | "h3";
+  more?: ReactNode;
+  foot?: ReactNode;
+}) {
   const ev = useEvidence();
   const [open, setOpen] = useState<{ i: number; id: string } | null>(null);
-  if (!m.why.length) return null;
-  const row = open ? m.whyRows[open.id] : null;
   const isOn = (i: number, id: string) => open?.i === i && open.id === id;
+  const v = m.verdict;
+  const Hx = level;
+  const stateWord = m.state === "confirmed" ? "checked against the record" : m.state === "check" ? "checked; the link needs a pharmacist's look" : "checked";
   return (
-    <div className="rd-why">
-      <p className="rd-why__k">
-        Why, in {m.why.length} checked {m.why.length === 1 ? "sentence" : "sentences"}. Each mark opens the row it rests on.
-      </p>
-      <p className="rd-why__p">
-        {m.why.map((x, i) => (
-          <span key={i} className={`rd-why__s${open?.i === i ? " is-on" : ""}`}>
-            <Glossed text={x.text} />
-            {x.cites.map((id) => (
-              <button
-                key={id}
-                type="button"
-                className={`rd-cite${isOn(i, id) ? " is-on" : ""}`}
-                aria-expanded={isOn(i, id)}
-                aria-controls={`rd-slip-${m.slug}`}
-                aria-label={`Source row ${id}`}
-                onClick={() => setOpen(isOn(i, id) ? null : { i, id })}
-              >
-                {id}
-              </button>
-            ))}{" "}
-          </span>
-        ))}
-      </p>
-      <div id={`rd-slip-${m.slug}`} className={`rd-wslip${row ? " is-open" : ""}`} role="region" aria-live="polite" aria-label={open ? `Source row ${open.id}` : "Source row"}>
-        {row && open ? (
-          <>
-            <div className="rd-wslip__h">
-              <b>Source row {open.id}</b>
-              <span>{row.queryId === "derived" ? "computed by Upstream from rows in this case" : `row ${row.row + 1} of Zetaris query ${row.queryId}`}</span>
-              <button type="button" className="rd-wslip__x" onClick={() => setOpen(null)} aria-label="Close the source row">
-                Close
-              </button>
-            </div>
-            <p className="rd-wslip__l">{row.label}</p>
-            {row.fields.length ? (
-              <dl>
-                {row.fields.map(([k, v]) => (
-                  <div key={k}>
-                    <dt>{k}</dt>
-                    <dd>{v}</dd>
-                  </div>
-                ))}
-              </dl>
-            ) : null}
-            {ev && ev.has(open.id) && row.queryId !== "derived" ? (
-              <button type="button" className="rd-wslip__more" onClick={() => ev.open(open.id, m.why[open.i]?.cites)}>
-                Read the full row and the SQL sent to Zetaris
-              </button>
-            ) : null}
-          </>
-        ) : null}
+    <section id={id} className="rd-whysec" aria-labelledby={`${id}-h-${m.slug}`}>
+      <div className="rd-whysec__head">
+        <Hx id={`${id}-h-${m.slug}`}>Why, line by line</Hx>
+        <p>
+          {m.why.length
+            ? "Each sentence was kept only after a check found its dates, numbers and sources in the rows it cites. Open a mark to read that row."
+            : "No sentence the model wrote passed the check, so none is shown. The record below still stands."}
+        </p>
       </div>
-    </div>
+      {m.why.length ? (
+        <ol className="rd-why">
+          {m.why.map((x, i) => {
+            const row = open?.i === i ? m.whyRows[open.id] : null;
+            return (
+              <li key={i} className={open?.i === i ? "is-on" : undefined}>
+                <span className="rd-why__n" aria-hidden="true">
+                  {i + 1}
+                </span>
+                <p className="rd-why__t">
+                  <Glossed text={x.text} />
+                </p>
+                <span className="rd-why__c">
+                  {x.cites.map((cid) => (
+                    <button
+                      key={cid}
+                      type="button"
+                      className={`rd-cite${isOn(i, cid) ? " is-on" : ""}`}
+                      aria-expanded={isOn(i, cid)}
+                      aria-controls={`rd-slip-${m.slug}-${i}`}
+                      aria-label={`Source row ${cid}`}
+                      onClick={() => setOpen(isOn(i, cid) ? null : { i, id: cid })}
+                    >
+                      {cid}
+                    </button>
+                  ))}
+                </span>
+                <div id={`rd-slip-${m.slug}-${i}`} className={`rd-wslip${row ? " is-open" : ""}`} role="region" aria-live="polite" aria-label={row && open ? `Source row ${open.id}` : "Source row"}>
+                  {row && open ? (
+                    <>
+                      <div className="rd-wslip__h">
+                        <b>Source row {open.id}</b>
+                        <span>{row.queryId === "derived" ? "computed by Upstream from rows in this case" : `row ${row.row + 1} of Zetaris query ${row.queryId}`}</span>
+                        <button type="button" className="rd-wslip__x" onClick={() => setOpen(null)} aria-label="Close the source row">
+                          Close
+                        </button>
+                      </div>
+                      <p className="rd-wslip__l">{row.label}</p>
+                      {row.fields.length ? (
+                        <dl>
+                          {row.fields.map(([k, val]) => (
+                            <div key={k}>
+                              <dt>{k}</dt>
+                              <dd>{val}</dd>
+                            </div>
+                          ))}
+                        </dl>
+                      ) : null}
+                      {ev && ev.has(open.id) && row.queryId !== "derived" ? (
+                        <button type="button" className="rd-wslip__more" onClick={() => ev.open(open.id, x.cites)}>
+                          Read the full row and the SQL sent to Zetaris
+                        </button>
+                      ) : null}
+                    </>
+                  ) : null}
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+      ) : null}
+      <div className="rd-whysec__foot">
+        <p className="rd-verdict">
+          <TickMark className="rd-verdict__tick" size={22} />
+          <span>
+            <b>{v.sentences ? `${v.sentences} ${v.sentences === 1 ? "sentence" : "sentences"} and the headline ${stateWord}` : `The headline ${stateWord}`}</b>
+            {v.rejected ? `; ${v.rejected} more ${v.rejected === 1 ? "was" : "were"} rejected and dropped` : ", none rejected"}. {v.queries} Zetaris statements across {v.systems}{" "}
+            systems ({v.hospitalSystems} hospital, {v.systems - v.hospitalSystems} FDA files) in {v.seconds} seconds. Asked {fmtDate(m.askedAt)}, on data as of {fmtDate(m.asOf)},
+            case <span className="rd-type">{m.caseShort}</span>.
+          </span>
+        </p>
+        <p className="rd-dek">{m.dek}</p>
+        {more ? <div className="rd-actions rd-actions--why">{more}</div> : null}
+        {foot ? <p className="rd-foot">{foot}</p> : null}
+      </div>
+    </section>
   );
 }
 
@@ -720,16 +772,26 @@ export function RecordDesk({
   signHref,
   children,
   lede,
+  between,
+  more,
   foot,
+  whyId = "why",
   play = true,
 }: {
   m: DeskModel;
   as?: "h1" | "h2";
   signHref?: string;
+  /** the hero's second action; by default, ask about another drug */
   children?: ReactNode;
-  lede?: ReactNode;
-  /** a quiet line under the actions (the home page names what Upstream is built with) */
+  /** the one line over the question saying what Upstream is; null leaves it out */
+  lede?: ReactNode | null;
+  /** a block between the hero and the cited why (the front page's judge's path) */
+  between?: ReactNode;
+  /** links after the cited why */
+  more?: ReactNode;
+  /** a quiet line under the cited why (the front page names what Upstream is built with) */
   foot?: ReactNode;
+  whyId?: string;
   play?: boolean;
 }) {
   const root = useRef<HTMLElement>(null);
@@ -786,19 +848,35 @@ export function RecordDesk({
     const R = rc.getBoundingClientRect();
     const rx = R.left - base.left;
     const ry = R.top - base.top;
-    // From the label's establishment block the thread drops straight down, clear of the answer in the left
-    // column, then runs along the top of the record to the ruler's start.
+    const box = (sel: string) => r.querySelector<HTMLElement>(sel)?.getBoundingClientRect() ?? null;
+    const top = box(".rd-top");
+    const intro = box(".rd-intro");
+    const supply = box(".rd-supply");
+    // From the label's establishment block the thread slips into the gap between the columns, runs under the
+    // hero, then down the left margin, clear of the judge's path and the cited why, into the ruler's start.
     const end = pins[pins.length - 1];
-    const drop = end ? [{ x: end.x, y: ry - 26 }] : [];
-    const pts = [...pins, ...drop, { x: rx - 30, y: ry - 6 }, { x: rx - 2, y: ry + THREAD_Y }];
+    const gapX = intro && supply ? (intro.right + supply.left) / 2 - base.left : rx - 18;
+    const under = top ? top.bottom - base.top + 22 : ry - 26;
+    const low = Math.max(end ? end.y + 26 : 0, intro ? intro.bottom - base.top + 18 : 0);
+    const margin = rx - 18;
+    const route = end
+      ? [
+          { x: gapX, y: Math.min(low, under - 12) },
+          { x: gapX - 40, y: under },
+          { x: margin + 20, y: under + 6 },
+          { x: margin, y: under + 40 },
+          { x: margin, y: ry + THREAD_Y - 34 },
+        ]
+      : [];
+    const pts = [...pins, ...route, { x: rx - 2, y: ry + THREAD_Y }];
     let d = `M${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
     for (let i = 1; i < pts.length; i++) {
       const a = pts[i - 1];
       const b = pts[i];
       const dist = Math.hypot(b.x - a.x, b.y - a.y);
       const last = i === pts.length - 1;
-      const sag = last ? 0 : i >= pins.length ? Math.min(10, dist * 0.02) : Math.min(40, dist * 0.06);
-      const mx = (a.x + b.x) / 2 + (last ? -26 : 0);
+      const sag = last || i > pins.length ? 0 : i === pins.length ? Math.min(10, dist * 0.02) : Math.min(40, dist * 0.06);
+      const mx = (a.x + b.x) / 2 + (last ? -8 : 0);
       const my = (a.y + b.y) / 2 + sag;
       d += ` Q${mx.toFixed(1)} ${my.toFixed(1)} ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;
     }
@@ -833,46 +911,50 @@ export function RecordDesk({
     requestAnimationFrame(() => requestAnimationFrame(() => setPlaying(true)));
   };
   const v = m.verdict;
-  const stateWord = m.state === "confirmed" ? "checked against the record" : m.state === "check" ? "checked; the link needs a pharmacist's look" : "checked";
+  const proof = [
+    v.sentences ? `${v.sentences} ${v.sentences === 1 ? "sentence" : "sentences"} checked against the rows ${v.sentences === 1 ? "it cites" : "they cite"}` : "The headline checked against the rows it cites",
+    `${v.queries} Zetaris queries`,
+    `${v.seconds} s`,
+  ];
+  const level = as === "h1" ? "h2" : "h3";
 
   return (
     <section ref={root} className={`rd${playing ? " rd--play" : ""}`} aria-labelledby={`rd-h-${m.slug}`}>
       <div className="rd-wrap">
         <div className="rd-top">
           <div className="rd-intro">
-            {lede ? <div className="rd-lede">{lede}</div> : null}
+            {lede !== null ? <p className="rd-lede">{lede ?? LEDE}</p> : null}
             <div className="rd-req">
               <div className="rd-q">
                 <b>Q.</b>
                 <Typed text={m.question} />
               </div>
-              <div className="rd-clock" aria-label={`Asked ${fmtDate(m.askedAt)}, on data as of ${fmtDate(m.asOf)}, case ${m.caseShort}`}>
-                <b>ASKED {fmtDate(m.askedAt).toUpperCase()}</b>
-                data as of {fmtDate(m.asOf)}, case {m.caseShort}
-              </div>
             </div>
             <H className="rd-h1" id={`rd-h-${m.slug}`}>
               <Headline text={m.headline} />
             </H>
-            <Why m={m} />
-            <div className="rd-verdict">
-              <TickMark className="rd-verdict__tick" size={24} />
+            <p className="rd-proof">
+              <TickMark className="rd-verdict__tick" size={20} />
               <span>
-                <b>
-                  {v.sentences ? `${v.sentences} ${v.sentences === 1 ? "sentence" : "sentences"} and the headline ${stateWord}` : `The headline ${stateWord}`}
-                </b>
-                {v.rejected ? `; ${v.rejected} more ${v.rejected === 1 ? "was" : "were"} rejected and dropped` : ", none rejected"}. {v.queries} Zetaris statements across{" "}
-                {v.systems} systems ({v.hospitalSystems} hospital, {v.systems - v.hospitalSystems} FDA files) in {v.seconds} seconds.
+                {proof.map((x, i) => (
+                  <Fragment key={x}>
+                    {i ? <span aria-hidden="true"> · </span> : null}
+                    <span className={i ? "rd-proof__i" : undefined}>{x}</span>
+                  </Fragment>
+                ))}
+                {m.state === "check" ? <span>. The link needs a pharmacist&apos;s look.</span> : null}
               </span>
-            </div>
-            <p className="rd-dek">{m.dek}</p>
+            </p>
             <div className="rd-actions">
-              {children}
-              <button type="button" className="rd-replay" onClick={replay}>
-                Lay out the file again
-              </button>
+              <a href={`#${whyId}`} className="rd-go">
+                Read why, line by line
+              </a>
+              {children ?? (
+                <Link href="/desk" className="rd-go rd-go--line">
+                  Ask about another drug
+                </Link>
+              )}
             </div>
-            {foot ? <p className="rd-foot">{foot}</p> : null}
           </div>
 
           <div className="rd-supply">
@@ -905,6 +987,19 @@ export function RecordDesk({
               <OtherPlants m={m} />
             </div>
           </div>
+        </div>
+
+        {between}
+
+        <WhyLines m={m} id={whyId} level={level} more={more} foot={foot} />
+
+        <div className="rd-reccap">
+          <p>
+            <b>FDA&apos;s record of these plants, to scale.</b> Each document hangs on the day FDA recorded it.
+          </p>
+          <button type="button" className="rd-replay" onClick={replay}>
+            Lay out the file again
+          </button>
         </div>
 
         <div ref={rec} className={`rd-record${wide ? " is-wide" : " is-stack"}${m.nothing ? " is-empty" : ""}`} style={wide ? { height: layout.height } : undefined}>

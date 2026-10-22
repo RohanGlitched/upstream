@@ -8,6 +8,7 @@ import { AskBox } from "@/components/AskBox";
 import { Film, prepareFilm } from "@/components/film";
 import type { EvalFile, PlantsFile } from "@/components/film";
 import { Defer } from "@/components/record/Defer";
+import { SectionIndex } from "@/components/chrome/SectionIndex";
 import { leanCase } from "@/components/record/lean";
 import { Glossed } from "@/components/Gloss";
 import { Watershed } from "@/components/watershed";
@@ -49,10 +50,57 @@ const LIMITS = [
   // Measured by scripts/dq-fda.mts (data/dq/fda.json); the heading below is filled from it.
   ["LABELS", "When a label lists no establishment, Upstream falls back to the label's text or the application holder and says so. It does not guess the factory."],
   ["Ingredient plants are mostly invisible", "Labels name finished-dose plants. The plant making the active ingredient rarely appears in a public file, so a problem there can go unseen."],
-  ["History has look-ahead bias", "Today's FDA files include classifications that were not public at the time. The ruler marks the day each finding became known."],
+  ["Today's files hold more than was public then", "Today's FDA files include classifications that were not public at the time. The ruler marks the day each finding became known."],
   ["A finding is not a cause", "An OAI classification means FDA found serious problems at a plant. It does not prove they caused this shortage; the answer says linked, never caused."],
   ["It informs, it does not order", "Upstream ranks options and drafts a memo. Transfers, substitutions and contract changes are signed by a named pharmacist or the P&T committee."],
 ];
+
+const SECTIONS = [
+  { id: "why", label: "Why" },
+  { id: "film", label: "The trip" },
+  { id: "supply", label: "Supply map" },
+  { id: "proof", label: "Proof" },
+  { id: "world", label: "The world" },
+  { id: "how", label: "How it runs" },
+  { id: "limits", label: "Limits" },
+];
+
+/** Three things to do, in order, for someone with a few minutes. */
+function JudgePath({ drug, drugs }: { drug: string; drugs: number }) {
+  return (
+    <section id="start" className="hm-path" aria-labelledby="start-h">
+      <h2 id="start-h" className="sr-only">
+        Where to start
+      </h2>
+      <ol className="hm-path__steps">
+        <li>
+          <a href="#why">
+            <span className="hm-path__n">1</span>
+            <b>Read a why</b>
+            <span>{drug}, line by line. Every claim opens the FDA or hospital row it rests on.</span>
+          </a>
+        </li>
+        <li>
+          <Link href="/desk">
+            <span className="hm-path__n">2</span>
+            <b>Ask about any of {drugs} drugs</b>
+            <span>The same trace, live, on Ask. It refuses orders and dosing questions.</span>
+          </Link>
+        </li>
+        <li>
+          <a href="#proof">
+            <span className="hm-path__n">3</span>
+            <b>Check the proof</b>
+            <span>Nemotron alone against Upstream, then a back-test on past shortages.</span>
+          </a>
+        </li>
+      </ol>
+      <p className="hm-path__real">
+        <b>What&apos;s real:</b> Corvale Health&apos;s three hospitals are fictional; every FDA record is real and dated.
+      </p>
+    </section>
+  );
+}
 
 export default async function Home() {
   const c = await loadCase("carboplatin");
@@ -132,27 +180,25 @@ export default async function Home() {
 
   return (
     <EvidenceProvider evidence={c.evidence} queries={c.queries}>
+      <SectionIndex items={SECTIONS} />
       <RecordDesk
         m={m}
         signHref={`/case/${slug}#memo`}
+        between={<JudgePath drug={title} drugs={cases.length} />}
+        more={
+          <Link href={`/case/${slug}`} className="rd-go rd-go--line">
+            Open {title}&apos;s full file
+          </Link>
+        }
         foot={
           <>
             Built on <b>Zetaris</b> · <b>Meterless</b> · <b>NVIDIA Nemotron</b> · <b>Cursor</b>
           </>
         }
-        lede={
-          <>
-            <b>Upstream</b> follows a short drug from our shelves to the plant that makes it, and lays FDA&apos;s record out to scale. This morning a buyer asked about {title}:
-          </>
-        }
-      >
-        <Link href={`/case/${slug}`} className="rd-go">
-          Open the full file
-        </Link>
-      </RecordDesk>
+      />
 
       <section className="hm-film" aria-label="Follow one vial upstream">
-        <Film film={film} offsetTop={66} answerHref={`/case/${slug}`} />
+        <Film film={film} offsetTop={108} answerHref={`/case/${slug}`} />
       </section>
 
       <section className="hm-sec hm-ask" aria-label="Ask Upstream">
@@ -161,10 +207,10 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="hm-sec" aria-labelledby="ws-h">
+      <section className="hm-sec" id="supply" aria-labelledby="ws-h">
         <div className="hm-in">
           <div className="rec-head">
-            <h2 id="ws-h">The same supply, as a watershed</h2>
+            <h2 id="ws-h">Where our {title} comes from, drawn as rivers</h2>
             <p>
               Plants are springs, labelers are confluences, our hospitals are reservoirs. Stream width is real daily use, and FDA&apos;s record
               replays as silt and dry beds.
@@ -177,7 +223,7 @@ export default async function Home() {
       <section className="hm-sec" aria-labelledby="problem-h">
         <div className="hm-in">
           <div className="rec-head">
-            <h2 id="problem-h">The problem, in the ledger</h2>
+            <h2 id="problem-h">The problem: a shortage arrives without its cause</h2>
             <p>
               A buyer learns a drug is short when the wholesaler cuts the order. The cause is usually already on public record, spread across FDA
               files nobody has time to join.
@@ -217,10 +263,10 @@ export default async function Home() {
       <section className="hm-sec" id="proof" aria-labelledby="eval-h">
         <div className="hm-in">
           <div className="rec-head">
-            <h2 id="eval-h">Nemotron alone against Upstream</h2>
+            <h2 id="eval-h">The same AI model, from memory and with FDA&apos;s files</h2>
             <p>
-              The same model, asked from memory which plant makes each product and what FDA found there, against Upstream reading FDA&apos;s
-              files. Both are marked against answers computed separately from the raw files.
+              NVIDIA Nemotron, asked from memory which plant makes each product and what FDA found there, against Upstream giving it
+              FDA&apos;s files. Both are marked against answers computed separately from the raw files.
             </p>
           </div>
           <Defer minHeight={900}>
@@ -232,7 +278,7 @@ export default async function Home() {
       <section className="hm-sec" aria-labelledby="bt-h">
         <div className="hm-in">
           <div className="rec-head">
-            <h2 id="bt-h">Does the ruler hold up on past shortages?</h2>
+            <h2 id="bt-h">Does it hold up on past shortages?</h2>
             <p>The same trace, run over FDA&apos;s shortage history and a set of drugs that were never short. It explains; it does not predict.</p>
           </div>
           <Defer minHeight={700}>
@@ -241,11 +287,11 @@ export default async function Home() {
         </div>
       </section>
 
-      <Defer className="hm-night" minHeight={1000}>
-        <NightBand />
+      <Defer className="hm-night" id="world" minHeight={1000}>
+        <NightBand title="Where the plants are, and what FDA found there" />
       </Defer>
 
-      <section className="hm-sec" aria-labelledby="how-h">
+      <section className="hm-sec" id="how" aria-labelledby="how-h">
         <div className="hm-in">
           <div className="rec-head">
             <h2 id="how-h">What runs when you ask</h2>
@@ -275,7 +321,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="hm-sec" aria-labelledby="limits-h">
+      <section className="hm-sec" id="limits" aria-labelledby="limits-h">
         <div className="hm-in">
           <div className="rec-head">
             <h2 id="limits-h">What Upstream can&apos;t see</h2>

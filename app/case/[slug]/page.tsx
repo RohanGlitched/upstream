@@ -15,6 +15,7 @@ import { loadCase, realCases } from "@/components/server/data";
 import { drugTitle, tallText } from "@/components/lib/drug";
 import { fmtDate } from "@/components/lib/format";
 import { leanCase } from "@/components/record/lean";
+import { SectionIndex } from "@/components/chrome/SectionIndex";
 import { HashScroll } from "./HashScroll";
 import "../case-page.css";
 
@@ -36,13 +37,15 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   return { title: `${drugTitle(c.molecule)} shortage`, description: c.explanation?.headline ?? c.question };
 }
 
-const TABS = [
-  ["map", "Supply map"],
-  ["record", "Batch record"],
-  ["gate", "Gate register"],
-  ["graph", "World Model"],
-  ["memo", "Memo and signature"],
-] as const;
+const SECTIONS = [
+  { id: "why", label: "Why" },
+  { id: "map", label: "Supply" },
+  { id: "record", label: "Batch record" },
+  { id: "options", label: "Options" },
+  { id: "market", label: "Who else" },
+  { id: "quality", label: "Checks" },
+  { id: "memo", label: "Memo" },
+];
 
 const STATE = {
   confirmed: { word: "CONFIRMED", tone: "carbon" },
@@ -79,20 +82,9 @@ export default async function CasePage({ params }: Params) {
           <span className="cp-crumbs__id">{c.id}</span>
         </div>
       </nav>
+      <SectionIndex items={SECTIONS} label="In this file" />
 
       <RecordDesk m={m} signHref="#memo" />
-
-      <nav className="cp-tabs" aria-label="This investigation">
-        <div className="cp-in">
-          <ol>
-            {TABS.map(([id, label], i) => (
-              <li key={id} style={{ "--i": i } as React.CSSProperties}>
-                <a href={`#${id}`}>{label}</a>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </nav>
 
       <section id="map" className="cp-sec cp-sec--map" aria-labelledby="map-h">
         <div className="cp-in">

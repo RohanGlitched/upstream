@@ -436,7 +436,7 @@ function Folder({ run }: { run: Extract<Run, { k: "running" } | { k: "done" }> }
       {done && model ? (
         <div className="inv-result">
           <EvidenceProvider evidence={run.c.evidence} queries={run.c.queries}>
-            <RecordDesk m={model} as="h2" signHref={run.mode === "replay" ? `/case/${model.slug}#memo` : undefined}>
+            <RecordDesk m={model} as="h2" lede={null} signHref={run.mode === "replay" ? `/case/${model.slug}#memo` : undefined}>
               {run.mode === "replay" ? (
                 <Link href={`/case/${model.slug}`} className="rd-go">
                   Open the full file

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Archivo, Courier_Prime, IM_Fell_English, Public_Sans, Source_Serif_4 } from "next/font/google";
 import { Masthead } from "@/components/chrome/Masthead";
 import { Colophon } from "@/components/chrome/Colophon";
+import { ToTop } from "@/components/chrome/ToTop";
 import { InkDefs } from "@/components/record/bits";
 import { THEME_SCRIPT } from "@/components/lib/theme";
 import "./record-tokens.css";
@@ -73,6 +74,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <Masthead />
         <main id="main">{children}</main>
         <Colophon />
+        <ToTop />
       </body>
     </html>
   );

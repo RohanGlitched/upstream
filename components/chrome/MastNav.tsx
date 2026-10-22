@@ -4,8 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 
+// "Start here" is the judge's path on the front page; it marks the front page as the current one.
 const NAV = [
-  { href: "/desk", label: "Desk" },
+  { href: "/#start", label: "Start here" },
+  { href: "/desk", label: "Ask" },
   { href: "/case", label: "Investigations" },
   { href: "/plants", label: "Plants" },
   { href: "/backtest", label: "Proof" },
@@ -60,7 +62,8 @@ export function MastNav({ status }: { status: ReactNode }) {
       <nav className={`mast-nav${open ? " is-open" : ""}`} aria-label="Main" id="mast-nav">
         <ul>
           {NAV.map((n) => {
-            const on = path === n.href || path.startsWith(n.href + "/");
+            const base = n.href.split("#")[0];
+            const on = base === "/" ? path === "/" : path === base || path.startsWith(base + "/");
             return (
               <li key={n.href}>
                 <Link href={n.href} aria-current={on ? "page" : undefined} onClick={() => setOpen(false)}>

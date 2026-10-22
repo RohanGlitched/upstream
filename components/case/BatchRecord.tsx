@@ -149,7 +149,7 @@ export function BatchRecord({ c }: { c: Case }) {
         </Part>
 
         <Part
-          id="why"
+          id="findings"
           n="B"
           title="Why it is short, as written and checked"
           desc="Every sentence carries the records it rests on. Open a mark in the margin to read that source row."

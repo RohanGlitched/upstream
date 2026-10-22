@@ -5,7 +5,7 @@
 // Their props still travel in the page's payload; their markup and their first render wait.
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
-export function Defer({ children, minHeight, margin = "900px 0px", className }: { children: ReactNode; minHeight: number | string; margin?: string; className?: string }) {
+export function Defer({ children, minHeight, margin = "900px 0px", className, id }: { children: ReactNode; minHeight: number | string; margin?: string; className?: string; id?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const [on, setOn] = useState(false);
   useEffect(() => {
@@ -22,7 +22,7 @@ export function Defer({ children, minHeight, margin = "900px 0px", className }: 
     return () => io.disconnect();
   }, [on, margin]);
   return (
-    <div ref={ref} className={className} style={on ? undefined : { minHeight }}>
+    <div ref={ref} id={id} className={className} style={on ? undefined : { minHeight }}>
       {on ? children : null}
     </div>
   );
