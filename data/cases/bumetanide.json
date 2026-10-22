@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-1c0646",
+ "id": "case-2026-10-22-49b411",
  "question": "Why is bumetanide short, and what do we do?",
- "askedAt": "2026-10-22T07:29:00.213Z",
+ "askedAt": "2026-10-22T11:34:07.382Z",
  "asOf": "2026-10-21",
  "molecule": "bumetanide",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H86D0FNG8VXHZ42DZHP1JW",
+  "contractId": "01M5HP7C04CQDYHZ1782N23VWV",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-97d2ed"
+    "Q-d6cee9"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3251,
+   "ms": 3114,
    "rows": 8,
-   "finding": "8 stock lines across 2 hospitals.",
+   "finding": "8 stock lines across 2 hospitals, 3 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-74138c"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 969,
+   "ms": 401,
    "rows": 4,
    "finding": "4 plant links on 4 labels; 2 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-20439b",
-    "Q-149587"
+    "Q-b1f8cc",
+    "Q-718742"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 570,
+   "ms": 249,
    "rows": 14,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-174ae0"
+    "Q-7083ad"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2479,
+   "ms": 1049,
    "rows": 173,
    "finding": "27 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-09fdea",
     "Q-395d0c",
     "Q-69504c",
-    "Q-f24626"
+    "Q-435f7f"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1431,
+   "ms": 631,
    "rows": 25,
    "finding": "24 inspections (0 OAI at our plants), 1 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 2170,
+   "ms": 827,
    "rows": 2,
    "finding": "2 approved interchanges on file.",
    "status": "ok"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-97b375"
+    "Q-78b5e8"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1182,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1167,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 2,
+   "ms": 1,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -153,8 +164,11 @@
    "onHand": 418,
    "dailyUse": 9.759,
    "days": 42.8,
-   "unit": "package",
+   "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 100, converted to units",
+   "presentation": "bumetanide|0.5mg|tablet||tablet",
+   "presentationLabel": "0.5 mg tablet",
    "evidence": "E1"
   },
   {
@@ -166,8 +180,11 @@
    "onHand": 85,
    "dailyUse": 15.011,
    "days": 5.7,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "bumetanide|0.25mg/ml|injection|10ml|vial",
+   "presentationLabel": "0.25 mg/mL injection, 10 mL vial",
    "evidence": "E2"
   },
   {
@@ -179,8 +196,11 @@
    "onHand": 21,
    "dailyUse": 14.541,
    "days": 1.4,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "bumetanide|0.25mg/ml|injection|4ml|vial",
+   "presentationLabel": "0.25 mg/mL injection, 4 mL vial",
    "evidence": "E3"
   },
   {
@@ -192,61 +212,187 @@
    "onHand": 447,
    "dailyUse": 12.912,
    "days": 34.6,
-   "unit": "package",
+   "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 30, converted to units",
+   "presentation": "bumetanide|0.5mg|tablet||tablet",
+   "presentationLabel": "0.5 mg tablet",
    "evidence": "E4"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-159",
    "ndc11": "00185012801",
-   "description": "Bumetanide",
+   "description": "Bumetanide 0.5 mg/1",
    "labeler": "Sandoz Inc",
-   "onHand": 366.03,
+   "onHand": 366,
    "dailyUse": 13.58,
    "days": 27,
    "unit": "tablet",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "bumetanide|0.5mg|tablet||tablet",
+   "presentationLabel": "0.5 mg tablet",
    "evidence": "E5"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-160",
    "ndc11": "68382052506",
-   "description": "bumetanide",
+   "description": "bumetanide 0.5 mg/1",
    "labeler": "Zydus Pharmaceuticals (USA) Inc.",
-   "onHand": 387.2,
+   "onHand": 387,
    "dailyUse": 14.099,
-   "days": 27.5,
+   "days": 27.4,
    "unit": "tablet",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "bumetanide|0.5mg|tablet||tablet",
+   "presentationLabel": "0.5 mg tablet",
    "evidence": "E6"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-6",
    "ndc11": "00641600710",
-   "description": "Bumetanide",
+   "description": "Bumetanide 0.25 mg/mL",
    "labeler": "Hikma Pharmaceuticals USA Inc.",
-   "onHand": 179.87,
+   "onHand": 179,
    "dailyUse": 13.655,
-   "days": 13.2,
+   "days": 13.1,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "bumetanide|0.25mg/ml|injection|10ml|vial",
+   "presentationLabel": "0.25 mg/mL injection, 10 mL vial",
    "evidence": "E7"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-7",
    "ndc11": "25021032104",
-   "description": "Bumetanide",
+   "description": "Bumetanide 0.25 mg/mL",
    "labeler": "Sagent Pharmaceuticals",
-   "onHand": 127.22,
+   "onHand": 127,
    "dailyUse": 14.059,
    "days": 9,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "bumetanide|0.25mg/ml|injection|4ml|vial",
+   "presentationLabel": "0.25 mg/mL injection, 4 mL vial",
    "evidence": "E8"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "bumetanide|0.25mg/ml|injection|4ml|vial",
+   "label": "0.25 mg/mL injection, 4 mL vial",
+   "short": "0.25 mg/mL, 4 mL",
+   "unit": "vial",
+   "onHand": 148,
+   "dailyUse": 28.6,
+   "days": 5.2,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 21,
+     "dailyUse": 14.541,
+     "days": 1.4,
+     "lines": [
+      "EA-E-000145"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 127,
+     "dailyUse": 14.059,
+     "days": 9,
+     "lines": [
+      "CG-7"
+     ],
+     "evidence": [
+      "E8"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "bumetanide|0.25mg/ml|injection|10ml|vial",
+   "label": "0.25 mg/mL injection, 10 mL vial",
+   "short": "0.25 mg/mL, 10 mL",
+   "unit": "vial",
+   "onHand": 264,
+   "dailyUse": 28.666,
+   "days": 9.2,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 85,
+     "dailyUse": 15.011,
+     "days": 5.7,
+     "lines": [
+      "EA-E-000112"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 179,
+     "dailyUse": 13.655,
+     "days": 13.1,
+     "lines": [
+      "CG-6"
+     ],
+     "evidence": [
+      "E7"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "bumetanide|0.5mg|tablet||tablet",
+   "label": "0.5 mg tablet",
+   "short": "0.5 mg",
+   "unit": "tablet",
+   "onHand": 1618,
+   "dailyUse": 50.35,
+   "days": 32.1,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 865,
+     "dailyUse": 22.671,
+     "days": 38.2,
+     "lines": [
+      "EA-E-000045",
+      "EA-E-000252"
+     ],
+     "evidence": [
+      "E1",
+      "E4"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 753,
+     "dailyUse": 27.679,
+     "days": 27.2,
+     "lines": [
+      "CG-159",
+      "CG-160"
+     ],
+     "evidence": [
+      "E5",
+      "E6"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -767,48 +913,8 @@
  "options": [
   {
    "kind": "alternate_manufacturer",
-   "rank": 2,
-   "title": "Same product, alternate manufacturer: Bumetanide 0.25 mg/mL from Hikma Pharmaceuticals USA Inc.",
-   "detail": "Same product from Hikma Pharmaceuticals USA Inc.; substitute NDC, no clinical change. Approved by Sam Rivera, MD on 2026-07-01.",
-   "why": "Already approved by the P&T committee.",
-   "needs": "pharmacist",
-   "evidence": [
-    "E30"
-   ]
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 2,
-   "title": "Same product, alternate manufacturer: Bumetanide 0.25 mg/mL from Sagent Pharmaceuticals",
-   "detail": "Same product from Sagent Pharmaceuticals; substitute NDC, no clinical change. Approved by Casey Nguyen, MD on 2026-08-25.",
-   "why": "Already approved by the P&T committee.",
-   "needs": "pharmacist",
-   "evidence": [
-    "E31"
-   ]
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from A-S Medication Solutions",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Advagen Pharma Limited",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from American Health Packaging",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -826,34 +932,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Aphena Pharma Solutions - Tennessee, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from AvPAK",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Bryant Ranch Prepack",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Cardinal Health 107, LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -890,15 +969,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Heritage Pharmaceuticals Inc. d/b/a Avet Pharmaceuticals Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Lifestar Pharma LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -952,24 +1022,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Proficient Rx LP",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from REMEDYREPACK INC.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Rising Pharma Holdings, Inc",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -1011,6 +1063,28 @@
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
    "evidence": []
+  },
+  {
+   "kind": "alternate_concentration",
+   "rank": 3,
+   "title": "Same molecule, alternate concentration or vial size: Bumetanide 0.25 mg/mL from Hikma Pharmaceuticals USA Inc.",
+   "detail": "Same product from Hikma Pharmaceuticals USA Inc.; substitute NDC, no clinical change. Approved by Sam Rivera, MD on 2026-07-01.",
+   "why": "Already approved by the P&T committee.",
+   "needs": "pharmacist",
+   "evidence": [
+    "E30"
+   ]
+  },
+  {
+   "kind": "alternate_concentration",
+   "rank": 3,
+   "title": "Same molecule, alternate concentration or vial size: Bumetanide 0.25 mg/mL from Sagent Pharmaceuticals",
+   "detail": "Same product from Sagent Pharmaceuticals; substitute NDC, no clinical change. Approved by Casey Nguyen, MD on 2026-08-25.",
+   "why": "Already approved by the P&T committee.",
+   "needs": "pharmacist",
+   "evidence": [
+    "E31"
+   ]
   }
  ],
  "timeline": [
@@ -1044,34 +1118,35 @@
   }
  ],
  "explanation": {
-  "state": "confirmed",
-  "headline": "FDA's shortage list shows bumetanide injection from multiple manufacturers with resolved status since 2017-12-13; Hikma's registered plant has only VAI inspections and a recent NAI inspection on 2026-05-13",
+  "state": "check",
+  "headline": "FDA's shortage list for bumetanide injection is Resolved; first posted 2017-12-13 and last updated 2026-09-30",
   "sentences": [
    {
-    "text": "FDA first posted the bumetanide injection shortage on 2017-12-13 and as of 2026-10-21 it has been on the list for 106 months.",
+    "text": "FDA's shortage list shows bumetanide injection as Resolved with an initial posting on 2017-12-13 and a last update on 2026-09-30.",
     "cites": [
-     "E29",
-     "D8"
+     "D9",
+     "E29"
     ]
    },
    {
-    "text": "The shortage entries for Hikma Pharmaceuticals USA Inc., Sagent Pharmaceuticals, Fresenius Kabi USA LLC, MSN Laboratories Private Limited, and Mullan Pharmaceutical Inc. all show resolved status with an update date of 2026-09-30.",
+    "text": "The posting lists multiple manufacturers — MSN Laboratories Private Limited, Fresenius Kabi USA LLC, Hikma Pharmaceuticals USA Inc., Mullan Pharmaceutical Inc., and Sagent Pharmaceuticals — all marked Resolved.",
     "cites": [
-     "E25",
-     "E28",
      "E24",
+     "E25",
      "E26",
-     "E27"
+     "E27",
+     "E28"
     ]
    },
    {
-    "text": "Hikma Pharmaceuticals USA Inc. is a registered plant (FEI 2220525) for bumetanide 0.25 mg/mL with operations including manufacture, analysis, and labeling.",
+    "text": "An FDA inspection of a Zydus Lifesciences Limited plant (FEI 3005430968) ended 2015-05-23 and was classified VAI, 935 days before the 2017-12-13 posting.",
     "cites": [
-     "E17"
+     "D7",
+     "E21"
     ]
    },
    {
-    "text": "FDA inspections of Hikma's plant from 2009 through 2024 have all been classified VAI, with the most recent inspection ending 2024-06-12 and a known date of 2024-12-16.",
+    "text": "Hikma Pharmaceuticals USA Inc. (FEI 2220525) has a series of VAI inspections from 2009 through 2024, with the most recent ending 2024-06-12.",
     "cites": [
      "E10",
      "E11",
@@ -1083,29 +1158,32 @@
     ]
    },
    {
-    "text": "The plant's last inspection was NAI on 2026-05-13, indicating no action indicated at that time.",
+    "text": "Zydus Lifesciences Limited received a Warning Letter on 2026-06-02.",
     "cites": [
-     "E17"
+     "E22"
     ]
    },
    {
-    "text": "P&T has approved interchange to Hikma's bumetanide 0.25 mg/mL (NDC 00641600710) as a same product, alternate manufacturer option approved by Sam Rivera, MD on 2026-07-01.",
-    "cites": [
-     "E30",
-     "D5"
-    ]
-   },
-   {
-    "text": "Corvale East and Corvale General each have approximately 19 days of bumetanide supply on hand at current usage rates.",
+    "text": "Current hospital inventory shows 1.4 to 38.2 days on hand across presentations and sites; the best rule-based option is to buy from Advagen Pharma Limited, which is not on FDA's shortage list today.",
     "cites": [
      "D1",
-     "D2"
+     "D2",
+     "D3",
+     "D4",
+     "D5",
+     "D6",
+     "D10"
     ]
    }
   ],
   "verifier": {
    "checked": 8,
-   "rejected": [],
+   "rejected": [
+    {
+     "text": "A later inspection of the same Zydus plant ended 2019-09-10, classified VAI, 636 days after the posting.",
+     "reason": "Zydus Lifesciences Limited is not in the cited evidence"
+    }
+   ],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -1113,45 +1191,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -1166,80 +1265,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:28:48.144Z",
+   "at": "2026-10-22T11:33:59.940Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract 2DZHP1JW scope"
+   "reason": "in contract 82N23VWV scope"
   },
   {
-   "at": "2026-10-22T07:28:48.144Z",
+   "at": "2026-10-22T11:33:59.940Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 2DZHP1JW scope"
+   "reason": "in contract 82N23VWV scope"
   },
   {
-   "at": "2026-10-22T07:28:51.399Z",
+   "at": "2026-10-22T11:34:03.055Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 2DZHP1JW scope"
+   "reason": "in contract 82N23VWV scope"
   },
   {
-   "at": "2026-10-22T07:28:52.367Z",
+   "at": "2026-10-22T11:34:03.456Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 2DZHP1JW scope"
+   "reason": "in contract 82N23VWV scope"
   },
   {
-   "at": "2026-10-22T07:28:52.938Z",
+   "at": "2026-10-22T11:34:03.705Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 2DZHP1JW scope"
+   "reason": "in contract 82N23VWV scope"
   },
   {
-   "at": "2026-10-22T07:28:55.418Z",
+   "at": "2026-10-22T11:34:04.754Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 2DZHP1JW scope"
+   "reason": "in contract 82N23VWV scope"
   },
   {
-   "at": "2026-10-22T07:28:56.857Z",
+   "at": "2026-10-22T11:34:05.387Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 2DZHP1JW scope"
+   "reason": "in contract 82N23VWV scope"
   },
   {
-   "at": "2026-10-22T07:28:59.027Z",
+   "at": "2026-10-22T11:34:06.214Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 2DZHP1JW scope"
+   "reason": "in contract 82N23VWV scope"
   },
   {
-   "at": "2026-10-22T07:29:00.209Z",
+   "at": "2026-10-22T11:34:07.381Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract 2DZHP1JW scope"
+   "reason": "in contract 82N23VWV scope"
   },
   {
-   "at": "2026-10-22T07:29:00.213Z",
+   "at": "2026-10-22T11:34:07.382Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract 2DZHP1JW scope"
+   "reason": "in contract 82N23VWV scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-97d2ed",
+   "queryId": "Q-d6cee9",
    "row": 0,
    "label": "Corvale East: BUMETANIDE 0.5MG TAB",
    "fields": {
@@ -1250,19 +1349,24 @@
     "description": "BUMETANIDE 0.5MG TAB",
     "on_hand": "418.00",
     "daily_use": "9.759",
-    "unit": "package",
+    "unit": "tablet",
+    "pkg_units": "100.00",
+    "unit_basis": "packages of 100, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Bumetanide",
     "labeler_name": "Sandoz Inc",
     "package_ndc": "0185-0128-01",
     "spl_set_id": "05cb961d-ac33-4bcf-b04e-411e496c43c1",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "BUMETANIDE .5 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-97d2ed",
+   "queryId": "Q-d6cee9",
    "row": 1,
    "label": "Corvale East: BUMETANIDE 0.25MG/ML 10ML MDV",
    "fields": {
@@ -1273,19 +1377,24 @@
     "description": "BUMETANIDE 0.25MG/ML 10ML MDV",
     "on_hand": "85.00",
     "daily_use": "15.011",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Bumetanide",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0641-6007-10",
     "spl_set_id": "681b5e9d-e2c7-4f29-aaad-e06d4a528c11",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "BUMETANIDE .25 mg/mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-97d2ed",
+   "queryId": "Q-d6cee9",
    "row": 2,
    "label": "Corvale East: BUMETANIDE 0.25MG/ML 4ML SDV",
    "fields": {
@@ -1296,19 +1405,24 @@
     "description": "BUMETANIDE 0.25MG/ML 4ML SDV",
     "on_hand": "21.00",
     "daily_use": "14.541",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Bumetanide",
     "labeler_name": "Sagent Pharmaceuticals",
     "package_ndc": "25021-321-04",
     "spl_set_id": "c38a404d-a919-4a2c-9fbb-d0655dee9516",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "BUMETANIDE .25 mg/mL",
+    "unit_content": "4 mL",
+    "pkg_unit": "vial"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-97d2ed",
+   "queryId": "Q-d6cee9",
    "row": 3,
    "label": "Corvale East: BUMETANIDE 0.5MG TAB",
    "fields": {
@@ -1319,106 +1433,131 @@
     "description": "BUMETANIDE 0.5MG TAB",
     "on_hand": "447.00",
     "daily_use": "12.912",
-    "unit": "package",
+    "unit": "tablet",
+    "pkg_units": "30.00",
+    "unit_basis": "packages of 30, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "bumetanide",
     "labeler_name": "Zydus Pharmaceuticals (USA) Inc.",
     "package_ndc": "68382-525-06",
     "spl_set_id": "525138cd-832a-41d0-84b0-83921b12bd2a",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "BUMETANIDE .5 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E5": {
    "id": "E5",
-   "queryId": "Q-97d2ed",
+   "queryId": "Q-d6cee9",
    "row": 4,
-   "label": "Corvale General: Bumetanide",
+   "label": "Corvale General: Bumetanide 0.5 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-159",
     "ndc11": "00185012801",
     "ndc_as_recorded": "00185012801",
-    "description": "Bumetanide",
-    "on_hand": "366.03",
+    "description": "Bumetanide 0.5 mg/1",
+    "on_hand": "366.00",
     "daily_use": "13.580",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Bumetanide",
     "labeler_name": "Sandoz Inc",
     "package_ndc": "0185-0128-01",
     "spl_set_id": "05cb961d-ac33-4bcf-b04e-411e496c43c1",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "BUMETANIDE .5 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E6": {
    "id": "E6",
-   "queryId": "Q-97d2ed",
+   "queryId": "Q-d6cee9",
    "row": 5,
-   "label": "Corvale General: bumetanide",
+   "label": "Corvale General: bumetanide 0.5 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-160",
     "ndc11": "68382052506",
     "ndc_as_recorded": "68382052506",
-    "description": "bumetanide",
-    "on_hand": "387.20",
+    "description": "bumetanide 0.5 mg/1",
+    "on_hand": "387.00",
     "daily_use": "14.099",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "bumetanide",
     "labeler_name": "Zydus Pharmaceuticals (USA) Inc.",
     "package_ndc": "68382-525-06",
     "spl_set_id": "525138cd-832a-41d0-84b0-83921b12bd2a",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "BUMETANIDE .5 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E7": {
    "id": "E7",
-   "queryId": "Q-97d2ed",
+   "queryId": "Q-d6cee9",
    "row": 6,
-   "label": "Corvale General: Bumetanide",
+   "label": "Corvale General: Bumetanide 0.25 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-6",
     "ndc11": "00641600710",
     "ndc_as_recorded": "00641600710",
-    "description": "Bumetanide",
-    "on_hand": "179.87",
+    "description": "Bumetanide 0.25 mg/mL",
+    "on_hand": "179.00",
     "daily_use": "13.655",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Bumetanide",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0641-6007-10",
     "spl_set_id": "681b5e9d-e2c7-4f29-aaad-e06d4a528c11",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "BUMETANIDE .25 mg/mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E8": {
    "id": "E8",
-   "queryId": "Q-97d2ed",
+   "queryId": "Q-d6cee9",
    "row": 7,
-   "label": "Corvale General: Bumetanide",
+   "label": "Corvale General: Bumetanide 0.25 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-7",
     "ndc11": "25021032104",
     "ndc_as_recorded": "25021032104",
-    "description": "Bumetanide",
-    "on_hand": "127.22",
+    "description": "Bumetanide 0.25 mg/mL",
+    "on_hand": "127.00",
     "daily_use": "14.059",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Bumetanide",
     "labeler_name": "Sagent Pharmaceuticals",
     "package_ndc": "25021-321-04",
     "spl_set_id": "c38a404d-a919-4a2c-9fbb-d0655dee9516",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "BUMETANIDE .25 mg/mL",
+    "unit_content": "4 mL",
+    "pkg_unit": "vial"
    }
   },
   "E9": {
@@ -1661,7 +1800,7 @@
   },
   "E24": {
    "id": "E24",
-   "queryId": "Q-20439b",
+   "queryId": "Q-b1f8cc",
    "row": 0,
    "label": "FDA shortage list: Fresenius Kabi USA, LLC, Resolved",
    "fields": {
@@ -1676,7 +1815,7 @@
   },
   "E25": {
    "id": "E25",
-   "queryId": "Q-20439b",
+   "queryId": "Q-b1f8cc",
    "row": 2,
    "label": "FDA shortage list: Hikma Pharmaceuticals USA, Inc., Resolved",
    "fields": {
@@ -1691,7 +1830,7 @@
   },
   "E26": {
    "id": "E26",
-   "queryId": "Q-20439b",
+   "queryId": "Q-b1f8cc",
    "row": 4,
    "label": "FDA shortage list: MSN Laboratories Private Limited, Resolved",
    "fields": {
@@ -1706,7 +1845,7 @@
   },
   "E27": {
    "id": "E27",
-   "queryId": "Q-20439b",
+   "queryId": "Q-b1f8cc",
    "row": 8,
    "label": "FDA shortage list: Mullan Pharmaceutical Inc., Resolved",
    "fields": {
@@ -1721,7 +1860,7 @@
   },
   "E28": {
    "id": "E28",
-   "queryId": "Q-20439b",
+   "queryId": "Q-b1f8cc",
    "row": 10,
    "label": "FDA shortage list: Sagent Pharmaceuticals, Resolved",
    "fields": {
@@ -1736,7 +1875,7 @@
   },
   "E29": {
    "id": "E29",
-   "queryId": "Q-20439b",
+   "queryId": "Q-b1f8cc",
    "row": 4,
    "label": "FDA first posted the shortage 2017-12-13",
    "fields": {
@@ -1789,28 +1928,82 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 971 units of bumetanide at 52.2 a day: 19 days on hand",
+   "label": "Corvale East holds 21 vials of bumetanide 0.25 mg/mL, 4 mL at 14.5 a day: 1.4 days on hand",
    "fields": {
     "hospital": "Corvale East",
-    "on_hand": 971,
-    "daily_use": 52.2,
-    "days_on_hand": 19
+    "presentation": "0.25 mg/mL injection, 4 mL vial",
+    "on_hand": 21,
+    "daily_use": 14.5,
+    "days_on_hand": 1.4
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 1060 units of bumetanide at 55.4 a day: 19 days on hand",
+   "label": "Corvale General holds 127 vials of bumetanide 0.25 mg/mL, 4 mL at 14.1 a day: 9 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 1060,
-    "daily_use": 55.4,
-    "days_on_hand": 19
+    "presentation": "0.25 mg/mL injection, 4 mL vial",
+    "on_hand": 127,
+    "daily_use": 14.1,
+    "days_on_hand": 9
    }
   },
   "D3": {
    "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale East holds 85 vials of bumetanide 0.25 mg/mL, 10 mL at 15 a day: 5.7 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "0.25 mg/mL injection, 10 mL vial",
+    "on_hand": 85,
+    "daily_use": 15,
+    "days_on_hand": 5.7
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 179 vials of bumetanide 0.25 mg/mL, 10 mL at 13.7 a day: 13.1 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "0.25 mg/mL injection, 10 mL vial",
+    "on_hand": 179,
+    "daily_use": 13.7,
+    "days_on_hand": 13.1
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale East holds 865 tablets of bumetanide 0.5 mg at 22.7 a day: 38.2 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "0.5 mg tablet",
+    "on_hand": 865,
+    "daily_use": 22.7,
+    "days_on_hand": 38.2
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 753 tablets of bumetanide 0.5 mg at 27.7 a day: 27.2 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "0.5 mg tablet",
+    "on_hand": 753,
+    "daily_use": 27.7,
+    "days_on_hand": 27.2
+   }
+  },
+  "D7": {
+   "id": "D7",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 927215 ended 2015-05-23, classified VAI; classification letter 2015-12-11 — 935 days before FDA posted the shortage on 2017-12-13",
@@ -1820,8 +2013,8 @@
     "days": 935
    }
   },
-  "D4": {
-   "id": "D4",
+  "D8": {
+   "id": "D8",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 1106822 ended 2019-09-10, classified VAI; classification letter 2020-02-10 — 636 days after FDA posted the shortage on 2017-12-13",
@@ -1831,206 +2024,224 @@
     "days": 636
    }
   },
-  "D5": {
-   "id": "D5",
+  "D9": {
+   "id": "D9",
    "queryId": "derived",
    "row": -1,
-   "label": "Option ranked 2 by rule: Same product, alternate manufacturer: Bumetanide 0.25 mg/mL from Hikma Pharmaceuticals USA Inc.. Same product from Hikma Pharmaceuticals USA Inc.; substitute NDC, no clinical change. Approved by Sam Rivera, MD on 2026-07-01.",
+   "label": "FDA's list marks this shortage Resolved; it was first posted on 2017-12-13",
    "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "pharmacist"
+    "posted": "2017-12-13",
+    "status": "Resolved"
    }
   },
-  "D6": {
-   "id": "D6",
+  "D10": {
+   "id": "D10",
    "queryId": "derived",
    "row": -1,
-   "label": "Option ranked 2 by rule: Same product, alternate manufacturer: Bumetanide 0.25 mg/mL from Sagent Pharmaceuticals. Same product from Sagent Pharmaceuticals; substitute NDC, no clinical change. Approved by Casey Nguyen, MD on 2026-08-25.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "pharmacist"
-   }
-  },
-  "D7": {
-   "id": "D7",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 3 by rule: Buy from A-S Medication Solutions. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "label": "Option ranked 3 by rule: Buy from Advagen Pharma Limited. Not on FDA's shortage list today. Its label names no plant we could place.",
    "fields": {
     "kind": "alternate_manufacturer",
     "needs": "buyer"
    }
   },
-  "D8": {
-   "id": "D8",
+  "D11": {
+   "id": "D11",
    "queryId": "derived",
    "row": -1,
-   "label": "As of 2026-10-21 the shortage has been on FDA's list for 106 months",
+   "label": "Option ranked 3 by rule: Buy from Amneal Pharmaceuticals NY LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
    "fields": {
-    "as_of": "2026-10-21",
-    "posted": "2017-12-13",
-    "months": 106
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D12": {
+   "id": "D12",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from AvPAK. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-97d2ed": {
-   "id": "Q-97d2ed",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%bumetanide%' OR lower(s.description) LIKE '%bumetanide%' ORDER BY s.hospital, s.item_key",
-   "ms": 3247,
+  "Q-d6cee9": {
+   "id": "Q-d6cee9",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*bumetanide(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*bumetanide(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3112,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:28:51.391Z",
+   "ranAt": "2026-10-22T11:34:03.053Z",
    "rows": 8
   },
   "Q-74138c": {
    "id": "Q-74138c",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('05cb961d-ac33-4bcf-b04e-411e496c43c1', '681b5e9d-e2c7-4f29-aaad-e06d4a528c11', 'c38a404d-a919-4a2c-9fbb-d0655dee9516', '525138cd-832a-41d0-84b0-83921b12bd2a') ORDER BY ps.set_id, ps.establishment",
-   "ms": 964,
+   "ms": 400,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:28:52.363Z",
+   "ranAt": "2026-10-22T11:34:03.455Z",
    "rows": 4
   },
-  "Q-20439b": {
-   "id": "Q-20439b",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%bumetanide%' ORDER BY status, company_name, package_ndc",
-   "ms": 266,
+  "Q-b1f8cc": {
+   "id": "Q-b1f8cc",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*bumetanide(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 143,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:28:52.634Z",
+   "ranAt": "2026-10-22T11:34:03.599Z",
    "rows": 12
   },
-  "Q-149587": {
-   "id": "Q-149587",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%bumetanide%' ORDER BY first_posting",
-   "ms": 287,
+  "Q-718742": {
+   "id": "Q-718742",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*bumetanide(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 104,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:28:52.923Z",
+   "ranAt": "2026-10-22T11:34:03.704Z",
    "rows": 2
   },
-  "Q-174ae0": {
-   "id": "Q-174ae0",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%bumetanide%' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2473,
+  "Q-7083ad": {
+   "id": "Q-7083ad",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*bumetanide(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1047,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:28:55.411Z",
+   "ranAt": "2026-10-22T11:34:04.752Z",
    "rows": 173
   },
   "Q-09fdea": {
    "id": "Q-09fdea",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3005430968', '2220525') ORDER BY fei, end_date",
-   "ms": 524,
+   "ms": 261,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:28:55.941Z",
+   "ranAt": "2026-10-22T11:34:05.015Z",
    "rows": 24
   },
   "Q-395d0c": {
    "id": "Q-395d0c",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3005430968', '2220525') ORDER BY fei, action_date",
-   "ms": 318,
+   "ms": 155,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:28:56.263Z",
+   "ranAt": "2026-10-22T11:34:05.171Z",
    "rows": 1
   },
   "Q-69504c": {
    "id": "Q-69504c",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3005430968', '2220525') OR (fei_match <> 'name_and_city' AND firm_key IN ('sandoz', 'zydus lifesciences', 'hikma', 'sagent')) ORDER BY date_published",
-   "ms": 245,
+   "ms": 93,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:28:56.511Z",
+   "ranAt": "2026-10-22T11:34:05.265Z",
    "rows": 0
   },
-  "Q-f24626": {
-   "id": "Q-f24626",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('sandoz', 'zydus lifesciences', 'hikma', 'sagent', 'zydus') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%bumetanide%' ORDER BY initiation_date",
-   "ms": 331,
+  "Q-435f7f": {
+   "id": "Q-435f7f",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('sandoz', 'zydus lifesciences', 'hikma', 'sagent', 'zydus') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*bumetanide(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 119,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:28:56.845Z",
+   "ranAt": "2026-10-22T11:34:05.384Z",
    "rows": 0
   },
   "Q-30dcd8": {
    "id": "Q-30dcd8",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('00185012801', '00641600710', '25021032104', '68382052506')",
-   "ms": 2166,
+   "ms": 826,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:28:59.023Z",
+   "ranAt": "2026-10-22T11:34:06.213Z",
    "rows": 2
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-97b375": {
-   "id": "Q-97b375",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%bumetanide%'",
-   "ms": 1178,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:29:00.205Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-78b5e8": {
+   "id": "Q-78b5e8",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*bumetanide(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1166,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:34:07.380Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 17370,
+  "zetarisMs": 17634,
   "modelCalls": 1,
-  "tokensIn": 3309,
-  "tokensOut": 619,
+  "tokensIn": 3431,
+  "tokensOut": 613,
   "mode": "live"
  },
  "slug": "bumetanide",
@@ -2050,7 +2261,7 @@
     "id": "hospital-item:hospital-item:CG-159",
     "type": "HospitalItem",
     "key": "hospital-item:CG-159",
-    "label": "Corvale General: Bumetanide",
+    "label": "Corvale General: Bumetanide 0.5 mg/1",
     "attrs": {
      "key": "hospital-item:CG-159"
     },
@@ -2061,7 +2272,7 @@
     "id": "hospital-item:hospital-item:CG-160",
     "type": "HospitalItem",
     "key": "hospital-item:CG-160",
-    "label": "Corvale General: bumetanide",
+    "label": "Corvale General: bumetanide 0.5 mg/1",
     "attrs": {
      "key": "hospital-item:CG-160"
     },
@@ -2072,7 +2283,7 @@
     "id": "hospital-item:hospital-item:CG-6",
     "type": "HospitalItem",
     "key": "hospital-item:CG-6",
-    "label": "Corvale General: Bumetanide",
+    "label": "Corvale General: Bumetanide 0.25 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-6"
     },
@@ -2083,7 +2294,7 @@
     "id": "hospital-item:hospital-item:CG-7",
     "type": "HospitalItem",
     "key": "hospital-item:CG-7",
-    "label": "Corvale General: Bumetanide",
+    "label": "Corvale General: Bumetanide 0.25 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-7"
     },
@@ -2310,7 +2521,7 @@
     },
     "facts": [
      {
-      "id": "fact_2759bfacabb61832",
+      "id": "fact_27026a653f35f041",
       "about": "inspection:fda-inspection:1106822",
       "predicate": "classification",
       "value": "VAI",
@@ -2318,9 +2529,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:28:56.852Z"
+       "at": "2026-10-22T11:34:05.386Z"
       },
-      "assertedAt": "2026-10-22T07:28:56.852Z"
+      "assertedAt": "2026-10-22T11:34:05.386Z"
      }
     ],
     "depth": 4
@@ -2336,7 +2547,7 @@
     },
     "facts": [
      {
-      "id": "fact_3a6bf589732c5119",
+      "id": "fact_398942ce537c9a9a",
       "about": "inspection:fda-inspection:1222115",
       "predicate": "classification",
       "value": "VAI",
@@ -2344,9 +2555,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:28:56.853Z"
+       "at": "2026-10-22T11:34:05.386Z"
       },
-      "assertedAt": "2026-10-22T07:28:56.853Z"
+      "assertedAt": "2026-10-22T11:34:05.386Z"
      }
     ],
     "depth": 4
@@ -2362,7 +2573,7 @@
     },
     "facts": [
      {
-      "id": "fact_3cd338fcbd2b068f",
+      "id": "fact_64990c4538b5faf0",
       "about": "inspection:fda-inspection:1237333",
       "predicate": "classification",
       "value": "VAI",
@@ -2370,9 +2581,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:28:56.853Z"
+       "at": "2026-10-22T11:34:05.386Z"
       },
-      "assertedAt": "2026-10-22T07:28:56.853Z"
+      "assertedAt": "2026-10-22T11:34:05.386Z"
      }
     ],
     "depth": 4
@@ -2388,7 +2599,7 @@
     },
     "facts": [
      {
-      "id": "fact_e2f0619b95b710e5",
+      "id": "fact_173a2455ed6073ec",
       "about": "inspection:fda-inspection:567761",
       "predicate": "classification",
       "value": "VAI",
@@ -2396,9 +2607,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:28:56.851Z"
+       "at": "2026-10-22T11:34:05.386Z"
       },
-      "assertedAt": "2026-10-22T07:28:56.851Z"
+      "assertedAt": "2026-10-22T11:34:05.386Z"
      }
     ],
     "depth": 4
@@ -2414,7 +2625,7 @@
     },
     "facts": [
      {
-      "id": "fact_0920a188b46f365f",
+      "id": "fact_f117d5b568423d00",
       "about": "inspection:fda-inspection:695392",
       "predicate": "classification",
       "value": "VAI",
@@ -2422,9 +2633,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:28:56.851Z"
+       "at": "2026-10-22T11:34:05.386Z"
       },
-      "assertedAt": "2026-10-22T07:28:56.851Z"
+      "assertedAt": "2026-10-22T11:34:05.386Z"
      }
     ],
     "depth": 4
@@ -2440,7 +2651,7 @@
     },
     "facts": [
      {
-      "id": "fact_e3decc8716e45385",
+      "id": "fact_96efa6ab8b617071",
       "about": "inspection:fda-inspection:709841",
       "predicate": "classification",
       "value": "VAI",
@@ -2448,9 +2659,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:28:56.854Z"
+       "at": "2026-10-22T11:34:05.386Z"
       },
-      "assertedAt": "2026-10-22T07:28:56.854Z"
+      "assertedAt": "2026-10-22T11:34:05.386Z"
      }
     ],
     "depth": 4
@@ -2466,7 +2677,7 @@
     },
     "facts": [
      {
-      "id": "fact_b99d15352b33b871",
+      "id": "fact_83c448821d0e5684",
       "about": "inspection:fda-inspection:719344",
       "predicate": "classification",
       "value": "VAI",
@@ -2474,9 +2685,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:28:56.851Z"
+       "at": "2026-10-22T11:34:05.386Z"
       },
-      "assertedAt": "2026-10-22T07:28:56.851Z"
+      "assertedAt": "2026-10-22T11:34:05.386Z"
      }
     ],
     "depth": 4
@@ -2492,7 +2703,7 @@
     },
     "facts": [
      {
-      "id": "fact_5760e2350474ecf6",
+      "id": "fact_316a5e1b45387200",
       "about": "inspection:fda-inspection:808443",
       "predicate": "classification",
       "value": "VAI",
@@ -2500,9 +2711,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:28:56.854Z"
+       "at": "2026-10-22T11:34:05.386Z"
       },
-      "assertedAt": "2026-10-22T07:28:56.854Z"
+      "assertedAt": "2026-10-22T11:34:05.386Z"
      }
     ],
     "depth": 4
@@ -2518,7 +2729,7 @@
     },
     "facts": [
      {
-      "id": "fact_e5640d4e48baddb0",
+      "id": "fact_085c669d3923310f",
       "about": "inspection:fda-inspection:837934",
       "predicate": "classification",
       "value": "VAI",
@@ -2526,9 +2737,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:28:56.852Z"
+       "at": "2026-10-22T11:34:05.386Z"
       },
-      "assertedAt": "2026-10-22T07:28:56.852Z"
+      "assertedAt": "2026-10-22T11:34:05.386Z"
      }
     ],
     "depth": 4
@@ -2544,7 +2755,7 @@
     },
     "facts": [
      {
-      "id": "fact_0de572810c4308bd",
+      "id": "fact_73809af73c916b06",
       "about": "inspection:fda-inspection:927215",
       "predicate": "classification",
       "value": "VAI",
@@ -2552,9 +2763,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:28:56.855Z"
+       "at": "2026-10-22T11:34:05.386Z"
       },
-      "assertedAt": "2026-10-22T07:28:56.855Z"
+      "assertedAt": "2026-10-22T11:34:05.386Z"
      }
     ],
     "depth": 4
@@ -2577,11 +2788,11 @@
     "from": "hospital-item:hospital-item:CG-159",
     "to": "package:ndc-package:0185-0128-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:28:51.397Z",
+    "validFrom": "2026-10-22T11:34:03.055Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:51.397Z"
+     "at": "2026-10-22T11:34:03.055Z"
     }
    },
    {
@@ -2589,11 +2800,11 @@
     "from": "hospital-item:hospital-item:CG-160",
     "to": "package:ndc-package:68382-525-06",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:28:51.397Z",
+    "validFrom": "2026-10-22T11:34:03.055Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:51.397Z"
+     "at": "2026-10-22T11:34:03.055Z"
     }
    },
    {
@@ -2601,11 +2812,11 @@
     "from": "hospital-item:hospital-item:CG-6",
     "to": "package:ndc-package:0641-6007-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:28:51.398Z",
+    "validFrom": "2026-10-22T11:34:03.055Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:51.398Z"
+     "at": "2026-10-22T11:34:03.055Z"
     }
    },
    {
@@ -2613,11 +2824,11 @@
     "from": "hospital-item:hospital-item:CG-7",
     "to": "package:ndc-package:25021-321-04",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:28:51.398Z",
+    "validFrom": "2026-10-22T11:34:03.055Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:51.398Z"
+     "at": "2026-10-22T11:34:03.055Z"
     }
    },
    {
@@ -2625,11 +2836,11 @@
     "from": "hospital-item:hospital-item:EA-E-000045",
     "to": "package:ndc-package:0185-0128-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:28:51.395Z",
+    "validFrom": "2026-10-22T11:34:03.054Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:51.395Z"
+     "at": "2026-10-22T11:34:03.054Z"
     }
    },
    {
@@ -2637,11 +2848,11 @@
     "from": "hospital-item:hospital-item:EA-E-000112",
     "to": "package:ndc-package:0641-6007-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:28:51.396Z",
+    "validFrom": "2026-10-22T11:34:03.054Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:51.396Z"
+     "at": "2026-10-22T11:34:03.054Z"
     }
    },
    {
@@ -2649,11 +2860,11 @@
     "from": "hospital-item:hospital-item:EA-E-000145",
     "to": "package:ndc-package:25021-321-04",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:28:51.396Z",
+    "validFrom": "2026-10-22T11:34:03.054Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:51.396Z"
+     "at": "2026-10-22T11:34:03.054Z"
     }
    },
    {
@@ -2661,11 +2872,11 @@
     "from": "hospital-item:hospital-item:EA-E-000252",
     "to": "package:ndc-package:68382-525-06",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:28:51.397Z",
+    "validFrom": "2026-10-22T11:34:03.055Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:51.397Z"
+     "at": "2026-10-22T11:34:03.055Z"
     }
    },
    {
@@ -2673,11 +2884,11 @@
     "from": "package:ndc-package:0185-0128-01",
     "to": "product:ndc-product:0185-0128",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:28:51.395Z",
+    "validFrom": "2026-10-22T11:34:03.054Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:51.395Z"
+     "at": "2026-10-22T11:34:03.054Z"
     }
    },
    {
@@ -2685,11 +2896,11 @@
     "from": "package:ndc-package:68382-525-06",
     "to": "product:ndc-product:68382-525",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:28:51.397Z",
+    "validFrom": "2026-10-22T11:34:03.055Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:51.397Z"
+     "at": "2026-10-22T11:34:03.055Z"
     }
    },
    {
@@ -2697,11 +2908,11 @@
     "from": "package:ndc-package:0641-6007-10",
     "to": "product:ndc-product:0641-6007",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:28:51.396Z",
+    "validFrom": "2026-10-22T11:34:03.054Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:51.396Z"
+     "at": "2026-10-22T11:34:03.054Z"
     }
    },
    {
@@ -2709,11 +2920,11 @@
     "from": "package:ndc-package:25021-321-04",
     "to": "product:ndc-product:25021-321",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:28:51.396Z",
+    "validFrom": "2026-10-22T11:34:03.054Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:51.396Z"
+     "at": "2026-10-22T11:34:03.054Z"
     }
    },
    {
@@ -2721,11 +2932,11 @@
     "from": "product:ndc-product:0185-0128",
     "to": "drug:generic:bumetanide",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:28:51.395Z",
+    "validFrom": "2026-10-22T11:34:03.054Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:51.395Z"
+     "at": "2026-10-22T11:34:03.054Z"
     }
    },
    {
@@ -2733,11 +2944,11 @@
     "from": "product:ndc-product:0185-0128",
     "to": "labeler:ndc-labeler:0185",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:28:51.395Z",
+    "validFrom": "2026-10-22T11:34:03.054Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:51.395Z"
+     "at": "2026-10-22T11:34:03.054Z"
     }
    },
    {
@@ -2745,11 +2956,11 @@
     "from": "product:ndc-product:68382-525",
     "to": "drug:generic:bumetanide",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:28:51.397Z",
+    "validFrom": "2026-10-22T11:34:03.055Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:51.397Z"
+     "at": "2026-10-22T11:34:03.055Z"
     }
    },
    {
@@ -2757,11 +2968,11 @@
     "from": "product:ndc-product:68382-525",
     "to": "labeler:ndc-labeler:68382",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:28:51.397Z",
+    "validFrom": "2026-10-22T11:34:03.055Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:51.397Z"
+     "at": "2026-10-22T11:34:03.055Z"
     }
    },
    {
@@ -2769,11 +2980,11 @@
     "from": "product:ndc-product:68382-525",
     "to": "site:fei:3005430968",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:28:56.854Z",
+    "validFrom": "2026-10-22T11:34:05.386Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:56.854Z"
+     "at": "2026-10-22T11:34:05.386Z"
     }
    },
    {
@@ -2781,11 +2992,11 @@
     "from": "product:ndc-product:0641-6007",
     "to": "drug:generic:bumetanide",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:28:51.396Z",
+    "validFrom": "2026-10-22T11:34:03.054Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:51.396Z"
+     "at": "2026-10-22T11:34:03.054Z"
     }
    },
    {
@@ -2793,11 +3004,11 @@
     "from": "product:ndc-product:0641-6007",
     "to": "labeler:ndc-labeler:0641",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:28:51.396Z",
+    "validFrom": "2026-10-22T11:34:03.054Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:51.396Z"
+     "at": "2026-10-22T11:34:03.054Z"
     }
    },
    {
@@ -2805,11 +3016,11 @@
     "from": "product:ndc-product:0641-6007",
     "to": "site:fei:2220525",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:28:56.851Z",
+    "validFrom": "2026-10-22T11:34:05.386Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:56.851Z"
+     "at": "2026-10-22T11:34:05.386Z"
     }
    },
    {
@@ -2817,11 +3028,11 @@
     "from": "product:ndc-product:25021-321",
     "to": "drug:generic:bumetanide",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:28:51.396Z",
+    "validFrom": "2026-10-22T11:34:03.054Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:51.396Z"
+     "at": "2026-10-22T11:34:03.054Z"
     }
    },
    {
@@ -2829,11 +3040,11 @@
     "from": "product:ndc-product:25021-321",
     "to": "labeler:ndc-labeler:25021",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:28:51.396Z",
+    "validFrom": "2026-10-22T11:34:03.055Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:51.396Z"
+     "at": "2026-10-22T11:34:03.055Z"
     }
    },
    {
@@ -2841,11 +3052,11 @@
     "from": "inspection:fda-inspection:709841",
     "to": "site:fei:3005430968",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:28:56.854Z",
+    "validFrom": "2026-10-22T11:34:05.386Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:56.854Z"
+     "at": "2026-10-22T11:34:05.386Z"
     }
    },
    {
@@ -2853,11 +3064,11 @@
     "from": "inspection:fda-inspection:808443",
     "to": "site:fei:3005430968",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:28:56.854Z",
+    "validFrom": "2026-10-22T11:34:05.386Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:56.854Z"
+     "at": "2026-10-22T11:34:05.386Z"
     }
    },
    {
@@ -2865,11 +3076,11 @@
     "from": "inspection:fda-inspection:927215",
     "to": "site:fei:3005430968",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:28:56.855Z",
+    "validFrom": "2026-10-22T11:34:05.386Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:56.855Z"
+     "at": "2026-10-22T11:34:05.386Z"
     }
    },
    {
@@ -2877,11 +3088,11 @@
     "from": "warning-letter:fda-warning-letter:722576",
     "to": "site:fei:3005430968",
     "type": "issued-to",
-    "validFrom": "2026-10-22T07:28:56.855Z",
+    "validFrom": "2026-10-22T11:34:05.386Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:56.855Z"
+     "at": "2026-10-22T11:34:05.386Z"
     }
    },
    {
@@ -2889,11 +3100,11 @@
     "from": "inspection:fda-inspection:567761",
     "to": "site:fei:2220525",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:28:56.851Z",
+    "validFrom": "2026-10-22T11:34:05.386Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:56.851Z"
+     "at": "2026-10-22T11:34:05.386Z"
     }
    },
    {
@@ -2901,11 +3112,11 @@
     "from": "inspection:fda-inspection:695392",
     "to": "site:fei:2220525",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:28:56.851Z",
+    "validFrom": "2026-10-22T11:34:05.386Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:56.851Z"
+     "at": "2026-10-22T11:34:05.386Z"
     }
    },
    {
@@ -2913,11 +3124,11 @@
     "from": "inspection:fda-inspection:719344",
     "to": "site:fei:2220525",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:28:56.851Z",
+    "validFrom": "2026-10-22T11:34:05.386Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:56.851Z"
+     "at": "2026-10-22T11:34:05.386Z"
     }
    },
    {
@@ -2925,11 +3136,11 @@
     "from": "inspection:fda-inspection:837934",
     "to": "site:fei:2220525",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:28:56.852Z",
+    "validFrom": "2026-10-22T11:34:05.386Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:56.852Z"
+     "at": "2026-10-22T11:34:05.386Z"
     }
    },
    {
@@ -2937,11 +3148,11 @@
     "from": "inspection:fda-inspection:1106822",
     "to": "site:fei:2220525",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:28:56.852Z",
+    "validFrom": "2026-10-22T11:34:05.386Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:56.852Z"
+     "at": "2026-10-22T11:34:05.386Z"
     }
    },
    {
@@ -2949,11 +3160,11 @@
     "from": "inspection:fda-inspection:1222115",
     "to": "site:fei:2220525",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:28:56.853Z",
+    "validFrom": "2026-10-22T11:34:05.386Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:56.853Z"
+     "at": "2026-10-22T11:34:05.386Z"
     }
    },
    {
@@ -2961,11 +3172,11 @@
     "from": "inspection:fda-inspection:1237333",
     "to": "site:fei:2220525",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:28:56.853Z",
+    "validFrom": "2026-10-22T11:34:05.386Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:56.853Z"
+     "at": "2026-10-22T11:34:05.386Z"
     }
    }
   ],

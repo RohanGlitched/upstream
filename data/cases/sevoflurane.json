@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-250350",
+ "id": "case-2026-10-22-6862a6",
  "question": "Why is sevoflurane short, and what do we do?",
- "askedAt": "2026-10-22T08:25:19.150Z",
+ "askedAt": "2026-10-22T12:41:22.669Z",
  "asOf": "2026-10-21",
  "molecule": "sevoflurane",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5HBC016029FE2EFFGYRAM18",
+  "contractId": "01M5HT2GZGKG2ZYSFZZE2GA38B",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-ead109"
+    "Q-5671b3"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 19635,
+   "ms": 3056,
    "rows": 4,
-   "finding": "4 stock lines across 2 hospitals.",
+   "finding": "4 stock lines across 2 hospitals, 2 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-30b0f2"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 4602,
+   "ms": 390,
    "rows": 2,
    "finding": "2 plant links on 2 labels; 2 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-5f3a44",
-    "Q-d506ca"
+    "Q-345657",
+    "Q-5fb70c"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 1742,
+   "ms": 195,
    "rows": 0,
    "finding": "Not on FDA's current shortage list.",
    "status": "empty"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-cae6d4"
+    "Q-badecb"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 15685,
+   "ms": 1073,
    "rows": 15,
    "finding": "10 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-fefaa1",
     "Q-e8ffe3",
     "Q-340b00",
-    "Q-14cce6"
+    "Q-a3ae4e"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 5885,
+   "ms": 561,
    "rows": 20,
    "finding": "17 inspections (2 OAI at our plants), 2 compliance actions, 1 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,7 +111,7 @@
    "sources": [
     "fda.citations"
    ],
-   "ms": 2213,
+   "ms": 130,
    "rows": 6,
    "finding": "6 Form 483 observations recorded.",
    "status": "ok"
@@ -119,9 +126,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 9388,
+   "ms": 602,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -129,19 +136,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-8f3191"
+    "Q-0f23e8"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2785,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1155,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -152,7 +163,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 4,
+   "ms": 1,
    "rows": 2,
    "finding": "2 past decisions recalled.",
    "status": "ok"
@@ -168,8 +179,11 @@
    "onHand": 89,
    "dailyUse": 6.822,
    "days": 13,
-   "unit": "package",
+   "unit": "each",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 6, converted to units",
+   "presentation": "sevoflurane|250ml/250ml|liquid|250ml|each",
+   "presentationLabel": "250 mL/250 mL liquid, 250 mL each",
    "evidence": "E1"
   },
   {
@@ -181,35 +195,116 @@
    "onHand": 41,
    "dailyUse": 8.974,
    "days": 4.6,
-   "unit": "package",
+   "unit": "each",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "sevoflurane|1ml/ml|liquid|250ml|each",
+   "presentationLabel": "1 mL/mL liquid, 250 mL each",
    "evidence": "E2"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-333",
    "ndc11": "10019065706",
-   "description": "Sevoflurane",
+   "description": "Sevoflurane 250 mL/250mL",
    "labeler": "Baxter Healthcare Corporation",
-   "onHand": 227.87,
+   "onHand": 227,
    "dailyUse": 8.065,
-   "days": 28.3,
+   "days": 28.1,
    "unit": "each",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "sevoflurane|250ml/250ml|liquid|250ml|each",
+   "presentationLabel": "250 mL/250 mL liquid, 250 mL each",
    "evidence": "E3"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-334",
    "ndc11": "72162224502",
-   "description": "Sevoflurane",
+   "description": "Sevoflurane 1 mL/mL",
    "labeler": "Bryant Ranch Prepack",
-   "onHand": 157.92,
+   "onHand": 157,
    "dailyUse": 8.523,
-   "days": 18.5,
+   "days": 18.4,
    "unit": "each",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "sevoflurane|1ml/ml|liquid|250ml|each",
+   "presentationLabel": "1 mL/mL liquid, 250 mL each",
    "evidence": "E4"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "sevoflurane|1ml/ml|liquid|250ml|each",
+   "label": "1 mL/mL liquid, 250 mL each",
+   "short": "1 mL/mL, 250 mL",
+   "unit": "each",
+   "onHand": 198,
+   "dailyUse": 17.497,
+   "days": 11.3,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 41,
+     "dailyUse": 8.974,
+     "days": 4.6,
+     "lines": [
+      "EA-E-000303"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 157,
+     "dailyUse": 8.523,
+     "days": 18.4,
+     "lines": [
+      "CG-334"
+     ],
+     "evidence": [
+      "E4"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "sevoflurane|250ml/250ml|liquid|250ml|each",
+   "label": "250 mL/250 mL liquid, 250 mL each",
+   "short": "250 mL/250 mL, 250 mL",
+   "unit": "each",
+   "onHand": 316,
+   "dailyUse": 14.887,
+   "days": 21.2,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 89,
+     "dailyUse": 6.822,
+     "days": 13,
+     "lines": [
+      "EA-E-000131"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 227,
+     "dailyUse": 8.065,
+     "days": 28.1,
+     "lines": [
+      "CG-333"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -546,16 +641,25 @@
   {
    "kind": "transfer",
    "rank": 1,
-   "title": "Transfer 92 from Corvale General to Corvale East",
-   "detail": "Corvale General has 23 days on hand and can spare 92 while keeping two weeks; Corvale East has 8.2 days and would reach 14.",
-   "why": "Same product, no clinical change, no new supplier.",
+   "title": "Transfer 37 units of 1 mL/mL, 250 mL from Corvale General to Corvale East",
+   "detail": "Corvale General has 18 days of 1 mL/mL liquid, 250 mL each on hand and can spare 37 units while keeping two weeks; Corvale East has 4.6 days and would reach 9.",
+   "why": "Same presentation, no clinical change, no new supplier.",
    "needs": "pharmacy director (transfer request)",
    "evidence": [
-    "E3",
     "E4",
-    "E1",
     "E2"
-   ]
+   ],
+   "transfer": {
+    "qty": 37,
+    "unit": "each",
+    "presentation": "1 mL/mL liquid, 250 mL each",
+    "from": "Corvale General",
+    "to": "Corvale East",
+    "fromDays": 18.4,
+    "toDays": 4.6,
+    "fromAfter": 14,
+    "toAfter": 9
+   }
   },
   {
    "kind": "alternate_manufacturer",
@@ -752,57 +856,57 @@
   }
  ],
  "explanation": {
-  "state": "confirmed",
-  "headline": "FDA's records trace this shortage to a plant on our own labels",
+  "state": "check",
+  "headline": "Sevoflurane is not on FDA's shortage list; Corvale East has 4.6 days on hand of the 1 mL/mL 250 mL presentation and Corvale General has 18.4 days, so a transfer of 37 units is the top option",
   "sentences": [
    {
-    "text": "FDA inspection 683318 of Baxter Healthcare Corporation (FEI 2650090) ended on 2010-09-30 and was classified OAI with a known date of 2010-12-29.",
+    "text": "FDA's records show sevoflurane is not on the drug shortage list as of 2026-10-21.",
     "cites": [
-     "E5"
+     "D5"
     ]
    },
    {
-    "text": "The Baxter plant was later inspected and classified VAI on 2015-02-06, 2018-10-24, and most recently on 2025-03-26.",
+    "text": "Corvale East holds 41 units of sevoflurane 1 mL/mL 250 mL with daily use of 9, giving 4.6 days on hand.",
     "cites": [
-     "E6",
-     "E7",
-     "E8"
+     "D1"
     ]
    },
    {
-    "text": "A second registered plant for sevoflurane, Bryant Ranch Prepack (FEI 1000519407), received an OAI classification on 2009-06-11 and a Warning Letter on 2010-04-08.",
+    "text": "Corvale General holds 157 units of the same presentation with daily use of 8.5, giving 18.4 days on hand.",
     "cites": [
-     "E13",
-     "E22"
+     "D2"
     ]
    },
    {
-    "text": "Bryant Ranch Prepack has since received VAI classifications through the most recent inspection ending 2026-07-16.",
+    "text": "The rule‑based ranking selects transferring 37 units of 1 mL/mL 250 mL from Corvale General to Corvale East as the top option.",
     "cites": [
-     "E21"
+     "D6"
+    ]
+   },
+   {
+    "text": "After the transfer Corvale General would retain about two weeks of supply and Corvale East would reach approximately 9 days.",
+    "cites": [
+     "D6"
+    ]
+   },
+   {
+    "text": "Both sites' current supply for this presentation is labeled by Bryant Ranch Prepack (NDC 72162224502).",
+    "cites": [
+     "E2",
+     "E4"
+    ]
+   },
+   {
+    "text": "No FDA shortage posting exists, so the buyer should execute the transfer and monitor daily use at both locations.",
+    "cites": [
+     "D5",
+     "D6"
     ]
    }
   ],
   "verifier": {
    "checked": 8,
-   "rejected": [
-    {
-     "text": "That OAI classification occurred 5857 days before the posting date of 2026-10-21.",
-     "reason": "date 2026-10-21 is not in the cited evidence"
-    },
-    {
-     "text": "Corvale General holds 386 units at 16.6 per day (23 days on hand) and can spare 92 units while retaining two weeks of supply.",
-     "reason": "number 92 is not in the cited evidence"
-    },
-    {
-     "text": "Corvale East holds 130 units at 15.8 per day (8 days on hand) and would reach 14 days on hand after receiving the transfer.",
-     "reason": "number 14 is not in the cited evidence"
-    },
-    {
-     "text": "FDA's records trace our supply to a plant classified OAI 5857 days before the posting",
-     "reason": "headline: number 5857 is not in the cited evidence"
-    }
-   ],
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -810,45 +914,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -857,7 +982,7 @@
    "text": "Decision on lidocaine: switch lidocaine 1% 30 mL vials to 5 mL vials in the ED to reduce waste during the shortage. Rationale: Single-dose waste was a third of use (demo history). Approved by Alex Morgan, PharmD.",
    "approvedBy": "Alex Morgan, PharmD",
    "when": "2025-11-20",
-   "score": 0.257
+   "score": 0.258
   },
   {
    "id": "mem-3",
@@ -870,87 +995,87 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T08:24:17.193Z",
+   "at": "2026-10-22T12:41:15.504Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract FGYRAM18 scope"
+   "reason": "in contract ZE2GA38B scope"
   },
   {
-   "at": "2026-10-22T08:24:17.193Z",
+   "at": "2026-10-22T12:41:15.504Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FGYRAM18 scope"
+   "reason": "in contract ZE2GA38B scope"
   },
   {
-   "at": "2026-10-22T08:24:36.834Z",
+   "at": "2026-10-22T12:41:18.561Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FGYRAM18 scope"
+   "reason": "in contract ZE2GA38B scope"
   },
   {
-   "at": "2026-10-22T08:24:41.437Z",
+   "at": "2026-10-22T12:41:18.950Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FGYRAM18 scope"
+   "reason": "in contract ZE2GA38B scope"
   },
   {
-   "at": "2026-10-22T08:24:43.180Z",
+   "at": "2026-10-22T12:41:19.145Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FGYRAM18 scope"
+   "reason": "in contract ZE2GA38B scope"
   },
   {
-   "at": "2026-10-22T08:24:58.866Z",
+   "at": "2026-10-22T12:41:20.218Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FGYRAM18 scope"
+   "reason": "in contract ZE2GA38B scope"
   },
   {
-   "at": "2026-10-22T08:25:04.750Z",
+   "at": "2026-10-22T12:41:20.779Z",
    "action": "What FDA wrote at the OAI inspections",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FGYRAM18 scope"
+   "reason": "in contract ZE2GA38B scope"
   },
   {
-   "at": "2026-10-22T08:25:06.972Z",
+   "at": "2026-10-22T12:41:20.911Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FGYRAM18 scope"
+   "reason": "in contract ZE2GA38B scope"
   },
   {
-   "at": "2026-10-22T08:25:16.361Z",
+   "at": "2026-10-22T12:41:21.513Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FGYRAM18 scope"
+   "reason": "in contract ZE2GA38B scope"
   },
   {
-   "at": "2026-10-22T08:25:19.145Z",
+   "at": "2026-10-22T12:41:22.668Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract FGYRAM18 scope"
+   "reason": "in contract ZE2GA38B scope"
   },
   {
-   "at": "2026-10-22T08:25:19.150Z",
+   "at": "2026-10-22T12:41:22.669Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract FGYRAM18 scope"
+   "reason": "in contract ZE2GA38B scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-ead109",
+   "queryId": "Q-5671b3",
    "row": 0,
    "label": "Corvale East: SEVOFLURANE 250ML/250ML 250ML BTL",
    "fields": {
@@ -961,19 +1086,24 @@
     "description": "SEVOFLURANE 250ML/250ML 250ML BTL",
     "on_hand": "89.00",
     "daily_use": "6.822",
-    "unit": "package",
+    "unit": "each",
+    "pkg_units": "6.00",
+    "unit_basis": "packages of 6, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Sevoflurane",
     "labeler_name": "Baxter Healthcare Corporation",
     "package_ndc": "10019-657-06",
     "spl_set_id": "22700993-851a-48aa-941e-1d2b6b04081f",
     "dosage_form": "LIQUID",
-    "route": "RESPIRATORY (INHALATION)"
+    "route": "RESPIRATORY (INHALATION)",
+    "strength": "SEVOFLURANE 250 mL/250mL",
+    "unit_content": "250 mL",
+    "pkg_unit": "bottle"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-ead109",
+   "queryId": "Q-5671b3",
    "row": 1,
    "label": "Corvale East: SEVOFLURANE 1ML/ML 250ML BTL",
    "fields": {
@@ -984,60 +1114,75 @@
     "description": "SEVOFLURANE 1ML/ML 250ML BTL",
     "on_hand": "41.00",
     "daily_use": "8.974",
-    "unit": "package",
+    "unit": "each",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Sevoflurane",
     "labeler_name": "Bryant Ranch Prepack",
     "package_ndc": "72162-2245-2",
     "spl_set_id": "06b9f724-6425-4976-93eb-b9ca343ef5cf",
     "dosage_form": "LIQUID",
-    "route": "RESPIRATORY (INHALATION)"
+    "route": "RESPIRATORY (INHALATION)",
+    "strength": "SEVOFLURANE 1 mL/mL",
+    "unit_content": "250 mL",
+    "pkg_unit": "bottle"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-ead109",
+   "queryId": "Q-5671b3",
    "row": 2,
-   "label": "Corvale General: Sevoflurane",
+   "label": "Corvale General: Sevoflurane 250 mL/250mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-333",
     "ndc11": "10019065706",
     "ndc_as_recorded": "10019065706",
-    "description": "Sevoflurane",
-    "on_hand": "227.87",
+    "description": "Sevoflurane 250 mL/250mL",
+    "on_hand": "227.00",
     "daily_use": "8.065",
     "unit": "each",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Sevoflurane",
     "labeler_name": "Baxter Healthcare Corporation",
     "package_ndc": "10019-657-06",
     "spl_set_id": "22700993-851a-48aa-941e-1d2b6b04081f",
     "dosage_form": "LIQUID",
-    "route": "RESPIRATORY (INHALATION)"
+    "route": "RESPIRATORY (INHALATION)",
+    "strength": "SEVOFLURANE 250 mL/250mL",
+    "unit_content": "250 mL",
+    "pkg_unit": "bottle"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-ead109",
+   "queryId": "Q-5671b3",
    "row": 3,
-   "label": "Corvale General: Sevoflurane",
+   "label": "Corvale General: Sevoflurane 1 mL/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-334",
     "ndc11": "72162224502",
     "ndc_as_recorded": "72162224502",
-    "description": "Sevoflurane",
-    "on_hand": "157.92",
+    "description": "Sevoflurane 1 mL/mL",
+    "on_hand": "157.00",
     "daily_use": "8.523",
     "unit": "each",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Sevoflurane",
     "labeler_name": "Bryant Ranch Prepack",
     "package_ndc": "72162-2245-2",
     "spl_set_id": "06b9f724-6425-4976-93eb-b9ca343ef5cf",
     "dosage_form": "LIQUID",
-    "route": "RESPIRATORY (INHALATION)"
+    "route": "RESPIRATORY (INHALATION)",
+    "strength": "SEVOFLURANE 1 mL/mL",
+    "unit_content": "250 mL",
+    "pkg_unit": "bottle"
    }
   },
   "E5": {
@@ -1341,196 +1486,283 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 130 units of sevoflurane at 15.8 a day: 8 days on hand",
+   "label": "Corvale East holds 41 eachs of sevoflurane 1 mL/mL, 250 mL at 9 a day: 4.6 days on hand",
    "fields": {
     "hospital": "Corvale East",
-    "on_hand": 130,
-    "daily_use": 15.8,
-    "days_on_hand": 8
+    "presentation": "1 mL/mL liquid, 250 mL each",
+    "on_hand": 41,
+    "daily_use": 9,
+    "days_on_hand": 4.6
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 386 units of sevoflurane at 16.6 a day: 23 days on hand",
+   "label": "Corvale General holds 157 eachs of sevoflurane 1 mL/mL, 250 mL at 8.5 a day: 18.4 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 386,
-    "daily_use": 16.6,
-    "days_on_hand": 23
+    "presentation": "1 mL/mL liquid, 250 mL each",
+    "on_hand": 157,
+    "daily_use": 8.5,
+    "days_on_hand": 18.4
+   }
+  },
+  "D3": {
+   "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale East holds 89 eachs of sevoflurane 250 mL/250 mL, 250 mL at 6.8 a day: 13 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "250 mL/250 mL liquid, 250 mL each",
+    "on_hand": 89,
+    "daily_use": 6.8,
+    "days_on_hand": 13
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 227 eachs of sevoflurane 250 mL/250 mL, 250 mL at 8.1 a day: 28.1 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "250 mL/250 mL liquid, 250 mL each",
+    "on_hand": 227,
+    "daily_use": 8.1,
+    "days_on_hand": 28.1
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "sevoflurane is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 37 units of 1 mL/mL, 250 mL from Corvale General to Corvale East. Corvale General has 18 days of 1 mL/mL liquid, 250 mL each on hand and can spare 37 units while keeping two weeks; Corvale East has 4.6 days and would reach 9.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from AbbVie Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D8": {
+   "id": "D8",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Baxter Healthcare Company. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-ead109": {
-   "id": "Q-ead109",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%sevoflurane%' OR lower(s.description) LIKE '%sevoflurane%' ORDER BY s.hospital, s.item_key",
-   "ms": 19630,
+  "Q-5671b3": {
+   "id": "Q-5671b3",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*sevoflurane(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*sevoflurane(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3055,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T08:24:36.825Z",
+   "ranAt": "2026-10-22T12:41:18.559Z",
    "rows": 4
   },
   "Q-30b0f2": {
    "id": "Q-30b0f2",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('22700993-851a-48aa-941e-1d2b6b04081f', '06b9f724-6425-4976-93eb-b9ca343ef5cf') ORDER BY ps.set_id, ps.establishment",
-   "ms": 4599,
+   "ms": 388,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:24:41.434Z",
+   "ranAt": "2026-10-22T12:41:18.949Z",
    "rows": 2
   },
-  "Q-5f3a44": {
-   "id": "Q-5f3a44",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%sevoflurane%' ORDER BY status, company_name, package_ndc",
-   "ms": 827,
+  "Q-345657": {
+   "id": "Q-345657",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*sevoflurane(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 98,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T08:24:42.263Z",
+   "ranAt": "2026-10-22T12:41:19.048Z",
    "rows": 0
   },
-  "Q-d506ca": {
-   "id": "Q-d506ca",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%sevoflurane%' ORDER BY first_posting",
-   "ms": 906,
+  "Q-5fb70c": {
+   "id": "Q-5fb70c",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*sevoflurane(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 95,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T08:24:43.172Z",
+   "ranAt": "2026-10-22T12:41:19.144Z",
    "rows": 0
   },
-  "Q-cae6d4": {
-   "id": "Q-cae6d4",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%sevoflurane%' AND lower(p.dosage_form) LIKE '%liquid%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 15681,
+  "Q-badecb": {
+   "id": "Q-badecb",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*sevoflurane(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%liquid%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1072,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:24:58.861Z",
+   "ranAt": "2026-10-22T12:41:20.217Z",
    "rows": 15
   },
   "Q-fefaa1": {
    "id": "Q-fefaa1",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('1000519407', '2650090') ORDER BY fei, end_date",
-   "ms": 2518,
+   "ms": 235,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T08:25:01.384Z",
+   "ranAt": "2026-10-22T12:41:20.454Z",
    "rows": 17
   },
   "Q-e8ffe3": {
    "id": "Q-e8ffe3",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('1000519407', '2650090') ORDER BY fei, action_date",
-   "ms": 764,
+   "ms": 112,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T08:25:02.151Z",
+   "ranAt": "2026-10-22T12:41:20.566Z",
    "rows": 2
   },
   "Q-340b00": {
    "id": "Q-340b00",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('1000519407', '2650090') OR (fei_match <> 'name_and_city' AND firm_key IN ('bryant ranch prepack', 'baxter')) ORDER BY date_published",
-   "ms": 956,
+   "ms": 96,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T08:25:03.110Z",
+   "ranAt": "2026-10-22T12:41:20.663Z",
    "rows": 1
   },
-  "Q-14cce6": {
-   "id": "Q-14cce6",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('bryant ranch prepack', 'baxter') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%sevoflurane%' ORDER BY initiation_date",
-   "ms": 1628,
+  "Q-a3ae4e": {
+   "id": "Q-a3ae4e",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('bryant ranch prepack', 'baxter') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*sevoflurane(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 115,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T08:25:04.747Z",
+   "ranAt": "2026-10-22T12:41:20.778Z",
    "rows": 0
   },
   "Q-212b70": {
    "id": "Q-212b70",
    "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('590126', '683318') ORDER BY inspection_id, cfr",
-   "ms": 2211,
+   "ms": 129,
    "mode": "live",
    "sources": [
     "fda.citations"
    ],
-   "ranAt": "2026-10-22T08:25:06.961Z",
+   "ranAt": "2026-10-22T12:41:20.908Z",
    "rows": 6
   },
   "Q-975d0b": {
    "id": "Q-975d0b",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('10019065706', '72162224502')",
-   "ms": 9385,
+   "ms": 601,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:25:16.358Z",
+   "ranAt": "2026-10-22T12:41:21.512Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-8f3191": {
-   "id": "Q-8f3191",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%sevoflurane%'",
-   "ms": 2782,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:25:19.143Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-0f23e8": {
+   "id": "Q-0f23e8",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*sevoflurane(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1154,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:41:22.667Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 15,
-  "zetarisMs": 67258,
+  "zetarisMs": 17358,
   "modelCalls": 1,
-  "tokensIn": 2722,
-  "tokensOut": 498,
+  "tokensIn": 3525,
+  "tokensOut": 453,
   "mode": "live"
  },
  "slug": "sevoflurane",
@@ -1546,7 +1778,7 @@
     "id": "hospital-item:hospital-item:CG-333",
     "type": "HospitalItem",
     "key": "hospital-item:CG-333",
-    "label": "Corvale General: Sevoflurane",
+    "label": "Corvale General: Sevoflurane 250 mL/250mL",
     "attrs": {
      "key": "hospital-item:CG-333"
     },
@@ -1557,7 +1789,7 @@
     "id": "hospital-item:hospital-item:CG-334",
     "type": "HospitalItem",
     "key": "hospital-item:CG-334",
-    "label": "Corvale General: Sevoflurane",
+    "label": "Corvale General: Sevoflurane 1 mL/mL",
     "attrs": {
      "key": "hospital-item:CG-334"
     },
@@ -1696,7 +1928,7 @@
     },
     "facts": [
      {
-      "id": "fact_bdf63b588214436f",
+      "id": "fact_70d22a3ea13b9ba7",
       "about": "inspection:fda-inspection:1069929",
       "predicate": "classification",
       "value": "VAI",
@@ -1704,9 +1936,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:25:06.968Z"
+       "at": "2026-10-22T12:41:20.910Z"
       },
-      "assertedAt": "2026-10-22T08:25:06.968Z"
+      "assertedAt": "2026-10-22T12:41:20.910Z"
      }
     ],
     "depth": 4
@@ -1722,7 +1954,7 @@
     },
     "facts": [
      {
-      "id": "fact_b8de506ff41f8fc4",
+      "id": "fact_8e403dc8a88a22c4",
       "about": "inspection:fda-inspection:1110509",
       "predicate": "classification",
       "value": "VAI",
@@ -1730,9 +1962,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:25:06.970Z"
+       "at": "2026-10-22T12:41:20.910Z"
       },
-      "assertedAt": "2026-10-22T08:25:06.970Z"
+      "assertedAt": "2026-10-22T12:41:20.910Z"
      }
     ],
     "depth": 4
@@ -1748,7 +1980,7 @@
     },
     "facts": [
      {
-      "id": "fact_b1f446542c334428",
+      "id": "fact_0c1ebb28461a9374",
       "about": "inspection:fda-inspection:1165537",
       "predicate": "classification",
       "value": "VAI",
@@ -1756,9 +1988,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:25:06.971Z"
+       "at": "2026-10-22T12:41:20.911Z"
       },
-      "assertedAt": "2026-10-22T08:25:06.971Z"
+      "assertedAt": "2026-10-22T12:41:20.911Z"
      }
     ],
     "depth": 4
@@ -1774,7 +2006,7 @@
     },
     "facts": [
      {
-      "id": "fact_199482f65b333365",
+      "id": "fact_77ac748dacfd717e",
       "about": "inspection:fda-inspection:1228907",
       "predicate": "classification",
       "value": "VAI",
@@ -1782,9 +2014,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:25:06.971Z"
+       "at": "2026-10-22T12:41:20.911Z"
       },
-      "assertedAt": "2026-10-22T08:25:06.971Z"
+      "assertedAt": "2026-10-22T12:41:20.911Z"
      }
     ],
     "depth": 4
@@ -1800,7 +2032,7 @@
     },
     "facts": [
      {
-      "id": "fact_857b3e61350967a6",
+      "id": "fact_c10193412fb1491e",
       "about": "inspection:fda-inspection:1264998",
       "predicate": "classification",
       "value": "VAI",
@@ -1808,9 +2040,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:25:06.968Z"
+       "at": "2026-10-22T12:41:20.910Z"
       },
-      "assertedAt": "2026-10-22T08:25:06.968Z"
+      "assertedAt": "2026-10-22T12:41:20.910Z"
      }
     ],
     "depth": 4
@@ -1826,7 +2058,7 @@
     },
     "facts": [
      {
-      "id": "fact_2d25500a8e9e04e9",
+      "id": "fact_e538b58ba946ed17",
       "about": "inspection:fda-inspection:1326578",
       "predicate": "classification",
       "value": "VAI",
@@ -1834,9 +2066,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:25:06.971Z"
+       "at": "2026-10-22T12:41:20.911Z"
       },
-      "assertedAt": "2026-10-22T08:25:06.971Z"
+      "assertedAt": "2026-10-22T12:41:20.911Z"
      }
     ],
     "depth": 4
@@ -1852,7 +2084,7 @@
     },
     "facts": [
      {
-      "id": "fact_86b99756bbc0485c",
+      "id": "fact_70486f6473f3be2c",
       "about": "inspection:fda-inspection:590126",
       "predicate": "classification",
       "value": "OAI",
@@ -1860,9 +2092,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:25:06.969Z"
+       "at": "2026-10-22T12:41:20.910Z"
       },
-      "assertedAt": "2026-10-22T08:25:06.969Z"
+      "assertedAt": "2026-10-22T12:41:20.910Z"
      }
     ],
     "depth": 4
@@ -1878,7 +2110,7 @@
     },
     "facts": [
      {
-      "id": "fact_4f30db6c8f5fa613",
+      "id": "fact_c3a59b1ab2f7e6b6",
       "about": "inspection:fda-inspection:682974",
       "predicate": "classification",
       "value": "VAI",
@@ -1886,9 +2118,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:25:06.969Z"
+       "at": "2026-10-22T12:41:20.910Z"
       },
-      "assertedAt": "2026-10-22T08:25:06.969Z"
+      "assertedAt": "2026-10-22T12:41:20.910Z"
      }
     ],
     "depth": 4
@@ -1904,7 +2136,7 @@
     },
     "facts": [
      {
-      "id": "fact_40e41044991794df",
+      "id": "fact_20f0f0b3272dece6",
       "about": "inspection:fda-inspection:683318",
       "predicate": "classification",
       "value": "OAI",
@@ -1912,9 +2144,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:25:06.968Z"
+       "at": "2026-10-22T12:41:20.910Z"
       },
-      "assertedAt": "2026-10-22T08:25:06.968Z"
+      "assertedAt": "2026-10-22T12:41:20.910Z"
      }
     ],
     "depth": 4
@@ -1930,7 +2162,7 @@
     },
     "facts": [
      {
-      "id": "fact_eb436435b43fd703",
+      "id": "fact_c967700cf6a4a105",
       "about": "inspection:fda-inspection:732513",
       "predicate": "classification",
       "value": "VAI",
@@ -1938,9 +2170,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:25:06.969Z"
+       "at": "2026-10-22T12:41:20.910Z"
       },
-      "assertedAt": "2026-10-22T08:25:06.969Z"
+      "assertedAt": "2026-10-22T12:41:20.910Z"
      }
     ],
     "depth": 4
@@ -1956,7 +2188,7 @@
     },
     "facts": [
      {
-      "id": "fact_a9d6b4837257d442",
+      "id": "fact_52e172ef846d5390",
       "about": "inspection:fda-inspection:840224",
       "predicate": "classification",
       "value": "VAI",
@@ -1964,9 +2196,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:25:06.970Z"
+       "at": "2026-10-22T12:41:20.910Z"
       },
-      "assertedAt": "2026-10-22T08:25:06.970Z"
+      "assertedAt": "2026-10-22T12:41:20.910Z"
      }
     ],
     "depth": 4
@@ -1982,7 +2214,7 @@
     },
     "facts": [
      {
-      "id": "fact_2cbe12add1be80ab",
+      "id": "fact_12e50aeb96cbb30c",
       "about": "inspection:fda-inspection:913366",
       "predicate": "classification",
       "value": "VAI",
@@ -1990,9 +2222,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:25:06.968Z"
+       "at": "2026-10-22T12:41:20.910Z"
       },
-      "assertedAt": "2026-10-22T08:25:06.968Z"
+      "assertedAt": "2026-10-22T12:41:20.910Z"
      }
     ],
     "depth": 4
@@ -2008,7 +2240,7 @@
     },
     "facts": [
      {
-      "id": "fact_ad20bbd72d67a275",
+      "id": "fact_12ca6f0db4d7ba84",
       "about": "inspection:fda-inspection:995337",
       "predicate": "classification",
       "value": "VAI",
@@ -2016,9 +2248,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:25:06.970Z"
+       "at": "2026-10-22T12:41:20.910Z"
       },
-      "assertedAt": "2026-10-22T08:25:06.970Z"
+      "assertedAt": "2026-10-22T12:41:20.910Z"
      }
     ],
     "depth": 4
@@ -2052,11 +2284,11 @@
     "from": "hospital-item:hospital-item:CG-333",
     "to": "package:ndc-package:10019-657-06",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:24:36.833Z",
+    "validFrom": "2026-10-22T12:41:18.560Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:24:36.833Z"
+     "at": "2026-10-22T12:41:18.560Z"
     }
    },
    {
@@ -2064,11 +2296,11 @@
     "from": "hospital-item:hospital-item:CG-334",
     "to": "package:ndc-package:72162-2245-2",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:24:36.833Z",
+    "validFrom": "2026-10-22T12:41:18.560Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:24:36.833Z"
+     "at": "2026-10-22T12:41:18.560Z"
     }
    },
    {
@@ -2076,11 +2308,11 @@
     "from": "hospital-item:hospital-item:EA-E-000131",
     "to": "package:ndc-package:10019-657-06",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:24:36.832Z",
+    "validFrom": "2026-10-22T12:41:18.560Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:24:36.832Z"
+     "at": "2026-10-22T12:41:18.560Z"
     }
    },
    {
@@ -2088,11 +2320,11 @@
     "from": "hospital-item:hospital-item:EA-E-000303",
     "to": "package:ndc-package:72162-2245-2",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:24:36.832Z",
+    "validFrom": "2026-10-22T12:41:18.560Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:24:36.832Z"
+     "at": "2026-10-22T12:41:18.560Z"
     }
    },
    {
@@ -2100,11 +2332,11 @@
     "from": "package:ndc-package:10019-657-06",
     "to": "product:ndc-product:10019-657",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:24:36.832Z",
+    "validFrom": "2026-10-22T12:41:18.560Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:24:36.832Z"
+     "at": "2026-10-22T12:41:18.560Z"
     }
    },
    {
@@ -2112,11 +2344,11 @@
     "from": "package:ndc-package:72162-2245-2",
     "to": "product:ndc-product:72162-2245",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:24:36.832Z",
+    "validFrom": "2026-10-22T12:41:18.560Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:24:36.832Z"
+     "at": "2026-10-22T12:41:18.560Z"
     }
    },
    {
@@ -2124,11 +2356,11 @@
     "from": "product:ndc-product:10019-657",
     "to": "drug:generic:sevoflurane",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:24:36.832Z",
+    "validFrom": "2026-10-22T12:41:18.560Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:24:36.832Z"
+     "at": "2026-10-22T12:41:18.560Z"
     }
    },
    {
@@ -2136,11 +2368,11 @@
     "from": "product:ndc-product:10019-657",
     "to": "labeler:ndc-labeler:10019",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:24:36.832Z",
+    "validFrom": "2026-10-22T12:41:18.560Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:24:36.832Z"
+     "at": "2026-10-22T12:41:18.560Z"
     }
    },
    {
@@ -2148,11 +2380,11 @@
     "from": "product:ndc-product:10019-657",
     "to": "site:fei:2650090",
     "type": "made-at",
-    "validFrom": "2026-10-22T08:25:06.967Z",
+    "validFrom": "2026-10-22T12:41:20.910Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:25:06.967Z"
+     "at": "2026-10-22T12:41:20.910Z"
     }
    },
    {
@@ -2160,11 +2392,11 @@
     "from": "product:ndc-product:72162-2245",
     "to": "drug:generic:sevoflurane",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:24:36.832Z",
+    "validFrom": "2026-10-22T12:41:18.560Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:24:36.832Z"
+     "at": "2026-10-22T12:41:18.560Z"
     }
    },
    {
@@ -2172,11 +2404,11 @@
     "from": "product:ndc-product:72162-2245",
     "to": "labeler:ndc-labeler:72162",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:24:36.832Z",
+    "validFrom": "2026-10-22T12:41:18.560Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:24:36.832Z"
+     "at": "2026-10-22T12:41:18.560Z"
     }
    },
    {
@@ -2184,11 +2416,11 @@
     "from": "product:ndc-product:72162-2245",
     "to": "site:fei:1000519407",
     "type": "made-at",
-    "validFrom": "2026-10-22T08:25:06.969Z",
+    "validFrom": "2026-10-22T12:41:20.910Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:25:06.969Z"
+     "at": "2026-10-22T12:41:20.910Z"
     }
    },
    {
@@ -2196,11 +2428,11 @@
     "from": "inspection:fda-inspection:683318",
     "to": "site:fei:2650090",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:25:06.968Z",
+    "validFrom": "2026-10-22T12:41:20.910Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:25:06.968Z"
+     "at": "2026-10-22T12:41:20.910Z"
     }
    },
    {
@@ -2208,11 +2440,11 @@
     "from": "inspection:fda-inspection:913366",
     "to": "site:fei:2650090",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:25:06.968Z",
+    "validFrom": "2026-10-22T12:41:20.910Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:25:06.968Z"
+     "at": "2026-10-22T12:41:20.910Z"
     }
    },
    {
@@ -2220,11 +2452,11 @@
     "from": "inspection:fda-inspection:1069929",
     "to": "site:fei:2650090",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:25:06.968Z",
+    "validFrom": "2026-10-22T12:41:20.910Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:25:06.968Z"
+     "at": "2026-10-22T12:41:20.910Z"
     }
    },
    {
@@ -2232,11 +2464,11 @@
     "from": "inspection:fda-inspection:1264998",
     "to": "site:fei:2650090",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:25:06.968Z",
+    "validFrom": "2026-10-22T12:41:20.910Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:25:06.968Z"
+     "at": "2026-10-22T12:41:20.910Z"
     }
    },
    {
@@ -2244,11 +2476,11 @@
     "from": "warning-letter:fda-warning-letter:143913",
     "to": "site:fei:2650090",
     "type": "issued-to",
-    "validFrom": "2026-10-22T08:25:06.968Z",
+    "validFrom": "2026-10-22T12:41:20.910Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:25:06.968Z"
+     "at": "2026-10-22T12:41:20.910Z"
     }
    },
    {
@@ -2256,11 +2488,11 @@
     "from": "inspection:fda-inspection:590126",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:25:06.969Z",
+    "validFrom": "2026-10-22T12:41:20.910Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:25:06.969Z"
+     "at": "2026-10-22T12:41:20.910Z"
     }
    },
    {
@@ -2268,11 +2500,11 @@
     "from": "inspection:fda-inspection:682974",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:25:06.969Z",
+    "validFrom": "2026-10-22T12:41:20.910Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:25:06.969Z"
+     "at": "2026-10-22T12:41:20.910Z"
     }
    },
    {
@@ -2280,11 +2512,11 @@
     "from": "inspection:fda-inspection:732513",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:25:06.969Z",
+    "validFrom": "2026-10-22T12:41:20.910Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:25:06.969Z"
+     "at": "2026-10-22T12:41:20.910Z"
     }
    },
    {
@@ -2292,11 +2524,11 @@
     "from": "inspection:fda-inspection:840224",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:25:06.970Z",
+    "validFrom": "2026-10-22T12:41:20.910Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:25:06.970Z"
+     "at": "2026-10-22T12:41:20.910Z"
     }
    },
    {
@@ -2304,11 +2536,11 @@
     "from": "inspection:fda-inspection:995337",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:25:06.970Z",
+    "validFrom": "2026-10-22T12:41:20.910Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:25:06.970Z"
+     "at": "2026-10-22T12:41:20.910Z"
     }
    },
    {
@@ -2316,11 +2548,11 @@
     "from": "inspection:fda-inspection:1110509",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:25:06.970Z",
+    "validFrom": "2026-10-22T12:41:20.910Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:25:06.970Z"
+     "at": "2026-10-22T12:41:20.910Z"
     }
    },
    {
@@ -2328,11 +2560,11 @@
     "from": "inspection:fda-inspection:1165537",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:25:06.971Z",
+    "validFrom": "2026-10-22T12:41:20.911Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:25:06.971Z"
+     "at": "2026-10-22T12:41:20.911Z"
     }
    },
    {
@@ -2340,11 +2572,11 @@
     "from": "inspection:fda-inspection:1228907",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:25:06.971Z",
+    "validFrom": "2026-10-22T12:41:20.911Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:25:06.971Z"
+     "at": "2026-10-22T12:41:20.911Z"
     }
    },
    {
@@ -2352,11 +2584,11 @@
     "from": "inspection:fda-inspection:1326578",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:25:06.971Z",
+    "validFrom": "2026-10-22T12:41:20.911Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:25:06.971Z"
+     "at": "2026-10-22T12:41:20.911Z"
     }
    },
    {
@@ -2364,11 +2596,11 @@
     "from": "warning-letter:fda-warning-letter:72525",
     "to": "site:fei:1000519407",
     "type": "issued-to",
-    "validFrom": "2026-10-22T08:25:06.969Z",
+    "validFrom": "2026-10-22T12:41:20.910Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:25:06.969Z"
+     "at": "2026-10-22T12:41:20.910Z"
     }
    }
   ],

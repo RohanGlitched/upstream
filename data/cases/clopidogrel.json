@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-15f7ef",
+ "id": "case-2026-10-22-682c38",
  "question": "Why is clopidogrel bisulfate short, and what do we do?",
- "askedAt": "2026-10-22T07:35:40.740Z",
+ "askedAt": "2026-10-22T11:40:59.587Z",
  "asOf": "2026-10-21",
  "molecule": "clopidogrel bisulfate",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H8JQ09WNCQ71VJ0B08XM97",
+  "contractId": "01M5HPKY3GJ15T74X1BAP3P5SN",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-e50244"
+    "Q-174bc5"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2823,
+   "ms": 3495,
    "rows": 2,
-   "finding": "2 stock lines across 2 hospitals.",
+   "finding": "2 stock lines across 2 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-85ae4a"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 454,
+   "ms": 251,
    "rows": 0,
    "finding": "0 plant links on 0 labels; 0 placed in FDA's registration file.",
    "status": "empty"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-92aca1",
-    "Q-5e9ee8"
+    "Q-246264",
+    "Q-f6a3db"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 507,
+   "ms": 207,
    "rows": 0,
    "finding": "Not on FDA's current shortage list.",
    "status": "empty"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-e2ad18"
+    "Q-da8942"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1740,
+   "ms": 1182,
    "rows": 181,
    "finding": "37 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-5a2a45",
     "Q-8c11bc",
     "Q-4794e1",
-    "Q-6f0032"
+    "Q-4cae2d"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1083,
+   "ms": 649,
    "rows": 3,
    "finding": "3 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1008,
+   "ms": 694,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-7139ff"
+    "Q-bbef38"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1527,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1410,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 1,
+   "ms": 0,
    "rows": 0,
    "finding": "No past decisions on this drug.",
    "status": "empty"
@@ -148,13 +159,16 @@
    "hospital": "Corvale General",
    "itemKey": "CG-187",
    "ndc11": "60505353205",
-   "description": "clopidogrel bisulfate",
+   "description": "clopidogrel bisulfate 300 mg/1",
    "labeler": "Apotex Corp.",
-   "onHand": 364.25,
+   "onHand": 364,
    "dailyUse": 13.913,
    "days": 26.2,
    "unit": "tablet",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "clopidogrel bisulfate|300mg|tablet||tablet",
+   "presentationLabel": "300 mg tablet",
    "evidence": "E1"
   },
   {
@@ -168,7 +182,47 @@
    "days": 8.9,
    "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "clopidogrel bisulfate|300mg|tablet||tablet",
+   "presentationLabel": "300 mg tablet",
    "evidence": "E2"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "clopidogrel bisulfate|300mg|tablet||tablet",
+   "label": "300 mg tablet",
+   "short": "300 mg",
+   "unit": "tablet",
+   "onHand": 387,
+   "dailyUse": 16.493,
+   "days": 23.5,
+   "hospitals": [
+    {
+     "hospital": "Corvale General",
+     "onHand": 364,
+     "dailyUse": 13.913,
+     "days": 26.2,
+     "lines": [
+      "CG-187"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 23,
+     "dailyUse": 2.58,
+     "days": 8.9,
+     "lines": [
+      "LS-LS-0092"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -500,55 +554,30 @@
   {
    "kind": "transfer",
    "rank": 1,
-   "title": "Transfer 14 from Corvale General to Corvale Lakeside",
-   "detail": "Corvale General has 26 days on hand and can spare 14 while keeping two weeks; Corvale Lakeside has 8.9 days and would reach 14.",
-   "why": "Same product, no clinical change, no new supplier.",
+   "title": "Transfer 14 tablets of 300 mg from Corvale General to Corvale Lakeside",
+   "detail": "Corvale General has 26 days of 300 mg tablets on hand and can spare 14 tablets while keeping two weeks; Corvale Lakeside has 8.9 days and would reach 14.",
+   "why": "Same presentation, no clinical change, no new supplier.",
    "needs": "pharmacy director (transfer request)",
    "evidence": [
     "E1",
     "E2"
-   ]
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 2,
-   "title": "Buy from Proficient Rx LP",
-   "detail": "Not on FDA's shortage list today. Plants: Proficient Rx LP (last inspection VAI 2022-12-08).",
-   "why": "Same product, no clinical change, plant record clear.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from A-S Medication Solutions",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from American Health Packaging",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
+   ],
+   "transfer": {
+    "qty": 14,
+    "unit": "tablet",
+    "presentation": "300 mg tablet",
+    "from": "Corvale General",
+    "to": "Corvale Lakeside",
+    "fromDays": 26.2,
+    "toDays": 8.9,
+    "fromAfter": 25,
+    "toAfter": 14
+   }
   },
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Amneal Pharmaceuticals LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Aphena Pharma Solutions - Tennessee, LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -584,25 +613,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Bryant Ranch Prepack",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Camber Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Cardinal Health 107, LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -692,42 +703,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals,Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from PD-Rx Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Preferred Pharmaceuticals Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Preferred Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Quallent Pharmaceuticals Health LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -738,15 +713,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from RADHA PHARMACEUTICALS, INC.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from REMEDYREPACK INC.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -845,164 +811,224 @@
  ],
  "explanation": {
   "state": "no_signal",
-  "headline": "FDA's records show no signal at our plants",
-  "sentences": [],
+  "headline": "FDA's records show clopidogrel bisulfate is not on the drug shortage list as of 2026-10-21",
+  "sentences": [
+   {
+    "text": "FDA's drug shortage list does not include clopidogrel bisulfate as of 2026-10-21.",
+    "cites": [
+     "D3"
+    ]
+   },
+   {
+    "text": "Corvale General holds 364 tablets of the 300 mg presentation with 26.2 days on hand at current use.",
+    "cites": [
+     "D1"
+    ]
+   },
+   {
+    "text": "Corvale Lakeside holds 23 tablets of the same presentation with 8.9 days on hand at current use.",
+    "cites": [
+     "D2"
+    ]
+   },
+   {
+    "text": "The top-ranked action is to transfer 14 tablets of 300 mg from Corvale General to Corvale Lakeside.",
+    "cites": [
+     "D4"
+    ]
+   },
+   {
+    "text": "After the transfer Corvale General would retain about two weeks of supply and Corvale Lakeside would reach approximately 14 days on hand.",
+    "cites": [
+     "D4"
+    ]
+   },
+   {
+    "text": "Alternate manufacturers Amneal Pharmaceuticals LLC and Ascend Laboratories LLC are not on FDA's shortage list today, but their labels name no plant we could place.",
+    "cites": [
+     "D5",
+     "D6"
+    ]
+   }
+  ],
   "verifier": {
-   "checked": 0,
-   "rejected": [
-    {
-     "text": "",
-     "reason": "model unavailable: The operation was aborted due to timeout"
-    }
-   ]
+   "checked": 7,
+   "rejected": [],
+   "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
  },
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [],
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:35:31.594Z",
+   "at": "2026-10-22T11:40:51.697Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract 0B08XM97 scope"
+   "reason": "in contract BAP3P5SN scope"
   },
   {
-   "at": "2026-10-22T07:35:31.595Z",
+   "at": "2026-10-22T11:40:51.697Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 0B08XM97 scope"
+   "reason": "in contract BAP3P5SN scope"
   },
   {
-   "at": "2026-10-22T07:35:34.419Z",
+   "at": "2026-10-22T11:40:55.193Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 0B08XM97 scope"
+   "reason": "in contract BAP3P5SN scope"
   },
   {
-   "at": "2026-10-22T07:35:34.874Z",
+   "at": "2026-10-22T11:40:55.444Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 0B08XM97 scope"
+   "reason": "in contract BAP3P5SN scope"
   },
   {
-   "at": "2026-10-22T07:35:35.380Z",
+   "at": "2026-10-22T11:40:55.651Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 0B08XM97 scope"
+   "reason": "in contract BAP3P5SN scope"
   },
   {
-   "at": "2026-10-22T07:35:37.120Z",
+   "at": "2026-10-22T11:40:56.834Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 0B08XM97 scope"
+   "reason": "in contract BAP3P5SN scope"
   },
   {
-   "at": "2026-10-22T07:35:38.204Z",
+   "at": "2026-10-22T11:40:57.483Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 0B08XM97 scope"
+   "reason": "in contract BAP3P5SN scope"
   },
   {
-   "at": "2026-10-22T07:35:39.215Z",
+   "at": "2026-10-22T11:40:58.176Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 0B08XM97 scope"
+   "reason": "in contract BAP3P5SN scope"
   },
   {
-   "at": "2026-10-22T07:35:40.739Z",
+   "at": "2026-10-22T11:40:59.587Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract 0B08XM97 scope"
+   "reason": "in contract BAP3P5SN scope"
   },
   {
-   "at": "2026-10-22T07:35:40.741Z",
+   "at": "2026-10-22T11:40:59.587Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract 0B08XM97 scope"
+   "reason": "in contract BAP3P5SN scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-e50244",
+   "queryId": "Q-174bc5",
    "row": 0,
-   "label": "Corvale General: clopidogrel bisulfate",
+   "label": "Corvale General: clopidogrel bisulfate 300 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-187",
     "ndc11": "60505353205",
     "ndc_as_recorded": "60505353205",
-    "description": "clopidogrel bisulfate",
-    "on_hand": "364.25",
+    "description": "clopidogrel bisulfate 300 mg/1",
+    "on_hand": "364.00",
     "daily_use": "13.913",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "clopidogrel bisulfate",
     "labeler_name": "Apotex Corp.",
     "package_ndc": "60505-3532-5",
     "spl_set_id": null,
     "dosage_form": "TABLET, FILM COATED",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "CLOPIDOGREL BISULFATE 300 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-e50244",
+   "queryId": "Q-174bc5",
    "row": 1,
    "label": "Corvale Lakeside: clopidogrel bisulfate 300 mg/1",
    "fields": {
@@ -1014,198 +1040,264 @@
     "on_hand": "23.00",
     "daily_use": "2.580",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "clopidogrel bisulfate",
     "labeler_name": "Apotex Corp.",
     "package_ndc": "60505-3532-5",
     "spl_set_id": null,
     "dosage_form": "TABLET, FILM COATED",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "CLOPIDOGREL BISULFATE 300 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "D1": {
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 364 units of clopidogrel bisulfate at 13.9 a day: 26 days on hand",
+   "label": "Corvale General holds 364 tablets of clopidogrel bisulfate 300 mg at 13.9 a day: 26.2 days on hand",
    "fields": {
     "hospital": "Corvale General",
+    "presentation": "300 mg tablet",
     "on_hand": 364,
     "daily_use": 13.9,
-    "days_on_hand": 26
+    "days_on_hand": 26.2
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 23 units of clopidogrel bisulfate at 2.6 a day: 9 days on hand",
+   "label": "Corvale Lakeside holds 23 tablets of clopidogrel bisulfate 300 mg at 2.6 a day: 8.9 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
+    "presentation": "300 mg tablet",
     "on_hand": 23,
     "daily_use": 2.6,
-    "days_on_hand": 9
+    "days_on_hand": 8.9
+   }
+  },
+  "D3": {
+   "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "clopidogrel bisulfate is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 14 tablets of 300 mg from Corvale General to Corvale Lakeside. Corvale General has 26 days of 300 mg tablets on hand and can spare 14 tablets while keeping two weeks; Corvale Lakeside has 8.9 days and would reach 14.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Amneal Pharmaceuticals LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Ascend Laboratories, LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-e50244": {
-   "id": "Q-e50244",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%clopidogrel%' OR lower(s.description) LIKE '%clopidogrel%' ORDER BY s.hospital, s.item_key",
-   "ms": 2820,
+  "Q-174bc5": {
+   "id": "Q-174bc5",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*clopidogrel(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*clopidogrel(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3495,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:35:34.414Z",
+   "ranAt": "2026-10-22T11:40:55.191Z",
    "rows": 2
   },
   "Q-85ae4a": {
    "id": "Q-85ae4a",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('') ORDER BY ps.set_id, ps.establishment",
-   "ms": 452,
+   "ms": 250,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:35:34.871Z",
+   "ranAt": "2026-10-22T11:40:55.443Z",
    "rows": 0
   },
-  "Q-92aca1": {
-   "id": "Q-92aca1",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%clopidogrel%' ORDER BY status, company_name, package_ndc",
-   "ms": 247,
+  "Q-246264": {
+   "id": "Q-246264",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*clopidogrel(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 103,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:35:35.121Z",
+   "ranAt": "2026-10-22T11:40:55.547Z",
    "rows": 0
   },
-  "Q-5e9ee8": {
-   "id": "Q-5e9ee8",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%clopidogrel%' ORDER BY first_posting",
-   "ms": 253,
+  "Q-f6a3db": {
+   "id": "Q-f6a3db",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*clopidogrel(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 103,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:35:35.377Z",
+   "ranAt": "2026-10-22T11:40:55.650Z",
    "rows": 0
   },
-  "Q-e2ad18": {
-   "id": "Q-e2ad18",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%clopidogrel%' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 1735,
+  "Q-da8942": {
+   "id": "Q-da8942",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*clopidogrel(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1181,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:35:37.115Z",
+   "ranAt": "2026-10-22T11:40:56.832Z",
    "rows": 181
   },
   "Q-5a2a45": {
    "id": "Q-5a2a45",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3011557028') ORDER BY fei, end_date",
-   "ms": 482,
+   "ms": 279,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:35:37.602Z",
+   "ranAt": "2026-10-22T11:40:57.112Z",
    "rows": 3
   },
   "Q-8c11bc": {
    "id": "Q-8c11bc",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3011557028') ORDER BY fei, action_date",
-   "ms": 200,
+   "ms": 117,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:35:37.805Z",
+   "ranAt": "2026-10-22T11:40:57.230Z",
    "rows": 0
   },
   "Q-4794e1": {
    "id": "Q-4794e1",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('') OR (fei_match <> 'name_and_city' AND firm_key IN ('')) ORDER BY date_published",
-   "ms": 191,
+   "ms": 100,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:35:37.999Z",
+   "ranAt": "2026-10-22T11:40:57.331Z",
    "rows": 0
   },
-  "Q-6f0032": {
-   "id": "Q-6f0032",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('apotex') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%clopidogrel%' ORDER BY initiation_date",
-   "ms": 198,
+  "Q-4cae2d": {
+   "id": "Q-4cae2d",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('apotex') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*clopidogrel(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 149,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:35:38.200Z",
+   "ranAt": "2026-10-22T11:40:57.481Z",
    "rows": 0
   },
   "Q-749abb": {
    "id": "Q-749abb",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('60505353205')",
-   "ms": 1004,
+   "ms": 692,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:35:39.209Z",
+   "ranAt": "2026-10-22T11:40:58.175Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-7139ff": {
-   "id": "Q-7139ff",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%clopidogrel%'",
-   "ms": 1521,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:35:40.736Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-bbef38": {
+   "id": "Q-bbef38",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*clopidogrel(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1409,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:40:59.586Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 14474,
-  "modelCalls": 0,
-  "tokensIn": 0,
-  "tokensOut": 0,
+  "zetarisMs": 18086,
+  "modelCalls": 1,
+  "tokensIn": 1352,
+  "tokensOut": 346,
   "mode": "live"
  },
  "slug": "clopidogrel",
@@ -1219,7 +1311,7 @@
     "id": "hospital-item:hospital-item:CG-187",
     "type": "HospitalItem",
     "key": "hospital-item:CG-187",
-    "label": "Corvale General: clopidogrel bisulfate",
+    "label": "Corvale General: clopidogrel bisulfate 300 mg/1",
     "attrs": {
      "key": "hospital-item:CG-187"
     },
@@ -1288,11 +1380,11 @@
     "from": "hospital-item:hospital-item:CG-187",
     "to": "package:ndc-package:60505-3532-5",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:35:34.418Z",
+    "validFrom": "2026-10-22T11:40:55.192Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:35:34.418Z"
+     "at": "2026-10-22T11:40:55.192Z"
     }
    },
    {
@@ -1300,11 +1392,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0092",
     "to": "package:ndc-package:60505-3532-5",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:35:34.418Z",
+    "validFrom": "2026-10-22T11:40:55.193Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:35:34.418Z"
+     "at": "2026-10-22T11:40:55.193Z"
     }
    },
    {
@@ -1312,11 +1404,11 @@
     "from": "package:ndc-package:60505-3532-5",
     "to": "product:ndc-product:60505-3532",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:35:34.418Z",
+    "validFrom": "2026-10-22T11:40:55.193Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:35:34.418Z"
+     "at": "2026-10-22T11:40:55.193Z"
     }
    },
    {
@@ -1324,11 +1416,11 @@
     "from": "product:ndc-product:60505-3532",
     "to": "drug:generic:clopidogrel bisulfate",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:35:34.418Z",
+    "validFrom": "2026-10-22T11:40:55.193Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:35:34.418Z"
+     "at": "2026-10-22T11:40:55.193Z"
     }
    },
    {
@@ -1336,11 +1428,11 @@
     "from": "product:ndc-product:60505-3532",
     "to": "labeler:ndc-labeler:60505",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:35:34.418Z",
+    "validFrom": "2026-10-22T11:40:55.193Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:35:34.418Z"
+     "at": "2026-10-22T11:40:55.193Z"
     }
    }
   ],

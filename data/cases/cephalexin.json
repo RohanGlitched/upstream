@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-7b36f9",
+ "id": "case-2026-10-22-800b7e",
  "question": "Why is cephalexin short, and what do we do?",
- "askedAt": "2026-10-22T07:33:46.773Z",
+ "askedAt": "2026-10-22T11:38:40.440Z",
  "asOf": "2026-10-21",
  "molecule": "cephalexin",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H8F6DM2YCSQ34H7KF1TBYK",
+  "contractId": "01M5HPFMW93XSM70RAADNGEPYK",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-5014e4"
+    "Q-86df2a"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2806,
+   "ms": 3893,
    "rows": 3,
-   "finding": "3 stock lines across 3 hospitals.",
+   "finding": "3 stock lines across 3 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-d39f2f"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 771,
+   "ms": 508,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-7cff28",
-    "Q-1df0f2"
+    "Q-288fef",
+    "Q-e775af"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 362,
+   "ms": 242,
    "rows": 0,
    "finding": "Not on FDA's current shortage list.",
    "status": "empty"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-16c3a2"
+    "Q-c16963"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2476,
+   "ms": 1405,
    "rows": 410,
    "finding": "35 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-20b22c",
     "Q-37f066",
     "Q-12f038",
-    "Q-cf6abf"
+    "Q-2d0bd9"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1292,
+   "ms": 729,
    "rows": 1,
    "finding": "1 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1280,
+   "ms": 721,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-4c8313"
+    "Q-9160e3"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1469,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1763,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 4,
+   "ms": 1,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -151,23 +162,29 @@
    "description": "CEPHALEXIN 500MG CAP",
    "labeler": "Advanced Rx Pharmacy of Tennessee, LLC",
    "onHand": 88,
-   "dailyUse": 17.491,
+   "dailyUse": 17.492,
    "days": 5,
-   "unit": "package",
+   "unit": "capsule",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 28, converted to units",
+   "presentation": "cephalexin|500mg|capsule||capsule",
+   "presentationLabel": "500 mg capsule",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-178",
    "ndc11": "80425012101",
-   "description": "Cephalexin",
+   "description": "Cephalexin 500 mg/1",
    "labeler": "Advanced Rx Pharmacy of Tennessee, LLC",
-   "onHand": 399.12,
+   "onHand": 399,
    "dailyUse": 15.06,
    "days": 26.5,
    "unit": "capsule",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "cephalexin|500mg|capsule||capsule",
+   "presentationLabel": "500 mg capsule",
    "evidence": "E2"
   },
   {
@@ -181,7 +198,59 @@
    "days": 6.2,
    "unit": "capsule",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "cephalexin|500mg|capsule||capsule",
+   "presentationLabel": "500 mg capsule",
    "evidence": "E3"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "cephalexin|500mg|capsule||capsule",
+   "label": "500 mg capsule",
+   "short": "500 mg",
+   "unit": "capsule",
+   "onHand": 514,
+   "dailyUse": 36.925,
+   "days": 13.9,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 88,
+     "dailyUse": 17.492,
+     "days": 5,
+     "lines": [
+      "EA-E-000315"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 399,
+     "dailyUse": 15.06,
+     "days": 26.5,
+     "lines": [
+      "CG-178"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 27,
+     "dailyUse": 4.373,
+     "days": 6.2,
+     "lines": [
+      "LS-LS-0136"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -529,35 +598,48 @@
   {
    "kind": "transfer",
    "rank": 1,
-   "title": "Transfer 157 from Corvale General to Corvale East",
-   "detail": "Corvale General has 27 days on hand and can spare 157 while keeping two weeks; Corvale East has 5 days and would reach 14.",
-   "why": "Same product, no clinical change, no new supplier.",
+   "title": "Transfer 157 capsules of 500 mg from Corvale General to Corvale East",
+   "detail": "Corvale General has 26 days of 500 mg capsules on hand and can spare 157 capsules while keeping two weeks; Corvale East has 5 days and would reach 14.",
+   "why": "Same presentation, no clinical change, no new supplier.",
    "needs": "pharmacy director (transfer request)",
    "evidence": [
     "E2",
     "E1"
-   ]
+   ],
+   "transfer": {
+    "qty": 157,
+    "unit": "capsule",
+    "presentation": "500 mg capsule",
+    "from": "Corvale General",
+    "to": "Corvale East",
+    "fromDays": 26.5,
+    "toDays": 5,
+    "fromAfter": 16,
+    "toAfter": 14
+   }
   },
   {
    "kind": "transfer",
    "rank": 1,
-   "title": "Transfer 31 from Corvale General to Corvale Lakeside",
-   "detail": "Corvale General has 27 days on hand and can spare 31 while keeping two weeks; Corvale Lakeside has 6.2 days and would reach 13.",
-   "why": "Same product, no clinical change, no new supplier.",
+   "title": "Transfer 31 capsules of 500 mg from Corvale General to Corvale Lakeside",
+   "detail": "Corvale General has 26 days of 500 mg capsules on hand and can spare 31 capsules while keeping two weeks; Corvale Lakeside has 6.2 days and would reach 13.",
+   "why": "Same presentation, no clinical change, no new supplier.",
    "needs": "pharmacy director (transfer request)",
    "evidence": [
     "E2",
     "E3"
-   ]
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from A-S Medication Solutions",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
+   ],
+   "transfer": {
+    "qty": 31,
+    "unit": "capsule",
+    "presentation": "500 mg capsule",
+    "from": "Corvale General",
+    "to": "Corvale Lakeside",
+    "fromDays": 26.5,
+    "toDays": 6.2,
+    "fromAfter": 24,
+    "toAfter": 13
+   }
   },
   {
    "kind": "alternate_manufacturer",
@@ -589,34 +671,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from American Health Packaging",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Ascend Laboratories, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Asclemed USA, Inc",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Asclemed USA, Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -644,15 +699,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from AvPAK",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Bryant Ranch Prepack",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -706,33 +752,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from DIRECT RX",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Direct_Rx",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from HAWAII REPACK, INC.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Lupin Pharmaceuticals, Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -751,42 +770,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Northwind Health Company, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals,Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from PD-Rx Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Pharma-C, Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -796,34 +779,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Preferred Pharmaceuticals Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Proficient Rx LP",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from QPharma Inc",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from REMEDYREPACK INC.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -875,56 +831,58 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "FDA's records trace our cephalexin supply to a plant last inspected 2024-09-06 and classified VAI",
+  "headline": "Cephalexin is not on FDA's shortage list as of 2026-10-21; supply traces to a repack plant inspected VAI on 2024-09-06",
   "sentences": [
    {
-    "text": "FDA's most recent inspection of that plant ended 2024-09-06 and was classified VAI, with the classification known to FDA on 2024-11-13.",
+    "text": "FDA's drug shortage list does not include cephalexin as of 2026-10-21.",
     "cites": [
-     "E4",
+     "D4"
+    ]
+   },
+   {
+    "text": "All three Corvale sites hold the same NDC 80425012101 labeled by Advanced Rx Pharmacy of Tennessee, LLC.",
+    "cites": [
+     "E1",
+     "E2",
+     "E3"
+    ]
+   },
+   {
+    "text": "The product label identifies the plant as Advanced Rx Pharmacy of Tennessee, LLC (FEI 3017450153) with operations listed as REPACK.",
+    "cites": [
      "E5"
     ]
    },
    {
-    "text": "No FDA shortage posting, recall, or OAI classification for this product or plant appears in the provided records.",
+    "text": "FDA inspection 1249914 at that FEI ended 2024-09-06 and was classified VAI.",
     "cites": [
-     "E4",
-     "E5"
+     "E4"
     ]
    },
    {
-    "text": "Corvale East has 5 days on hand (88 units at 17.5/day) and Corvale General has 27 days on hand (399 units at 15.1/day).",
+    "text": "Corvale East has 5 days of 500 mg capsules on hand, Corvale General has 26.5 days, and Corvale Lakeside has 6.2 days.",
     "cites": [
      "D1",
-     "D2"
-    ]
-   },
-   {
-    "text": "Corvale Lakeside holds 6 days on hand (27 units at 4.4/day) and is not positioned to supply a transfer.",
-    "cites": [
+     "D2",
      "D3"
     ]
    },
    {
-    "text": "Verify current on-hand and daily-use figures at both sites before executing the transfer, and confirm no new FDA actions have been posted since the last inspection date.",
+    "text": "The top-ranked option by rule is to transfer 157 capsules of 500 mg from Corvale General to Corvale East, which would give Corvale East 14 days on hand while Corvale General retains two weeks.",
     "cites": [
-     "D1",
-     "D2",
-     "E4"
+     "D5"
+    ]
+   },
+   {
+    "text": "A secondary option is to transfer 31 capsules from Corvale General to Corvale Lakeside, raising Lakeside to 13 days.",
+    "cites": [
+     "D6"
     ]
    }
   ],
   "verifier": {
    "checked": 8,
-   "rejected": [
-    {
-     "text": "All three Corvale sites source cephalexin from Advanced Rx Pharmacy of Tennessee, LLC (FEI 3017450153) under NDC 80425012101.",
-     "reason": "number 3017450153 is not in the cited evidence"
-    },
-    {
-     "text": "The indicated move is to transfer 157 units from Corvale General to Corvale East, which would leave General with roughly two weeks of supply and bring East to approximately 14 days.",
-     "reason": "number 157 is not in the cited evidence"
-    }
-   ],
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -932,45 +890,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -985,80 +964,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:33:36.309Z",
+   "at": "2026-10-22T11:38:31.177Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract 7KF1TBYK scope"
+   "reason": "in contract ADNGEPYK scope"
   },
   {
-   "at": "2026-10-22T07:33:36.309Z",
+   "at": "2026-10-22T11:38:31.177Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 7KF1TBYK scope"
+   "reason": "in contract ADNGEPYK scope"
   },
   {
-   "at": "2026-10-22T07:33:39.116Z",
+   "at": "2026-10-22T11:38:35.071Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 7KF1TBYK scope"
+   "reason": "in contract ADNGEPYK scope"
   },
   {
-   "at": "2026-10-22T07:33:39.888Z",
+   "at": "2026-10-22T11:38:35.579Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 7KF1TBYK scope"
+   "reason": "in contract ADNGEPYK scope"
   },
   {
-   "at": "2026-10-22T07:33:40.249Z",
+   "at": "2026-10-22T11:38:35.821Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 7KF1TBYK scope"
+   "reason": "in contract ADNGEPYK scope"
   },
   {
-   "at": "2026-10-22T07:33:42.726Z",
+   "at": "2026-10-22T11:38:37.226Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 7KF1TBYK scope"
+   "reason": "in contract ADNGEPYK scope"
   },
   {
-   "at": "2026-10-22T07:33:44.021Z",
+   "at": "2026-10-22T11:38:37.956Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 7KF1TBYK scope"
+   "reason": "in contract ADNGEPYK scope"
   },
   {
-   "at": "2026-10-22T07:33:45.300Z",
+   "at": "2026-10-22T11:38:38.677Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 7KF1TBYK scope"
+   "reason": "in contract ADNGEPYK scope"
   },
   {
-   "at": "2026-10-22T07:33:46.769Z",
+   "at": "2026-10-22T11:38:40.439Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract 7KF1TBYK scope"
+   "reason": "in contract ADNGEPYK scope"
   },
   {
-   "at": "2026-10-22T07:33:46.774Z",
+   "at": "2026-10-22T11:38:40.440Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract 7KF1TBYK scope"
+   "reason": "in contract ADNGEPYK scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-5014e4",
+   "queryId": "Q-86df2a",
    "row": 0,
    "label": "Corvale East: CEPHALEXIN 500MG CAP",
    "fields": {
@@ -1068,43 +1047,53 @@
     "ndc_as_recorded": "80425-0121-1",
     "description": "CEPHALEXIN 500MG CAP",
     "on_hand": "88.00",
-    "daily_use": "17.491",
-    "unit": "package",
+    "daily_use": "17.492",
+    "unit": "capsule",
+    "pkg_units": "28.00",
+    "unit_basis": "packages of 28, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Cephalexin",
     "labeler_name": "Advanced Rx Pharmacy of Tennessee, LLC",
     "package_ndc": "80425-0121-1",
     "spl_set_id": "b6ffe633-dd91-6d49-e053-2a95a90a5ac6",
     "dosage_form": "CAPSULE",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "CEPHALEXIN 500 mg/1",
+    "unit_content": null,
+    "pkg_unit": "capsule"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-5014e4",
+   "queryId": "Q-86df2a",
    "row": 1,
-   "label": "Corvale General: Cephalexin",
+   "label": "Corvale General: Cephalexin 500 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-178",
     "ndc11": "80425012101",
     "ndc_as_recorded": "80425012101",
-    "description": "Cephalexin",
-    "on_hand": "399.12",
+    "description": "Cephalexin 500 mg/1",
+    "on_hand": "399.00",
     "daily_use": "15.060",
     "unit": "capsule",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Cephalexin",
     "labeler_name": "Advanced Rx Pharmacy of Tennessee, LLC",
     "package_ndc": "80425-0121-1",
     "spl_set_id": "b6ffe633-dd91-6d49-e053-2a95a90a5ac6",
     "dosage_form": "CAPSULE",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "CEPHALEXIN 500 mg/1",
+    "unit_content": null,
+    "pkg_unit": "capsule"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-5014e4",
+   "queryId": "Q-86df2a",
    "row": 2,
    "label": "Corvale Lakeside: Cephalexin 500 mg/1",
    "fields": {
@@ -1116,13 +1105,18 @@
     "on_hand": "27.00",
     "daily_use": "4.373",
     "unit": "capsule",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Cephalexin",
     "labeler_name": "Advanced Rx Pharmacy of Tennessee, LLC",
     "package_ndc": "80425-0121-1",
     "spl_set_id": "b6ffe633-dd91-6d49-e053-2a95a90a5ac6",
     "dosage_form": "CAPSULE",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "CEPHALEXIN 500 mg/1",
+    "unit_content": null,
+    "pkg_unit": "capsule"
    }
   },
   "E4": {
@@ -1161,9 +1155,10 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 88 units of cephalexin at 17.5 a day: 5 days on hand",
+   "label": "Corvale East holds 88 capsules of cephalexin 500 mg at 17.5 a day: 5 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "500 mg capsule",
     "on_hand": 88,
     "daily_use": 17.5,
     "days_on_hand": 5
@@ -1173,185 +1168,246 @@
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 399 units of cephalexin at 15.1 a day: 27 days on hand",
+   "label": "Corvale General holds 399 capsules of cephalexin 500 mg at 15.1 a day: 26.5 days on hand",
    "fields": {
     "hospital": "Corvale General",
+    "presentation": "500 mg capsule",
     "on_hand": 399,
     "daily_use": 15.1,
-    "days_on_hand": 27
+    "days_on_hand": 26.5
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 27 units of cephalexin at 4.4 a day: 6 days on hand",
+   "label": "Corvale Lakeside holds 27 capsules of cephalexin 500 mg at 4.4 a day: 6.2 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
+    "presentation": "500 mg capsule",
     "on_hand": 27,
     "daily_use": 4.4,
-    "days_on_hand": 6
+    "days_on_hand": 6.2
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "cephalexin is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 157 capsules of 500 mg from Corvale General to Corvale East. Corvale General has 26 days of 500 mg capsules on hand and can spare 157 capsules while keeping two weeks; Corvale East has 5 days and would reach 14.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 31 capsules of 500 mg from Corvale General to Corvale Lakeside. Corvale General has 26 days of 500 mg capsules on hand and can spare 31 capsules while keeping two weeks; Corvale Lakeside has 6.2 days and would reach 13.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from ADVANCED RX PHARMACY OF TENNESSEE, LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-5014e4": {
-   "id": "Q-5014e4",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%cephalexin%' OR lower(s.description) LIKE '%cephalexin%' ORDER BY s.hospital, s.item_key",
-   "ms": 2804,
+  "Q-86df2a": {
+   "id": "Q-86df2a",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cephalexin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cephalexin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3891,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:33:39.113Z",
+   "ranAt": "2026-10-22T11:38:35.069Z",
    "rows": 3
   },
   "Q-d39f2f": {
    "id": "Q-d39f2f",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('b6ffe633-dd91-6d49-e053-2a95a90a5ac6') ORDER BY ps.set_id, ps.establishment",
-   "ms": 768,
+   "ms": 507,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:33:39.885Z",
+   "ranAt": "2026-10-22T11:38:35.578Z",
    "rows": 1
   },
-  "Q-7cff28": {
-   "id": "Q-7cff28",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%cephalexin%' ORDER BY status, company_name, package_ndc",
-   "ms": 189,
+  "Q-288fef": {
+   "id": "Q-288fef",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cephalexin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 113,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:33:40.076Z",
+   "ranAt": "2026-10-22T11:38:35.693Z",
    "rows": 0
   },
-  "Q-1df0f2": {
-   "id": "Q-1df0f2",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%cephalexin%' ORDER BY first_posting",
-   "ms": 166,
+  "Q-e775af": {
+   "id": "Q-e775af",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cephalexin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 126,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:33:40.246Z",
+   "ranAt": "2026-10-22T11:38:35.819Z",
    "rows": 0
   },
-  "Q-16c3a2": {
-   "id": "Q-16c3a2",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%cephalexin%' AND lower(p.dosage_form) LIKE '%capsule%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2471,
+  "Q-c16963": {
+   "id": "Q-c16963",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cephalexin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%capsule%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1403,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:33:42.721Z",
+   "ranAt": "2026-10-22T11:38:37.224Z",
    "rows": 410
   },
   "Q-20b22c": {
    "id": "Q-20b22c",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3017450153') ORDER BY fei, end_date",
-   "ms": 496,
+   "ms": 330,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:33:43.222Z",
+   "ranAt": "2026-10-22T11:38:37.556Z",
    "rows": 1
   },
   "Q-37f066": {
    "id": "Q-37f066",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3017450153') ORDER BY fei, action_date",
-   "ms": 303,
+   "ms": 145,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:33:43.528Z",
+   "ranAt": "2026-10-22T11:38:37.701Z",
    "rows": 0
   },
   "Q-12f038": {
    "id": "Q-12f038",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3017450153') OR (fei_match <> 'name_and_city' AND firm_key IN ('advanced rx pharmacy tennessee')) ORDER BY date_published",
-   "ms": 214,
+   "ms": 112,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:33:43.746Z",
+   "ranAt": "2026-10-22T11:38:37.814Z",
    "rows": 0
   },
-  "Q-cf6abf": {
-   "id": "Q-cf6abf",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('advanced rx pharmacy tennessee') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%cephalexin%' ORDER BY initiation_date",
-   "ms": 265,
+  "Q-2d0bd9": {
+   "id": "Q-2d0bd9",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('advanced rx pharmacy tennessee') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cephalexin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 138,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:33:44.014Z",
+   "ranAt": "2026-10-22T11:38:37.954Z",
    "rows": 0
   },
   "Q-e66ffd": {
    "id": "Q-e66ffd",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('80425012101')",
-   "ms": 1276,
+   "ms": 720,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:33:45.297Z",
+   "ranAt": "2026-10-22T11:38:38.675Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-4c8313": {
-   "id": "Q-4c8313",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%cephalexin%'",
-   "ms": 1467,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:33:46.767Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-9160e3": {
+   "id": "Q-9160e3",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cephalexin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1760,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:38:40.437Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 15790,
+  "zetarisMs": 19453,
   "modelCalls": 1,
-  "tokensIn": 1357,
-  "tokensOut": 483,
+  "tokensIn": 1960,
+  "tokensOut": 468,
   "mode": "live"
  },
  "slug": "cephalexin",
@@ -1366,7 +1422,7 @@
     "id": "hospital-item:hospital-item:CG-178",
     "type": "HospitalItem",
     "key": "hospital-item:CG-178",
-    "label": "Corvale General: Cephalexin",
+    "label": "Corvale General: Cephalexin 500 mg/1",
     "attrs": {
      "key": "hospital-item:CG-178"
     },
@@ -1461,7 +1517,7 @@
     },
     "facts": [
      {
-      "id": "fact_d63c84ce56cdc1b0",
+      "id": "fact_e85c3a608c689bd3",
       "about": "inspection:fda-inspection:1249914",
       "predicate": "classification",
       "value": "VAI",
@@ -1469,9 +1525,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:33:44.019Z"
+       "at": "2026-10-22T11:38:37.955Z"
       },
-      "assertedAt": "2026-10-22T07:33:44.019Z"
+      "assertedAt": "2026-10-22T11:38:37.955Z"
      }
     ],
     "depth": 4
@@ -1483,11 +1539,11 @@
     "from": "hospital-item:hospital-item:CG-178",
     "to": "package:ndc-package:80425-0121-1",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:33:39.116Z",
+    "validFrom": "2026-10-22T11:38:35.071Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:33:39.116Z"
+     "at": "2026-10-22T11:38:35.071Z"
     }
    },
    {
@@ -1495,11 +1551,11 @@
     "from": "hospital-item:hospital-item:EA-E-000315",
     "to": "package:ndc-package:80425-0121-1",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:33:39.115Z",
+    "validFrom": "2026-10-22T11:38:35.071Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:33:39.115Z"
+     "at": "2026-10-22T11:38:35.071Z"
     }
    },
    {
@@ -1507,11 +1563,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0136",
     "to": "package:ndc-package:80425-0121-1",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:33:39.116Z",
+    "validFrom": "2026-10-22T11:38:35.071Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:33:39.116Z"
+     "at": "2026-10-22T11:38:35.071Z"
     }
    },
    {
@@ -1519,11 +1575,11 @@
     "from": "package:ndc-package:80425-0121-1",
     "to": "product:ndc-product:80425-0121",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:33:39.115Z",
+    "validFrom": "2026-10-22T11:38:35.071Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:33:39.115Z"
+     "at": "2026-10-22T11:38:35.071Z"
     }
    },
    {
@@ -1531,11 +1587,11 @@
     "from": "product:ndc-product:80425-0121",
     "to": "drug:generic:cephalexin",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:33:39.115Z",
+    "validFrom": "2026-10-22T11:38:35.071Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:33:39.115Z"
+     "at": "2026-10-22T11:38:35.071Z"
     }
    },
    {
@@ -1543,11 +1599,11 @@
     "from": "product:ndc-product:80425-0121",
     "to": "labeler:ndc-labeler:80425",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:33:39.116Z",
+    "validFrom": "2026-10-22T11:38:35.071Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:33:39.116Z"
+     "at": "2026-10-22T11:38:35.071Z"
     }
    },
    {
@@ -1555,11 +1611,11 @@
     "from": "product:ndc-product:80425-0121",
     "to": "site:fei:3017450153",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:33:44.018Z",
+    "validFrom": "2026-10-22T11:38:37.955Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:33:44.018Z"
+     "at": "2026-10-22T11:38:37.955Z"
     }
    },
    {
@@ -1567,11 +1623,11 @@
     "from": "inspection:fda-inspection:1249914",
     "to": "site:fei:3017450153",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:33:44.019Z",
+    "validFrom": "2026-10-22T11:38:37.955Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:33:44.019Z"
+     "at": "2026-10-22T11:38:37.955Z"
     }
    }
   ],

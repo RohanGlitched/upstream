@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-4cb5ff",
+ "id": "case-2026-10-22-ce9dfe",
  "question": "Why is olanzapine short, and what do we do?",
- "askedAt": "2026-10-22T08:08:10.488Z",
+ "askedAt": "2026-10-22T12:26:31.738Z",
  "asOf": "2026-10-21",
  "molecule": "olanzapine",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5HAE31D9T5YPJHACRRKB84Z",
+  "contractId": "01M5HS79F1XPDXR533J6QKQTYS",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-6f99f0"
+    "Q-33a738"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3945,
+   "ms": 3547,
    "rows": 3,
-   "finding": "3 stock lines across 3 hospitals.",
+   "finding": "3 stock lines across 3 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-1f5d33"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1130,
+   "ms": 457,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-8f4faa",
-    "Q-bdd72c"
+    "Q-8b75c2",
+    "Q-cf33a1"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 502,
+   "ms": 263,
    "rows": 1,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-52698c"
+    "Q-bec006"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2221,
+   "ms": 1216,
    "rows": 463,
    "finding": "34 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-e2268d",
     "Q-cdeb14",
     "Q-3307b6",
-    "Q-897e2a"
+    "Q-87e5a1"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1457,
+   "ms": 723,
    "rows": 9,
    "finding": "6 inspections (2 OAI at our plants), 0 compliance actions, 0 import-alert listings, 3 recalls.",
    "status": "ok"
@@ -104,7 +111,7 @@
    "sources": [
     "fda.citations"
    ],
-   "ms": 371,
+   "ms": 152,
    "rows": 9,
    "finding": "9 Form 483 observations recorded.",
    "status": "ok"
@@ -119,9 +126,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1474,
+   "ms": 639,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -129,19 +136,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-ffd9b3"
+    "Q-2b1cfa"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2148,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1665,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -152,7 +163,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 2,
+   "ms": 0,
    "rows": 0,
    "finding": "No past decisions on this drug.",
    "status": "empty"
@@ -168,21 +179,27 @@
    "onHand": 190,
    "dailyUse": 7.917,
    "days": 24,
-   "unit": "package",
+   "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 100, converted to units",
+   "presentation": "olanzapine|10mg|tablet||tablet",
+   "presentationLabel": "10 mg tablet",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-291",
    "ndc11": "33342008411",
-   "description": "Olanzapine",
+   "description": "Olanzapine 10 mg/1",
    "labeler": "Macleods Pharmaceuticals Limited",
-   "onHand": 229.24,
+   "onHand": 229,
    "dailyUse": 7.957,
    "days": 28.8,
    "unit": "tablet",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "olanzapine|10mg|tablet||tablet",
+   "presentationLabel": "10 mg tablet",
    "evidence": "E2"
   },
   {
@@ -196,7 +213,59 @@
    "days": 11.7,
    "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "olanzapine|10mg|tablet||tablet",
+   "presentationLabel": "10 mg tablet",
    "evidence": "E3"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "olanzapine|10mg|tablet||tablet",
+   "label": "10 mg tablet",
+   "short": "10 mg",
+   "unit": "tablet",
+   "onHand": 434,
+   "dailyUse": 17.157,
+   "days": 25.3,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 190,
+     "dailyUse": 7.917,
+     "days": 24,
+     "lines": [
+      "EA-E-000151"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 229,
+     "dailyUse": 7.957,
+     "days": 28.8,
+     "lines": [
+      "CG-291"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 15,
+     "dailyUse": 1.283,
+     "days": 11.7,
+     "lines": [
+      "LS-LS-0066"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -585,24 +654,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from American Health Packaging",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Aphena Pharma Solutions - Tennessee, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Apotex Corp.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -639,15 +690,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Bryant Ranch Prepack",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Cadila Pharmaceuticals Limited",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -657,25 +699,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Cardinal Health 107, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Coupler LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Direct_Rx",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -703,15 +727,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Dr.Reddy's Laboratories Limited",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Golden State Medical Supply, Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -784,42 +799,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from NorthStar RxLLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from PD-Rx Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Preferred Pharmaceuticals Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Proficient Rx LP",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from REMEDYREPACK INC.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -937,35 +916,32 @@
   }
  ],
  "explanation": {
-  "state": "confirmed",
-  "headline": "FDA records show the plant on our olanzapine label received OAI classifications in 2017 and 2021, and three Class II/III recalls for olanzapine since 2022",
+  "state": "check",
+  "headline": "Olanzapine is not on FDA's shortage list as of 2026-10-21; supply traces to a plant with OAI classifications and recent recalls",
   "sentences": [
    {
-    "text": "The olanzapine product on our formulary (NDC 33342008411) lists Macleods Pharmaceuticals Limited (FEI 3007517881) as the manufacturing plant.",
+    "text": "FDA's drug shortage list does not include olanzapine as of 2026-10-21.",
     "cites": [
+     "D4"
+    ]
+   },
+   {
+    "text": "A registered plant for olanzapine, Macleods Pharmaceuticals Limited (FEI 3007517881), received OAI classifications after inspections ending 2017-11-24 and 2021-11-01.",
+    "cites": [
+     "E7",
+     "E8",
      "E10"
     ]
    },
    {
-    "text": "FDA inspection 1032020 ended 2017-11-24 and was classified OAI with nine observations including absent written procedures and inadequate laboratory controls.",
+    "text": "The same plant received a VAI classification after an inspection ending 2023-10-20.",
     "cites": [
-     "E7"
+     "E9",
+     "E10"
     ]
    },
    {
-    "text": "FDA inspection 1157334 ended 2021-11-01 and was also classified OAI.",
-    "cites": [
-     "E8"
-    ]
-   },
-   {
-    "text": "The most recent inspection 1220834 ended 2023-10-20 and returned to VAI classification.",
-    "cites": [
-     "E9"
-    ]
-   },
-   {
-    "text": "Since 2022, three recalls have been initiated for Macleods olanzapine tablets: a Class II recall in 2022 for cGMP deviations, a Class II recall in 2024 for failed impurity specifications, and a Class III recall in 2026 for organic and unspecified impurities above specification.",
+    "text": "Three recalls of olanzapine tablets from this manufacturer are recorded: a Class II recall initiated 2022-02-16 for cGMP deviations, a Class II recall initiated 2024-11-25 for failed impurity specifications on 2.5 mg tablets, and a Class III recall initiated 2026-08-27 for failed impurity specifications on 5 mg tablets.",
     "cites": [
      "E11",
      "E12",
@@ -973,11 +949,17 @@
     ]
    },
    {
-    "text": "Current inventory across our three sites ranges from 12 to 29 days on hand.",
+    "text": "Current on-hand supply across Corvale sites ranges from 11.7 to 28.8 days for 10 mg tablets.",
     "cites": [
      "D1",
      "D2",
      "D3"
+    ]
+   },
+   {
+    "text": "The rule-based alternate manufacturer option is to buy from Alkermes, Inc., which is not on FDA's shortage list today.",
+    "cites": [
+     "D5"
     ]
    }
   ],
@@ -991,132 +973,153 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [],
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T08:07:57.231Z",
+   "at": "2026-10-22T12:26:23.074Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract CRRKB84Z scope"
+   "reason": "in contract J6QKQTYS scope"
   },
   {
-   "at": "2026-10-22T08:07:57.231Z",
+   "at": "2026-10-22T12:26:23.074Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract CRRKB84Z scope"
+   "reason": "in contract J6QKQTYS scope"
   },
   {
-   "at": "2026-10-22T08:08:01.178Z",
+   "at": "2026-10-22T12:26:26.622Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract CRRKB84Z scope"
+   "reason": "in contract J6QKQTYS scope"
   },
   {
-   "at": "2026-10-22T08:08:02.309Z",
+   "at": "2026-10-22T12:26:27.079Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract CRRKB84Z scope"
+   "reason": "in contract J6QKQTYS scope"
   },
   {
-   "at": "2026-10-22T08:08:02.812Z",
+   "at": "2026-10-22T12:26:27.342Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract CRRKB84Z scope"
+   "reason": "in contract J6QKQTYS scope"
   },
   {
-   "at": "2026-10-22T08:08:05.034Z",
+   "at": "2026-10-22T12:26:28.558Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract CRRKB84Z scope"
+   "reason": "in contract J6QKQTYS scope"
   },
   {
-   "at": "2026-10-22T08:08:06.491Z",
+   "at": "2026-10-22T12:26:29.281Z",
    "action": "What FDA wrote at the OAI inspections",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract CRRKB84Z scope"
+   "reason": "in contract J6QKQTYS scope"
   },
   {
-   "at": "2026-10-22T08:08:06.866Z",
+   "at": "2026-10-22T12:26:29.434Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract CRRKB84Z scope"
+   "reason": "in contract J6QKQTYS scope"
   },
   {
-   "at": "2026-10-22T08:08:08.339Z",
+   "at": "2026-10-22T12:26:30.073Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract CRRKB84Z scope"
+   "reason": "in contract J6QKQTYS scope"
   },
   {
-   "at": "2026-10-22T08:08:10.486Z",
+   "at": "2026-10-22T12:26:31.738Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract CRRKB84Z scope"
+   "reason": "in contract J6QKQTYS scope"
   },
   {
-   "at": "2026-10-22T08:08:10.488Z",
+   "at": "2026-10-22T12:26:31.738Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract CRRKB84Z scope"
+   "reason": "in contract J6QKQTYS scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-6f99f0",
+   "queryId": "Q-33a738",
    "row": 0,
    "label": "Corvale East: OLANZAPINE 10MG TAB",
    "fields": {
@@ -1127,42 +1130,52 @@
     "description": "OLANZAPINE 10MG TAB",
     "on_hand": "190.00",
     "daily_use": "7.917",
-    "unit": "package",
+    "unit": "tablet",
+    "pkg_units": "100.00",
+    "unit_basis": "packages of 100, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Olanzapine",
     "labeler_name": "Macleods Pharmaceuticals Limited",
     "package_ndc": "33342-084-11",
     "spl_set_id": "df43938a-3469-40eb-8166-f0a2fd29d6d8",
     "dosage_form": "TABLET, ORALLY DISINTEGRATING",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "OLANZAPINE 10 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-6f99f0",
+   "queryId": "Q-33a738",
    "row": 1,
-   "label": "Corvale General: Olanzapine",
+   "label": "Corvale General: Olanzapine 10 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-291",
     "ndc11": "33342008411",
     "ndc_as_recorded": "33342008411",
-    "description": "Olanzapine",
-    "on_hand": "229.24",
+    "description": "Olanzapine 10 mg/1",
+    "on_hand": "229.00",
     "daily_use": "7.957",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Olanzapine",
     "labeler_name": "Macleods Pharmaceuticals Limited",
     "package_ndc": "33342-084-11",
     "spl_set_id": "df43938a-3469-40eb-8166-f0a2fd29d6d8",
     "dosage_form": "TABLET, ORALLY DISINTEGRATING",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "OLANZAPINE 10 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-6f99f0",
+   "queryId": "Q-33a738",
    "row": 2,
    "label": "Corvale Lakeside: Olanzapine 10 mg/1",
    "fields": {
@@ -1174,13 +1187,18 @@
     "on_hand": "15.00",
     "daily_use": "1.283",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Olanzapine",
     "labeler_name": "Macleods Pharmaceuticals Limited",
     "package_ndc": "33342-084-11",
     "spl_set_id": "df43938a-3469-40eb-8166-f0a2fd29d6d8",
     "dosage_form": "TABLET, ORALLY DISINTEGRATING",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "OLANZAPINE 10 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E4": {
@@ -1294,7 +1312,7 @@
   },
   "E11": {
    "id": "E11",
-   "queryId": "Q-897e2a",
+   "queryId": "Q-87e5a1",
    "row": 0,
    "label": "Recall D-0639-2022",
    "fields": {
@@ -1312,7 +1330,7 @@
   },
   "E12": {
    "id": "E12",
-   "queryId": "Q-897e2a",
+   "queryId": "Q-87e5a1",
    "row": 1,
    "label": "Recall D-0154-2025",
    "fields": {
@@ -1330,7 +1348,7 @@
   },
   "E13": {
    "id": "E13",
-   "queryId": "Q-897e2a",
+   "queryId": "Q-87e5a1",
    "row": 2,
    "label": "Recall D-0867-2026",
    "fields": {
@@ -1350,9 +1368,10 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 190 units of olanzapine at 7.9 a day: 24 days on hand",
+   "label": "Corvale East holds 190 tablets of olanzapine 10 mg at 7.9 a day: 24 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "10 mg tablet",
     "on_hand": 190,
     "daily_use": 7.9,
     "days_on_hand": 24
@@ -1362,196 +1381,257 @@
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 229 units of olanzapine at 8 a day: 29 days on hand",
+   "label": "Corvale General holds 229 tablets of olanzapine 10 mg at 8 a day: 28.8 days on hand",
    "fields": {
     "hospital": "Corvale General",
+    "presentation": "10 mg tablet",
     "on_hand": 229,
     "daily_use": 8,
-    "days_on_hand": 29
+    "days_on_hand": 28.8
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 15 units of olanzapine at 1.3 a day: 12 days on hand",
+   "label": "Corvale Lakeside holds 15 tablets of olanzapine 10 mg at 1.3 a day: 11.7 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
+    "presentation": "10 mg tablet",
     "on_hand": 15,
     "daily_use": 1.3,
-    "days_on_hand": 12
+    "days_on_hand": 11.7
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "olanzapine is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Alkermes, Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Apotex Corp.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Ascend Laboratories, LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-6f99f0": {
-   "id": "Q-6f99f0",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%olanzapine%' OR lower(s.description) LIKE '%olanzapine%' ORDER BY s.hospital, s.item_key",
-   "ms": 3942,
+  "Q-33a738": {
+   "id": "Q-33a738",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*olanzapine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*olanzapine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3546,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T08:08:01.173Z",
+   "ranAt": "2026-10-22T12:26:26.620Z",
    "rows": 3
   },
   "Q-1f5d33": {
    "id": "Q-1f5d33",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('df43938a-3469-40eb-8166-f0a2fd29d6d8') ORDER BY ps.set_id, ps.establishment",
-   "ms": 1126,
+   "ms": 456,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:08:02.305Z",
+   "ranAt": "2026-10-22T12:26:27.078Z",
    "rows": 1
   },
-  "Q-8f4faa": {
-   "id": "Q-8f4faa",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%olanzapine%' ORDER BY status, company_name, package_ndc",
-   "ms": 257,
+  "Q-8b75c2": {
+   "id": "Q-8b75c2",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*olanzapine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 137,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T08:08:02.566Z",
+   "ranAt": "2026-10-22T12:26:27.216Z",
    "rows": 0
   },
-  "Q-bdd72c": {
-   "id": "Q-bdd72c",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%olanzapine%' ORDER BY first_posting",
-   "ms": 238,
+  "Q-cf33a1": {
+   "id": "Q-cf33a1",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*olanzapine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 123,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T08:08:02.808Z",
+   "ranAt": "2026-10-22T12:26:27.341Z",
    "rows": 1
   },
-  "Q-52698c": {
-   "id": "Q-52698c",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%olanzapine%' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2214,
+  "Q-bec006": {
+   "id": "Q-bec006",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*olanzapine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1215,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:08:05.026Z",
+   "ranAt": "2026-10-22T12:26:28.557Z",
    "rows": 463
   },
   "Q-e2268d": {
    "id": "Q-e2268d",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3007517881') ORDER BY fei, end_date",
-   "ms": 598,
+   "ms": 330,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T08:08:05.633Z",
+   "ranAt": "2026-10-22T12:26:28.888Z",
    "rows": 6
   },
   "Q-cdeb14": {
    "id": "Q-cdeb14",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3007517881') ORDER BY fei, action_date",
-   "ms": 199,
+   "ms": 134,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T08:08:05.835Z",
+   "ranAt": "2026-10-22T12:26:29.024Z",
    "rows": 0
   },
   "Q-3307b6": {
    "id": "Q-3307b6",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3007517881') OR (fei_match <> 'name_and_city' AND firm_key IN ('macleods')) ORDER BY date_published",
-   "ms": 256,
+   "ms": 109,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T08:08:06.094Z",
+   "ranAt": "2026-10-22T12:26:29.134Z",
    "rows": 0
   },
-  "Q-897e2a": {
-   "id": "Q-897e2a",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('macleods') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%olanzapine%' ORDER BY initiation_date",
-   "ms": 386,
+  "Q-87e5a1": {
+   "id": "Q-87e5a1",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('macleods') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*olanzapine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 145,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T08:08:06.486Z",
+   "ranAt": "2026-10-22T12:26:29.280Z",
    "rows": 3
   },
   "Q-660c9d": {
    "id": "Q-660c9d",
    "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('1032020', '1157334') ORDER BY inspection_id, cfr",
-   "ms": 368,
+   "ms": 151,
    "mode": "live",
    "sources": [
     "fda.citations"
    ],
-   "ranAt": "2026-10-22T08:08:06.859Z",
+   "ranAt": "2026-10-22T12:26:29.433Z",
    "rows": 9
   },
   "Q-d262dc": {
    "id": "Q-d262dc",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('33342008411')",
-   "ms": 1469,
+   "ms": 638,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:08:08.335Z",
+   "ranAt": "2026-10-22T12:26:30.072Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-ffd9b3": {
-   "id": "Q-ffd9b3",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%olanzapine%'",
-   "ms": 2143,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:08:10.482Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-2b1cfa": {
+   "id": "Q-2b1cfa",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*olanzapine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1663,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:26:31.737Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 15,
-  "zetarisMs": 18567,
+  "zetarisMs": 18855,
   "modelCalls": 1,
-  "tokensIn": 1669,
-  "tokensOut": 466,
+  "tokensIn": 2014,
+  "tokensOut": 487,
   "mode": "live"
  },
  "slug": "olanzapine",
@@ -1566,7 +1646,7 @@
     "id": "hospital-item:hospital-item:CG-291",
     "type": "HospitalItem",
     "key": "hospital-item:CG-291",
-    "label": "Corvale General: Olanzapine",
+    "label": "Corvale General: Olanzapine 10 mg/1",
     "attrs": {
      "key": "hospital-item:CG-291"
     },
@@ -1661,7 +1741,7 @@
     },
     "facts": [
      {
-      "id": "fact_bcedcce828cfb1da",
+      "id": "fact_6872bc8ad64bdd0e",
       "about": "inspection:fda-inspection:1032020",
       "predicate": "classification",
       "value": "OAI",
@@ -1669,9 +1749,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:08:06.862Z"
+       "at": "2026-10-22T12:26:29.434Z"
       },
-      "assertedAt": "2026-10-22T08:08:06.862Z"
+      "assertedAt": "2026-10-22T12:26:29.434Z"
      }
     ],
     "depth": 4
@@ -1687,7 +1767,7 @@
     },
     "facts": [
      {
-      "id": "fact_036f258dc2a3bb94",
+      "id": "fact_8db35979ff10a505",
       "about": "inspection:fda-inspection:1157334",
       "predicate": "classification",
       "value": "OAI",
@@ -1695,9 +1775,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:08:06.862Z"
+       "at": "2026-10-22T12:26:29.434Z"
       },
-      "assertedAt": "2026-10-22T08:08:06.862Z"
+      "assertedAt": "2026-10-22T12:26:29.434Z"
      }
     ],
     "depth": 4
@@ -1713,7 +1793,7 @@
     },
     "facts": [
      {
-      "id": "fact_f63f1bd3742cd083",
+      "id": "fact_75db34b1834d25e7",
       "about": "inspection:fda-inspection:1220834",
       "predicate": "classification",
       "value": "VAI",
@@ -1721,9 +1801,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:08:06.862Z"
+       "at": "2026-10-22T12:26:29.434Z"
       },
-      "assertedAt": "2026-10-22T08:08:06.862Z"
+      "assertedAt": "2026-10-22T12:26:29.434Z"
      }
     ],
     "depth": 4
@@ -1739,7 +1819,7 @@
     },
     "facts": [
      {
-      "id": "fact_0ded1b89733e2b4f",
+      "id": "fact_d5c64806d85c0114",
       "about": "inspection:fda-inspection:701340",
       "predicate": "classification",
       "value": "VAI",
@@ -1747,9 +1827,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:08:06.862Z"
+       "at": "2026-10-22T12:26:29.433Z"
       },
-      "assertedAt": "2026-10-22T08:08:06.862Z"
+      "assertedAt": "2026-10-22T12:26:29.433Z"
      }
     ],
     "depth": 4
@@ -1765,7 +1845,7 @@
     },
     "facts": [
      {
-      "id": "fact_8090592a067ed837",
+      "id": "fact_34ad0497176b33a2",
       "about": "inspection:fda-inspection:926324",
       "predicate": "classification",
       "value": "VAI",
@@ -1773,9 +1853,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:08:06.862Z"
+       "at": "2026-10-22T12:26:29.434Z"
       },
-      "assertedAt": "2026-10-22T08:08:06.862Z"
+      "assertedAt": "2026-10-22T12:26:29.434Z"
      }
     ],
     "depth": 4
@@ -1787,11 +1867,11 @@
     "from": "hospital-item:hospital-item:CG-291",
     "to": "package:ndc-package:33342-084-11",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:08:01.177Z",
+    "validFrom": "2026-10-22T12:26:26.622Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:01.177Z"
+     "at": "2026-10-22T12:26:26.622Z"
     }
    },
    {
@@ -1799,11 +1879,11 @@
     "from": "hospital-item:hospital-item:EA-E-000151",
     "to": "package:ndc-package:33342-084-11",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:08:01.176Z",
+    "validFrom": "2026-10-22T12:26:26.622Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:01.176Z"
+     "at": "2026-10-22T12:26:26.622Z"
     }
    },
    {
@@ -1811,11 +1891,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0066",
     "to": "package:ndc-package:33342-084-11",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:08:01.178Z",
+    "validFrom": "2026-10-22T12:26:26.622Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:01.178Z"
+     "at": "2026-10-22T12:26:26.622Z"
     }
    },
    {
@@ -1823,11 +1903,11 @@
     "from": "package:ndc-package:33342-084-11",
     "to": "product:ndc-product:33342-084",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:08:01.177Z",
+    "validFrom": "2026-10-22T12:26:26.622Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:01.177Z"
+     "at": "2026-10-22T12:26:26.622Z"
     }
    },
    {
@@ -1835,11 +1915,11 @@
     "from": "product:ndc-product:33342-084",
     "to": "drug:generic:olanzapine",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:08:01.177Z",
+    "validFrom": "2026-10-22T12:26:26.622Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:01.177Z"
+     "at": "2026-10-22T12:26:26.622Z"
     }
    },
    {
@@ -1847,11 +1927,11 @@
     "from": "product:ndc-product:33342-084",
     "to": "labeler:ndc-labeler:33342",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:08:01.177Z",
+    "validFrom": "2026-10-22T12:26:26.622Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:01.177Z"
+     "at": "2026-10-22T12:26:26.622Z"
     }
    },
    {
@@ -1859,11 +1939,11 @@
     "from": "product:ndc-product:33342-084",
     "to": "site:fei:3007517881",
     "type": "made-at",
-    "validFrom": "2026-10-22T08:08:06.861Z",
+    "validFrom": "2026-10-22T12:26:29.433Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:06.861Z"
+     "at": "2026-10-22T12:26:29.433Z"
     }
    },
    {
@@ -1871,11 +1951,11 @@
     "from": "inspection:fda-inspection:701340",
     "to": "site:fei:3007517881",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:08:06.862Z",
+    "validFrom": "2026-10-22T12:26:29.433Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:06.862Z"
+     "at": "2026-10-22T12:26:29.433Z"
     }
    },
    {
@@ -1883,11 +1963,11 @@
     "from": "inspection:fda-inspection:926324",
     "to": "site:fei:3007517881",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:08:06.862Z",
+    "validFrom": "2026-10-22T12:26:29.434Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:06.862Z"
+     "at": "2026-10-22T12:26:29.434Z"
     }
    },
    {
@@ -1895,11 +1975,11 @@
     "from": "inspection:fda-inspection:1032020",
     "to": "site:fei:3007517881",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:08:06.862Z",
+    "validFrom": "2026-10-22T12:26:29.434Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:06.862Z"
+     "at": "2026-10-22T12:26:29.434Z"
     }
    },
    {
@@ -1907,11 +1987,11 @@
     "from": "inspection:fda-inspection:1157334",
     "to": "site:fei:3007517881",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:08:06.862Z",
+    "validFrom": "2026-10-22T12:26:29.434Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:06.862Z"
+     "at": "2026-10-22T12:26:29.434Z"
     }
    },
    {
@@ -1919,11 +1999,11 @@
     "from": "inspection:fda-inspection:1220834",
     "to": "site:fei:3007517881",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:08:06.862Z",
+    "validFrom": "2026-10-22T12:26:29.434Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:06.862Z"
+     "at": "2026-10-22T12:26:29.434Z"
     }
    }
   ],

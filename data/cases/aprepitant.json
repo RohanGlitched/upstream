@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-c18a03",
+ "id": "case-2026-10-22-311afe",
  "question": "Why is aprepitant short, and what do we do?",
- "askedAt": "2026-10-22T07:25:38.887Z",
+ "askedAt": "2026-10-22T11:29:29.866Z",
  "asOf": "2026-10-21",
  "molecule": "aprepitant",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H80EQ3QTQFD41KBW5NPBG3",
+  "contractId": "01M5HNYV37WM2QSXQJNQKQH37P",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-bade64"
+    "Q-169e24"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1691,
-   "rows": 5,
-   "finding": "5 stock lines across 3 hospitals.",
+   "ms": 3898,
+   "rows": 3,
+   "finding": "3 stock lines across 3 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -31,14 +35,15 @@
    "title": "Where our supply is made",
    "purpose": "Follow each product's label to the plants it names, and place each plant in FDA's registration file.",
    "queryIds": [
-    "Q-39615d"
+    "Q-8161af"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 414,
-   "rows": 2,
-   "finding": "2 plant links on 2 labels; 2 placed in FDA's registration file.",
+   "ms": 637,
+   "rows": 1,
+   "finding": "1 plant links on 1 labels; 1 placed in FDA's registration file.",
    "status": "ok"
   },
   {
@@ -46,15 +51,15 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-98e977",
-    "Q-4dfc54"
+    "Q-bea5c5",
+    "Q-fafc89"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 203,
-   "rows": 4,
+   "ms": 247,
+   "rows": 2,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
   },
@@ -63,14 +68,16 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-8fa508"
+    "Q-1348a8"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1155,
-   "rows": 27,
-   "finding": "22 labelers make it in this form.",
+   "ms": 1377,
+   "rows": 28,
+   "finding": "6 labelers make it in this form.",
    "status": "ok"
   },
   {
@@ -78,20 +85,20 @@
    "title": "What FDA found at those plants",
    "purpose": "Read every FDA drug inspection, warning letter, import alert and recall for these plants.",
    "queryIds": [
-    "Q-f5c8c9",
-    "Q-5a7ec7",
-    "Q-1ecf6f",
-    "Q-e956a1"
+    "Q-16977e",
+    "Q-91fe93",
+    "Q-a8113a",
+    "Q-e2fca4"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 586,
-   "rows": 5,
-   "finding": "3 inspections (1 OAI at our plants), 1 compliance actions, 1 import-alert listings, 0 recalls.",
+   "ms": 909,
+   "rows": 4,
+   "finding": "2 inspections (1 OAI at our plants), 1 compliance actions, 1 import-alert listings, 0 recalls.",
    "status": "ok"
   },
   {
@@ -104,7 +111,7 @@
    "sources": [
     "fda.citations"
    ],
-   "ms": 130,
+   "ms": 191,
    "rows": 0,
    "finding": "0 Form 483 observations recorded.",
    "status": "empty"
@@ -114,14 +121,14 @@
    "title": "What our P&T committee already approved",
    "purpose": "Read Corvale General's approved interchanges for these items.",
    "queryIds": [
-    "Q-96d079"
+    "Q-3d63fb"
    ],
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 574,
+   "ms": 619,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -129,19 +136,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-317c81"
+    "Q-802827"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 848,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1500,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -152,26 +163,13 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 1,
+   "ms": 0,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
   }
  ],
  "stock": [
-  {
-   "hospital": "Corvale East",
-   "itemKey": "EA-E-000134",
-   "ndc11": "16714024801",
-   "description": "FOSAPREPITANT DIMEGLUMINE 150MG/5ML 5ML SDV",
-   "labeler": "NorthStar RxLLC",
-   "onHand": 94,
-   "dailyUse": 8.309,
-   "days": 11.3,
-   "unit": "package",
-   "ndcMatch": "dashed 10-digit, converted",
-   "evidence": "E1"
-  },
   {
    "hospital": "Corvale East",
    "itemKey": "EA-E-000177",
@@ -181,35 +179,28 @@
    "onHand": 71,
    "dailyUse": 8.418,
    "days": 8.4,
-   "unit": "package",
+   "unit": "capsule",
    "ndcMatch": "dashed 10-digit, converted",
-   "evidence": "E2"
+   "unitBasis": "packages of 2, converted to units",
+   "presentation": "aprepitant|80mg|capsule||capsule",
+   "presentationLabel": "80 mg capsule",
+   "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-146",
    "ndc11": "51407070202",
-   "description": "APREPITANT",
+   "description": "APREPITANT 80 mg/1",
    "labeler": "Golden State Medical Supply, Inc.",
-   "onHand": 239.93,
+   "onHand": 239,
    "dailyUse": 9.061,
-   "days": 26.5,
+   "days": 26.4,
    "unit": "capsule",
    "ndcMatch": "11-digit as recorded",
-   "evidence": "E3"
-  },
-  {
-   "hospital": "Corvale General",
-   "itemKey": "CG-223",
-   "ndc11": "16714024801",
-   "description": "Fosaprepitant dimeglumine",
-   "labeler": "NorthStar RxLLC",
-   "onHand": 166.5,
-   "dailyUse": 8.904,
-   "days": 18.7,
-   "unit": "vial",
-   "ndcMatch": "11-digit as recorded",
-   "evidence": "E4"
+   "unitBasis": "units of use, whole units only",
+   "presentation": "aprepitant|80mg|capsule||capsule",
+   "presentationLabel": "80 mg capsule",
+   "evidence": "E2"
   },
   {
    "hospital": "Corvale Lakeside",
@@ -222,51 +213,62 @@
    "days": 16,
    "unit": "capsule",
    "ndcMatch": "dashed 10-digit, converted",
-   "evidence": "E5"
+   "unitBasis": "units of use, as exported",
+   "presentation": "aprepitant|80mg|capsule||capsule",
+   "presentationLabel": "80 mg capsule",
+   "evidence": "E3"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "aprepitant|80mg|capsule||capsule",
+   "label": "80 mg capsule",
+   "short": "80 mg",
+   "unit": "capsule",
+   "onHand": 337,
+   "dailyUse": 19.169,
+   "days": 17.6,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 71,
+     "dailyUse": 8.418,
+     "days": 8.4,
+     "lines": [
+      "EA-E-000177"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 239,
+     "dailyUse": 9.061,
+     "days": 26.4,
+     "lines": [
+      "CG-146"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 27,
+     "dailyUse": 1.69,
+     "days": 16,
+     "lines": [
+      "LS-LS-0080"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
-  {
-   "ndc11": "16714024801",
-   "packageNdc": "16714-248-01",
-   "labeler": "NorthStar RxLLC",
-   "generic": "Fosaprepitant dimeglumine",
-   "setId": "df341f63-0fef-4411-a89b-6df6b9e792be",
-   "plants": [
-    {
-     "key": "872341023",
-     "name": "Aspiro Pharma Limited",
-     "duns": "872341023",
-     "fei": "3014483338",
-     "country": "IND",
-     "address": "Survey No. 321, Biotech Park, Phase  III, Karkapatla Village, Markook (Mandal), Siddipet, Telangana 502281, India (IND)",
-     "operations": "MANUFACTURE",
-     "linkSource": "spl_establishment",
-     "linkQuality": "registered plant",
-     "health": "clear",
-     "lastClassification": {
-      "classification": "VAI",
-      "endDate": "2023-08-11"
-     },
-     "signals": [
-      {
-       "kind": "inspection_vai",
-       "date": "2023-08-11",
-       "knownDate": "2023-11-17",
-       "knownBasis": "fmd145_letter",
-       "fei": "3014483338",
-       "firm": "Aspiro Pharma Limited",
-       "text": "FDA inspection 1215606 ended 2023-08-11, classified VAI; classification letter 2023-11-17",
-       "evidence": "E6"
-      }
-     ],
-     "evidence": [
-      "E7"
-     ]
-    }
-   ],
-   "evidence": "E1"
-  },
   {
    "ndc11": "51407070202",
    "packageNdc": "51407-702-02",
@@ -298,7 +300,7 @@
        "fei": "3009961173",
        "firm": "Pharmathen International S.A.",
        "text": "FDA inspection 1168012 ended 2021-12-09, classified VAI",
-       "evidence": "E8"
+       "evidence": "E4"
       },
       {
        "kind": "inspection_oai",
@@ -308,7 +310,7 @@
        "fei": "3009961173",
        "firm": "Pharmathen International S.A.",
        "text": "FDA inspection 1292960 ended 2025-11-21, classified OAI; classification letter 2026-02-26",
-       "evidence": "E9"
+       "evidence": "E5"
       },
       {
        "kind": "import_alert",
@@ -318,7 +320,7 @@
        "fei": "3009961173",
        "firm": "Pharmathen International S.A.",
        "text": "Import alert 66-40 listing published 2026-04-23",
-       "evidence": "E11"
+       "evidence": "E7"
       },
       {
        "kind": "warning_letter",
@@ -328,15 +330,15 @@
        "fei": "3009961173",
        "firm": "Pharmathen International S.A.",
        "text": "Warning Letter issued 2026-05-27 (case 723680)",
-       "evidence": "E10"
+       "evidence": "E6"
       }
      ],
      "evidence": [
-      "E12"
+      "E8"
      ]
     }
    ],
-   "evidence": "E2"
+   "evidence": "E1"
   }
  ],
  "shortage": {
@@ -345,18 +347,11 @@
   "firstPosting": null,
   "companies": [
    {
-    "company": "Fresenius Kabi USA, LLC",
-    "status": "To Be Discontinued",
-    "updated": "2026-04-08",
-    "info": "Discontinuation of the manufacture of the drug",
-    "evidence": "E13"
-   },
-   {
     "company": "Merck Sharp & Dohme LLC",
     "status": "To Be Discontinued",
     "updated": "2026-04-08",
     "info": "To be discontinued in approximately early-September 2026.",
-    "evidence": "E14"
+    "evidence": "E9"
    }
   ],
   "reasons": [],
@@ -364,185 +359,57 @@
  },
  "market": [
   {
-   "labeler": "AVYXA Pharma, LLC",
-   "ndc11": "83831015301",
-   "dosageForm": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
-   "labeler": "Actavis Pharma, Inc.",
-   "ndc11": "00591438579",
-   "dosageForm": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
-   "labeler": "Amneal Pharmaceuticals LLC",
-   "ndc11": "70121263101",
-   "dosageForm": "INJECTION",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
-   "labeler": "Avenacy, LLC",
-   "ndc11": "83634077610",
-   "dosageForm": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
-   "labeler": "BE Pharmaceuticals Inc.",
-   "ndc11": "71839010401",
-   "dosageForm": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
-   "labeler": "Baxter Healthcare Corporation",
-   "ndc11": "00338000801",
-   "dosageForm": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
    "labeler": "BluePoint Laboratories",
-   "ndc11": "68001052336",
-   "dosageForm": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
+   "ndc11": "68001066601",
+   "dosageForm": "CAPSULE",
    "plants": [],
    "onShortageList": false,
    "inOurStock": false
   },
   {
-   "labeler": "Bryant Ranch Prepack",
-   "ndc11": "72162263602",
-   "dosageForm": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
+   "labeler": "Glenmark Pharmaceuticals Inc., USA",
+   "ndc11": "68462058311",
+   "dosageForm": "CAPSULE",
    "plants": [],
    "onShortageList": false,
    "inOurStock": false
   },
   {
-   "labeler": "Camber Pharmaceuticals, Inc.",
-   "ndc11": "31722016531",
-   "dosageForm": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
-   "labeler": "Chia Tai Tianqing Pharmaceutical Group Co., Ltd.",
-   "ndc11": "71731511101",
-   "dosageForm": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
-   "labeler": "Dr. Reddy's Laboratories Inc.,",
-   "ndc11": "43598067111",
-   "dosageForm": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
-   "labeler": "Eugia US LLC",
-   "ndc11": "55150029901",
-   "dosageForm": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
-   "labeler": "Fresenius Kabi USA, LLC",
-   "ndc11": "63323097210",
-   "dosageForm": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
-   "labeler": "Heron Therapeutics, Inc.",
-   "ndc11": "47426020101",
-   "dosageForm": "INJECTION, EMULSION",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
-   "labeler": "Hikma Pharmaceuticals USA Inc.",
-   "ndc11": "00143938401",
-   "dosageForm": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
-   "labeler": "Merck Sharp & Dohme LLC",
-   "ndc11": "00006306100",
-   "dosageForm": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
-   "labeler": "Mylan Institutional LLC",
-   "ndc11": "67457088910",
-   "dosageForm": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
-   "labeler": "NorthStar RxLLC",
-   "ndc11": "16714024801",
-   "dosageForm": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
+   "labeler": "Golden State Medical Supply, Inc.",
+   "ndc11": "51407070101",
+   "dosageForm": "CAPSULE",
    "plants": [
     {
-     "name": "Aspiro Pharma Limited",
-     "fei": "3014483338",
-     "country": "IND",
-     "health": "clear",
-     "last": "VAI 2023-08-11"
+     "name": "Pharmathen International S. A.",
+     "fei": "3009961173",
+     "country": "GRC",
+     "health": "signal",
+     "last": "OAI 2025-11-21"
     }
    ],
    "onShortageList": false,
    "inOurStock": true
   },
   {
-   "labeler": "Northstar Rx LLC",
-   "ndc11": "72603045001",
-   "dosageForm": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
+   "labeler": "Merck Sharp & Dohme LLC",
+   "ndc11": "00006046102",
+   "dosageForm": "CAPSULE",
+   "plants": [],
+   "onShortageList": true,
+   "inOurStock": false
+  },
+  {
+   "labeler": "Sandoz Inc",
+   "ndc11": "00781232106",
+   "dosageForm": "CAPSULE",
    "plants": [],
    "onShortageList": false,
    "inOurStock": false
   },
   {
-   "labeler": "Novadoz Pharmaceuticals LLC",
-   "ndc11": "72205005401",
-   "dosageForm": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
-   "labeler": "Qilu Pharmaceutical Co., Ltd.",
-   "ndc11": "67184054001",
-   "dosageForm": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
-   "labeler": "Steriscience Specialties Private Limited",
-   "ndc11": "82449023101",
-   "dosageForm": "INJECTION",
+   "labeler": "Torrent Pharmaceuticals Limited",
+   "ndc11": "13668059181",
+   "dosageForm": "CAPSULE",
    "plants": [],
    "onShortageList": false,
    "inOurStock": false
@@ -552,83 +419,48 @@
   {
    "kind": "transfer",
    "rank": 1,
-   "title": "Transfer 70 from Corvale General to Corvale East",
-   "detail": "Corvale General has 23 days on hand and can spare 70 while keeping two weeks; Corvale East has 9.9 days and would reach 14.",
-   "why": "Same product, no clinical change, no new supplier.",
+   "title": "Transfer 47 capsules of 80 mg from Corvale General to Corvale East",
+   "detail": "Corvale General has 26 days of 80 mg capsules on hand and can spare 47 capsules while keeping two weeks; Corvale East has 8.4 days and would reach 14.",
+   "why": "Same presentation, no clinical change, no new supplier.",
    "needs": "pharmacy director (transfer request)",
    "evidence": [
-    "E3",
-    "E4",
-    "E1",
-    "E2"
-   ]
+    "E2",
+    "E1"
+   ],
+   "transfer": {
+    "qty": 47,
+    "unit": "capsule",
+    "presentation": "80 mg capsule",
+    "from": "Corvale General",
+    "to": "Corvale East",
+    "fromDays": 26.4,
+    "toDays": 8.4,
+    "fromAfter": 21,
+    "toAfter": 14
+   }
   },
   {
    "kind": "transfer",
    "rank": 1,
-   "title": "Transfer 3 from Corvale Lakeside to Corvale East",
-   "detail": "Corvale Lakeside has 16 days on hand and can spare 3 while keeping two weeks; Corvale East has 9.9 days and would reach 10.",
-   "why": "Same product, no clinical change, no new supplier.",
+   "title": "Transfer 3 capsules of 80 mg from Corvale Lakeside to Corvale East",
+   "detail": "Corvale Lakeside has 16 days of 80 mg capsules on hand and can spare 3 capsules while keeping two weeks; Corvale East has 8.4 days and would reach 9.",
+   "why": "Same presentation, no clinical change, no new supplier.",
    "needs": "pharmacy director (transfer request)",
    "evidence": [
-    "E5",
-    "E1",
-    "E2"
-   ]
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from AVYXA Pharma, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Actavis Pharma, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Amneal Pharmaceuticals LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Avenacy, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from BE Pharmaceuticals Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Baxter Healthcare Corporation",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
+    "E3",
+    "E1"
+   ],
+   "transfer": {
+    "qty": 3,
+    "unit": "capsule",
+    "presentation": "80 mg capsule",
+    "from": "Corvale Lakeside",
+    "to": "Corvale East",
+    "fromDays": 16,
+    "toDays": 8.4,
+    "fromAfter": 14,
+    "toAfter": 9
+   }
   },
   {
    "kind": "alternate_manufacturer",
@@ -642,7 +474,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Bryant Ranch Prepack",
+   "title": "Buy from Glenmark Pharmaceuticals Inc., USA",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -651,7 +483,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Camber Pharmaceuticals, Inc.",
+   "title": "Buy from Sandoz Inc",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -660,106 +492,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Chia Tai Tianqing Pharmaceutical Group Co., Ltd.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Dr. Reddy's Laboratories Inc.,",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Eugia US LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Fresenius Kabi USA, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Heron Therapeutics, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Hikma Pharmaceuticals USA Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Merck Sharp & Dohme LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Mylan Institutional LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Northstar Rx LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Novadoz Pharmaceuticals LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Qilu Pharmaceutical Co., Ltd.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Steriscience Specialties Private Limited",
+   "title": "Buy from Torrent Pharmaceuticals Limited",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -772,35 +505,28 @@
    "kind": "inspection_vai",
    "label": "FDA inspection 1168012 ended 2021-12-09, classified VAI",
    "daysBeforePosting": null,
-   "evidence": "E8"
-  },
-  {
-   "date": "2023-08-11",
-   "kind": "inspection_vai",
-   "label": "FDA inspection 1215606 ended 2023-08-11, classified VAI; classification letter 2023-11-17",
-   "daysBeforePosting": null,
-   "evidence": "E6"
+   "evidence": "E4"
   },
   {
    "date": "2025-11-21",
    "kind": "inspection_oai",
    "label": "FDA inspection 1292960 ended 2025-11-21, classified OAI; classification letter 2026-02-26",
    "daysBeforePosting": null,
-   "evidence": "E9"
+   "evidence": "E5"
   },
   {
    "date": "2026-04-23",
    "kind": "import_alert",
    "label": "Import alert 66-40 listing published 2026-04-23",
    "daysBeforePosting": null,
-   "evidence": "E11"
+   "evidence": "E7"
   },
   {
    "date": "2026-05-27",
    "kind": "warning_letter",
    "label": "Warning Letter issued 2026-05-27 (case 723680)",
    "daysBeforePosting": null,
-   "evidence": "E10"
+   "evidence": "E6"
   },
   {
    "date": "2026-10-21",
@@ -811,48 +537,61 @@
   }
  ],
  "explanation": {
-  "state": "confirmed",
-  "headline": "FDA's records trace this shortage to a plant on our own labels",
+  "state": "check",
+  "headline": "Not on FDA's shortage list; FDA's record shows actions at plants on our labels",
   "sentences": [
    {
-    "text": "FDA inspection 1292960 of Pharmathen International S.A. (FEI 3009961173) ended on 2025-11-21 and was classified OAI, with the classification known to FDA on 2026-02-26.",
+    "text": "FDA's drug shortage list does not include aprepitant as of 2026-10-21.",
+    "cites": [
+     "D4"
+    ]
+   },
+   {
+    "text": "The 80 mg capsules used at Corvale East, Corvale General, and Corvale Lakeside share NDC 51407070202 and label set 377c3ecb, which names Pharmathen International S. A. (FEI 3009961173) as the manufacturing plant.",
+    "cites": [
+     "E1",
+     "E2",
+     "E3",
+     "E8"
+    ]
+   },
+   {
+    "text": "FDA inspected that plant on 2025-11-21 and classified the inspection OAI, with the classification known to FDA on 2026-02-26.",
+    "cites": [
+     "E5"
+    ]
+   },
+   {
+    "text": "A warning letter was issued to the firm on 2026-05-27.",
+    "cites": [
+     "E6"
+    ]
+   },
+   {
+    "text": "Merck Sharp & Dohme LLC lists aprepitant oral powder for suspension as to be discontinued with an initial posting date of 2026-04-08.",
     "cites": [
      "E9"
     ]
    },
    {
-    "text": "FDA issued a Warning Letter to Pharmathen International S.A. on 2026-05-27.",
+    "text": "The highest-ranked mitigation is to transfer 47 capsules of 80 mg from Corvale General (26.4 days on hand) to Corvale East (8.4 days on hand), which would bring Corvale East to 14 days of supply while Corvale General retains two weeks.",
     "cites": [
-     "E10"
-    ]
-   },
-   {
-    "text": "FDA published Import Alert 66-40 for Pharmathen International S.A. on 2026-04-23.",
-    "cites": [
-     "E11"
-    ]
-   },
-   {
-    "text": "FDA's shortage list also shows Fresenius Kabi USA, LLC's fosaprepitant dimeglumine injection (NDC 63323-972-10) was posted as 'To Be Discontinued' on 2026-04-08.",
-    "cites": [
-     "E13"
+     "D1",
+     "D2",
+     "D5"
     ]
    }
   ],
   "verifier": {
-   "checked": 7,
+   "checked": 8,
    "rejected": [
     {
-     "text": "The OAI classification occurred 239 days before the shortage posting date of 2026-07-17.",
-     "reason": "cites unknown evidence D4"
+     "text": "An import alert (66-40) for the same firm and FEI was published on 2026-04-23, 152 days after the OAI inspection end date.",
+     "reason": "number 152 is not in the cited evidence"
     },
     {
-     "text": "FDA's shortage list shows Merck Sharp & Dohme LLC's aprepitant oral powder for suspension (NDC 0006-3066-03) was posted as 'To Be Discontinued' on 2026-04-08 with discontinuation expected in early-September 2026.",
-     "reason": "month 2026-09 is not in the cited evidence"
-    },
-    {
-     "text": "FDA's records trace our aprepitant supply to a plant classified OAI 239 days before the posting",
-     "reason": "headline: cites unknown evidence D4"
+     "text": "Aprepitant is not on FDA's shortage list; supply traces to a plant classified OAI 152 days before the import alert",
+     "reason": "headline: number 152 is not in the cited evidence"
     }
    ],
    "repaired": 0
@@ -862,45 +601,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -915,111 +675,88 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:25:33.283Z",
+   "at": "2026-10-22T11:29:20.487Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract BW5NPBG3 scope"
+   "reason": "in contract NQKQH37P scope"
   },
   {
-   "at": "2026-10-22T07:25:33.283Z",
+   "at": "2026-10-22T11:29:20.488Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract BW5NPBG3 scope"
+   "reason": "in contract NQKQH37P scope"
   },
   {
-   "at": "2026-10-22T07:25:34.976Z",
+   "at": "2026-10-22T11:29:24.385Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract BW5NPBG3 scope"
+   "reason": "in contract NQKQH37P scope"
   },
   {
-   "at": "2026-10-22T07:25:35.389Z",
+   "at": "2026-10-22T11:29:25.022Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract BW5NPBG3 scope"
+   "reason": "in contract NQKQH37P scope"
   },
   {
-   "at": "2026-10-22T07:25:35.592Z",
+   "at": "2026-10-22T11:29:25.269Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract BW5NPBG3 scope"
+   "reason": "in contract NQKQH37P scope"
   },
   {
-   "at": "2026-10-22T07:25:36.747Z",
+   "at": "2026-10-22T11:29:26.646Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract BW5NPBG3 scope"
+   "reason": "in contract NQKQH37P scope"
   },
   {
-   "at": "2026-10-22T07:25:37.333Z",
+   "at": "2026-10-22T11:29:27.555Z",
    "action": "What FDA wrote at the OAI inspections",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract BW5NPBG3 scope"
+   "reason": "in contract NQKQH37P scope"
   },
   {
-   "at": "2026-10-22T07:25:37.464Z",
+   "at": "2026-10-22T11:29:27.746Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract BW5NPBG3 scope"
+   "reason": "in contract NQKQH37P scope"
   },
   {
-   "at": "2026-10-22T07:25:38.038Z",
+   "at": "2026-10-22T11:29:28.365Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract BW5NPBG3 scope"
+   "reason": "in contract NQKQH37P scope"
   },
   {
-   "at": "2026-10-22T07:25:38.886Z",
+   "at": "2026-10-22T11:29:29.865Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract BW5NPBG3 scope"
+   "reason": "in contract NQKQH37P scope"
   },
   {
-   "at": "2026-10-22T07:25:38.887Z",
+   "at": "2026-10-22T11:29:29.866Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract BW5NPBG3 scope"
+   "reason": "in contract NQKQH37P scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-bade64",
+   "queryId": "Q-169e24",
    "row": 0,
-   "label": "Corvale East: FOSAPREPITANT DIMEGLUMINE 150MG/5ML 5ML SDV",
-   "fields": {
-    "hospital": "Corvale East",
-    "item_key": "EA-E-000134",
-    "ndc11": "16714024801",
-    "ndc_as_recorded": "16714-248-01",
-    "description": "FOSAPREPITANT DIMEGLUMINE 150MG/5ML 5ML SDV",
-    "on_hand": "94.00",
-    "daily_use": "8.309",
-    "unit": "package",
-    "ndc_match": "dashed 10-digit, converted",
-    "generic_name": "Fosaprepitant dimeglumine",
-    "labeler_name": "NorthStar RxLLC",
-    "package_ndc": "16714-248-01",
-    "spl_set_id": "df341f63-0fef-4411-a89b-6df6b9e792be",
-    "dosage_form": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-    "route": "INTRAVENOUS"
-   }
-  },
-  "E2": {
-   "id": "E2",
-   "queryId": "Q-bade64",
-   "row": 1,
    "label": "Corvale East: APREPITANT 80MG CAP",
    "fields": {
     "hospital": "Corvale East",
@@ -1029,66 +766,53 @@
     "description": "APREPITANT 80MG CAP",
     "on_hand": "71.00",
     "daily_use": "8.418",
-    "unit": "package",
+    "unit": "capsule",
+    "pkg_units": "2.00",
+    "unit_basis": "packages of 2, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "APREPITANT",
     "labeler_name": "Golden State Medical Supply, Inc.",
     "package_ndc": "51407-702-02",
     "spl_set_id": "377c3ecb-fdec-dde4-e063-6294a90a29bd",
     "dosage_form": "CAPSULE",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "APREPITANT 80 mg/1",
+    "unit_content": null,
+    "pkg_unit": "blister"
    }
   },
-  "E3": {
-   "id": "E3",
-   "queryId": "Q-bade64",
-   "row": 2,
-   "label": "Corvale General: APREPITANT",
+  "E2": {
+   "id": "E2",
+   "queryId": "Q-169e24",
+   "row": 1,
+   "label": "Corvale General: APREPITANT 80 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-146",
     "ndc11": "51407070202",
     "ndc_as_recorded": "51407070202",
-    "description": "APREPITANT",
-    "on_hand": "239.93",
+    "description": "APREPITANT 80 mg/1",
+    "on_hand": "239.00",
     "daily_use": "9.061",
     "unit": "capsule",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "APREPITANT",
     "labeler_name": "Golden State Medical Supply, Inc.",
     "package_ndc": "51407-702-02",
     "spl_set_id": "377c3ecb-fdec-dde4-e063-6294a90a29bd",
     "dosage_form": "CAPSULE",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "APREPITANT 80 mg/1",
+    "unit_content": null,
+    "pkg_unit": "blister"
    }
   },
-  "E4": {
-   "id": "E4",
-   "queryId": "Q-bade64",
-   "row": 3,
-   "label": "Corvale General: Fosaprepitant dimeglumine",
-   "fields": {
-    "hospital": "Corvale General",
-    "item_key": "CG-223",
-    "ndc11": "16714024801",
-    "ndc_as_recorded": "16714024801",
-    "description": "Fosaprepitant dimeglumine",
-    "on_hand": "166.50",
-    "daily_use": "8.904",
-    "unit": "vial",
-    "ndc_match": "11-digit as recorded",
-    "generic_name": "Fosaprepitant dimeglumine",
-    "labeler_name": "NorthStar RxLLC",
-    "package_ndc": "16714-248-01",
-    "spl_set_id": "df341f63-0fef-4411-a89b-6df6b9e792be",
-    "dosage_form": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-    "route": "INTRAVENOUS"
-   }
-  },
-  "E5": {
-   "id": "E5",
-   "queryId": "Q-bade64",
-   "row": 4,
+  "E3": {
+   "id": "E3",
+   "queryId": "Q-169e24",
+   "row": 2,
    "label": "Corvale Lakeside: APREPITANT 80 mg/1",
    "fields": {
     "hospital": "Corvale Lakeside",
@@ -1099,50 +823,23 @@
     "on_hand": "27.00",
     "daily_use": "1.690",
     "unit": "capsule",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "APREPITANT",
     "labeler_name": "Golden State Medical Supply, Inc.",
     "package_ndc": "51407-702-02",
     "spl_set_id": "377c3ecb-fdec-dde4-e063-6294a90a29bd",
     "dosage_form": "CAPSULE",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "APREPITANT 80 mg/1",
+    "unit_content": null,
+    "pkg_unit": "blister"
    }
   },
-  "E6": {
-   "id": "E6",
-   "queryId": "Q-f5c8c9",
-   "row": 2,
-   "label": "FDA inspection 1215606 (VAI)",
-   "fields": {
-    "inspection_id": "1215606",
-    "fei": "3014483338",
-    "legal_name": "Aspiro Pharma Limited",
-    "country": "India",
-    "end_date": "2023-08-11",
-    "classification": "VAI",
-    "known_date": "2023-11-17",
-    "known_date_basis": "fmd145_letter"
-   }
-  },
-  "E7": {
-   "id": "E7",
-   "queryId": "Q-39615d",
-   "row": 1,
-   "label": "Label df341f63 names Aspiro Pharma Limited",
-   "fields": {
-    "product_labeler": "NorthStar RxLLC",
-    "ndc11": "16714024801",
-    "plant": "Aspiro Pharma Limited",
-    "fei": "3014483338",
-    "country": "IND",
-    "operations": "MANUFACTURE",
-    "link": "registered plant",
-    "last_inspection": "VAI 2023-08-11"
-   }
-  },
-  "E8": {
-   "id": "E8",
-   "queryId": "Q-f5c8c9",
+  "E4": {
+   "id": "E4",
+   "queryId": "Q-16977e",
    "row": 0,
    "label": "FDA inspection 1168012 (VAI)",
    "fields": {
@@ -1156,9 +853,9 @@
     "known_date_basis": "end_plus_90_estimate"
    }
   },
-  "E9": {
-   "id": "E9",
-   "queryId": "Q-f5c8c9",
+  "E5": {
+   "id": "E5",
+   "queryId": "Q-16977e",
    "row": 1,
    "label": "FDA inspection 1292960 (OAI)",
    "fields": {
@@ -1172,9 +869,9 @@
     "known_date_basis": "fmd145_letter"
    }
   },
-  "E10": {
-   "id": "E10",
-   "queryId": "Q-5a7ec7",
+  "E6": {
+   "id": "E6",
+   "queryId": "Q-91fe93",
    "row": 0,
    "label": "Warning Letter 2026-05-27",
    "fields": {
@@ -1186,9 +883,9 @@
     "case_id": "723680"
    }
   },
-  "E11": {
-   "id": "E11",
-   "queryId": "Q-1ecf6f",
+  "E7": {
+   "id": "E7",
+   "queryId": "Q-a8113a",
    "row": 0,
    "label": "Import alert 66-40, 2026-04-23",
    "fields": {
@@ -1202,9 +899,9 @@
     "firm_key": "pharmathen s a"
    }
   },
-  "E12": {
-   "id": "E12",
-   "queryId": "Q-39615d",
+  "E8": {
+   "id": "E8",
+   "queryId": "Q-8161af",
    "row": 0,
    "label": "Label 377c3ecb names Pharmathen International S. A.",
    "fields": {
@@ -1218,25 +915,10 @@
     "last_inspection": "OAI 2025-11-21"
    }
   },
-  "E13": {
-   "id": "E13",
-   "queryId": "Q-98e977",
+  "E9": {
+   "id": "E9",
+   "queryId": "Q-bea5c5",
    "row": 0,
-   "label": "FDA shortage list: Fresenius Kabi USA, LLC, To Be Discontinued",
-   "fields": {
-    "generic_name": "Fosaprepitant Dimeglumine Injection",
-    "company_name": "Fresenius Kabi USA, LLC",
-    "status": "To Be Discontinued",
-    "package_ndc": "63323-972-10",
-    "initial_posting_date": "2026-04-08",
-    "update_date": "2026-04-08",
-    "related_info": "Discontinuation of the manufacture of the drug"
-   }
-  },
-  "E14": {
-   "id": "E14",
-   "queryId": "Q-98e977",
-   "row": 1,
    "label": "FDA shortage list: Merck Sharp & Dohme LLC, To Be Discontinued",
    "fields": {
     "generic_name": "Aprepitant Oral Powder for Suspension",
@@ -1252,216 +934,276 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 165 units of aprepitant at 16.7 a day: 10 days on hand",
+   "label": "Corvale East holds 71 capsules of aprepitant 80 mg at 8.4 a day: 8.4 days on hand",
    "fields": {
     "hospital": "Corvale East",
-    "on_hand": 165,
-    "daily_use": 16.7,
-    "days_on_hand": 10
+    "presentation": "80 mg capsule",
+    "on_hand": 71,
+    "daily_use": 8.4,
+    "days_on_hand": 8.4
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 406 units of aprepitant at 18 a day: 23 days on hand",
+   "label": "Corvale General holds 239 capsules of aprepitant 80 mg at 9.1 a day: 26.4 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 406,
-    "daily_use": 18,
-    "days_on_hand": 23
+    "presentation": "80 mg capsule",
+    "on_hand": 239,
+    "daily_use": 9.1,
+    "days_on_hand": 26.4
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 27 units of aprepitant at 1.7 a day: 16 days on hand",
+   "label": "Corvale Lakeside holds 27 capsules of aprepitant 80 mg at 1.7 a day: 16 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
+    "presentation": "80 mg capsule",
     "on_hand": 27,
     "daily_use": 1.7,
     "days_on_hand": 16
    }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "aprepitant is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 47 capsules of 80 mg from Corvale General to Corvale East. Corvale General has 26 days of 80 mg capsules on hand and can spare 47 capsules while keeping two weeks; Corvale East has 8.4 days and would reach 14.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 3 capsules of 80 mg from Corvale Lakeside to Corvale East. Corvale Lakeside has 16 days of 80 mg capsules on hand and can spare 3 capsules while keeping two weeks; Corvale East has 8.4 days and would reach 9.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from BluePoint Laboratories. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
   }
  },
  "queries": {
-  "Q-bade64": {
-   "id": "Q-bade64",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%aprepitant%' OR lower(s.description) LIKE '%aprepitant%' ORDER BY s.hospital, s.item_key",
-   "ms": 1690,
+  "Q-169e24": {
+   "id": "Q-169e24",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*aprepitant(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*aprepitant(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3895,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:25:34.973Z",
-   "rows": 5
+   "ranAt": "2026-10-22T11:29:24.383Z",
+   "rows": 3
   },
-  "Q-39615d": {
-   "id": "Q-39615d",
-   "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('df341f63-0fef-4411-a89b-6df6b9e792be', '377c3ecb-fdec-dde4-e063-6294a90a29bd') ORDER BY ps.set_id, ps.establishment",
-   "ms": 412,
+  "Q-8161af": {
+   "id": "Q-8161af",
+   "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('377c3ecb-fdec-dde4-e063-6294a90a29bd') ORDER BY ps.set_id, ps.establishment",
+   "ms": 635,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:25:35.387Z",
-   "rows": 2
+   "ranAt": "2026-10-22T11:29:25.021Z",
+   "rows": 1
   },
-  "Q-98e977": {
-   "id": "Q-98e977",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%aprepitant%' ORDER BY status, company_name, package_ndc",
-   "ms": 104,
+  "Q-bea5c5": {
+   "id": "Q-bea5c5",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*aprepitant(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 120,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:25:35.493Z",
-   "rows": 2
+   "ranAt": "2026-10-22T11:29:25.142Z",
+   "rows": 1
   },
-  "Q-4dfc54": {
-   "id": "Q-4dfc54",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%aprepitant%' ORDER BY first_posting",
-   "ms": 97,
+  "Q-fafc89": {
+   "id": "Q-fafc89",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*aprepitant(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 125,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:25:35.591Z",
+   "ranAt": "2026-10-22T11:29:25.268Z",
+   "rows": 1
+  },
+  "Q-1348a8": {
+   "id": "Q-1348a8",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*aprepitant(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%capsule%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1375,
+   "mode": "live",
+   "sources": [
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
+   ],
+   "ranAt": "2026-10-22T11:29:26.645Z",
+   "rows": 28
+  },
+  "Q-16977e": {
+   "id": "Q-16977e",
+   "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3009961173') ORDER BY fei, end_date",
+   "ms": 371,
+   "mode": "live",
+   "sources": [
+    "fda.inspections"
+   ],
+   "ranAt": "2026-10-22T11:29:27.017Z",
    "rows": 2
   },
-  "Q-8fa508": {
-   "id": "Q-8fa508",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%aprepitant%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 1153,
-   "mode": "live",
-   "sources": [
-    "lightning.metastore.upstream"
-   ],
-   "ranAt": "2026-10-22T07:25:36.745Z",
-   "rows": 27
-  },
-  "Q-f5c8c9": {
-   "id": "Q-f5c8c9",
-   "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3009961173', '3014483338') ORDER BY fei, end_date",
-   "ms": 231,
-   "mode": "live",
-   "sources": [
-    "lightning.metastore.upstream"
-   ],
-   "ranAt": "2026-10-22T07:25:36.978Z",
-   "rows": 3
-  },
-  "Q-5a7ec7": {
-   "id": "Q-5a7ec7",
-   "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3009961173', '3014483338') ORDER BY fei, action_date",
-   "ms": 136,
+  "Q-91fe93": {
+   "id": "Q-91fe93",
+   "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3009961173') ORDER BY fei, action_date",
+   "ms": 193,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:25:37.116Z",
+   "ranAt": "2026-10-22T11:29:27.211Z",
    "rows": 1
   },
-  "Q-1ecf6f": {
-   "id": "Q-1ecf6f",
-   "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3009961173', '3014483338') OR (fei_match <> 'name_and_city' AND firm_key IN ('pharmathen s a', 'aspiro')) ORDER BY date_published",
-   "ms": 103,
+  "Q-a8113a": {
+   "id": "Q-a8113a",
+   "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3009961173') OR (fei_match <> 'name_and_city' AND firm_key IN ('pharmathen s a')) ORDER BY date_published",
+   "ms": 154,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:25:37.220Z",
+   "ranAt": "2026-10-22T11:29:27.369Z",
    "rows": 1
   },
-  "Q-e956a1": {
-   "id": "Q-e956a1",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('pharmathen s a', 'aspiro', 'northstar rxllc', 'golden state medical supply') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%aprepitant%' ORDER BY initiation_date",
-   "ms": 111,
+  "Q-e2fca4": {
+   "id": "Q-e2fca4",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('pharmathen s a', 'golden state medical supply') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*aprepitant(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 184,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:25:37.332Z",
+   "ranAt": "2026-10-22T11:29:27.554Z",
    "rows": 0
   },
   "Q-e5ff4a": {
    "id": "Q-e5ff4a",
    "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('1292960') ORDER BY inspection_id, cfr",
-   "ms": 129,
+   "ms": 189,
    "mode": "live",
    "sources": [
     "fda.citations"
    ],
-   "ranAt": "2026-10-22T07:25:37.462Z",
+   "ranAt": "2026-10-22T11:29:27.745Z",
    "rows": 0
   },
-  "Q-96d079": {
-   "id": "Q-96d079",
-   "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('16714024801', '51407070202')",
-   "ms": 573,
+  "Q-3d63fb": {
+   "id": "Q-3d63fb",
+   "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('51407070202')",
+   "ms": 618,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:25:38.037Z",
+   "ranAt": "2026-10-22T11:29:28.364Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-317c81": {
-   "id": "Q-317c81",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%aprepitant%'",
-   "ms": 846,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:25:38.885Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-802827": {
+   "id": "Q-802827",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*aprepitant(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1498,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:29:29.864Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 15,
-  "zetarisMs": 10956,
-  "modelCalls": 1,
-  "tokensIn": 2393,
-  "tokensOut": 464,
+  "zetarisMs": 19565,
+  "modelCalls": 0,
+  "tokensIn": 0,
+  "tokensOut": 0,
   "mode": "live"
  },
  "slug": "aprepitant",
  "graph": {
   "roots": [
    "hospital-item:hospital-item:CG-146",
-   "hospital-item:hospital-item:CG-223",
-   "hospital-item:hospital-item:EA-E-000134",
    "hospital-item:hospital-item:EA-E-000177",
    "hospital-item:hospital-item:LS-LS-0080"
   ],
@@ -1470,31 +1212,9 @@
     "id": "hospital-item:hospital-item:CG-146",
     "type": "HospitalItem",
     "key": "hospital-item:CG-146",
-    "label": "Corvale General: APREPITANT",
+    "label": "Corvale General: APREPITANT 80 mg/1",
     "attrs": {
      "key": "hospital-item:CG-146"
-    },
-    "facts": [],
-    "depth": 0
-   },
-   {
-    "id": "hospital-item:hospital-item:CG-223",
-    "type": "HospitalItem",
-    "key": "hospital-item:CG-223",
-    "label": "Corvale General: Fosaprepitant dimeglumine",
-    "attrs": {
-     "key": "hospital-item:CG-223"
-    },
-    "facts": [],
-    "depth": 0
-   },
-   {
-    "id": "hospital-item:hospital-item:EA-E-000134",
-    "type": "HospitalItem",
-    "key": "hospital-item:EA-E-000134",
-    "label": "Corvale East: FOSAPREPITANT DIMEGLUMINE 150MG/5ML 5ML SDV",
-    "attrs": {
-     "key": "hospital-item:EA-E-000134"
     },
     "facts": [],
     "depth": 0
@@ -1522,17 +1242,6 @@
     "depth": 0
    },
    {
-    "id": "package:ndc-package:16714-248-01",
-    "type": "Package",
-    "key": "ndc-package:16714-248-01",
-    "label": "ndc-package:16714-248-01",
-    "attrs": {
-     "key": "ndc-package:16714-248-01"
-    },
-    "facts": [],
-    "depth": 1
-   },
-   {
     "id": "package:ndc-package:51407-702-02",
     "type": "Package",
     "key": "ndc-package:51407-702-02",
@@ -1542,17 +1251,6 @@
     },
     "facts": [],
     "depth": 1
-   },
-   {
-    "id": "product:ndc-product:16714-248",
-    "type": "Product",
-    "key": "ndc-product:16714-248",
-    "label": "Fosaprepitant dimeglumine",
-    "attrs": {
-     "key": "ndc-product:16714-248"
-    },
-    "facts": [],
-    "depth": 2
    },
    {
     "id": "product:ndc-product:51407-702",
@@ -1572,17 +1270,6 @@
     "label": "aprepitant",
     "attrs": {
      "key": "generic:aprepitant"
-    },
-    "facts": [],
-    "depth": 3
-   },
-   {
-    "id": "labeler:ndc-labeler:16714",
-    "type": "Labeler",
-    "key": "ndc-labeler:16714",
-    "label": "NorthStar RxLLC",
-    "attrs": {
-     "key": "ndc-labeler:16714"
     },
     "facts": [],
     "depth": 3
@@ -1610,17 +1297,6 @@
     "depth": 3
    },
    {
-    "id": "site:fei:3014483338",
-    "type": "Site",
-    "key": "fei:3014483338",
-    "label": "Aspiro Pharma Limited",
-    "attrs": {
-     "key": "fei:3014483338"
-    },
-    "facts": [],
-    "depth": 3
-   },
-   {
     "id": "import-alert:fda-import-alert:66-40",
     "type": "ImportAlert",
     "key": "fda-import-alert:66-40",
@@ -1642,7 +1318,7 @@
     },
     "facts": [
      {
-      "id": "fact_776a86fbf2dc1d5e",
+      "id": "fact_52af037a680b271c",
       "about": "inspection:fda-inspection:1168012",
       "predicate": "classification",
       "value": "VAI",
@@ -1650,35 +1326,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:25:37.464Z"
+       "at": "2026-10-22T11:29:27.746Z"
       },
-      "assertedAt": "2026-10-22T07:25:37.464Z"
-     }
-    ],
-    "depth": 4
-   },
-   {
-    "id": "inspection:fda-inspection:1215606",
-    "type": "Inspection",
-    "key": "fda-inspection:1215606",
-    "label": "fda-inspection:1215606",
-    "attrs": {
-     "key": "fda-inspection:1215606",
-     "classification": "VAI"
-    },
-    "facts": [
-     {
-      "id": "fact_945ad1b66e66fa40",
-      "about": "inspection:fda-inspection:1215606",
-      "predicate": "classification",
-      "value": "VAI",
-      "confidence": 0.5,
-      "source": {
-       "kind": "fda-inspection",
-       "by": "upstream-investigator",
-       "at": "2026-10-22T07:25:37.464Z"
-      },
-      "assertedAt": "2026-10-22T07:25:37.464Z"
+      "assertedAt": "2026-10-22T11:29:27.746Z"
      }
     ],
     "depth": 4
@@ -1694,7 +1344,7 @@
     },
     "facts": [
      {
-      "id": "fact_4ce40955606641ac",
+      "id": "fact_d8bc113e9e78ee7e",
       "about": "inspection:fda-inspection:1292960",
       "predicate": "classification",
       "value": "OAI",
@@ -1702,9 +1352,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:25:37.464Z"
+       "at": "2026-10-22T11:29:27.746Z"
       },
-      "assertedAt": "2026-10-22T07:25:37.464Z"
+      "assertedAt": "2026-10-22T11:29:27.746Z"
      }
     ],
     "depth": 4
@@ -1727,35 +1377,11 @@
     "from": "hospital-item:hospital-item:CG-146",
     "to": "package:ndc-package:51407-702-02",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:25:34.975Z",
+    "validFrom": "2026-10-22T11:29:24.385Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:25:34.975Z"
-    }
-   },
-   {
-    "id": "rel_d3eb1c2e93bf05bb",
-    "from": "hospital-item:hospital-item:CG-223",
-    "to": "package:ndc-package:16714-248-01",
-    "type": "stocks",
-    "validFrom": "2026-10-22T07:25:34.975Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:25:34.975Z"
-    }
-   },
-   {
-    "id": "rel_b09f97d3a46babfa",
-    "from": "hospital-item:hospital-item:EA-E-000134",
-    "to": "package:ndc-package:16714-248-01",
-    "type": "stocks",
-    "validFrom": "2026-10-22T07:25:34.975Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:25:34.975Z"
+     "at": "2026-10-22T11:29:24.385Z"
     }
    },
    {
@@ -1763,11 +1389,11 @@
     "from": "hospital-item:hospital-item:EA-E-000177",
     "to": "package:ndc-package:51407-702-02",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:25:34.975Z",
+    "validFrom": "2026-10-22T11:29:24.385Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:25:34.975Z"
+     "at": "2026-10-22T11:29:24.385Z"
     }
    },
    {
@@ -1775,11 +1401,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0080",
     "to": "package:ndc-package:51407-702-02",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:25:34.975Z",
+    "validFrom": "2026-10-22T11:29:24.385Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:25:34.975Z"
+     "at": "2026-10-22T11:29:24.385Z"
     }
    },
    {
@@ -1787,23 +1413,11 @@
     "from": "package:ndc-package:51407-702-02",
     "to": "product:ndc-product:51407-702",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:25:34.975Z",
+    "validFrom": "2026-10-22T11:29:24.385Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:25:34.975Z"
-    }
-   },
-   {
-    "id": "rel_2f34b594ea83dfe8",
-    "from": "package:ndc-package:16714-248-01",
-    "to": "product:ndc-product:16714-248",
-    "type": "package-of",
-    "validFrom": "2026-10-22T07:25:34.975Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:25:34.975Z"
+     "at": "2026-10-22T11:29:24.385Z"
     }
    },
    {
@@ -1811,11 +1425,11 @@
     "from": "product:ndc-product:51407-702",
     "to": "drug:generic:aprepitant",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:25:34.975Z",
+    "validFrom": "2026-10-22T11:29:24.385Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:25:34.975Z"
+     "at": "2026-10-22T11:29:24.385Z"
     }
    },
    {
@@ -1823,11 +1437,11 @@
     "from": "product:ndc-product:51407-702",
     "to": "labeler:ndc-labeler:51407",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:25:34.975Z",
+    "validFrom": "2026-10-22T11:29:24.385Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:25:34.975Z"
+     "at": "2026-10-22T11:29:24.385Z"
     }
    },
    {
@@ -1835,47 +1449,11 @@
     "from": "product:ndc-product:51407-702",
     "to": "site:fei:3009961173",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:25:37.464Z",
+    "validFrom": "2026-10-22T11:29:27.746Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:25:37.464Z"
-    }
-   },
-   {
-    "id": "rel_2c0ae884a658e0ad",
-    "from": "product:ndc-product:16714-248",
-    "to": "drug:generic:aprepitant",
-    "type": "of-drug",
-    "validFrom": "2026-10-22T07:25:34.975Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:25:34.975Z"
-    }
-   },
-   {
-    "id": "rel_b2be44b0fc5a33f8",
-    "from": "product:ndc-product:16714-248",
-    "to": "labeler:ndc-labeler:16714",
-    "type": "labeled-by",
-    "validFrom": "2026-10-22T07:25:34.975Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:25:34.975Z"
-    }
-   },
-   {
-    "id": "rel_ab72893fe7386400",
-    "from": "product:ndc-product:16714-248",
-    "to": "site:fei:3014483338",
-    "type": "made-at",
-    "validFrom": "2026-10-22T07:25:37.464Z",
-    "source": {
-     "kind": "dailymed-spl",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:25:37.464Z"
+     "at": "2026-10-22T11:29:27.746Z"
     }
    },
    {
@@ -1883,11 +1461,11 @@
     "from": "inspection:fda-inspection:1168012",
     "to": "site:fei:3009961173",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:25:37.464Z",
+    "validFrom": "2026-10-22T11:29:27.746Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:25:37.464Z"
+     "at": "2026-10-22T11:29:27.746Z"
     }
    },
    {
@@ -1895,11 +1473,11 @@
     "from": "inspection:fda-inspection:1292960",
     "to": "site:fei:3009961173",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:25:37.464Z",
+    "validFrom": "2026-10-22T11:29:27.746Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:25:37.464Z"
+     "at": "2026-10-22T11:29:27.746Z"
     }
    },
    {
@@ -1907,11 +1485,11 @@
     "from": "warning-letter:fda-warning-letter:723680",
     "to": "site:fei:3009961173",
     "type": "issued-to",
-    "validFrom": "2026-10-22T07:25:37.464Z",
+    "validFrom": "2026-10-22T11:29:27.746Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:25:37.464Z"
+     "at": "2026-10-22T11:29:27.746Z"
     }
    },
    {
@@ -1919,34 +1497,22 @@
     "from": "import-alert:fda-import-alert:66-40",
     "to": "site:fei:3009961173",
     "type": "lists",
-    "validFrom": "2026-10-22T07:25:37.464Z",
+    "validFrom": "2026-10-22T11:29:27.746Z",
     "source": {
      "kind": "fda-import-alert",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:25:37.464Z"
-    }
-   },
-   {
-    "id": "rel_709441c6cea15873",
-    "from": "inspection:fda-inspection:1215606",
-    "to": "site:fei:3014483338",
-    "type": "inspected",
-    "validFrom": "2026-10-22T07:25:37.464Z",
-    "source": {
-     "kind": "fda-inspection",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:25:37.464Z"
+     "at": "2026-10-22T11:29:27.746Z"
     }
    }
   ],
   "counts": {
-   "HospitalItem": 5,
-   "Package": 2,
-   "Product": 2,
+   "HospitalItem": 3,
+   "Package": 1,
+   "Product": 1,
    "Drug": 1,
-   "Labeler": 2,
-   "Site": 2,
-   "Inspection": 3,
+   "Labeler": 1,
+   "Site": 1,
+   "Inspection": 2,
    "WarningLetter": 1,
    "ImportAlert": 1
   }

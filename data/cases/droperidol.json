@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-83633c",
+ "id": "case-2026-10-22-e6a0eb",
  "question": "Why is droperidol short, and what do we do?",
- "askedAt": "2026-10-22T07:42:44.373Z",
+ "askedAt": "2026-10-22T11:54:18.775Z",
  "asOf": "2026-10-21",
  "molecule": "droperidol",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H8ZMF70X2TREGK6TWQAJ59",
+  "contractId": "01M5HQC9JVERB0NAW63YFG8YF8",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-7f8e2e"
+    "Q-a5f74c"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3022,
+   "ms": 3909,
    "rows": 2,
-   "finding": "2 stock lines across 2 hospitals.",
+   "finding": "2 stock lines across 2 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-a98a2d"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 761,
+   "ms": 523,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-ef22f3",
-    "Q-ac9113"
+    "Q-13effe",
+    "Q-1055c5"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 371,
+   "ms": 246,
    "rows": 0,
    "finding": "Not on FDA's current shortage list.",
    "status": "empty"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-2b7bf6"
+    "Q-a931dc"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1958,
+   "ms": 1209,
    "rows": 3,
    "finding": "2 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-4f9eb7",
     "Q-cc1dec",
     "Q-6410e4",
-    "Q-bf08d3"
+    "Q-e0c43a"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 922,
+   "ms": 652,
    "rows": 23,
    "finding": "21 inspections (1 OAI at our plants), 2 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,7 +111,7 @@
    "sources": [
     "fda.citations"
    ],
-   "ms": 250,
+   "ms": 168,
    "rows": 6,
    "finding": "6 Form 483 observations recorded.",
    "status": "ok"
@@ -119,9 +126,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1032,
+   "ms": 686,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -129,19 +136,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-0e5f69"
+    "Q-0a5d67"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1071,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1495,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -168,22 +179,65 @@
    "onHand": 62,
    "dailyUse": 6.798,
    "days": 9.1,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 25, converted to units",
+   "presentation": "droperidol|2.5mg/ml|injection|2ml|vial",
+   "presentationLabel": "2.5 mg/mL injection, 2 mL vial",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-204",
    "ndc11": "00143951425",
-   "description": "DROPERIDOL",
+   "description": "DROPERIDOL 2.5 mg/mL",
    "labeler": "Hikma Pharmaceuticals USA Inc.",
-   "onHand": 113.35,
+   "onHand": 113,
    "dailyUse": 8.539,
-   "days": 13.3,
+   "days": 13.2,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "droperidol|2.5mg/ml|injection|2ml|vial",
+   "presentationLabel": "2.5 mg/mL injection, 2 mL vial",
    "evidence": "E2"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "droperidol|2.5mg/ml|injection|2ml|vial",
+   "label": "2.5 mg/mL injection, 2 mL vial",
+   "short": "2.5 mg/mL, 2 mL",
+   "unit": "vial",
+   "onHand": 175,
+   "dailyUse": 15.337,
+   "days": 11.4,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 62,
+     "dailyUse": 6.798,
+     "days": 9.1,
+     "lines": [
+      "EA-E-000034"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 113,
+     "dailyUse": 8.539,
+     "days": 13.2,
+     "lines": [
+      "CG-204"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -418,61 +472,52 @@
   }
  ],
  "explanation": {
-  "state": "confirmed",
-  "headline": "FDA's records trace this shortage to a plant on our own labels",
+  "state": "check",
+  "headline": "Droperidol is not on FDA's shortage list as of 2026-10-21; current supply at Corvale East covers 9.1 days and Corvale General covers 13.2 days",
   "sentences": [
    {
-    "text": "The label for our droperidol product lists Hikma Farmaceutica (Portugal) S.A. as the manufacturing plant.",
+    "text": "FDA's drug shortage list does not include droperidol as of 2026-10-21.",
+    "cites": [
+     "D3"
+    ]
+   },
+   {
+    "text": "Corvale East holds 62 vials of droperidol 2.5 mg/mL, 2 mL with a daily use of 6.8 vials, providing 9.1 days on hand.",
+    "cites": [
+     "D1"
+    ]
+   },
+   {
+    "text": "Corvale General holds 113 vials of the same presentation with a daily use of 8.5 vials, providing 13.2 days on hand.",
+    "cites": [
+     "D2"
+    ]
+   },
+   {
+    "text": "The product label identifies Hikma Farmaceutica (Portugal), S.A. as the manufacturing plant (FEI 3002807173).",
     "cites": [
      "E12"
     ]
    },
    {
-    "text": "FDA inspection 876911 of that plant ended on 2014-03-28 and was classified OAI with six observations including absence of written procedures and deviations from laboratory control requirements.",
+    "text": "That plant received a Warning Letter on 2014-10-21 and an OAI inspection classification on 2014-03-28, but its most recent inspections in 2023 were classified VAI.",
     "cites": [
-     "E5"
-    ]
-   },
-   {
-    "text": "A Warning Letter was issued to the plant on 2014-10-21.",
-    "cites": [
-     "E11"
-    ]
-   },
-   {
-    "text": "Subsequent inspections in 2015, 2016, 2020, and 2023 were classified VAI.",
-    "cites": [
-     "E6",
-     "E7",
-     "E8",
+     "E11",
+     "E5",
      "E9",
      "E10"
     ]
    },
    {
-    "text": "Corvale East has 9 days of inventory on hand and Corvale General has 13 days.",
+    "text": "The recommended purchasing option is to buy from American Regent, Inc., whose plant was last inspected VAI on 2024-04-24.",
     "cites": [
-     "D1",
-     "D2"
+     "D4"
     ]
    }
   ],
   "verifier": {
-   "checked": 8,
-   "rejected": [
-    {
-     "text": "The OAI classification occurred 4470 days before the posting date.",
-     "reason": "number 4470 is not in the cited evidence"
-    },
-    {
-     "text": "American Regent, Inc. is an alternative supplier whose plant was last inspected VAI on 2024-04-24 and is not on FDA's shortage list today.",
-     "reason": "date 2024-04-24 is not in the cited evidence"
-    },
-    {
-     "text": "FDA's records trace our supply to a plant classified OAI 4470 days before the posting",
-     "reason": "headline: number 4470 is not in the cited evidence"
-    }
-   ],
+   "checked": 7,
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -480,45 +525,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -533,87 +599,87 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:42:34.984Z",
+   "at": "2026-10-22T11:54:09.884Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract 6TWQAJ59 scope"
+   "reason": "in contract 3YFG8YF8 scope"
   },
   {
-   "at": "2026-10-22T07:42:34.984Z",
+   "at": "2026-10-22T11:54:09.884Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 6TWQAJ59 scope"
+   "reason": "in contract 3YFG8YF8 scope"
   },
   {
-   "at": "2026-10-22T07:42:38.006Z",
+   "at": "2026-10-22T11:54:13.793Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 6TWQAJ59 scope"
+   "reason": "in contract 3YFG8YF8 scope"
   },
   {
-   "at": "2026-10-22T07:42:38.767Z",
+   "at": "2026-10-22T11:54:14.317Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 6TWQAJ59 scope"
+   "reason": "in contract 3YFG8YF8 scope"
   },
   {
-   "at": "2026-10-22T07:42:39.138Z",
+   "at": "2026-10-22T11:54:14.562Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 6TWQAJ59 scope"
+   "reason": "in contract 3YFG8YF8 scope"
   },
   {
-   "at": "2026-10-22T07:42:41.097Z",
+   "at": "2026-10-22T11:54:15.771Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 6TWQAJ59 scope"
+   "reason": "in contract 3YFG8YF8 scope"
   },
   {
-   "at": "2026-10-22T07:42:42.018Z",
+   "at": "2026-10-22T11:54:16.423Z",
    "action": "What FDA wrote at the OAI inspections",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 6TWQAJ59 scope"
+   "reason": "in contract 3YFG8YF8 scope"
   },
   {
-   "at": "2026-10-22T07:42:42.269Z",
+   "at": "2026-10-22T11:54:16.592Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 6TWQAJ59 scope"
+   "reason": "in contract 3YFG8YF8 scope"
   },
   {
-   "at": "2026-10-22T07:42:43.302Z",
+   "at": "2026-10-22T11:54:17.279Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 6TWQAJ59 scope"
+   "reason": "in contract 3YFG8YF8 scope"
   },
   {
-   "at": "2026-10-22T07:42:44.372Z",
+   "at": "2026-10-22T11:54:18.774Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract 6TWQAJ59 scope"
+   "reason": "in contract 3YFG8YF8 scope"
   },
   {
-   "at": "2026-10-22T07:42:44.373Z",
+   "at": "2026-10-22T11:54:18.775Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract 6TWQAJ59 scope"
+   "reason": "in contract 3YFG8YF8 scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-7f8e2e",
+   "queryId": "Q-a5f74c",
    "row": 0,
    "label": "Corvale East: DROPERIDOL 2.5MG/ML 2ML SDV",
    "fields": {
@@ -624,37 +690,47 @@
     "description": "DROPERIDOL 2.5MG/ML 2ML SDV",
     "on_hand": "62.00",
     "daily_use": "6.798",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "25.00",
+    "unit_basis": "packages of 25, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "DROPERIDOL",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0143-9514-25",
     "spl_set_id": "d89f33ac-8a6e-49e7-94fb-84e58aad65a8",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "DROPERIDOL 2.5 mg/mL",
+    "unit_content": "2 mL",
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-7f8e2e",
+   "queryId": "Q-a5f74c",
    "row": 1,
-   "label": "Corvale General: DROPERIDOL",
+   "label": "Corvale General: DROPERIDOL 2.5 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-204",
     "ndc11": "00143951425",
     "ndc_as_recorded": "00143951425",
-    "description": "DROPERIDOL",
-    "on_hand": "113.35",
+    "description": "DROPERIDOL 2.5 mg/mL",
+    "on_hand": "113.00",
     "daily_use": "8.539",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "DROPERIDOL",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0143-9514-25",
     "spl_set_id": "d89f33ac-8a6e-49e7-94fb-84e58aad65a8",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "DROPERIDOL 2.5 mg/mL",
+    "unit_content": "2 mL",
+    "pkg_unit": "vial"
    }
   },
   "E3": {
@@ -816,196 +892,237 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 62 units of droperidol at 6.8 a day: 9 days on hand",
+   "label": "Corvale East holds 62 vials of droperidol 2.5 mg/mL, 2 mL at 6.8 a day: 9.1 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "2.5 mg/mL injection, 2 mL vial",
     "on_hand": 62,
     "daily_use": 6.8,
-    "days_on_hand": 9
+    "days_on_hand": 9.1
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 113 units of droperidol at 8.5 a day: 13 days on hand",
+   "label": "Corvale General holds 113 vials of droperidol 2.5 mg/mL, 2 mL at 8.5 a day: 13.2 days on hand",
    "fields": {
     "hospital": "Corvale General",
+    "presentation": "2.5 mg/mL injection, 2 mL vial",
     "on_hand": 113,
     "daily_use": 8.5,
-    "days_on_hand": 13
+    "days_on_hand": 13.2
+   }
+  },
+  "D3": {
+   "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "droperidol is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from American Regent, Inc.. Not on FDA's shortage list today. Plants: American Regent, Inc. (last inspection VAI 2024-04-24).",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-7f8e2e": {
-   "id": "Q-7f8e2e",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%droperidol%' OR lower(s.description) LIKE '%droperidol%' ORDER BY s.hospital, s.item_key",
-   "ms": 3020,
+  "Q-a5f74c": {
+   "id": "Q-a5f74c",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*droperidol(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*droperidol(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3908,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:42:38.004Z",
+   "ranAt": "2026-10-22T11:54:13.792Z",
    "rows": 2
   },
   "Q-a98a2d": {
    "id": "Q-a98a2d",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('d89f33ac-8a6e-49e7-94fb-84e58aad65a8') ORDER BY ps.set_id, ps.establishment",
-   "ms": 758,
+   "ms": 522,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:42:38.764Z",
+   "ranAt": "2026-10-22T11:54:14.315Z",
    "rows": 1
   },
-  "Q-ef22f3": {
-   "id": "Q-ef22f3",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%droperidol%' ORDER BY status, company_name, package_ndc",
-   "ms": 186,
+  "Q-13effe": {
+   "id": "Q-13effe",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*droperidol(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 123,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:42:38.953Z",
+   "ranAt": "2026-10-22T11:54:14.439Z",
    "rows": 0
   },
-  "Q-ac9113": {
-   "id": "Q-ac9113",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%droperidol%' ORDER BY first_posting",
-   "ms": 181,
+  "Q-1055c5": {
+   "id": "Q-1055c5",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*droperidol(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 120,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:42:39.136Z",
+   "ranAt": "2026-10-22T11:54:14.561Z",
    "rows": 0
   },
-  "Q-2b7bf6": {
-   "id": "Q-2b7bf6",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%droperidol%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 1956,
+  "Q-a931dc": {
+   "id": "Q-a931dc",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*droperidol(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1208,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:42:41.095Z",
+   "ranAt": "2026-10-22T11:54:15.770Z",
    "rows": 3
   },
   "Q-4f9eb7": {
    "id": "Q-4f9eb7",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3002807173', '2410375') ORDER BY fei, end_date",
-   "ms": 397,
+   "ms": 251,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:42:41.494Z",
+   "ranAt": "2026-10-22T11:54:16.022Z",
    "rows": 21
   },
   "Q-cc1dec": {
    "id": "Q-cc1dec",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3002807173', '2410375') ORDER BY fei, action_date",
-   "ms": 178,
+   "ms": 130,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:42:41.674Z",
+   "ranAt": "2026-10-22T11:54:16.154Z",
    "rows": 2
   },
   "Q-6410e4": {
    "id": "Q-6410e4",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3002807173') OR (fei_match <> 'name_and_city' AND firm_key IN ('hikma farmaceutica s a')) ORDER BY date_published",
-   "ms": 153,
+   "ms": 123,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:42:41.828Z",
+   "ranAt": "2026-10-22T11:54:16.278Z",
    "rows": 0
   },
-  "Q-bf08d3": {
-   "id": "Q-bf08d3",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('hikma farmaceutica s a', 'hikma') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%droperidol%' ORDER BY initiation_date",
-   "ms": 186,
+  "Q-e0c43a": {
+   "id": "Q-e0c43a",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('hikma farmaceutica s a', 'hikma') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*droperidol(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 143,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:42:42.016Z",
+   "ranAt": "2026-10-22T11:54:16.422Z",
    "rows": 0
   },
   "Q-70a8ec": {
    "id": "Q-70a8ec",
    "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('876911') ORDER BY inspection_id, cfr",
-   "ms": 249,
+   "ms": 167,
    "mode": "live",
    "sources": [
     "fda.citations"
    ],
-   "ranAt": "2026-10-22T07:42:42.267Z",
+   "ranAt": "2026-10-22T11:54:16.590Z",
    "rows": 6
   },
   "Q-ef7a6c": {
    "id": "Q-ef7a6c",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('00143951425')",
-   "ms": 1029,
+   "ms": 685,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:42:43.298Z",
+   "ranAt": "2026-10-22T11:54:17.277Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-0e5f69": {
-   "id": "Q-0e5f69",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%droperidol%'",
-   "ms": 1069,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:42:44.370Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-0a5d67": {
+   "id": "Q-0a5d67",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*droperidol(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1493,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:54:18.772Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 15,
-  "zetarisMs": 14733,
+  "zetarisMs": 19081,
   "modelCalls": 1,
-  "tokensIn": 1486,
-  "tokensOut": 404,
+  "tokensIn": 1771,
+  "tokensOut": 439,
   "mode": "live"
  },
  "slug": "droperidol",
@@ -1019,7 +1136,7 @@
     "id": "hospital-item:hospital-item:CG-204",
     "type": "HospitalItem",
     "key": "hospital-item:CG-204",
-    "label": "Corvale General: DROPERIDOL",
+    "label": "Corvale General: DROPERIDOL 2.5 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-204"
     },
@@ -1103,7 +1220,7 @@
     },
     "facts": [
      {
-      "id": "fact_859f6ffb62aeefa8",
+      "id": "fact_6b769c29cbd3f8d3",
       "about": "inspection:fda-inspection:1125050",
       "predicate": "classification",
       "value": "VAI",
@@ -1111,9 +1228,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:42:42.269Z"
+       "at": "2026-10-22T11:54:16.591Z"
       },
-      "assertedAt": "2026-10-22T07:42:42.269Z"
+      "assertedAt": "2026-10-22T11:54:16.591Z"
      }
     ],
     "depth": 4
@@ -1129,7 +1246,7 @@
     },
     "facts": [
      {
-      "id": "fact_b81c82b119036016",
+      "id": "fact_e6bf5a5ada6f85d1",
       "about": "inspection:fda-inspection:1203129",
       "predicate": "classification",
       "value": "VAI",
@@ -1137,9 +1254,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:42:42.269Z"
+       "at": "2026-10-22T11:54:16.592Z"
       },
-      "assertedAt": "2026-10-22T07:42:42.269Z"
+      "assertedAt": "2026-10-22T11:54:16.592Z"
      }
     ],
     "depth": 4
@@ -1155,7 +1272,7 @@
     },
     "facts": [
      {
-      "id": "fact_ffdcdae08424c3d4",
+      "id": "fact_90cc65315815b2c5",
       "about": "inspection:fda-inspection:1254066",
       "predicate": "classification",
       "value": "VAI",
@@ -1163,9 +1280,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:42:42.269Z"
+       "at": "2026-10-22T11:54:16.592Z"
       },
-      "assertedAt": "2026-10-22T07:42:42.269Z"
+      "assertedAt": "2026-10-22T11:54:16.592Z"
      }
     ],
     "depth": 4
@@ -1181,7 +1298,7 @@
     },
     "facts": [
      {
-      "id": "fact_af0e4387107aba65",
+      "id": "fact_ee1f0409b86bbe0d",
       "about": "inspection:fda-inspection:749882",
       "predicate": "classification",
       "value": "VAI",
@@ -1189,9 +1306,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:42:42.269Z"
+       "at": "2026-10-22T11:54:16.591Z"
       },
-      "assertedAt": "2026-10-22T07:42:42.269Z"
+      "assertedAt": "2026-10-22T11:54:16.591Z"
      }
     ],
     "depth": 4
@@ -1207,7 +1324,7 @@
     },
     "facts": [
      {
-      "id": "fact_2701a83557123933",
+      "id": "fact_dff5034ebfef3c96",
       "about": "inspection:fda-inspection:876911",
       "predicate": "classification",
       "value": "OAI",
@@ -1215,9 +1332,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:42:42.269Z"
+       "at": "2026-10-22T11:54:16.591Z"
       },
-      "assertedAt": "2026-10-22T07:42:42.269Z"
+      "assertedAt": "2026-10-22T11:54:16.591Z"
      }
     ],
     "depth": 4
@@ -1233,7 +1350,7 @@
     },
     "facts": [
      {
-      "id": "fact_b9bae7b946ef0167",
+      "id": "fact_77cb163ce1cd5ce0",
       "about": "inspection:fda-inspection:940389",
       "predicate": "classification",
       "value": "VAI",
@@ -1241,9 +1358,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:42:42.269Z"
+       "at": "2026-10-22T11:54:16.591Z"
       },
-      "assertedAt": "2026-10-22T07:42:42.269Z"
+      "assertedAt": "2026-10-22T11:54:16.591Z"
      }
     ],
     "depth": 4
@@ -1259,7 +1376,7 @@
     },
     "facts": [
      {
-      "id": "fact_e3457e457b7b29eb",
+      "id": "fact_5723d0eb2714ca7e",
       "about": "inspection:fda-inspection:970483",
       "predicate": "classification",
       "value": "VAI",
@@ -1267,9 +1384,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:42:42.269Z"
+       "at": "2026-10-22T11:54:16.591Z"
       },
-      "assertedAt": "2026-10-22T07:42:42.269Z"
+      "assertedAt": "2026-10-22T11:54:16.591Z"
      }
     ],
     "depth": 4
@@ -1292,11 +1409,11 @@
     "from": "hospital-item:hospital-item:CG-204",
     "to": "package:ndc-package:0143-9514-25",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:42:38.006Z",
+    "validFrom": "2026-10-22T11:54:13.793Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:42:38.006Z"
+     "at": "2026-10-22T11:54:13.793Z"
     }
    },
    {
@@ -1304,11 +1421,11 @@
     "from": "hospital-item:hospital-item:EA-E-000034",
     "to": "package:ndc-package:0143-9514-25",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:42:38.006Z",
+    "validFrom": "2026-10-22T11:54:13.793Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:42:38.006Z"
+     "at": "2026-10-22T11:54:13.793Z"
     }
    },
    {
@@ -1316,11 +1433,11 @@
     "from": "package:ndc-package:0143-9514-25",
     "to": "product:ndc-product:0143-9514",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:42:38.006Z",
+    "validFrom": "2026-10-22T11:54:13.793Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:42:38.006Z"
+     "at": "2026-10-22T11:54:13.793Z"
     }
    },
    {
@@ -1328,11 +1445,11 @@
     "from": "product:ndc-product:0143-9514",
     "to": "drug:generic:droperidol",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:42:38.006Z",
+    "validFrom": "2026-10-22T11:54:13.793Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:42:38.006Z"
+     "at": "2026-10-22T11:54:13.793Z"
     }
    },
    {
@@ -1340,11 +1457,11 @@
     "from": "product:ndc-product:0143-9514",
     "to": "labeler:ndc-labeler:0143",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:42:38.006Z",
+    "validFrom": "2026-10-22T11:54:13.793Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:42:38.006Z"
+     "at": "2026-10-22T11:54:13.793Z"
     }
    },
    {
@@ -1352,11 +1469,11 @@
     "from": "product:ndc-product:0143-9514",
     "to": "site:fei:3002807173",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:42:42.269Z",
+    "validFrom": "2026-10-22T11:54:16.591Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:42:42.269Z"
+     "at": "2026-10-22T11:54:16.591Z"
     }
    },
    {
@@ -1364,11 +1481,11 @@
     "from": "inspection:fda-inspection:749882",
     "to": "site:fei:3002807173",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:42:42.269Z",
+    "validFrom": "2026-10-22T11:54:16.591Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:42:42.269Z"
+     "at": "2026-10-22T11:54:16.591Z"
     }
    },
    {
@@ -1376,11 +1493,11 @@
     "from": "inspection:fda-inspection:876911",
     "to": "site:fei:3002807173",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:42:42.269Z",
+    "validFrom": "2026-10-22T11:54:16.591Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:42:42.269Z"
+     "at": "2026-10-22T11:54:16.591Z"
     }
    },
    {
@@ -1388,11 +1505,11 @@
     "from": "inspection:fda-inspection:940389",
     "to": "site:fei:3002807173",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:42:42.269Z",
+    "validFrom": "2026-10-22T11:54:16.591Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:42:42.269Z"
+     "at": "2026-10-22T11:54:16.591Z"
     }
    },
    {
@@ -1400,11 +1517,11 @@
     "from": "inspection:fda-inspection:970483",
     "to": "site:fei:3002807173",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:42:42.269Z",
+    "validFrom": "2026-10-22T11:54:16.591Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:42:42.269Z"
+     "at": "2026-10-22T11:54:16.591Z"
     }
    },
    {
@@ -1412,11 +1529,11 @@
     "from": "inspection:fda-inspection:1125050",
     "to": "site:fei:3002807173",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:42:42.269Z",
+    "validFrom": "2026-10-22T11:54:16.591Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:42:42.269Z"
+     "at": "2026-10-22T11:54:16.591Z"
     }
    },
    {
@@ -1424,11 +1541,11 @@
     "from": "inspection:fda-inspection:1254066",
     "to": "site:fei:3002807173",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:42:42.269Z",
+    "validFrom": "2026-10-22T11:54:16.591Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:42:42.269Z"
+     "at": "2026-10-22T11:54:16.591Z"
     }
    },
    {
@@ -1436,11 +1553,11 @@
     "from": "inspection:fda-inspection:1203129",
     "to": "site:fei:3002807173",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:42:42.269Z",
+    "validFrom": "2026-10-22T11:54:16.592Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:42:42.269Z"
+     "at": "2026-10-22T11:54:16.592Z"
     }
    },
    {
@@ -1448,11 +1565,11 @@
     "from": "warning-letter:fda-warning-letter:433220",
     "to": "site:fei:3002807173",
     "type": "issued-to",
-    "validFrom": "2026-10-22T07:42:42.269Z",
+    "validFrom": "2026-10-22T11:54:16.591Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:42:42.269Z"
+     "at": "2026-10-22T11:54:16.591Z"
     }
    }
   ],

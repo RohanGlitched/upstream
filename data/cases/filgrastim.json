@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-8d1aea",
+ "id": "case-2026-10-22-3e0116",
  "question": "Why is filgrastim short, and what do we do?",
- "askedAt": "2026-10-22T07:45:55.455Z",
+ "askedAt": "2026-10-22T11:59:02.169Z",
  "asOf": "2026-10-21",
- "molecule": "pegfilgrastim",
+ "molecule": "filgrastim",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H95FDC9NQHJY6DCSA4MCPN",
+  "contractId": "01M5HQMEXQ48XSMTXFBNG6BXC1",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-09863b"
+    "Q-2226ab"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2740,
-   "rows": 4,
-   "finding": "4 stock lines across 2 hospitals.",
+   "ms": 13399,
+   "rows": 1,
+   "finding": "1 stock lines across 1 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -31,14 +35,15 @@
    "title": "Where our supply is made",
    "purpose": "Follow each product's label to the plants it names, and place each plant in FDA's registration file.",
    "queryIds": [
-    "Q-ba0755"
+    "Q-7a269a"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 638,
-   "rows": 2,
-   "finding": "2 plant links on 2 labels; 2 placed in FDA's registration file.",
+   "ms": 1826,
+   "rows": 1,
+   "finding": "1 plant links on 1 labels; 1 placed in FDA's registration file.",
    "status": "ok"
   },
   {
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-106bfc",
-    "Q-53f885"
+    "Q-27298f",
+    "Q-1363f1"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 338,
+   "ms": 726,
    "rows": 0,
    "finding": "Not on FDA's current shortage list.",
    "status": "empty"
@@ -63,14 +68,16 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-c97114"
+    "Q-5f68d0"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2086,
-   "rows": 12,
-   "finding": "8 labelers make it in this form.",
+   "ms": 3675,
+   "rows": 52,
+   "finding": "7 labelers make it in this form.",
    "status": "ok"
   },
   {
@@ -78,20 +85,20 @@
    "title": "What FDA found at those plants",
    "purpose": "Read every FDA drug inspection, warning letter, import alert and recall for these plants.",
    "queryIds": [
-    "Q-d3dc8c",
-    "Q-9ed812",
+    "Q-e5e88b",
+    "Q-a0fe0d",
     "Q-6a15d0",
-    "Q-6f2c8c"
+    "Q-611918"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 857,
-   "rows": 3,
-   "finding": "3 inspections (1 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
+   "ms": 2210,
+   "rows": 24,
+   "finding": "23 inspections (1 OAI at our plants), 1 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
   },
   {
@@ -104,7 +111,7 @@
    "sources": [
     "fda.citations"
    ],
-   "ms": 202,
+   "ms": 422,
    "rows": 0,
    "finding": "0 Form 483 observations recorded.",
    "status": "empty"
@@ -114,14 +121,14 @@
    "title": "What our P&T committee already approved",
    "purpose": "Read Corvale General's approved interchanges for these items.",
    "queryIds": [
-    "Q-ce2b36"
+    "Q-c660c3"
    ],
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1108,
+   "ms": 1034,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -129,19 +136,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-b31fc1"
+    "Q-5addb1"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1069,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1378,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -152,128 +163,56 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 1,
-   "rows": 2,
-   "finding": "2 past decisions recalled.",
+   "ms": 0,
+   "rows": 1,
+   "finding": "1 past decisions recalled.",
    "status": "ok"
   }
  ],
  "stock": [
   {
-   "hospital": "Corvale East",
-   "itemKey": "EA-E-000262",
-   "ndc11": "70121162701",
-   "description": "PEGFILGRASTIM 6MG/0.6ML 6ML SYR",
-   "labeler": "Amneal Pharmaceuticals LLC",
-   "onHand": 41,
-   "dailyUse": 2.805,
-   "days": 14.6,
-   "unit": "package",
-   "ndcMatch": "dashed 10-digit, converted",
-   "evidence": "E1"
-  },
-  {
    "hospital": "Corvale General",
    "itemKey": "CG-218",
    "ndc11": "70121157107",
-   "description": "Filgrastim",
+   "description": "Filgrastim 480 mcg/1.6mL",
    "labeler": "Amneal Pharmaceuticals LLC",
-   "onHand": 49.38,
+   "onHand": 49,
    "dailyUse": 2.873,
-   "days": 17.2,
+   "days": 17.1,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
-   "evidence": "E2"
-  },
+   "unitBasis": "units of use, whole units only",
+   "presentation": "filgrastim|480ug/1.6ml|injection|1.6ml|vial",
+   "presentationLabel": "480 ug/1.6 mL injection, 1.6 mL vial",
+   "evidence": "E1"
+  }
+ ],
+ "presentations": [
   {
-   "hospital": "Corvale General",
-   "itemKey": "CG-305",
-   "ndc11": "55513019001",
-   "description": "pegfilgrastim",
-   "labeler": "Amgen, Inc",
-   "onHand": 93.97,
-   "dailyUse": 2.814,
-   "days": 33.4,
-   "unit": "syringe",
-   "ndcMatch": "11-digit as recorded",
-   "evidence": "E3"
-  },
-  {
-   "hospital": "Corvale General",
-   "itemKey": "CG-306",
-   "ndc11": "70121162701",
-   "description": "pegfilgrastim",
-   "labeler": "Amneal Pharmaceuticals LLC",
-   "onHand": 64.09,
-   "dailyUse": 2.918,
-   "days": 22,
-   "unit": "syringe",
-   "ndcMatch": "11-digit as recorded",
-   "evidence": "E4"
+   "key": "filgrastim|480ug/1.6ml|injection|1.6ml|vial",
+   "label": "480 ug/1.6 mL injection, 1.6 mL vial",
+   "short": "480 ug/1.6 mL, 1.6 mL",
+   "unit": "vial",
+   "onHand": 49,
+   "dailyUse": 2.873,
+   "days": 17.1,
+   "hospitals": [
+    {
+     "hospital": "Corvale General",
+     "onHand": 49,
+     "dailyUse": 2.873,
+     "days": 17.1,
+     "lines": [
+      "CG-218"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
-  {
-   "ndc11": "70121162701",
-   "packageNdc": "70121-1627-1",
-   "labeler": "Amneal Pharmaceuticals LLC",
-   "generic": "pegfilgrastim",
-   "setId": "eeadd641-573d-47fe-897a-61006e5f9e03",
-   "plants": [
-    {
-     "key": "927408919",
-     "name": "Kashiv BioSciences, LLC",
-     "duns": "927408919",
-     "fei": "3011289655",
-     "country": "USA",
-     "address": "3440 S. Dearborn St, Suite 300, Chicago, Illinois (IL) 60616, United States (USA)",
-     "operations": "ANALYSIS;MANUFACTURE",
-     "linkSource": "spl_establishment",
-     "linkQuality": "registered plant",
-     "health": "clear",
-     "lastClassification": {
-      "classification": "VAI",
-      "endDate": "2024-06-14"
-     },
-     "signals": [
-      {
-       "kind": "inspection_vai",
-       "date": "2015-02-09",
-       "knownDate": "2015-05-10",
-       "knownBasis": "end_plus_90_estimate",
-       "fei": "3011289655",
-       "firm": "Kashiv BioSciences, LLC",
-       "text": "FDA inspection 914031 ended 2015-02-09, classified VAI",
-       "evidence": "E5"
-      },
-      {
-       "kind": "inspection_oai",
-       "date": "2018-01-26",
-       "knownDate": "2018-02-16",
-       "knownBasis": "fmd145_letter",
-       "fei": "3011289655",
-       "firm": "Kashiv BioSciences, LLC",
-       "text": "FDA inspection 1038740 ended 2018-01-26, classified OAI; classification letter 2018-02-16",
-       "evidence": "E6"
-      },
-      {
-       "kind": "inspection_vai",
-       "date": "2024-06-14",
-       "knownDate": "2024-08-16",
-       "knownBasis": "fmd145_letter",
-       "fei": "3011289655",
-       "firm": "Kashiv BioSciences, LLC",
-       "text": "FDA inspection 1241763 ended 2024-06-14, classified VAI; classification letter 2024-08-16",
-       "evidence": "E7"
-      }
-     ],
-     "evidence": [
-      "E8"
-     ]
-    }
-   ],
-   "evidence": "E1"
-  },
   {
    "ndc11": "70121157107",
    "packageNdc": "70121-1571-7",
@@ -305,7 +244,7 @@
        "fei": "3011289655",
        "firm": "Kashiv BioSciences, LLC",
        "text": "FDA inspection 914031 ended 2015-02-09, classified VAI",
-       "evidence": "E5"
+       "evidence": "E2"
       },
       {
        "kind": "inspection_oai",
@@ -315,7 +254,7 @@
        "fei": "3011289655",
        "firm": "Kashiv BioSciences, LLC",
        "text": "FDA inspection 1038740 ended 2018-01-26, classified OAI; classification letter 2018-02-16",
-       "evidence": "E6"
+       "evidence": "E3"
       },
       {
        "kind": "inspection_vai",
@@ -325,24 +264,15 @@
        "fei": "3011289655",
        "firm": "Kashiv BioSciences, LLC",
        "text": "FDA inspection 1241763 ended 2024-06-14, classified VAI; classification letter 2024-08-16",
-       "evidence": "E7"
+       "evidence": "E4"
       }
      ],
      "evidence": [
-      "E8"
+      "E5"
      ]
     }
    ],
-   "evidence": "E2"
-  },
-  {
-   "ndc11": "55513019001",
-   "packageNdc": "55513-190-01",
-   "labeler": "Amgen, Inc",
-   "generic": "pegfilgrastim",
-   "setId": null,
-   "plants": [],
-   "evidence": "E3"
+   "evidence": "E1"
   }
  ],
  "shortage": {
@@ -355,8 +285,8 @@
  },
  "market": [
   {
-   "labeler": "Accord BioPharma, Inc.",
-   "ndc11": "69448002563",
+   "labeler": "Accord BioPharma Inc.,",
+   "ndc11": "69448000803",
    "dosageForm": "INJECTION, SOLUTION",
    "plants": [],
    "onShortageList": false,
@@ -364,16 +294,16 @@
   },
   {
    "labeler": "Amgen, Inc",
-   "ndc11": "55513019001",
-   "dosageForm": "INJECTION",
+   "ndc11": "55513020910",
+   "dosageForm": "INJECTION, SOLUTION",
    "plants": [],
    "onShortageList": false,
-   "inOurStock": true
+   "inOurStock": false
   },
   {
    "labeler": "Amneal Pharmaceuticals LLC",
-   "ndc11": "70121162701",
-   "dosageForm": "INJECTION",
+   "ndc11": "70121156801",
+   "dosageForm": "INJECTION, SOLUTION",
    "plants": [
     {
      "name": "Kashiv BioSciences, LLC",
@@ -387,24 +317,8 @@
    "inOurStock": true
   },
   {
-   "labeler": "Biocon Biologics Inc.",
-   "ndc11": "83257000541",
-   "dosageForm": "INJECTION",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
-   "labeler": "Coherus Oncology, Inc.",
-   "ndc11": "70114010101",
-   "dosageForm": "INJECTION, SOLUTION",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
-   "labeler": "Lupin Pharmaceuticals, Inc.",
-   "ndc11": "70748027301",
+   "labeler": "Cipla USA Inc.",
+   "ndc11": "69097042967",
    "dosageForm": "INJECTION",
    "plants": [],
    "onShortageList": false,
@@ -412,17 +326,56 @@
   },
   {
    "labeler": "Pfizer Laboratories Div Pfizer Inc",
-   "ndc11": "00069032401",
+   "ndc11": "00069029101",
    "dosageForm": "INJECTION, SOLUTION",
-   "plants": [],
+   "plants": [
+    {
+     "name": "Hospira Zagreb d.o.o.",
+     "fei": "3010630287",
+     "country": "HRV",
+     "health": "clear",
+     "last": "VAI 2024-07-23"
+    },
+    {
+     "name": "Hospira, Inc.",
+     "fei": "1925262",
+     "country": "USA",
+     "health": "watch",
+     "last": "VAI 2025-01-17"
+    }
+   ],
    "onShortageList": false,
    "inOurStock": false
   },
   {
-   "labeler": "Sandoz Inc",
-   "ndc11": "61314086602",
+   "labeler": "Sandoz Inc.",
+   "ndc11": "61314031801",
+   "dosageForm": "INJECTION, SOLUTION",
+   "plants": [
+    {
+     "name": "Sandoz Inc.",
+     "fei": null,
+     "country": null,
+     "health": "unknown",
+     "last": null
+    }
+   ],
+   "onShortageList": false,
+   "inOurStock": false
+  },
+  {
+   "labeler": "Tanvex BioPharma USA, Inc.",
+   "ndc11": "72374010101",
    "dosageForm": "INJECTION",
-   "plants": [],
+   "plants": [
+    {
+     "name": "Tanvex BioPharma USA",
+     "fei": null,
+     "country": null,
+     "health": "unknown",
+     "last": null
+    }
+   ],
    "onShortageList": false,
    "inOurStock": false
   }
@@ -430,8 +383,26 @@
  "options": [
   {
    "kind": "alternate_manufacturer",
+   "rank": 2,
+   "title": "Buy from Sandoz Inc.",
+   "detail": "Not on FDA's shortage list today. Plants: Sandoz Inc..",
+   "why": "Same product, no clinical change, plant record clear.",
+   "needs": "buyer",
+   "evidence": []
+  },
+  {
+   "kind": "alternate_manufacturer",
+   "rank": 2,
+   "title": "Buy from Tanvex BioPharma USA, Inc.",
+   "detail": "Not on FDA's shortage list today. Plants: Tanvex BioPharma USA.",
+   "why": "Same product, no clinical change, plant record clear.",
+   "needs": "buyer",
+   "evidence": []
+  },
+  {
+   "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Accord BioPharma, Inc.",
+   "title": "Buy from Accord BioPharma Inc.,",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -440,7 +411,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Biocon Biologics Inc.",
+   "title": "Buy from Amgen, Inc",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -449,16 +420,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Coherus Oncology, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Lupin Pharmaceuticals, Inc.",
+   "title": "Buy from Cipla USA Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -468,16 +430,7 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Pfizer Laboratories Div Pfizer Inc",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Sandoz Inc",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
+   "detail": "Not on FDA's shortage list today. Plants: Hospira Zagreb d.o.o. (last inspection VAI 2024-07-23); Hospira, Inc. (last inspection VAI 2025-01-17).",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
    "evidence": []
@@ -489,21 +442,21 @@
    "kind": "inspection_vai",
    "label": "FDA inspection 914031 ended 2015-02-09, classified VAI",
    "daysBeforePosting": null,
-   "evidence": "E5"
+   "evidence": "E2"
   },
   {
    "date": "2018-01-26",
    "kind": "inspection_oai",
    "label": "FDA inspection 1038740 ended 2018-01-26, classified OAI; classification letter 2018-02-16",
    "daysBeforePosting": null,
-   "evidence": "E6"
+   "evidence": "E3"
   },
   {
    "date": "2024-06-14",
    "kind": "inspection_vai",
    "label": "FDA inspection 1241763 ended 2024-06-14, classified VAI; classification letter 2024-08-16",
    "daysBeforePosting": null,
-   "evidence": "E7"
+   "evidence": "E4"
   },
   {
    "date": "2026-10-21",
@@ -514,53 +467,51 @@
   }
  ],
  "explanation": {
-  "state": "confirmed",
-  "headline": "FDA's records trace this shortage to a plant on our own labels",
+  "state": "check",
+  "headline": "Filgrastim is not on FDA's shortage list as of 2026-10-21; Corvale General holds 17.1 days on hand and the rule recommends buying from Sandoz Inc.",
   "sentences": [
    {
-    "text": "The pegfilgrastim product on our label is manufactured by Kashiv BioSciences, LLC (FEI 3011289655).",
+    "text": "FDA's drug shortage list does not include filgrastim as of 2026-10-21.",
     "cites": [
-     "E8"
-    ]
-   },
-   {
-    "text": "FDA inspection 1038740 of that plant ended on 2018-01-26 and was classified Official Action Indicated (OAI).",
-    "cites": [
-     "E6"
-    ]
-   },
-   {
-    "text": "That OAI classification became known to FDA on 2018-02-16 per an FMD-145 letter.",
-    "cites": [
-     "E6"
-    ]
-   },
-   {
-    "text": "The most recent inspection (1241763) ended on 2024-06-14 and was classified Voluntary Action Indicated (VAI).",
-    "cites": [
-     "E7"
-    ]
-   },
-   {
-    "text": "Corvale East has 15 days of supply on hand at current use, and Corvale General has 24 days.",
-    "cites": [
-     "D1",
      "D2"
+    ]
+   },
+   {
+    "text": "Corvale General currently holds 49 vials of filgrastim 480 ug/1.6 mL, providing 17.1 days of supply at a daily use of 2.9 vials.",
+    "cites": [
+     "D1"
+    ]
+   },
+   {
+    "text": "The rule-based recommendation ranks buying from Sandoz Inc. as the top alternate manufacturer option.",
+    "cites": [
+     "D3"
+    ]
+   },
+   {
+    "text": "A label for an Amneal product identifies Kashiv BioSciences, LLC as the manufacturing plant (FEI 3011289655) with operations including manufacture.",
+    "cites": [
+     "E5"
+    ]
+   },
+   {
+    "text": "FDA inspection records for Kashiv BioSciences show a VAI classification on 2024-06-14 (known 2024-08-16) and a prior OAI classification on 2018-01-26 (known 2018-02-16).",
+    "cites": [
+     "E4",
+     "E3"
+    ]
+   },
+   {
+    "text": "No FDA shortage posting exists for filgrastim, so the buyer should verify current contract terms with Sandoz Inc. and monitor FDA communications for any future listing.",
+    "cites": [
+     "D2",
+     "D3"
     ]
    }
   ],
   "verifier": {
    "checked": 7,
-   "rejected": [
-    {
-     "text": "The rule-selected alternative is Accord BioPharma, Inc., which is not on FDA's shortage list today and its label names no plant we could place.",
-     "reason": "cites unknown evidence E9"
-    },
-    {
-     "text": "FDA's records trace our supply to a plant classified OAI 3140 days before the posting",
-     "reason": "headline: cites unknown evidence D3"
-    }
-   ],
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -568,240 +519,190 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
-  {
-   "id": "mem-1",
-   "text": "Decision on carboplatin: restrict carboplatin to curative-intent regimens while on allocation; oncology reviews each palliative order. Rationale: Two suppliers on allocation and under 10 days on hand at Corvale General (demo history). Approved by Jordan Hale, PharmD.",
-   "approvedBy": "Jordan Hale, PharmD",
-   "when": "2023-05-16",
-   "score": 0.264
-  },
   {
    "id": "mem-4",
    "text": "Decision on lidocaine: switch lidocaine 1% 30 mL vials to 5 mL vials in the ED to reduce waste during the shortage. Rationale: Single-dose waste was a third of use (demo history). Approved by Alex Morgan, PharmD.",
    "approvedBy": "Alex Morgan, PharmD",
    "when": "2025-11-20",
-   "score": 0.262
+   "score": 0.258
   }
  ],
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:45:46.412Z",
+   "at": "2026-10-22T11:58:37.496Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract CSA4MCPN scope"
+   "reason": "in contract BNG6BXC1 scope"
   },
   {
-   "at": "2026-10-22T07:45:46.413Z",
+   "at": "2026-10-22T11:58:37.496Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract CSA4MCPN scope"
+   "reason": "in contract BNG6BXC1 scope"
   },
   {
-   "at": "2026-10-22T07:45:49.153Z",
+   "at": "2026-10-22T11:58:50.896Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract CSA4MCPN scope"
+   "reason": "in contract BNG6BXC1 scope"
   },
   {
-   "at": "2026-10-22T07:45:49.791Z",
+   "at": "2026-10-22T11:58:52.722Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract CSA4MCPN scope"
+   "reason": "in contract BNG6BXC1 scope"
   },
   {
-   "at": "2026-10-22T07:45:50.129Z",
+   "at": "2026-10-22T11:58:53.449Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract CSA4MCPN scope"
+   "reason": "in contract BNG6BXC1 scope"
   },
   {
-   "at": "2026-10-22T07:45:52.216Z",
+   "at": "2026-10-22T11:58:57.123Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract CSA4MCPN scope"
+   "reason": "in contract BNG6BXC1 scope"
   },
   {
-   "at": "2026-10-22T07:45:53.073Z",
+   "at": "2026-10-22T11:58:59.333Z",
    "action": "What FDA wrote at the OAI inspections",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract CSA4MCPN scope"
+   "reason": "in contract BNG6BXC1 scope"
   },
   {
-   "at": "2026-10-22T07:45:53.277Z",
+   "at": "2026-10-22T11:58:59.756Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract CSA4MCPN scope"
+   "reason": "in contract BNG6BXC1 scope"
   },
   {
-   "at": "2026-10-22T07:45:54.385Z",
+   "at": "2026-10-22T11:59:00.791Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract CSA4MCPN scope"
+   "reason": "in contract BNG6BXC1 scope"
   },
   {
-   "at": "2026-10-22T07:45:55.453Z",
+   "at": "2026-10-22T11:59:02.169Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract CSA4MCPN scope"
+   "reason": "in contract BNG6BXC1 scope"
   },
   {
-   "at": "2026-10-22T07:45:55.455Z",
+   "at": "2026-10-22T11:59:02.169Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract CSA4MCPN scope"
+   "reason": "in contract BNG6BXC1 scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-09863b",
+   "queryId": "Q-2226ab",
    "row": 0,
-   "label": "Corvale East: PEGFILGRASTIM 6MG/0.6ML 6ML SYR",
-   "fields": {
-    "hospital": "Corvale East",
-    "item_key": "EA-E-000262",
-    "ndc11": "70121162701",
-    "ndc_as_recorded": "70121-1627-1",
-    "description": "PEGFILGRASTIM 6MG/0.6ML 6ML SYR",
-    "on_hand": "41.00",
-    "daily_use": "2.805",
-    "unit": "package",
-    "ndc_match": "dashed 10-digit, converted",
-    "generic_name": "pegfilgrastim",
-    "labeler_name": "Amneal Pharmaceuticals LLC",
-    "package_ndc": "70121-1627-1",
-    "spl_set_id": "eeadd641-573d-47fe-897a-61006e5f9e03",
-    "dosage_form": "INJECTION",
-    "route": "SUBCUTANEOUS"
-   }
-  },
-  "E2": {
-   "id": "E2",
-   "queryId": "Q-09863b",
-   "row": 1,
-   "label": "Corvale General: Filgrastim",
+   "label": "Corvale General: Filgrastim 480 mcg/1.6mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-218",
     "ndc11": "70121157107",
     "ndc_as_recorded": "70121157107",
-    "description": "Filgrastim",
-    "on_hand": "49.38",
+    "description": "Filgrastim 480 mcg/1.6mL",
+    "on_hand": "49.00",
     "daily_use": "2.873",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Filgrastim",
     "labeler_name": "Amneal Pharmaceuticals LLC",
     "package_ndc": "70121-1571-7",
     "spl_set_id": "74e1ec6e-1630-4654-895c-2bd355f939e7",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS|SUBCUTANEOUS"
+    "route": "INTRAVENOUS|SUBCUTANEOUS",
+    "strength": "FILGRASTIM 480 ug/1.6mL",
+    "unit_content": "1.6 mL",
+    "pkg_unit": "vial"
    }
   },
-  "E3": {
-   "id": "E3",
-   "queryId": "Q-09863b",
-   "row": 2,
-   "label": "Corvale General: pegfilgrastim",
-   "fields": {
-    "hospital": "Corvale General",
-    "item_key": "CG-305",
-    "ndc11": "55513019001",
-    "ndc_as_recorded": "55513019001",
-    "description": "pegfilgrastim",
-    "on_hand": "93.97",
-    "daily_use": "2.814",
-    "unit": "syringe",
-    "ndc_match": "11-digit as recorded",
-    "generic_name": "pegfilgrastim",
-    "labeler_name": "Amgen, Inc",
-    "package_ndc": "55513-190-01",
-    "spl_set_id": null,
-    "dosage_form": "INJECTION",
-    "route": "SUBCUTANEOUS"
-   }
-  },
-  "E4": {
-   "id": "E4",
-   "queryId": "Q-09863b",
-   "row": 3,
-   "label": "Corvale General: pegfilgrastim",
-   "fields": {
-    "hospital": "Corvale General",
-    "item_key": "CG-306",
-    "ndc11": "70121162701",
-    "ndc_as_recorded": "70121162701",
-    "description": "pegfilgrastim",
-    "on_hand": "64.09",
-    "daily_use": "2.918",
-    "unit": "syringe",
-    "ndc_match": "11-digit as recorded",
-    "generic_name": "pegfilgrastim",
-    "labeler_name": "Amneal Pharmaceuticals LLC",
-    "package_ndc": "70121-1627-1",
-    "spl_set_id": "eeadd641-573d-47fe-897a-61006e5f9e03",
-    "dosage_form": "INJECTION",
-    "route": "SUBCUTANEOUS"
-   }
-  },
-  "E5": {
-   "id": "E5",
-   "queryId": "Q-d3dc8c",
-   "row": 0,
+  "E2": {
+   "id": "E2",
+   "queryId": "Q-e5e88b",
+   "row": 20,
    "label": "FDA inspection 914031 (VAI)",
    "fields": {
     "inspection_id": "914031",
@@ -814,10 +715,10 @@
     "known_date_basis": "end_plus_90_estimate"
    }
   },
-  "E6": {
-   "id": "E6",
-   "queryId": "Q-d3dc8c",
-   "row": 1,
+  "E3": {
+   "id": "E3",
+   "queryId": "Q-e5e88b",
+   "row": 21,
    "label": "FDA inspection 1038740 (OAI)",
    "fields": {
     "inspection_id": "1038740",
@@ -830,10 +731,10 @@
     "known_date_basis": "fmd145_letter"
    }
   },
-  "E7": {
-   "id": "E7",
-   "queryId": "Q-d3dc8c",
-   "row": 2,
+  "E4": {
+   "id": "E4",
+   "queryId": "Q-e5e88b",
+   "row": 22,
    "label": "FDA inspection 1241763 (VAI)",
    "fields": {
     "inspection_id": "1241763",
@@ -846,11 +747,11 @@
     "known_date_basis": "fmd145_letter"
    }
   },
-  "E8": {
-   "id": "E8",
-   "queryId": "Q-ba0755",
-   "row": 1,
-   "label": "Label eeadd641 names Kashiv BioSciences, LLC",
+  "E5": {
+   "id": "E5",
+   "queryId": "Q-7a269a",
+   "row": 0,
+   "label": "Label 74e1ec6e names Kashiv BioSciences, LLC",
    "fields": {
     "product_labeler": "Amneal Pharmaceuticals LLC",
     "ndc11": "70121157107",
@@ -866,261 +767,262 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 41 units of pegfilgrastim at 2.8 a day: 15 days on hand",
+   "label": "Corvale General holds 49 vials of filgrastim 480 ug/1.6 mL, 1.6 mL at 2.9 a day: 17.1 days on hand",
    "fields": {
-    "hospital": "Corvale East",
-    "on_hand": 41,
-    "daily_use": 2.8,
-    "days_on_hand": 15
+    "hospital": "Corvale General",
+    "presentation": "480 ug/1.6 mL injection, 1.6 mL vial",
+    "on_hand": 49,
+    "daily_use": 2.9,
+    "days_on_hand": 17.1
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 207 units of pegfilgrastim at 8.6 a day: 24 days on hand",
+   "label": "filgrastim is not on FDA's drug shortage list as of 2026-10-21",
    "fields": {
-    "hospital": "Corvale General",
-    "on_hand": 207,
-    "daily_use": 8.6,
-    "days_on_hand": 24
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D3": {
+   "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from Sandoz Inc.. Not on FDA's shortage list today. Plants: Sandoz Inc..",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from Tanvex BioPharma USA, Inc.. Not on FDA's shortage list today. Plants: Tanvex BioPharma USA.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Accord BioPharma Inc.,. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-09863b": {
-   "id": "Q-09863b",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%filgrastim%' OR lower(s.description) LIKE '%filgrastim%' ORDER BY s.hospital, s.item_key",
-   "ms": 2738,
+  "Q-2226ab": {
+   "id": "Q-2226ab",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*filgrastim(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*filgrastim(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 13399,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:45:49.151Z",
-   "rows": 4
+   "ranAt": "2026-10-22T11:58:50.894Z",
+   "rows": 1
   },
-  "Q-ba0755": {
-   "id": "Q-ba0755",
-   "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('eeadd641-573d-47fe-897a-61006e5f9e03', '74e1ec6e-1630-4654-895c-2bd355f939e7') ORDER BY ps.set_id, ps.establishment",
-   "ms": 636,
+  "Q-7a269a": {
+   "id": "Q-7a269a",
+   "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('74e1ec6e-1630-4654-895c-2bd355f939e7') ORDER BY ps.set_id, ps.establishment",
+   "ms": 1824,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:45:49.789Z",
-   "rows": 2
+   "ranAt": "2026-10-22T11:58:52.720Z",
+   "rows": 1
   },
-  "Q-106bfc": {
-   "id": "Q-106bfc",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%pegfilgrastim%' ORDER BY status, company_name, package_ndc",
-   "ms": 148,
+  "Q-27298f": {
+   "id": "Q-27298f",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*filgrastim(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 296,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:45:49.938Z",
+   "ranAt": "2026-10-22T11:58:53.018Z",
    "rows": 0
   },
-  "Q-53f885": {
-   "id": "Q-53f885",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%pegfilgrastim%' ORDER BY first_posting",
-   "ms": 187,
+  "Q-1363f1": {
+   "id": "Q-1363f1",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*filgrastim(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 428,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:45:50.127Z",
+   "ranAt": "2026-10-22T11:58:53.447Z",
    "rows": 0
   },
-  "Q-c97114": {
-   "id": "Q-c97114",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%pegfilgrastim%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2084,
+  "Q-5f68d0": {
+   "id": "Q-5f68d0",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*filgrastim(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 3672,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:45:52.213Z",
-   "rows": 12
+   "ranAt": "2026-10-22T11:58:57.121Z",
+   "rows": 52
   },
-  "Q-d3dc8c": {
-   "id": "Q-d3dc8c",
-   "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3011289655') ORDER BY fei, end_date",
-   "ms": 371,
+  "Q-e5e88b": {
+   "id": "Q-e5e88b",
+   "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3011289655', '3010630287', '1925262') ORDER BY fei, end_date",
+   "ms": 834,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:45:52.587Z",
-   "rows": 3
+   "ranAt": "2026-10-22T11:58:57.957Z",
+   "rows": 23
   },
-  "Q-9ed812": {
-   "id": "Q-9ed812",
-   "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3011289655') ORDER BY fei, action_date",
-   "ms": 152,
+  "Q-a0fe0d": {
+   "id": "Q-a0fe0d",
+   "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3011289655', '3010630287', '1925262') ORDER BY fei, action_date",
+   "ms": 569,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:45:52.741Z",
-   "rows": 0
+   "ranAt": "2026-10-22T11:58:58.529Z",
+   "rows": 1
   },
   "Q-6a15d0": {
    "id": "Q-6a15d0",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3011289655') OR (fei_match <> 'name_and_city' AND firm_key IN ('kashiv biosciences')) ORDER BY date_published",
-   "ms": 151,
+   "ms": 375,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:45:52.893Z",
+   "ranAt": "2026-10-22T11:58:58.905Z",
    "rows": 0
   },
-  "Q-6f2c8c": {
-   "id": "Q-6f2c8c",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('kashiv biosciences', 'amneal', 'amgen') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%pegfilgrastim%' ORDER BY initiation_date",
-   "ms": 176,
+  "Q-611918": {
+   "id": "Q-611918",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('kashiv biosciences', 'amneal') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*filgrastim(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 420,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:45:53.072Z",
+   "ranAt": "2026-10-22T11:58:59.327Z",
    "rows": 0
   },
   "Q-f7e847": {
    "id": "Q-f7e847",
    "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('1038740') ORDER BY inspection_id, cfr",
-   "ms": 201,
+   "ms": 420,
    "mode": "live",
    "sources": [
     "fda.citations"
    ],
-   "ranAt": "2026-10-22T07:45:53.274Z",
+   "ranAt": "2026-10-22T11:58:59.753Z",
    "rows": 0
   },
-  "Q-ce2b36": {
-   "id": "Q-ce2b36",
-   "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('70121162701', '70121157107', '55513019001')",
-   "ms": 1105,
+  "Q-c660c3": {
+   "id": "Q-c660c3",
+   "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('70121157107')",
+   "ms": 1032,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:45:54.382Z",
+   "ranAt": "2026-10-22T11:59:00.789Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-b31fc1": {
-   "id": "Q-b31fc1",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%pegfilgrastim%'",
-   "ms": 1067,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:45:55.452Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-5addb1": {
+   "id": "Q-5addb1",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*filgrastim(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1377,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:59:02.167Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 15,
-  "zetarisMs": 14387,
+  "zetarisMs": 34854,
   "modelCalls": 1,
-  "tokensIn": 895,
-  "tokensOut": 368,
+  "tokensIn": 1182,
+  "tokensOut": 440,
   "mode": "live"
  },
  "slug": "filgrastim",
  "graph": {
   "roots": [
-   "hospital-item:hospital-item:CG-218",
-   "hospital-item:hospital-item:CG-305",
-   "hospital-item:hospital-item:CG-306",
-   "hospital-item:hospital-item:EA-E-000262"
+   "hospital-item:hospital-item:CG-218"
   ],
   "nodes": [
    {
     "id": "hospital-item:hospital-item:CG-218",
     "type": "HospitalItem",
     "key": "hospital-item:CG-218",
-    "label": "Corvale General: Filgrastim",
+    "label": "Corvale General: Filgrastim 480 mcg/1.6mL",
     "attrs": {
      "key": "hospital-item:CG-218"
     },
     "facts": [],
     "depth": 0
-   },
-   {
-    "id": "hospital-item:hospital-item:CG-305",
-    "type": "HospitalItem",
-    "key": "hospital-item:CG-305",
-    "label": "Corvale General: pegfilgrastim",
-    "attrs": {
-     "key": "hospital-item:CG-305"
-    },
-    "facts": [],
-    "depth": 0
-   },
-   {
-    "id": "hospital-item:hospital-item:CG-306",
-    "type": "HospitalItem",
-    "key": "hospital-item:CG-306",
-    "label": "Corvale General: pegfilgrastim",
-    "attrs": {
-     "key": "hospital-item:CG-306"
-    },
-    "facts": [],
-    "depth": 0
-   },
-   {
-    "id": "hospital-item:hospital-item:EA-E-000262",
-    "type": "HospitalItem",
-    "key": "hospital-item:EA-E-000262",
-    "label": "Corvale East: PEGFILGRASTIM 6MG/0.6ML 6ML SYR",
-    "attrs": {
-     "key": "hospital-item:EA-E-000262"
-    },
-    "facts": [],
-    "depth": 0
-   },
-   {
-    "id": "package:ndc-package:55513-190-01",
-    "type": "Package",
-    "key": "ndc-package:55513-190-01",
-    "label": "ndc-package:55513-190-01",
-    "attrs": {
-     "key": "ndc-package:55513-190-01"
-    },
-    "facts": [],
-    "depth": 1
    },
    {
     "id": "package:ndc-package:70121-1571-7",
@@ -1134,28 +1036,6 @@
     "depth": 1
    },
    {
-    "id": "package:ndc-package:70121-1627-1",
-    "type": "Package",
-    "key": "ndc-package:70121-1627-1",
-    "label": "ndc-package:70121-1627-1",
-    "attrs": {
-     "key": "ndc-package:70121-1627-1"
-    },
-    "facts": [],
-    "depth": 1
-   },
-   {
-    "id": "product:ndc-product:55513-190",
-    "type": "Product",
-    "key": "ndc-product:55513-190",
-    "label": "pegfilgrastim",
-    "attrs": {
-     "key": "ndc-product:55513-190"
-    },
-    "facts": [],
-    "depth": 2
-   },
-   {
     "id": "product:ndc-product:70121-1571",
     "type": "Product",
     "key": "ndc-product:70121-1571",
@@ -1167,34 +1047,12 @@
     "depth": 2
    },
    {
-    "id": "product:ndc-product:70121-1627",
-    "type": "Product",
-    "key": "ndc-product:70121-1627",
-    "label": "pegfilgrastim",
-    "attrs": {
-     "key": "ndc-product:70121-1627"
-    },
-    "facts": [],
-    "depth": 2
-   },
-   {
-    "id": "drug:generic:pegfilgrastim",
+    "id": "drug:generic:filgrastim",
     "type": "Drug",
-    "key": "generic:pegfilgrastim",
-    "label": "pegfilgrastim",
+    "key": "generic:filgrastim",
+    "label": "filgrastim",
     "attrs": {
-     "key": "generic:pegfilgrastim"
-    },
-    "facts": [],
-    "depth": 3
-   },
-   {
-    "id": "labeler:ndc-labeler:55513",
-    "type": "Labeler",
-    "key": "ndc-labeler:55513",
-    "label": "Amgen, Inc",
-    "attrs": {
-     "key": "ndc-labeler:55513"
+     "key": "generic:filgrastim"
     },
     "facts": [],
     "depth": 3
@@ -1232,7 +1090,7 @@
     },
     "facts": [
      {
-      "id": "fact_384953aaf5526b70",
+      "id": "fact_5cf762f37c7c68a7",
       "about": "inspection:fda-inspection:1038740",
       "predicate": "classification",
       "value": "OAI",
@@ -1240,9 +1098,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:45:53.276Z"
+       "at": "2026-10-22T11:58:59.756Z"
       },
-      "assertedAt": "2026-10-22T07:45:53.276Z"
+      "assertedAt": "2026-10-22T11:58:59.756Z"
      }
     ],
     "depth": 4
@@ -1258,7 +1116,7 @@
     },
     "facts": [
      {
-      "id": "fact_23e81637d225f67a",
+      "id": "fact_671f94d31945a3f5",
       "about": "inspection:fda-inspection:1241763",
       "predicate": "classification",
       "value": "VAI",
@@ -1266,9 +1124,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:45:53.276Z"
+       "at": "2026-10-22T11:58:59.756Z"
       },
-      "assertedAt": "2026-10-22T07:45:53.276Z"
+      "assertedAt": "2026-10-22T11:58:59.756Z"
      }
     ],
     "depth": 4
@@ -1284,7 +1142,7 @@
     },
     "facts": [
      {
-      "id": "fact_832df6f136526150",
+      "id": "fact_f5cc927b3b651eeb",
       "about": "inspection:fda-inspection:914031",
       "predicate": "classification",
       "value": "VAI",
@@ -1292,9 +1150,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:45:53.276Z"
+       "at": "2026-10-22T11:58:59.756Z"
       },
-      "assertedAt": "2026-10-22T07:45:53.276Z"
+      "assertedAt": "2026-10-22T11:58:59.756Z"
      }
     ],
     "depth": 4
@@ -1306,47 +1164,11 @@
     "from": "hospital-item:hospital-item:CG-218",
     "to": "package:ndc-package:70121-1571-7",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:45:49.153Z",
+    "validFrom": "2026-10-22T11:58:50.896Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:45:49.153Z"
-    }
-   },
-   {
-    "id": "rel_c972ee0e8ff1eb80",
-    "from": "hospital-item:hospital-item:CG-305",
-    "to": "package:ndc-package:55513-190-01",
-    "type": "stocks",
-    "validFrom": "2026-10-22T07:45:49.153Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:45:49.153Z"
-    }
-   },
-   {
-    "id": "rel_1c510b7d086f9a75",
-    "from": "hospital-item:hospital-item:CG-306",
-    "to": "package:ndc-package:70121-1627-1",
-    "type": "stocks",
-    "validFrom": "2026-10-22T07:45:49.153Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:45:49.153Z"
-    }
-   },
-   {
-    "id": "rel_3dc15ab2d17ec5f8",
-    "from": "hospital-item:hospital-item:EA-E-000262",
-    "to": "package:ndc-package:70121-1627-1",
-    "type": "stocks",
-    "validFrom": "2026-10-22T07:45:49.152Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:45:49.152Z"
+     "at": "2026-10-22T11:58:50.896Z"
     }
    },
    {
@@ -1354,47 +1176,23 @@
     "from": "package:ndc-package:70121-1571-7",
     "to": "product:ndc-product:70121-1571",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:45:49.153Z",
+    "validFrom": "2026-10-22T11:58:50.896Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:45:49.153Z"
+     "at": "2026-10-22T11:58:50.896Z"
     }
    },
    {
-    "id": "rel_13fb83f62046ee02",
-    "from": "package:ndc-package:55513-190-01",
-    "to": "product:ndc-product:55513-190",
-    "type": "package-of",
-    "validFrom": "2026-10-22T07:45:49.153Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:45:49.153Z"
-    }
-   },
-   {
-    "id": "rel_d50f7bafdde2446c",
-    "from": "package:ndc-package:70121-1627-1",
-    "to": "product:ndc-product:70121-1627",
-    "type": "package-of",
-    "validFrom": "2026-10-22T07:45:49.152Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:45:49.152Z"
-    }
-   },
-   {
-    "id": "rel_19759273ad38a3fe",
+    "id": "rel_7d830f3b5a5d6331",
     "from": "product:ndc-product:70121-1571",
-    "to": "drug:generic:pegfilgrastim",
+    "to": "drug:generic:filgrastim",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:45:49.153Z",
+    "validFrom": "2026-10-22T11:58:50.896Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:45:49.153Z"
+     "at": "2026-10-22T11:58:50.896Z"
     }
    },
    {
@@ -1402,11 +1200,11 @@
     "from": "product:ndc-product:70121-1571",
     "to": "labeler:ndc-labeler:70121",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:45:49.153Z",
+    "validFrom": "2026-10-22T11:58:50.896Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:45:49.153Z"
+     "at": "2026-10-22T11:58:50.896Z"
     }
    },
    {
@@ -1414,71 +1212,11 @@
     "from": "product:ndc-product:70121-1571",
     "to": "site:fei:3011289655",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:45:53.276Z",
+    "validFrom": "2026-10-22T11:58:59.755Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:45:53.276Z"
-    }
-   },
-   {
-    "id": "rel_c9954d9aa6815107",
-    "from": "product:ndc-product:55513-190",
-    "to": "drug:generic:pegfilgrastim",
-    "type": "of-drug",
-    "validFrom": "2026-10-22T07:45:49.153Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:45:49.153Z"
-    }
-   },
-   {
-    "id": "rel_2520308d3b82a84a",
-    "from": "product:ndc-product:55513-190",
-    "to": "labeler:ndc-labeler:55513",
-    "type": "labeled-by",
-    "validFrom": "2026-10-22T07:45:49.153Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:45:49.153Z"
-    }
-   },
-   {
-    "id": "rel_a0e49a6c8e719e63",
-    "from": "product:ndc-product:70121-1627",
-    "to": "drug:generic:pegfilgrastim",
-    "type": "of-drug",
-    "validFrom": "2026-10-22T07:45:49.152Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:45:49.152Z"
-    }
-   },
-   {
-    "id": "rel_292efde11127b49b",
-    "from": "product:ndc-product:70121-1627",
-    "to": "labeler:ndc-labeler:70121",
-    "type": "labeled-by",
-    "validFrom": "2026-10-22T07:45:49.153Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:45:49.153Z"
-    }
-   },
-   {
-    "id": "rel_42afcdb1004b830b",
-    "from": "product:ndc-product:70121-1627",
-    "to": "site:fei:3011289655",
-    "type": "made-at",
-    "validFrom": "2026-10-22T07:45:53.276Z",
-    "source": {
-     "kind": "dailymed-spl",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:45:53.276Z"
+     "at": "2026-10-22T11:58:59.755Z"
     }
    },
    {
@@ -1486,11 +1224,11 @@
     "from": "inspection:fda-inspection:914031",
     "to": "site:fei:3011289655",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:45:53.276Z",
+    "validFrom": "2026-10-22T11:58:59.756Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:45:53.276Z"
+     "at": "2026-10-22T11:58:59.756Z"
     }
    },
    {
@@ -1498,11 +1236,11 @@
     "from": "inspection:fda-inspection:1038740",
     "to": "site:fei:3011289655",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:45:53.276Z",
+    "validFrom": "2026-10-22T11:58:59.756Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:45:53.276Z"
+     "at": "2026-10-22T11:58:59.756Z"
     }
    },
    {
@@ -1510,20 +1248,20 @@
     "from": "inspection:fda-inspection:1241763",
     "to": "site:fei:3011289655",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:45:53.276Z",
+    "validFrom": "2026-10-22T11:58:59.756Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:45:53.276Z"
+     "at": "2026-10-22T11:58:59.756Z"
     }
    }
   ],
   "counts": {
-   "HospitalItem": 4,
-   "Package": 3,
-   "Product": 3,
+   "HospitalItem": 1,
+   "Package": 1,
+   "Product": 1,
    "Drug": 1,
-   "Labeler": 2,
+   "Labeler": 1,
    "Site": 1,
    "Inspection": 3
   }

@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-9da936",
+ "id": "case-2026-10-22-2eb70a",
  "question": "Why is labetalol hydrochloride short, and what do we do?",
- "askedAt": "2026-10-22T07:55:37.608Z",
+ "askedAt": "2026-10-22T12:11:46.663Z",
  "asOf": "2026-10-21",
  "molecule": "labetalol hydrochloride",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H9Q7Y296ZJGHHB17VKZKV8",
+  "contractId": "01M5HRC45AKJSP02C3M4C06CVT",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-b53eef"
+    "Q-07cea5"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3025,
+   "ms": 5642,
    "rows": 2,
-   "finding": "2 stock lines across 2 hospitals.",
+   "finding": "2 stock lines across 2 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-18f169"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 766,
+   "ms": 857,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-8d78c6",
-    "Q-3e8737"
+    "Q-847e13",
+    "Q-4a279d"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 389,
+   "ms": 383,
    "rows": 1,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-05d3f2"
+    "Q-cf8b12"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1737,
+   "ms": 1649,
    "rows": 227,
    "finding": "31 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-504675",
     "Q-bcd8f5",
     "Q-f50d20",
-    "Q-7cb388"
+    "Q-8af392"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1106,
+   "ms": 1465,
    "rows": 10,
    "finding": "10 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1047,
+   "ms": 1375,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-afeefe"
+    "Q-c80f21"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 956,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 2382,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 1,
+   "ms": 0,
    "rows": 0,
    "finding": "No past decisions on this drug.",
    "status": "empty"
@@ -153,22 +164,65 @@
    "onHand": 301,
    "dailyUse": 11.436,
    "days": 26.3,
-   "unit": "package",
+   "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 500, converted to units",
+   "presentation": "labetalol hydrochloride|100mg|tablet||tablet",
+   "presentationLabel": "100 mg tablet",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-252",
    "ndc11": "23155072305",
-   "description": "Labetalol Hydrochloride",
+   "description": "Labetalol Hydrochloride 100 mg/1",
    "labeler": "Heritage Pharmaceuticals Inc. d/b/a Avet Pharmaceuticals Inc.",
-   "onHand": 297.07,
+   "onHand": 297,
    "dailyUse": 13.765,
    "days": 21.6,
    "unit": "tablet",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "labetalol hydrochloride|100mg|tablet||tablet",
+   "presentationLabel": "100 mg tablet",
    "evidence": "E2"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "labetalol hydrochloride|100mg|tablet||tablet",
+   "label": "100 mg tablet",
+   "short": "100 mg",
+   "unit": "tablet",
+   "onHand": 598,
+   "dailyUse": 25.201,
+   "days": 23.7,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 301,
+     "dailyUse": 11.436,
+     "days": 26.3,
+     "lines": [
+      "EA-E-000140"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 297,
+     "dailyUse": 13.765,
+     "days": 21.6,
+     "lines": [
+      "CG-252"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -534,25 +588,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from A-S Medication Solutions",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Advagen Pharma Ltd",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from American Health Packaging",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -588,25 +624,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Bryant Ranch Prepack",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Cadila Pharmaceuticals Limited",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Cardinal Health 107, LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -634,15 +652,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Epic Pharma, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Golden State Medical Supply, Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -706,42 +715,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from NorthStar Rx LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Northwind Health Company, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals , Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Proficient Rx LP",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from REMEDYREPACK INC.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -855,16 +828,34 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "Labetalol hydrochloride supply traces to a plant with multiple VAI inspections; not on FDA shortage list today",
+  "headline": "Labetalol hydrochloride is not on FDA's shortage list as of 2026-10-21; Corvale East has 26.3 days on hand and Corvale General has 21.6 days on hand",
   "sentences": [
    {
-    "text": "The product label identifies Heritage Pharma Labs Inc. d/b/a Avet Pharmaceuticals Labs Inc. (FEI 3005139373) as the manufacturing plant for labetalol hydrochloride NDC 23155072305.",
+    "text": "FDA's drug shortage list does not include labetalol hydrochloride as of 2026-10-21.",
+    "cites": [
+     "D3"
+    ]
+   },
+   {
+    "text": "Corvale East holds 301 tablets of the 100 mg presentation with 11.4 tablets used per day, providing 26.3 days on hand.",
+    "cites": [
+     "D1"
+    ]
+   },
+   {
+    "text": "Corvale General holds 297 tablets of the same presentation with 13.8 tablets used per day, providing 21.6 days on hand.",
+    "cites": [
+     "D2"
+    ]
+   },
+   {
+    "text": "The product label for NDC 23155072305 identifies Heritage Pharma Labs Inc. d/b/a Avet Pharmaceuticals Labs Inc. (FEI 3005139373) as the registered manufacturing plant.",
     "cites": [
      "E9"
     ]
    },
    {
-    "text": "FDA records show that plant received Voluntary Action Indicated (VAI) classifications after inspections ending 2009-07-14, 2013-11-21, 2014-01-08, 2015-04-16, 2017-04-20, and 2018-02-06.",
+    "text": "FDA inspection records for that plant show multiple Voluntary Action Indicated (VAI) classifications from 2009 through 2018, with the most recent inspection ending 2018-02-06 and a known date of 2018-05-07.",
     "cites": [
      "E3",
      "E4",
@@ -875,35 +866,23 @@
     ]
    },
    {
-    "text": "The most recent inspection on file ended 2018-02-06 with a VAI classification.",
+    "text": "The most recent inspection listed for the plant is a No Action Indicated (NAI) inspection dated 2023-09-19.",
     "cites": [
-     "E8"
+     "E9"
     ]
    },
    {
-    "text": "Corvale East has 301 units on hand at 11.4 units per day (26 days supply) and Corvale General has 297 units at 13.8 units per day (22 days supply).",
+    "text": "Buyer should verify current supply status with Advagen Pharma Ltd., Biocon Pharma Inc., and BluePoint Laboratories, which are ranked as alternate manufacturers but have no plant placement on their labels.",
     "cites": [
-     "D1",
-     "D2"
+     "D4",
+     "D5",
+     "D6"
     ]
    }
   ],
   "verifier": {
    "checked": 8,
-   "rejected": [
-    {
-     "text": "The drug is not listed on FDA's shortage list as of today.",
-     "reason": "cites nothing"
-    },
-    {
-     "text": "The recommended buy option is A-S Medication Solutions, though its label names no plant we could place.",
-     "reason": "cites nothing"
-    },
-    {
-     "text": "Verify current availability with A-S Medication Solutions and monitor FDA shortage listings for any future posting.",
-     "reason": "cites nothing"
-    }
-   ],
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -911,125 +890,146 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [],
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:55:28.578Z",
+   "at": "2026-10-22T12:11:32.906Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract 17VKZKV8 scope"
+   "reason": "in contract M4C06CVT scope"
   },
   {
-   "at": "2026-10-22T07:55:28.578Z",
+   "at": "2026-10-22T12:11:32.906Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 17VKZKV8 scope"
+   "reason": "in contract M4C06CVT scope"
   },
   {
-   "at": "2026-10-22T07:55:31.604Z",
+   "at": "2026-10-22T12:11:38.549Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 17VKZKV8 scope"
+   "reason": "in contract M4C06CVT scope"
   },
   {
-   "at": "2026-10-22T07:55:32.370Z",
+   "at": "2026-10-22T12:11:39.406Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 17VKZKV8 scope"
+   "reason": "in contract M4C06CVT scope"
   },
   {
-   "at": "2026-10-22T07:55:32.760Z",
+   "at": "2026-10-22T12:11:39.788Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 17VKZKV8 scope"
+   "reason": "in contract M4C06CVT scope"
   },
   {
-   "at": "2026-10-22T07:55:34.496Z",
+   "at": "2026-10-22T12:11:41.438Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 17VKZKV8 scope"
+   "reason": "in contract M4C06CVT scope"
   },
   {
-   "at": "2026-10-22T07:55:35.604Z",
+   "at": "2026-10-22T12:11:42.905Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 17VKZKV8 scope"
+   "reason": "in contract M4C06CVT scope"
   },
   {
-   "at": "2026-10-22T07:55:36.651Z",
+   "at": "2026-10-22T12:11:44.281Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 17VKZKV8 scope"
+   "reason": "in contract M4C06CVT scope"
   },
   {
-   "at": "2026-10-22T07:55:37.607Z",
+   "at": "2026-10-22T12:11:46.663Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract 17VKZKV8 scope"
+   "reason": "in contract M4C06CVT scope"
   },
   {
-   "at": "2026-10-22T07:55:37.608Z",
+   "at": "2026-10-22T12:11:46.664Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract 17VKZKV8 scope"
+   "reason": "in contract M4C06CVT scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-b53eef",
+   "queryId": "Q-07cea5",
    "row": 0,
    "label": "Corvale East: LABETALOL HYDROCHLORIDE 100MG TAB",
    "fields": {
@@ -1040,37 +1040,47 @@
     "description": "LABETALOL HYDROCHLORIDE 100MG TAB",
     "on_hand": "301.00",
     "daily_use": "11.436",
-    "unit": "package",
+    "unit": "tablet",
+    "pkg_units": "500.00",
+    "unit_basis": "packages of 500, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Labetalol Hydrochloride",
     "labeler_name": "Heritage Pharmaceuticals Inc. d/b/a Avet Pharmaceuticals Inc.",
     "package_ndc": "23155-723-05",
     "spl_set_id": "bf84ebae-3c91-4448-b1db-8e5ed3053866",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "LABETALOL HYDROCHLORIDE 100 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-b53eef",
+   "queryId": "Q-07cea5",
    "row": 1,
-   "label": "Corvale General: Labetalol Hydrochloride",
+   "label": "Corvale General: Labetalol Hydrochloride 100 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-252",
     "ndc11": "23155072305",
     "ndc_as_recorded": "23155072305",
-    "description": "Labetalol Hydrochloride",
-    "on_hand": "297.07",
+    "description": "Labetalol Hydrochloride 100 mg/1",
+    "on_hand": "297.00",
     "daily_use": "13.765",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Labetalol Hydrochloride",
     "labeler_name": "Heritage Pharmaceuticals Inc. d/b/a Avet Pharmaceuticals Inc.",
     "package_ndc": "23155-723-05",
     "spl_set_id": "bf84ebae-3c91-4448-b1db-8e5ed3053866",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "LABETALOL HYDROCHLORIDE 100 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E3": {
@@ -1189,185 +1199,246 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 301 units of labetalol hydrochloride at 11.4 a day: 26 days on hand",
+   "label": "Corvale East holds 301 tablets of labetalol hydrochloride 100 mg at 11.4 a day: 26.3 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "100 mg tablet",
     "on_hand": 301,
     "daily_use": 11.4,
-    "days_on_hand": 26
+    "days_on_hand": 26.3
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 297 units of labetalol hydrochloride at 13.8 a day: 22 days on hand",
+   "label": "Corvale General holds 297 tablets of labetalol hydrochloride 100 mg at 13.8 a day: 21.6 days on hand",
    "fields": {
     "hospital": "Corvale General",
+    "presentation": "100 mg tablet",
     "on_hand": 297,
     "daily_use": 13.8,
-    "days_on_hand": 22
+    "days_on_hand": 21.6
+   }
+  },
+  "D3": {
+   "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "labetalol hydrochloride is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Advagen Pharma Ltd. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Biocon Pharma Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from BluePoint Laboratories. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-b53eef": {
-   "id": "Q-b53eef",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%labetalol%' OR lower(s.description) LIKE '%labetalol%' ORDER BY s.hospital, s.item_key",
-   "ms": 3023,
+  "Q-07cea5": {
+   "id": "Q-07cea5",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*labetalol(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*labetalol(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 5639,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:55:31.601Z",
+   "ranAt": "2026-10-22T12:11:38.545Z",
    "rows": 2
   },
   "Q-18f169": {
    "id": "Q-18f169",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('bf84ebae-3c91-4448-b1db-8e5ed3053866') ORDER BY ps.set_id, ps.establishment",
-   "ms": 763,
+   "ms": 854,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:55:32.368Z",
+   "ranAt": "2026-10-22T12:11:39.403Z",
    "rows": 1
   },
-  "Q-8d78c6": {
-   "id": "Q-8d78c6",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%labetalol%' ORDER BY status, company_name, package_ndc",
-   "ms": 155,
+  "Q-847e13": {
+   "id": "Q-847e13",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*labetalol(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 183,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:55:32.525Z",
+   "ranAt": "2026-10-22T12:11:39.588Z",
    "rows": 0
   },
-  "Q-3e8737": {
-   "id": "Q-3e8737",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%labetalol%' ORDER BY first_posting",
-   "ms": 231,
+  "Q-4a279d": {
+   "id": "Q-4a279d",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*labetalol(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 196,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:55:32.757Z",
+   "ranAt": "2026-10-22T12:11:39.787Z",
    "rows": 1
   },
-  "Q-05d3f2": {
-   "id": "Q-05d3f2",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%labetalol%' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 1734,
+  "Q-cf8b12": {
+   "id": "Q-cf8b12",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*labetalol(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1646,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:55:34.494Z",
+   "ranAt": "2026-10-22T12:11:41.434Z",
    "rows": 227
   },
   "Q-504675": {
    "id": "Q-504675",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3005139373') ORDER BY fei, end_date",
-   "ms": 497,
+   "ms": 528,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:55:34.994Z",
+   "ranAt": "2026-10-22T12:11:41.966Z",
    "rows": 10
   },
   "Q-bcd8f5": {
    "id": "Q-bcd8f5",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3005139373') ORDER BY fei, action_date",
-   "ms": 230,
+   "ms": 241,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:55:35.226Z",
+   "ranAt": "2026-10-22T12:11:42.208Z",
    "rows": 0
   },
   "Q-f50d20": {
    "id": "Q-f50d20",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3005139373') OR (fei_match <> 'name_and_city' AND firm_key IN ('heritage d b a avet')) ORDER BY date_published",
-   "ms": 168,
+   "ms": 242,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:55:35.397Z",
+   "ranAt": "2026-10-22T12:11:42.459Z",
    "rows": 0
   },
-  "Q-7cb388": {
-   "id": "Q-7cb388",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('heritage d b a avet') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%labetalol%' ORDER BY initiation_date",
-   "ms": 202,
+  "Q-8af392": {
+   "id": "Q-8af392",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('heritage d b a avet') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*labetalol(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 438,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:55:35.601Z",
+   "ranAt": "2026-10-22T12:11:42.900Z",
    "rows": 0
   },
   "Q-888dd6": {
    "id": "Q-888dd6",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('23155072305')",
-   "ms": 1045,
+   "ms": 1373,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:55:36.650Z",
+   "ranAt": "2026-10-22T12:11:44.278Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-afeefe": {
-   "id": "Q-afeefe",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%labetalol%'",
-   "ms": 953,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:55:37.605Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-c80f21": {
+   "id": "Q-c80f21",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*labetalol(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 2378,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:11:46.660Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 14372,
+  "zetarisMs": 23926,
   "modelCalls": 1,
-  "tokensIn": 1232,
-  "tokensOut": 498,
+  "tokensIn": 1573,
+  "tokensOut": 534,
   "mode": "live"
  },
  "slug": "labetalol",
@@ -1381,7 +1452,7 @@
     "id": "hospital-item:hospital-item:CG-252",
     "type": "HospitalItem",
     "key": "hospital-item:CG-252",
-    "label": "Corvale General: Labetalol Hydrochloride",
+    "label": "Corvale General: Labetalol Hydrochloride 100 mg/1",
     "attrs": {
      "key": "hospital-item:CG-252"
     },
@@ -1465,7 +1536,7 @@
     },
     "facts": [
      {
-      "id": "fact_e469192935baf705",
+      "id": "fact_12822debd7882e5c",
       "about": "inspection:fda-inspection:1014054",
       "predicate": "classification",
       "value": "VAI",
@@ -1473,9 +1544,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:55:35.603Z"
+       "at": "2026-10-22T12:11:42.903Z"
       },
-      "assertedAt": "2026-10-22T07:55:35.603Z"
+      "assertedAt": "2026-10-22T12:11:42.903Z"
      }
     ],
     "depth": 4
@@ -1491,7 +1562,7 @@
     },
     "facts": [
      {
-      "id": "fact_f013ed3699e3024b",
+      "id": "fact_75636f2c99bdfc32",
       "about": "inspection:fda-inspection:1043064",
       "predicate": "classification",
       "value": "VAI",
@@ -1499,9 +1570,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:55:35.603Z"
+       "at": "2026-10-22T12:11:42.903Z"
       },
-      "assertedAt": "2026-10-22T07:55:35.603Z"
+      "assertedAt": "2026-10-22T12:11:42.903Z"
      }
     ],
     "depth": 4
@@ -1517,7 +1588,7 @@
     },
     "facts": [
      {
-      "id": "fact_c5b8f8cb5b4dda87",
+      "id": "fact_bf6de4131d8dc425",
       "about": "inspection:fda-inspection:594916",
       "predicate": "classification",
       "value": "VAI",
@@ -1525,9 +1596,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:55:35.603Z"
+       "at": "2026-10-22T12:11:42.902Z"
       },
-      "assertedAt": "2026-10-22T07:55:35.603Z"
+      "assertedAt": "2026-10-22T12:11:42.902Z"
      }
     ],
     "depth": 4
@@ -1543,7 +1614,7 @@
     },
     "facts": [
      {
-      "id": "fact_5c0370f0acafc1b2",
+      "id": "fact_2977a284fc51147d",
       "about": "inspection:fda-inspection:856022",
       "predicate": "classification",
       "value": "VAI",
@@ -1551,9 +1622,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:55:35.603Z"
+       "at": "2026-10-22T12:11:42.902Z"
       },
-      "assertedAt": "2026-10-22T07:55:35.603Z"
+      "assertedAt": "2026-10-22T12:11:42.902Z"
      }
     ],
     "depth": 4
@@ -1569,7 +1640,7 @@
     },
     "facts": [
      {
-      "id": "fact_20f4a527e39cbb05",
+      "id": "fact_b6479fb562b4d1a8",
       "about": "inspection:fda-inspection:861773",
       "predicate": "classification",
       "value": "VAI",
@@ -1577,9 +1648,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:55:35.603Z"
+       "at": "2026-10-22T12:11:42.902Z"
       },
-      "assertedAt": "2026-10-22T07:55:35.603Z"
+      "assertedAt": "2026-10-22T12:11:42.902Z"
      }
     ],
     "depth": 4
@@ -1595,7 +1666,7 @@
     },
     "facts": [
      {
-      "id": "fact_ef9f2eb3de509a6b",
+      "id": "fact_4d4d0059d83e2492",
       "about": "inspection:fda-inspection:925131",
       "predicate": "classification",
       "value": "VAI",
@@ -1603,9 +1674,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:55:35.603Z"
+       "at": "2026-10-22T12:11:42.902Z"
       },
-      "assertedAt": "2026-10-22T07:55:35.603Z"
+      "assertedAt": "2026-10-22T12:11:42.902Z"
      }
     ],
     "depth": 4
@@ -1617,11 +1688,11 @@
     "from": "hospital-item:hospital-item:CG-252",
     "to": "package:ndc-package:23155-723-05",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:55:31.604Z",
+    "validFrom": "2026-10-22T12:11:38.548Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:55:31.604Z"
+     "at": "2026-10-22T12:11:38.548Z"
     }
    },
    {
@@ -1629,11 +1700,11 @@
     "from": "hospital-item:hospital-item:EA-E-000140",
     "to": "package:ndc-package:23155-723-05",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:55:31.604Z",
+    "validFrom": "2026-10-22T12:11:38.548Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:55:31.604Z"
+     "at": "2026-10-22T12:11:38.548Z"
     }
    },
    {
@@ -1641,11 +1712,11 @@
     "from": "package:ndc-package:23155-723-05",
     "to": "product:ndc-product:23155-723",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:55:31.604Z",
+    "validFrom": "2026-10-22T12:11:38.548Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:55:31.604Z"
+     "at": "2026-10-22T12:11:38.548Z"
     }
    },
    {
@@ -1653,11 +1724,11 @@
     "from": "product:ndc-product:23155-723",
     "to": "drug:generic:labetalol hydrochloride",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:55:31.604Z",
+    "validFrom": "2026-10-22T12:11:38.548Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:55:31.604Z"
+     "at": "2026-10-22T12:11:38.548Z"
     }
    },
    {
@@ -1665,11 +1736,11 @@
     "from": "product:ndc-product:23155-723",
     "to": "labeler:ndc-labeler:23155",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:55:31.604Z",
+    "validFrom": "2026-10-22T12:11:38.548Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:55:31.604Z"
+     "at": "2026-10-22T12:11:38.548Z"
     }
    },
    {
@@ -1677,11 +1748,11 @@
     "from": "product:ndc-product:23155-723",
     "to": "site:fei:3005139373",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:55:35.602Z",
+    "validFrom": "2026-10-22T12:11:42.902Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:55:35.602Z"
+     "at": "2026-10-22T12:11:42.902Z"
     }
    },
    {
@@ -1689,11 +1760,11 @@
     "from": "inspection:fda-inspection:594916",
     "to": "site:fei:3005139373",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:55:35.603Z",
+    "validFrom": "2026-10-22T12:11:42.902Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:55:35.603Z"
+     "at": "2026-10-22T12:11:42.902Z"
     }
    },
    {
@@ -1701,11 +1772,11 @@
     "from": "inspection:fda-inspection:856022",
     "to": "site:fei:3005139373",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:55:35.603Z",
+    "validFrom": "2026-10-22T12:11:42.902Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:55:35.603Z"
+     "at": "2026-10-22T12:11:42.902Z"
     }
    },
    {
@@ -1713,11 +1784,11 @@
     "from": "inspection:fda-inspection:861773",
     "to": "site:fei:3005139373",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:55:35.603Z",
+    "validFrom": "2026-10-22T12:11:42.902Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:55:35.603Z"
+     "at": "2026-10-22T12:11:42.902Z"
     }
    },
    {
@@ -1725,11 +1796,11 @@
     "from": "inspection:fda-inspection:925131",
     "to": "site:fei:3005139373",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:55:35.603Z",
+    "validFrom": "2026-10-22T12:11:42.902Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:55:35.603Z"
+     "at": "2026-10-22T12:11:42.902Z"
     }
    },
    {
@@ -1737,11 +1808,11 @@
     "from": "inspection:fda-inspection:1014054",
     "to": "site:fei:3005139373",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:55:35.603Z",
+    "validFrom": "2026-10-22T12:11:42.903Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:55:35.603Z"
+     "at": "2026-10-22T12:11:42.903Z"
     }
    },
    {
@@ -1749,11 +1820,11 @@
     "from": "inspection:fda-inspection:1043064",
     "to": "site:fei:3005139373",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:55:35.603Z",
+    "validFrom": "2026-10-22T12:11:42.903Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:55:35.603Z"
+     "at": "2026-10-22T12:11:42.903Z"
     }
    }
   ],

@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-746849",
+ "id": "case-2026-10-22-b41bf7",
  "question": "Why is oxytocin short, and what do we do?",
- "askedAt": "2026-10-22T09:01:54.362Z",
+ "askedAt": "2026-10-22T12:28:46.789Z",
  "asOf": "2026-10-21",
  "molecule": "oxytocin",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5HDGB3NJYNCBK96DDWKN2X7",
+  "contractId": "01M5HSBDBMPQKKQ7SYEH6KZE5X",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-c95b8d"
+    "Q-843c8d"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 8850,
+   "ms": 3546,
    "rows": 4,
-   "finding": "4 stock lines across 2 hospitals.",
+   "finding": "4 stock lines across 2 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-94fe48"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1831,
+   "ms": 474,
    "rows": 3,
    "finding": "3 plant links on 2 labels; 2 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-1a85d1",
-    "Q-0a88c2"
+    "Q-404e9f",
+    "Q-72972a"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 679,
+   "ms": 308,
    "rows": 1,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-19a110"
+    "Q-29ac1e"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2214,
+   "ms": 1225,
    "rows": 19,
    "finding": "5 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-4e0a2a",
     "Q-b0cdcc",
     "Q-65bb2c",
-    "Q-f8c64a"
+    "Q-cdce3a"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1204,
+   "ms": 662,
    "rows": 28,
    "finding": "27 inspections (4 OAI at our plants), 1 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,7 +111,7 @@
    "sources": [
     "fda.citations"
    ],
-   "ms": 294,
+   "ms": 164,
    "rows": 14,
    "finding": "14 Form 483 observations recorded.",
    "status": "ok"
@@ -119,9 +126,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1378,
+   "ms": 935,
    "rows": 2,
    "finding": "2 approved interchanges on file.",
    "status": "ok"
@@ -129,19 +136,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-b209d0"
+    "Q-ddc19f"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1141,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1339,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -152,7 +163,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 2,
+   "ms": 1,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -168,8 +179,11 @@
    "onHand": 55,
    "dailyUse": 3.342,
    "days": 16.5,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 25, converted to units",
+   "presentation": "oxytocin||injection|10ml|vial",
+   "presentationLabel": "injection, 10 mL vial",
    "evidence": "E1"
   },
   {
@@ -181,35 +195,85 @@
    "onHand": 26,
    "dailyUse": 3.437,
    "days": 7.6,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 25, converted to units",
+   "presentation": "oxytocin||injection|10ml|vial",
+   "presentationLabel": "injection, 10 mL vial",
    "evidence": "E2"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-94",
    "ndc11": "42023011602",
-   "description": "oxytocin",
+   "description": "oxytocin 10 units/mL",
    "labeler": "Par Health USA, LLC",
-   "onHand": 53.38,
+   "onHand": 53,
    "dailyUse": 4.52,
-   "days": 11.8,
+   "days": 11.7,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "oxytocin||injection|10ml|vial",
+   "presentationLabel": "injection, 10 mL vial",
    "evidence": "E3"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-95",
    "ndc11": "63323001210",
-   "description": "OXYTOCIN",
+   "description": "OXYTOCIN 10 USP units/mL",
    "labeler": "Fresenius Kabi USA, LLC",
-   "onHand": 60.01,
+   "onHand": 60,
    "dailyUse": 4.19,
    "days": 14.3,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "oxytocin||injection|10ml|vial",
+   "presentationLabel": "injection, 10 mL vial",
    "evidence": "E4"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "oxytocin||injection|10ml|vial",
+   "label": "injection, 10 mL vial",
+   "short": "10 mL",
+   "unit": "vial",
+   "onHand": 194,
+   "dailyUse": 15.489,
+   "days": 12.5,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 81,
+     "dailyUse": 6.779,
+     "days": 11.9,
+     "lines": [
+      "EA-E-000155",
+      "EA-E-000211"
+     ],
+     "evidence": [
+      "E1",
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 113,
+     "dailyUse": 8.71,
+     "days": 13,
+     "lines": [
+      "CG-94",
+      "CG-95"
+     ],
+     "evidence": [
+      "E3",
+      "E4"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -554,21 +618,25 @@
  "options": [
   {
    "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Cardinal Health 107, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
+   "rank": 2,
+   "title": "Same product, alternate manufacturer: oxytocin 10 units/mL from Par Health USA, LLC",
+   "detail": "Recalculate dose and volume; pharmacist verification required. Approved by Sam Rivera, MD on 2026-04-16.",
+   "why": "Already approved by the P&T committee.",
+   "needs": "pharmacist",
+   "evidence": [
+    "E29"
+   ]
   },
   {
    "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from REMEDYREPACK INC.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
+   "rank": 2,
+   "title": "Same product, alternate manufacturer: OXYTOCIN 10 USP units/mL from Fresenius Kabi USA, LLC",
+   "detail": "Recalculate dose and volume; pharmacist verification required. Approved by Riley Brooks, PharmD on 2026-01-24.",
+   "why": "Already approved by the P&T committee.",
+   "needs": "pharmacist",
+   "evidence": [
+    "E30"
+   ]
   },
   {
    "kind": "alternate_manufacturer",
@@ -578,28 +646,6 @@
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
    "evidence": []
-  },
-  {
-   "kind": "alternate_concentration",
-   "rank": 3,
-   "title": "Same molecule, alternate concentration or vial size: oxytocin 10 units/mL from Par Health USA, LLC",
-   "detail": "Recalculate dose and volume; pharmacist verification required. Approved by Sam Rivera, MD on 2026-04-16.",
-   "why": "Already approved by the P&T committee.",
-   "needs": "pharmacist",
-   "evidence": [
-    "E29"
-   ]
-  },
-  {
-   "kind": "alternate_concentration",
-   "rank": 3,
-   "title": "Same molecule, alternate concentration or vial size: OXYTOCIN 10 USP units/mL from Fresenius Kabi USA, LLC",
-   "detail": "Recalculate dose and volume; pharmacist verification required. Approved by Riley Brooks, PharmD on 2026-01-24.",
-   "why": "Already approved by the P&T committee.",
-   "needs": "pharmacist",
-   "evidence": [
-    "E30"
-   ]
   }
  ],
  "timeline": [
@@ -651,56 +697,51 @@
   "headline": "FDA's records trace our supply to a plant classified OAI 85 days before the shortage posting",
   "sentences": [
    {
-    "text": "FDA posted the oxytocin shortage on 2022-09-23 and it has remained on the list for 49 months as of 2026-10-21.",
+    "text": "Oxytocin has been on FDA's shortage list since 2022-09-23 and as of 2026-10-21 the shortage has been listed for 49 months.",
     "cites": [
-     "D13"
+     "D10"
     ]
    },
    {
-    "text": "A registered plant on our product labels, Fresenius Kabi USA, LLC (FEI 1450022), received an OAI classification after an inspection that ended 2022-06-30, 85 days before the shortage posting.",
+    "text": "A registered plant for Fresenius Kabi USA, LLC (FEI 1450022) was inspected and classified OAI on 2022-06-30, which was 85 days before FDA posted the shortage on 2022-09-23.",
     "cites": [
-     "E14",
      "D4",
      "E12"
     ]
    },
    {
-    "text": "The same plant had an earlier OAI inspection ending 2020-05-18, 858 days before the posting, with observations on sterile procedures and batch records.",
+    "text": "The same plant received an OAI classification letter dated 2024-04-30, 585 days after the shortage posting.",
     "cites": [
-     "E11",
-     "D3"
+     "D8",
+     "E12"
     ]
    },
    {
-    "text": "A second registered plant for the same labeler (FEI 3001833549) also has a history of OAI inspections, including one ending 2011-07-08 and another ending 2013-01-11.",
+    "text": "Another registered plant for Fresenius Kabi USA, LLC (FEI 3001833549) has a history of OAI inspections in 2011-07-08 and 2013-01-11, with a Warning Letter issued 2012-02-22.",
     "cites": [
-     "E28",
      "E17",
-     "E20"
+     "E20",
+     "E27"
     ]
    },
    {
-    "text": "Both plants received VAI classifications in 2023, after the shortage posting.",
+    "text": "Current inventory at Corvale East is 81 vials at 6.8 vials per day (11.9 days on hand) and at Corvale General is 113 vials at 8.7 vials per day (13 days on hand).",
     "cites": [
-     "E13",
-     "E26"
+     "D1",
+     "D2"
     ]
    },
    {
-    "text": "P&T has approved an interchange to an alternate concentration from Par Health USA, LLC (NDC 42023011602) as of 2026-04-16.",
+    "text": "The preferred alternative per protocol is oxytocin 10 units/mL from Par Health USA, LLC (manufactured at PH HEALTH), approved by Sam Rivera, MD on 2026-04-16, requiring dose recalculation and pharmacist verification.",
     "cites": [
+     "D11",
+     "E5",
      "E29"
-    ]
-   },
-   {
-    "text": "The rule-selected purchase option is Cardinal Health 107, LLC, which is not on FDA's shortage list today.",
-    "cites": [
-     "D10"
     ]
    }
   ],
   "verifier": {
-   "checked": 8,
+   "checked": 7,
    "rejected": [],
    "repaired": 0
   },
@@ -709,45 +750,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -762,87 +824,87 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T09:01:36.759Z",
+   "at": "2026-10-22T12:28:38.132Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract DDWKN2X7 scope"
+   "reason": "in contract EH6KZE5X scope"
   },
   {
-   "at": "2026-10-22T09:01:36.759Z",
+   "at": "2026-10-22T12:28:38.133Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract DDWKN2X7 scope"
+   "reason": "in contract EH6KZE5X scope"
   },
   {
-   "at": "2026-10-22T09:01:45.612Z",
+   "at": "2026-10-22T12:28:41.680Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract DDWKN2X7 scope"
+   "reason": "in contract EH6KZE5X scope"
   },
   {
-   "at": "2026-10-22T09:01:47.443Z",
+   "at": "2026-10-22T12:28:42.154Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract DDWKN2X7 scope"
+   "reason": "in contract EH6KZE5X scope"
   },
   {
-   "at": "2026-10-22T09:01:48.122Z",
+   "at": "2026-10-22T12:28:42.463Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract DDWKN2X7 scope"
+   "reason": "in contract EH6KZE5X scope"
   },
   {
-   "at": "2026-10-22T09:01:50.337Z",
+   "at": "2026-10-22T12:28:43.687Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract DDWKN2X7 scope"
+   "reason": "in contract EH6KZE5X scope"
   },
   {
-   "at": "2026-10-22T09:01:51.542Z",
+   "at": "2026-10-22T12:28:44.349Z",
    "action": "What FDA wrote at the OAI inspections",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract DDWKN2X7 scope"
+   "reason": "in contract EH6KZE5X scope"
   },
   {
-   "at": "2026-10-22T09:01:51.841Z",
+   "at": "2026-10-22T12:28:44.514Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract DDWKN2X7 scope"
+   "reason": "in contract EH6KZE5X scope"
   },
   {
-   "at": "2026-10-22T09:01:53.219Z",
+   "at": "2026-10-22T12:28:45.449Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract DDWKN2X7 scope"
+   "reason": "in contract EH6KZE5X scope"
   },
   {
-   "at": "2026-10-22T09:01:54.360Z",
+   "at": "2026-10-22T12:28:46.788Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract DDWKN2X7 scope"
+   "reason": "in contract EH6KZE5X scope"
   },
   {
-   "at": "2026-10-22T09:01:54.363Z",
+   "at": "2026-10-22T12:28:46.789Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract DDWKN2X7 scope"
+   "reason": "in contract EH6KZE5X scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-c95b8d",
+   "queryId": "Q-843c8d",
    "row": 0,
    "label": "Corvale East: OXYTOCIN 10UNITS/ML 10ML SDV",
    "fields": {
@@ -853,19 +915,24 @@
     "description": "OXYTOCIN 10UNITS/ML 10ML SDV",
     "on_hand": "55.00",
     "daily_use": "3.342",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "25.00",
+    "unit_basis": "packages of 25, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "oxytocin",
     "labeler_name": "Par Health USA, LLC",
     "package_ndc": "42023-116-02",
     "spl_set_id": "969d5b35-0add-4c23-9605-6a5b6ab65c95",
     "dosage_form": "INJECTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "OXYTOCIN 10 [iU]/mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-c95b8d",
+   "queryId": "Q-843c8d",
    "row": 1,
    "label": "Corvale East: OXYTOCIN 10USPUNITS/ML 10ML MDV",
    "fields": {
@@ -876,60 +943,75 @@
     "description": "OXYTOCIN 10USPUNITS/ML 10ML MDV",
     "on_hand": "26.00",
     "daily_use": "3.437",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "25.00",
+    "unit_basis": "packages of 25, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "OXYTOCIN",
     "labeler_name": "Fresenius Kabi USA, LLC",
     "package_ndc": "63323-012-10",
     "spl_set_id": "c7fd585a-99b7-4309-b003-a6cbef05372c",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "OXYTOCIN 10 [USP'U]/mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-c95b8d",
+   "queryId": "Q-843c8d",
    "row": 2,
-   "label": "Corvale General: oxytocin",
+   "label": "Corvale General: oxytocin 10 units/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-94",
     "ndc11": "42023011602",
     "ndc_as_recorded": "42023011602",
-    "description": "oxytocin",
-    "on_hand": "53.38",
+    "description": "oxytocin 10 units/mL",
+    "on_hand": "53.00",
     "daily_use": "4.520",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "oxytocin",
     "labeler_name": "Par Health USA, LLC",
     "package_ndc": "42023-116-02",
     "spl_set_id": "969d5b35-0add-4c23-9605-6a5b6ab65c95",
     "dosage_form": "INJECTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "OXYTOCIN 10 [iU]/mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-c95b8d",
+   "queryId": "Q-843c8d",
    "row": 3,
-   "label": "Corvale General: OXYTOCIN",
+   "label": "Corvale General: OXYTOCIN 10 USP units/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-95",
     "ndc11": "63323001210",
     "ndc_as_recorded": "63323001210",
-    "description": "OXYTOCIN",
-    "on_hand": "60.01",
+    "description": "OXYTOCIN 10 USP units/mL",
+    "on_hand": "60.00",
     "daily_use": "4.190",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "OXYTOCIN",
     "labeler_name": "Fresenius Kabi USA, LLC",
     "package_ndc": "63323-012-10",
     "spl_set_id": "c7fd585a-99b7-4309-b003-a6cbef05372c",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "OXYTOCIN 10 [USP'U]/mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E5": {
@@ -1348,21 +1430,23 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 81 units of oxytocin at 6.8 a day: 12 days on hand",
+   "label": "Corvale East holds 81 vials of oxytocin 10 mL at 6.8 a day: 11.9 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "injection, 10 mL vial",
     "on_hand": 81,
     "daily_use": 6.8,
-    "days_on_hand": 12
+    "days_on_hand": 11.9
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 113 units of oxytocin at 8.7 a day: 13 days on hand",
+   "label": "Corvale General holds 113 vials of oxytocin 10 mL at 8.7 a day: 13 days on hand",
    "fields": {
     "hospital": "Corvale General",
+    "presentation": "injection, 10 mL vial",
     "on_hand": 113,
     "daily_use": 8.7,
     "days_on_hand": 13
@@ -1449,24 +1533,35 @@
    "id": "D10",
    "queryId": "derived",
    "row": -1,
-   "label": "Option ranked 3 by rule: Buy from Cardinal Health 107, LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "label": "As of 2026-10-21 the shortage has been on FDA's list for 49 months",
    "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
+    "as_of": "2026-10-21",
+    "posted": "2022-09-23",
+    "months": 49
    }
   },
   "D11": {
    "id": "D11",
    "queryId": "derived",
    "row": -1,
-   "label": "Option ranked 3 by rule: Buy from REMEDYREPACK INC.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "label": "Option ranked 2 by rule: Same product, alternate manufacturer: oxytocin 10 units/mL from Par Health USA, LLC. Recalculate dose and volume; pharmacist verification required. Approved by Sam Rivera, MD on 2026-04-16.",
    "fields": {
     "kind": "alternate_manufacturer",
-    "needs": "buyer"
+    "needs": "pharmacist"
    }
   },
   "D12": {
    "id": "D12",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Same product, alternate manufacturer: OXYTOCIN 10 USP units/mL from Fresenius Kabi USA, LLC. Recalculate dose and volume; pharmacist verification required. Approved by Riley Brooks, PharmD on 2026-01-24.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "pharmacist"
+   }
+  },
+  "D13": {
+   "id": "D13",
    "queryId": "derived",
    "row": -1,
    "label": "Option ranked 3 by rule: Buy from West-Ward Pharmaceuticals Corp. Not on FDA's shortage list today. Its label names no plant we could place.",
@@ -1474,188 +1569,196 @@
     "kind": "alternate_manufacturer",
     "needs": "buyer"
    }
-  },
-  "D13": {
-   "id": "D13",
-   "queryId": "derived",
-   "row": -1,
-   "label": "As of 2026-10-21 the shortage has been on FDA's list for 49 months",
-   "fields": {
-    "as_of": "2026-10-21",
-    "posted": "2022-09-23",
-    "months": 49
-   }
   }
  },
  "queries": {
-  "Q-c95b8d": {
-   "id": "Q-c95b8d",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%oxytocin%' OR lower(s.description) LIKE '%oxytocin%' ORDER BY s.hospital, s.item_key",
-   "ms": 8848,
+  "Q-843c8d": {
+   "id": "Q-843c8d",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*oxytocin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*oxytocin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3545,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T09:01:45.607Z",
+   "ranAt": "2026-10-22T12:28:41.678Z",
    "rows": 4
   },
   "Q-94fe48": {
    "id": "Q-94fe48",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('969d5b35-0add-4c23-9605-6a5b6ab65c95', 'c7fd585a-99b7-4309-b003-a6cbef05372c') ORDER BY ps.set_id, ps.establishment",
-   "ms": 1829,
+   "ms": 472,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T09:01:47.441Z",
+   "ranAt": "2026-10-22T12:28:42.153Z",
    "rows": 3
   },
-  "Q-1a85d1": {
-   "id": "Q-1a85d1",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%oxytocin%' ORDER BY status, company_name, package_ndc",
-   "ms": 361,
+  "Q-404e9f": {
+   "id": "Q-404e9f",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*oxytocin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 146,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T09:01:47.805Z",
+   "ranAt": "2026-10-22T12:28:42.300Z",
    "rows": 0
   },
-  "Q-0a88c2": {
-   "id": "Q-0a88c2",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%oxytocin%' ORDER BY first_posting",
-   "ms": 314,
+  "Q-72972a": {
+   "id": "Q-72972a",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*oxytocin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 160,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T09:01:48.120Z",
+   "ranAt": "2026-10-22T12:28:42.461Z",
    "rows": 1
   },
-  "Q-19a110": {
-   "id": "Q-19a110",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%oxytocin%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2212,
+  "Q-29ac1e": {
+   "id": "Q-29ac1e",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*oxytocin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1223,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T09:01:50.335Z",
+   "ranAt": "2026-10-22T12:28:43.686Z",
    "rows": 19
   },
   "Q-4e0a2a": {
    "id": "Q-4e0a2a",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('1450022', '3001833549') ORDER BY fei, end_date",
-   "ms": 449,
+   "ms": 274,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T09:01:50.786Z",
+   "ranAt": "2026-10-22T12:28:43.961Z",
    "rows": 27
   },
   "Q-b0cdcc": {
    "id": "Q-b0cdcc",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('1450022', '3001833549') ORDER BY fei, action_date",
-   "ms": 263,
+   "ms": 140,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T09:01:51.051Z",
+   "ranAt": "2026-10-22T12:28:44.103Z",
    "rows": 1
   },
   "Q-65bb2c": {
    "id": "Q-65bb2c",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('1450022', '3001833549') OR (fei_match <> 'name_and_city' AND firm_key IN ('ph health', 'fresenius kabi')) ORDER BY date_published",
-   "ms": 245,
+   "ms": 107,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T09:01:51.297Z",
+   "ranAt": "2026-10-22T12:28:44.211Z",
    "rows": 0
   },
-  "Q-f8c64a": {
-   "id": "Q-f8c64a",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('ph health', 'fresenius kabi', 'par health') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%oxytocin%' ORDER BY initiation_date",
-   "ms": 241,
+  "Q-cdce3a": {
+   "id": "Q-cdce3a",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('ph health', 'fresenius kabi', 'par health') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*oxytocin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 136,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T09:01:51.540Z",
+   "ranAt": "2026-10-22T12:28:44.348Z",
    "rows": 0
   },
   "Q-0df099": {
    "id": "Q-0df099",
    "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('1123748', '1174894', '732653', '815426') ORDER BY inspection_id, cfr",
-   "ms": 293,
+   "ms": 163,
    "mode": "live",
    "sources": [
     "fda.citations"
    ],
-   "ranAt": "2026-10-22T09:01:51.835Z",
+   "ranAt": "2026-10-22T12:28:44.511Z",
    "rows": 14
   },
   "Q-da8d75": {
    "id": "Q-da8d75",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('42023011602', '63323001210')",
-   "ms": 1377,
+   "ms": 933,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T09:01:53.218Z",
+   "ranAt": "2026-10-22T12:28:45.448Z",
    "rows": 2
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2522,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T09:00:21.184Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 2080,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T09:00:23.265Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 2458,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T09:00:25.725Z",
-   "rows": 2
-  },
-  "Q-b209d0": {
-   "id": "Q-b209d0",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%oxytocin%'",
-   "ms": 1139,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T09:01:54.358Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-ddc19f": {
+   "id": "Q-ddc19f",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*oxytocin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1338,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:28:46.787Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 15,
-  "zetarisMs": 24631,
+  "zetarisMs": 18845,
   "modelCalls": 1,
-  "tokensIn": 3874,
-  "tokensOut": 505,
+  "tokensIn": 4250,
+  "tokensOut": 534,
   "mode": "live"
  },
  "slug": "oxytocin",
@@ -1671,7 +1774,7 @@
     "id": "hospital-item:hospital-item:CG-94",
     "type": "HospitalItem",
     "key": "hospital-item:CG-94",
-    "label": "Corvale General: oxytocin",
+    "label": "Corvale General: oxytocin 10 units/mL",
     "attrs": {
      "key": "hospital-item:CG-94"
     },
@@ -1682,7 +1785,7 @@
     "id": "hospital-item:hospital-item:CG-95",
     "type": "HospitalItem",
     "key": "hospital-item:CG-95",
-    "label": "Corvale General: OXYTOCIN",
+    "label": "Corvale General: OXYTOCIN 10 USP units/mL",
     "attrs": {
      "key": "hospital-item:CG-95"
     },
@@ -1821,7 +1924,7 @@
     },
     "facts": [
      {
-      "id": "fact_c2ef056407d874de",
+      "id": "fact_055145b9ad759343",
       "about": "inspection:fda-inspection:1002820",
       "predicate": "classification",
       "value": "VAI",
@@ -1829,9 +1932,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:01:51.840Z"
+       "at": "2026-10-22T12:28:44.514Z"
       },
-      "assertedAt": "2026-10-22T09:01:51.840Z"
+      "assertedAt": "2026-10-22T12:28:44.514Z"
      }
     ],
     "depth": 4
@@ -1847,7 +1950,7 @@
     },
     "facts": [
      {
-      "id": "fact_1265ade6946dc10c",
+      "id": "fact_accf0d8f60d82be1",
       "about": "inspection:fda-inspection:1014707",
       "predicate": "classification",
       "value": "VAI",
@@ -1855,9 +1958,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:01:51.840Z"
+       "at": "2026-10-22T12:28:44.514Z"
       },
-      "assertedAt": "2026-10-22T09:01:51.840Z"
+      "assertedAt": "2026-10-22T12:28:44.514Z"
      }
     ],
     "depth": 4
@@ -1873,7 +1976,7 @@
     },
     "facts": [
      {
-      "id": "fact_cb240480b66fca29",
+      "id": "fact_0f4f58801d38a8d4",
       "about": "inspection:fda-inspection:1099323",
       "predicate": "classification",
       "value": "VAI",
@@ -1881,9 +1984,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:01:51.840Z"
+       "at": "2026-10-22T12:28:44.514Z"
       },
-      "assertedAt": "2026-10-22T09:01:51.840Z"
+      "assertedAt": "2026-10-22T12:28:44.514Z"
      }
     ],
     "depth": 4
@@ -1899,7 +2002,7 @@
     },
     "facts": [
      {
-      "id": "fact_e601e431ce32fca2",
+      "id": "fact_d4f7797ac3558440",
       "about": "inspection:fda-inspection:1123748",
       "predicate": "classification",
       "value": "OAI",
@@ -1907,9 +2010,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:01:51.837Z"
+       "at": "2026-10-22T12:28:44.513Z"
       },
-      "assertedAt": "2026-10-22T09:01:51.837Z"
+      "assertedAt": "2026-10-22T12:28:44.513Z"
      }
     ],
     "depth": 4
@@ -1925,7 +2028,7 @@
     },
     "facts": [
      {
-      "id": "fact_3f6948e5f64cda9a",
+      "id": "fact_0aa50f3ee32d4922",
       "about": "inspection:fda-inspection:1174894",
       "predicate": "classification",
       "value": "OAI",
@@ -1933,9 +2036,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:01:51.838Z"
+       "at": "2026-10-22T12:28:44.513Z"
       },
-      "assertedAt": "2026-10-22T09:01:51.838Z"
+      "assertedAt": "2026-10-22T12:28:44.513Z"
      }
     ],
     "depth": 4
@@ -1951,7 +2054,7 @@
     },
     "facts": [
      {
-      "id": "fact_6d75265edbd47736",
+      "id": "fact_2717107e34076d09",
       "about": "inspection:fda-inspection:1216183",
       "predicate": "classification",
       "value": "VAI",
@@ -1959,9 +2062,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:01:51.838Z"
+       "at": "2026-10-22T12:28:44.513Z"
       },
-      "assertedAt": "2026-10-22T09:01:51.838Z"
+      "assertedAt": "2026-10-22T12:28:44.513Z"
      }
     ],
     "depth": 4
@@ -1977,7 +2080,7 @@
     },
     "facts": [
      {
-      "id": "fact_6682f416b635e72e",
+      "id": "fact_c3d1ac68aa2c88b9",
       "about": "inspection:fda-inspection:1220482",
       "predicate": "classification",
       "value": "VAI",
@@ -1985,9 +2088,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:01:51.840Z"
+       "at": "2026-10-22T12:28:44.514Z"
       },
-      "assertedAt": "2026-10-22T09:01:51.840Z"
+      "assertedAt": "2026-10-22T12:28:44.514Z"
      }
     ],
     "depth": 4
@@ -2003,7 +2106,7 @@
     },
     "facts": [
      {
-      "id": "fact_2020b2bfcba7a24f",
+      "id": "fact_1d783f0f6e722356",
       "about": "inspection:fda-inspection:558846",
       "predicate": "classification",
       "value": "VAI",
@@ -2011,9 +2114,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:01:51.837Z"
+       "at": "2026-10-22T12:28:44.513Z"
       },
-      "assertedAt": "2026-10-22T09:01:51.837Z"
+      "assertedAt": "2026-10-22T12:28:44.513Z"
      }
     ],
     "depth": 4
@@ -2029,7 +2132,7 @@
     },
     "facts": [
      {
-      "id": "fact_cab61c395696513a",
+      "id": "fact_e15647452a0d4d09",
       "about": "inspection:fda-inspection:569783",
       "predicate": "classification",
       "value": "VAI",
@@ -2037,9 +2140,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:01:51.837Z"
+       "at": "2026-10-22T12:28:44.513Z"
       },
-      "assertedAt": "2026-10-22T09:01:51.837Z"
+      "assertedAt": "2026-10-22T12:28:44.513Z"
      }
     ],
     "depth": 4
@@ -2055,7 +2158,7 @@
     },
     "facts": [
      {
-      "id": "fact_7e75e17af09d0fe9",
+      "id": "fact_fd57dd8c2627fd48",
       "about": "inspection:fda-inspection:613342",
       "predicate": "classification",
       "value": "VAI",
@@ -2063,9 +2166,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:01:51.838Z"
+       "at": "2026-10-22T12:28:44.514Z"
       },
-      "assertedAt": "2026-10-22T09:01:51.838Z"
+      "assertedAt": "2026-10-22T12:28:44.514Z"
      }
     ],
     "depth": 4
@@ -2081,7 +2184,7 @@
     },
     "facts": [
      {
-      "id": "fact_fa5ce354b6a834c3",
+      "id": "fact_9773cb5494261f5d",
       "about": "inspection:fda-inspection:640082",
       "predicate": "classification",
       "value": "VAI",
@@ -2089,9 +2192,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:01:51.838Z"
+       "at": "2026-10-22T12:28:44.514Z"
       },
-      "assertedAt": "2026-10-22T09:01:51.838Z"
+      "assertedAt": "2026-10-22T12:28:44.514Z"
      }
     ],
     "depth": 4
@@ -2107,7 +2210,7 @@
     },
     "facts": [
      {
-      "id": "fact_55fb9c3022051159",
+      "id": "fact_09390d827a985824",
       "about": "inspection:fda-inspection:732653",
       "predicate": "classification",
       "value": "OAI",
@@ -2115,9 +2218,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:01:51.839Z"
+       "at": "2026-10-22T12:28:44.514Z"
       },
-      "assertedAt": "2026-10-22T09:01:51.839Z"
+      "assertedAt": "2026-10-22T12:28:44.514Z"
      }
     ],
     "depth": 4
@@ -2133,7 +2236,7 @@
     },
     "facts": [
      {
-      "id": "fact_4ec398ffc2977407",
+      "id": "fact_5c81bcd5bbe75529",
       "about": "inspection:fda-inspection:741861",
       "predicate": "classification",
       "value": "VAI",
@@ -2141,9 +2244,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:01:51.839Z"
+       "at": "2026-10-22T12:28:44.514Z"
       },
-      "assertedAt": "2026-10-22T09:01:51.839Z"
+      "assertedAt": "2026-10-22T12:28:44.514Z"
      }
     ],
     "depth": 4
@@ -2159,7 +2262,7 @@
     },
     "facts": [
      {
-      "id": "fact_38c597dc927d5194",
+      "id": "fact_427b040a8af2e033",
       "about": "inspection:fda-inspection:815426",
       "predicate": "classification",
       "value": "OAI",
@@ -2167,9 +2270,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:01:51.840Z"
+       "at": "2026-10-22T12:28:44.514Z"
       },
-      "assertedAt": "2026-10-22T09:01:51.840Z"
+      "assertedAt": "2026-10-22T12:28:44.514Z"
      }
     ],
     "depth": 4
@@ -2185,7 +2288,7 @@
     },
     "facts": [
      {
-      "id": "fact_942026d4237ce6db",
+      "id": "fact_ee1df896c243266e",
       "about": "inspection:fda-inspection:855192",
       "predicate": "classification",
       "value": "VAI",
@@ -2193,9 +2296,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:01:51.837Z"
+       "at": "2026-10-22T12:28:44.513Z"
       },
-      "assertedAt": "2026-10-22T09:01:51.837Z"
+      "assertedAt": "2026-10-22T12:28:44.513Z"
      }
     ],
     "depth": 4
@@ -2211,7 +2314,7 @@
     },
     "facts": [
      {
-      "id": "fact_dab09f86da00e02e",
+      "id": "fact_ef77ea252bc12616",
       "about": "inspection:fda-inspection:901775",
       "predicate": "classification",
       "value": "VAI",
@@ -2219,9 +2322,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:01:51.840Z"
+       "at": "2026-10-22T12:28:44.514Z"
       },
-      "assertedAt": "2026-10-22T09:01:51.840Z"
+      "assertedAt": "2026-10-22T12:28:44.514Z"
      }
     ],
     "depth": 4
@@ -2237,7 +2340,7 @@
     },
     "facts": [
      {
-      "id": "fact_3c796d3422f24975",
+      "id": "fact_65dab8e5830e2a34",
       "about": "inspection:fda-inspection:943391",
       "predicate": "classification",
       "value": "VAI",
@@ -2245,9 +2348,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:01:51.837Z"
+       "at": "2026-10-22T12:28:44.513Z"
       },
-      "assertedAt": "2026-10-22T09:01:51.837Z"
+      "assertedAt": "2026-10-22T12:28:44.513Z"
      }
     ],
     "depth": 4
@@ -2263,7 +2366,7 @@
     },
     "facts": [
      {
-      "id": "fact_bafb6650171aae12",
+      "id": "fact_aeb4f10250b4228a",
       "about": "inspection:fda-inspection:962308",
       "predicate": "classification",
       "value": "VAI",
@@ -2271,9 +2374,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:01:51.840Z"
+       "at": "2026-10-22T12:28:44.514Z"
       },
-      "assertedAt": "2026-10-22T09:01:51.840Z"
+      "assertedAt": "2026-10-22T12:28:44.514Z"
      }
     ],
     "depth": 4
@@ -2296,11 +2399,11 @@
     "from": "hospital-item:hospital-item:CG-94",
     "to": "package:ndc-package:42023-116-02",
     "type": "stocks",
-    "validFrom": "2026-10-22T09:01:45.611Z",
+    "validFrom": "2026-10-22T12:28:41.680Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:01:45.611Z"
+     "at": "2026-10-22T12:28:41.680Z"
     }
    },
    {
@@ -2308,11 +2411,11 @@
     "from": "hospital-item:hospital-item:CG-95",
     "to": "package:ndc-package:63323-012-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T09:01:45.611Z",
+    "validFrom": "2026-10-22T12:28:41.680Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:01:45.611Z"
+     "at": "2026-10-22T12:28:41.680Z"
     }
    },
    {
@@ -2320,11 +2423,11 @@
     "from": "hospital-item:hospital-item:EA-E-000155",
     "to": "package:ndc-package:42023-116-02",
     "type": "stocks",
-    "validFrom": "2026-10-22T09:01:45.609Z",
+    "validFrom": "2026-10-22T12:28:41.680Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:01:45.609Z"
+     "at": "2026-10-22T12:28:41.680Z"
     }
    },
    {
@@ -2332,11 +2435,11 @@
     "from": "hospital-item:hospital-item:EA-E-000211",
     "to": "package:ndc-package:63323-012-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T09:01:45.610Z",
+    "validFrom": "2026-10-22T12:28:41.680Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:01:45.610Z"
+     "at": "2026-10-22T12:28:41.680Z"
     }
    },
    {
@@ -2344,11 +2447,11 @@
     "from": "package:ndc-package:42023-116-02",
     "to": "product:ndc-product:42023-116",
     "type": "package-of",
-    "validFrom": "2026-10-22T09:01:45.610Z",
+    "validFrom": "2026-10-22T12:28:41.680Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:01:45.610Z"
+     "at": "2026-10-22T12:28:41.680Z"
     }
    },
    {
@@ -2356,11 +2459,11 @@
     "from": "package:ndc-package:63323-012-10",
     "to": "product:ndc-product:63323-012",
     "type": "package-of",
-    "validFrom": "2026-10-22T09:01:45.610Z",
+    "validFrom": "2026-10-22T12:28:41.680Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:01:45.610Z"
+     "at": "2026-10-22T12:28:41.680Z"
     }
    },
    {
@@ -2368,11 +2471,11 @@
     "from": "product:ndc-product:42023-116",
     "to": "drug:generic:oxytocin",
     "type": "of-drug",
-    "validFrom": "2026-10-22T09:01:45.610Z",
+    "validFrom": "2026-10-22T12:28:41.680Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:01:45.610Z"
+     "at": "2026-10-22T12:28:41.680Z"
     }
    },
    {
@@ -2380,11 +2483,11 @@
     "from": "product:ndc-product:42023-116",
     "to": "labeler:ndc-labeler:42023",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T09:01:45.610Z",
+    "validFrom": "2026-10-22T12:28:41.680Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:01:45.610Z"
+     "at": "2026-10-22T12:28:41.680Z"
     }
    },
    {
@@ -2392,11 +2495,11 @@
     "from": "product:ndc-product:63323-012",
     "to": "drug:generic:oxytocin",
     "type": "of-drug",
-    "validFrom": "2026-10-22T09:01:45.610Z",
+    "validFrom": "2026-10-22T12:28:41.680Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:01:45.610Z"
+     "at": "2026-10-22T12:28:41.680Z"
     }
    },
    {
@@ -2404,11 +2507,11 @@
     "from": "product:ndc-product:63323-012",
     "to": "labeler:ndc-labeler:63323",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T09:01:45.610Z",
+    "validFrom": "2026-10-22T12:28:41.680Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:01:45.610Z"
+     "at": "2026-10-22T12:28:41.680Z"
     }
    },
    {
@@ -2416,11 +2519,11 @@
     "from": "product:ndc-product:63323-012",
     "to": "site:fei:1450022",
     "type": "made-at",
-    "validFrom": "2026-10-22T09:01:51.836Z",
+    "validFrom": "2026-10-22T12:28:44.513Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:01:51.836Z"
+     "at": "2026-10-22T12:28:44.513Z"
     }
    },
    {
@@ -2428,11 +2531,11 @@
     "from": "product:ndc-product:63323-012",
     "to": "site:fei:3001833549",
     "type": "made-at",
-    "validFrom": "2026-10-22T09:01:51.838Z",
+    "validFrom": "2026-10-22T12:28:44.513Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:01:51.838Z"
+     "at": "2026-10-22T12:28:44.513Z"
     }
    },
    {
@@ -2440,11 +2543,11 @@
     "from": "inspection:fda-inspection:558846",
     "to": "site:fei:1450022",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:01:51.836Z",
+    "validFrom": "2026-10-22T12:28:44.513Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:01:51.836Z"
+     "at": "2026-10-22T12:28:44.513Z"
     }
    },
    {
@@ -2452,11 +2555,11 @@
     "from": "inspection:fda-inspection:569783",
     "to": "site:fei:1450022",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:01:51.837Z",
+    "validFrom": "2026-10-22T12:28:44.513Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:01:51.837Z"
+     "at": "2026-10-22T12:28:44.513Z"
     }
    },
    {
@@ -2464,11 +2567,11 @@
     "from": "inspection:fda-inspection:855192",
     "to": "site:fei:1450022",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:01:51.837Z",
+    "validFrom": "2026-10-22T12:28:44.513Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:01:51.837Z"
+     "at": "2026-10-22T12:28:44.513Z"
     }
    },
    {
@@ -2476,11 +2579,11 @@
     "from": "inspection:fda-inspection:943391",
     "to": "site:fei:1450022",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:01:51.837Z",
+    "validFrom": "2026-10-22T12:28:44.513Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:01:51.837Z"
+     "at": "2026-10-22T12:28:44.513Z"
     }
    },
    {
@@ -2488,11 +2591,11 @@
     "from": "inspection:fda-inspection:1123748",
     "to": "site:fei:1450022",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:01:51.837Z",
+    "validFrom": "2026-10-22T12:28:44.513Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:01:51.837Z"
+     "at": "2026-10-22T12:28:44.513Z"
     }
    },
    {
@@ -2500,11 +2603,11 @@
     "from": "inspection:fda-inspection:1174894",
     "to": "site:fei:1450022",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:01:51.838Z",
+    "validFrom": "2026-10-22T12:28:44.513Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:01:51.838Z"
+     "at": "2026-10-22T12:28:44.513Z"
     }
    },
    {
@@ -2512,11 +2615,11 @@
     "from": "inspection:fda-inspection:1216183",
     "to": "site:fei:1450022",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:01:51.838Z",
+    "validFrom": "2026-10-22T12:28:44.513Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:01:51.838Z"
+     "at": "2026-10-22T12:28:44.513Z"
     }
    },
    {
@@ -2524,11 +2627,11 @@
     "from": "inspection:fda-inspection:613342",
     "to": "site:fei:3001833549",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:01:51.838Z",
+    "validFrom": "2026-10-22T12:28:44.514Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:01:51.838Z"
+     "at": "2026-10-22T12:28:44.514Z"
     }
    },
    {
@@ -2536,11 +2639,11 @@
     "from": "inspection:fda-inspection:640082",
     "to": "site:fei:3001833549",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:01:51.838Z",
+    "validFrom": "2026-10-22T12:28:44.514Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:01:51.838Z"
+     "at": "2026-10-22T12:28:44.514Z"
     }
    },
    {
@@ -2548,11 +2651,11 @@
     "from": "inspection:fda-inspection:732653",
     "to": "site:fei:3001833549",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:01:51.839Z",
+    "validFrom": "2026-10-22T12:28:44.514Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:01:51.839Z"
+     "at": "2026-10-22T12:28:44.514Z"
     }
    },
    {
@@ -2560,11 +2663,11 @@
     "from": "inspection:fda-inspection:741861",
     "to": "site:fei:3001833549",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:01:51.839Z",
+    "validFrom": "2026-10-22T12:28:44.514Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:01:51.839Z"
+     "at": "2026-10-22T12:28:44.514Z"
     }
    },
    {
@@ -2572,11 +2675,11 @@
     "from": "inspection:fda-inspection:815426",
     "to": "site:fei:3001833549",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:01:51.839Z",
+    "validFrom": "2026-10-22T12:28:44.514Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:01:51.839Z"
+     "at": "2026-10-22T12:28:44.514Z"
     }
    },
    {
@@ -2584,11 +2687,11 @@
     "from": "inspection:fda-inspection:901775",
     "to": "site:fei:3001833549",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:01:51.840Z",
+    "validFrom": "2026-10-22T12:28:44.514Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:01:51.840Z"
+     "at": "2026-10-22T12:28:44.514Z"
     }
    },
    {
@@ -2596,11 +2699,11 @@
     "from": "inspection:fda-inspection:962308",
     "to": "site:fei:3001833549",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:01:51.840Z",
+    "validFrom": "2026-10-22T12:28:44.514Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:01:51.840Z"
+     "at": "2026-10-22T12:28:44.514Z"
     }
    },
    {
@@ -2608,11 +2711,11 @@
     "from": "inspection:fda-inspection:1002820",
     "to": "site:fei:3001833549",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:01:51.840Z",
+    "validFrom": "2026-10-22T12:28:44.514Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:01:51.840Z"
+     "at": "2026-10-22T12:28:44.514Z"
     }
    },
    {
@@ -2620,11 +2723,11 @@
     "from": "inspection:fda-inspection:1014707",
     "to": "site:fei:3001833549",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:01:51.840Z",
+    "validFrom": "2026-10-22T12:28:44.514Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:01:51.840Z"
+     "at": "2026-10-22T12:28:44.514Z"
     }
    },
    {
@@ -2632,11 +2735,11 @@
     "from": "inspection:fda-inspection:1099323",
     "to": "site:fei:3001833549",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:01:51.840Z",
+    "validFrom": "2026-10-22T12:28:44.514Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:01:51.840Z"
+     "at": "2026-10-22T12:28:44.514Z"
     }
    },
    {
@@ -2644,11 +2747,11 @@
     "from": "inspection:fda-inspection:1220482",
     "to": "site:fei:3001833549",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:01:51.840Z",
+    "validFrom": "2026-10-22T12:28:44.514Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:01:51.840Z"
+     "at": "2026-10-22T12:28:44.514Z"
     }
    },
    {
@@ -2656,11 +2759,11 @@
     "from": "warning-letter:fda-warning-letter:225954",
     "to": "site:fei:3001833549",
     "type": "issued-to",
-    "validFrom": "2026-10-22T09:01:51.839Z",
+    "validFrom": "2026-10-22T12:28:44.514Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:01:51.839Z"
+     "at": "2026-10-22T12:28:44.514Z"
     }
    }
   ],

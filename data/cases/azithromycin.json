@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-4dd9d6",
+ "id": "case-2026-10-22-d20326",
  "question": "Why is azithromycin short, and what do we do?",
- "askedAt": "2026-10-22T07:27:15.561Z",
+ "askedAt": "2026-10-22T11:32:12.156Z",
  "asOf": "2026-10-21",
  "molecule": "azithromycin",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H83CAHRB2EKQ40FJCHRZTR",
+  "contractId": "01M5HP3V4MHCEYC9S1GG4JWYFR",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-7b9ad3"
+    "Q-1fa81a"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1832,
+   "ms": 3389,
    "rows": 4,
-   "finding": "4 stock lines across 2 hospitals.",
+   "finding": "4 stock lines across 2 hospitals, 2 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-c885e9"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 522,
+   "ms": 433,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-1324cc",
-    "Q-8f3847"
+    "Q-0542a6",
+    "Q-fe442d"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 236,
+   "ms": 239,
    "rows": 11,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-b8ebc8"
+    "Q-73bef7"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1353,
+   "ms": 1181,
    "rows": 249,
    "finding": "37 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-5a2a45",
     "Q-8c11bc",
     "Q-2ac723",
-    "Q-06faa5"
+    "Q-02baf9"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 882,
+   "ms": 650,
    "rows": 3,
    "finding": "3 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 830,
+   "ms": 610,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-d30cdb"
+    "Q-ad80e6"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 767,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1279,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -153,8 +164,11 @@
    "onHand": 227,
    "dailyUse": 15.423,
    "days": 14.7,
-   "unit": "package",
+   "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "azithromycin|250mg|tablet||tablet",
+   "presentationLabel": "250 mg tablet",
    "evidence": "E1"
   },
   {
@@ -166,35 +180,116 @@
    "onHand": 120,
    "dailyUse": 15.743,
    "days": 7.6,
-   "unit": "package",
+   "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "azithromycin|500mg|tablet||tablet",
+   "presentationLabel": "500 mg tablet",
    "evidence": "E2"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-153",
    "ndc11": "50111078751",
-   "description": "Azithromycin",
+   "description": "Azithromycin 250 mg/1",
    "labeler": "Teva Pharmaceuticals USA, Inc.",
-   "onHand": 333.62,
+   "onHand": 333,
    "dailyUse": 15.949,
    "days": 20.9,
    "unit": "tablet",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "azithromycin|250mg|tablet||tablet",
+   "presentationLabel": "250 mg tablet",
    "evidence": "E3"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-154",
    "ndc11": "71205067403",
-   "description": "Azithromycin",
+   "description": "Azithromycin 500 mg/1",
    "labeler": "Proficient Rx LP",
-   "onHand": 368.83,
+   "onHand": 368,
    "dailyUse": 15.749,
    "days": 23.4,
    "unit": "tablet",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "azithromycin|500mg|tablet||tablet",
+   "presentationLabel": "500 mg tablet",
    "evidence": "E4"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "azithromycin|500mg|tablet||tablet",
+   "label": "500 mg tablet",
+   "short": "500 mg",
+   "unit": "tablet",
+   "onHand": 488,
+   "dailyUse": 31.492,
+   "days": 15.5,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 120,
+     "dailyUse": 15.743,
+     "days": 7.6,
+     "lines": [
+      "EA-E-000276"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 368,
+     "dailyUse": 15.749,
+     "days": 23.4,
+     "lines": [
+      "CG-154"
+     ],
+     "evidence": [
+      "E4"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "azithromycin|250mg|tablet||tablet",
+   "label": "250 mg tablet",
+   "short": "250 mg",
+   "unit": "tablet",
+   "onHand": 560,
+   "dailyUse": 31.372,
+   "days": 17.9,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 227,
+     "dailyUse": 15.423,
+     "days": 14.7,
+     "lines": [
+      "EA-E-000174"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 333,
+     "dailyUse": 15.949,
+     "days": 20.9,
+     "lines": [
+      "CG-153"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -476,7 +571,7 @@
    "ndc11": "00069306075",
    "dosageForm": "TABLET, FILM COATED",
    "plants": [],
-   "onShortageList": false,
+   "onShortageList": true,
    "inOurStock": false
   },
   {
@@ -586,13 +681,27 @@
  ],
  "options": [
   {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from A-S Medication Solutions",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
+   "kind": "transfer",
+   "rank": 1,
+   "title": "Transfer 101 tablets of 500 mg from Corvale General to Corvale East",
+   "detail": "Corvale General has 23 days of 500 mg tablets on hand and can spare 101 tablets while keeping two weeks; Corvale East has 7.6 days and would reach 14.",
+   "why": "Same presentation, no clinical change, no new supplier.",
+   "needs": "pharmacy director (transfer request)",
+   "evidence": [
+    "E4",
+    "E2"
+   ],
+   "transfer": {
+    "qty": 101,
+    "unit": "tablet",
+    "presentation": "500 mg tablet",
+    "from": "Corvale General",
+    "to": "Corvale East",
+    "fromDays": 23.4,
+    "toDays": 7.6,
+    "fromAfter": 17,
+    "toAfter": 14
+   }
   },
   {
    "kind": "alternate_manufacturer",
@@ -625,24 +734,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Alembic Pharmaceuticals Limited",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from American Health Packaging",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Asclemed USA, Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -687,43 +778,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Bryant Ranch Prepack",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Cardinal Health 107, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Coupler LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from DIRECT RX",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Direct_Rx",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -777,42 +832,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals,Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from PD-Rx Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Pfizer Laboratories Div Pfizer Inc",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from PharmPak, Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -823,33 +842,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Precision Dose, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Preferred Pharmaceuticals Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Quality Care Products, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from REMEDYREPACK INC.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -926,55 +918,63 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "FDA's shortage list shows Pfizer Inc. azithromycin tablets to be discontinued as of 2026-04-09; the shortage has been posted for 56 months as of 2026-10-21",
+  "headline": "The public record is incomplete; check the flagged links",
   "sentences": [
    {
-    "text": "FDA's shortage list records Pfizer Inc. azithromycin tablets as To Be Discontinued with an initial posting date of 2026-04-09.",
+    "text": "Our 500 mg tablets at both Corvale sites carry NDC 71205067403, labeled by Proficient Rx LP (label 90605f94).",
     "cites": [
-     "E8"
+     "E4",
+     "E2",
+     "E7"
+    ]
+   },
+   {
+    "text": "Proficient Rx LP's registered plant (FEI 3011557028) received a VAI classification on inspection 1194148 ending 2022-12-08, 289 days after the shortage posting.",
+    "cites": [
+     "E7",
+     "D5",
+     "E6"
     ]
    },
    {
     "text": "As of 2026-10-21 the shortage has been on FDA's list for 56 months.",
     "cites": [
-     "D7"
+     "D6"
     ]
    },
    {
-    "text": "Corvale East holds 347 units at 31.2 units per day, providing 11 days on hand.",
+    "text": "Corvale East has 7.6 days of 500 mg tablets on hand; Corvale General has 23.4 days.",
     "cites": [
-     "D1"
-    ]
-   },
-   {
-    "text": "Corvale General holds 702 units at 31.7 units per day, providing 22 days on hand.",
-    "cites": [
+     "D1",
      "D2"
     ]
    },
    {
-    "text": "The label for NDC 71205067403 names Proficient Rx LP as the product labeler and plant, with operations of RELABEL and REPACK and a last inspection classification of VAI on 2022-12-08.",
+    "text": "The top-ranked action is to transfer 101 tablets of 500 mg from Corvale General to Corvale East, which would give Corvale East 14 days on hand while Corvale General retains two weeks.",
     "cites": [
-     "E7"
+     "D7"
     ]
    },
    {
-    "text": "FDA inspection 1194148 of Proficient Rx LP ended 2022-12-08 and was classified VAI; the classification letter was issued 2023-02-08, 289 days after the shortage posting on 2022-02-22.",
+    "text": "Alternate manufacturers Advanced Rx Pharmacy of Tennessee, LLC and Advanced Rx of Tennessee, LLC are not on FDA's shortage list today and their labels name no plant we could place.",
     "cites": [
-     "D3",
-     "E6"
-    ]
-   },
-   {
-    "text": "The rule-based best option is to buy from A-S Medication Solutions, which is not on FDA's shortage list today and its label names no plant we could place.",
-    "cites": [
-     "D4"
+     "D8",
+     "D9"
     ]
    }
   ],
   "verifier": {
    "checked": 8,
-   "rejected": [],
+   "rejected": [
+    {
+     "text": "FDA's shortage list shows azithromycin tablets from Pfizer Inc. with status To Be Discontinued, first posted 2022-02-22.",
+     "reason": "date 2022-02-22 is not in the cited evidence"
+    },
+    {
+     "text": "FDA's records show azithromycin 500 mg tablets from Proficient Rx LP are on the shortage list as To Be Discontinued since 2022-02-22; the labeler's plant was classified VAI 289 days after that posting",
+     "reason": "headline: number 500 is not in the cited evidence"
+    }
+   ],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -982,45 +982,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -1035,80 +1056,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:27:09.137Z",
+   "at": "2026-10-22T11:32:04.373Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract FJCHRZTR scope"
+   "reason": "in contract GG4JWYFR scope"
   },
   {
-   "at": "2026-10-22T07:27:09.137Z",
+   "at": "2026-10-22T11:32:04.373Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FJCHRZTR scope"
+   "reason": "in contract GG4JWYFR scope"
   },
   {
-   "at": "2026-10-22T07:27:10.970Z",
+   "at": "2026-10-22T11:32:07.762Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FJCHRZTR scope"
+   "reason": "in contract GG4JWYFR scope"
   },
   {
-   "at": "2026-10-22T07:27:11.491Z",
+   "at": "2026-10-22T11:32:08.195Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FJCHRZTR scope"
+   "reason": "in contract GG4JWYFR scope"
   },
   {
-   "at": "2026-10-22T07:27:11.727Z",
+   "at": "2026-10-22T11:32:08.435Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FJCHRZTR scope"
+   "reason": "in contract GG4JWYFR scope"
   },
   {
-   "at": "2026-10-22T07:27:13.081Z",
+   "at": "2026-10-22T11:32:09.616Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FJCHRZTR scope"
+   "reason": "in contract GG4JWYFR scope"
   },
   {
-   "at": "2026-10-22T07:27:13.963Z",
+   "at": "2026-10-22T11:32:10.265Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FJCHRZTR scope"
+   "reason": "in contract GG4JWYFR scope"
   },
   {
-   "at": "2026-10-22T07:27:14.793Z",
+   "at": "2026-10-22T11:32:10.875Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FJCHRZTR scope"
+   "reason": "in contract GG4JWYFR scope"
   },
   {
-   "at": "2026-10-22T07:27:15.560Z",
+   "at": "2026-10-22T11:32:12.155Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract FJCHRZTR scope"
+   "reason": "in contract GG4JWYFR scope"
   },
   {
-   "at": "2026-10-22T07:27:15.561Z",
+   "at": "2026-10-22T11:32:12.156Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract FJCHRZTR scope"
+   "reason": "in contract GG4JWYFR scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-7b9ad3",
+   "queryId": "Q-1fa81a",
    "row": 0,
    "label": "Corvale East: AZITHROMYCIN 250MG TAB",
    "fields": {
@@ -1119,19 +1140,24 @@
     "description": "AZITHROMYCIN 250MG TAB",
     "on_hand": "227.00",
     "daily_use": "15.423",
-    "unit": "package",
+    "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Azithromycin",
     "labeler_name": "Teva Pharmaceuticals USA, Inc.",
     "package_ndc": "50111-787-51",
     "spl_set_id": null,
     "dosage_form": "TABLET, FILM COATED",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "AZITHROMYCIN MONOHYDRATE 250 mg/1",
+    "unit_content": null,
+    "pkg_unit": "blister"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-7b9ad3",
+   "queryId": "Q-1fa81a",
    "row": 1,
    "label": "Corvale East: AZITHROMYCIN 500MG TAB",
    "fields": {
@@ -1142,60 +1168,75 @@
     "description": "AZITHROMYCIN 500MG TAB",
     "on_hand": "120.00",
     "daily_use": "15.743",
-    "unit": "package",
+    "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Azithromycin",
     "labeler_name": "Proficient Rx LP",
     "package_ndc": "71205-674-03",
     "spl_set_id": "90605f94-93e1-43d1-8be7-830e816ac84f",
     "dosage_form": "TABLET, FILM COATED",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "AZITHROMYCIN DIHYDRATE 500 mg/1",
+    "unit_content": null,
+    "pkg_unit": "dose"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-7b9ad3",
+   "queryId": "Q-1fa81a",
    "row": 2,
-   "label": "Corvale General: Azithromycin",
+   "label": "Corvale General: Azithromycin 250 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-153",
     "ndc11": "50111078751",
     "ndc_as_recorded": "50111078751",
-    "description": "Azithromycin",
-    "on_hand": "333.62",
+    "description": "Azithromycin 250 mg/1",
+    "on_hand": "333.00",
     "daily_use": "15.949",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Azithromycin",
     "labeler_name": "Teva Pharmaceuticals USA, Inc.",
     "package_ndc": "50111-787-51",
     "spl_set_id": null,
     "dosage_form": "TABLET, FILM COATED",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "AZITHROMYCIN MONOHYDRATE 250 mg/1",
+    "unit_content": null,
+    "pkg_unit": "blister"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-7b9ad3",
+   "queryId": "Q-1fa81a",
    "row": 3,
-   "label": "Corvale General: Azithromycin",
+   "label": "Corvale General: Azithromycin 500 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-154",
     "ndc11": "71205067403",
     "ndc_as_recorded": "71205067403",
-    "description": "Azithromycin",
-    "on_hand": "368.83",
+    "description": "Azithromycin 500 mg/1",
+    "on_hand": "368.00",
     "daily_use": "15.749",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Azithromycin",
     "labeler_name": "Proficient Rx LP",
     "package_ndc": "71205-674-03",
     "spl_set_id": "90605f94-93e1-43d1-8be7-830e816ac84f",
     "dosage_form": "TABLET, FILM COATED",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "AZITHROMYCIN DIHYDRATE 500 mg/1",
+    "unit_content": null,
+    "pkg_unit": "dose"
    }
   },
   "E5": {
@@ -1248,7 +1289,7 @@
   },
   "E8": {
    "id": "E8",
-   "queryId": "Q-1324cc",
+   "queryId": "Q-0542a6",
    "row": 0,
    "label": "FDA shortage list: Pfizer Inc., To Be Discontinued",
    "fields": {
@@ -1265,28 +1306,56 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 347 units of azithromycin at 31.2 a day: 11 days on hand",
+   "label": "Corvale East holds 120 tablets of azithromycin 500 mg at 15.7 a day: 7.6 days on hand",
    "fields": {
     "hospital": "Corvale East",
-    "on_hand": 347,
-    "daily_use": 31.2,
-    "days_on_hand": 11
+    "presentation": "500 mg tablet",
+    "on_hand": 120,
+    "daily_use": 15.7,
+    "days_on_hand": 7.6
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 702 units of azithromycin at 31.7 a day: 22 days on hand",
+   "label": "Corvale General holds 368 tablets of azithromycin 500 mg at 15.7 a day: 23.4 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 702,
-    "daily_use": 31.7,
-    "days_on_hand": 22
+    "presentation": "500 mg tablet",
+    "on_hand": 368,
+    "daily_use": 15.7,
+    "days_on_hand": 23.4
    }
   },
   "D3": {
    "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale East holds 227 tablets of azithromycin 250 mg at 15.4 a day: 14.7 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "250 mg tablet",
+    "on_hand": 227,
+    "daily_use": 15.4,
+    "days_on_hand": 14.7
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 333 tablets of azithromycin 250 mg at 15.9 a day: 20.9 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "250 mg tablet",
+    "on_hand": 333,
+    "daily_use": 15.9,
+    "days_on_hand": 20.9
+   }
+  },
+  "D5": {
+   "id": "D5",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 1194148 ended 2022-12-08, classified VAI; classification letter 2023-02-08 — 289 days after FDA posted the shortage on 2022-02-22",
@@ -1296,38 +1365,8 @@
     "days": 289
    }
   },
-  "D4": {
-   "id": "D4",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 3 by rule: Buy from A-S Medication Solutions. Not on FDA's shortage list today. Its label names no plant we could place.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
-   }
-  },
-  "D5": {
-   "id": "D5",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 3 by rule: Buy from Advanced Rx Pharmacy of Tennessee, LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
-   }
-  },
   "D6": {
    "id": "D6",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 3 by rule: Buy from Advanced Rx of Tennessee, LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
-   }
-  },
-  "D7": {
-   "id": "D7",
    "queryId": "derived",
    "row": -1,
    "label": "As of 2026-10-21 the shortage has been on FDA's list for 56 months",
@@ -1336,166 +1375,215 @@
     "posted": "2022-02-22",
     "months": 56
    }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 101 tablets of 500 mg from Corvale General to Corvale East. Corvale General has 23 days of 500 mg tablets on hand and can spare 101 tablets while keeping two weeks; Corvale East has 7.6 days and would reach 14.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D8": {
+   "id": "D8",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Advanced Rx Pharmacy of Tennessee, LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D9": {
+   "id": "D9",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Advanced Rx of Tennessee, LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
   }
  },
  "queries": {
-  "Q-7b9ad3": {
-   "id": "Q-7b9ad3",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%azithromycin%' OR lower(s.description) LIKE '%azithromycin%' ORDER BY s.hospital, s.item_key",
-   "ms": 1831,
+  "Q-1fa81a": {
+   "id": "Q-1fa81a",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*azithromycin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*azithromycin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3388,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:27:10.968Z",
+   "ranAt": "2026-10-22T11:32:07.760Z",
    "rows": 4
   },
   "Q-c885e9": {
    "id": "Q-c885e9",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('90605f94-93e1-43d1-8be7-830e816ac84f') ORDER BY ps.set_id, ps.establishment",
-   "ms": 521,
+   "ms": 432,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:27:11.490Z",
+   "ranAt": "2026-10-22T11:32:08.194Z",
    "rows": 1
   },
-  "Q-1324cc": {
-   "id": "Q-1324cc",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%azithromycin%' ORDER BY status, company_name, package_ndc",
-   "ms": 124,
+  "Q-0542a6": {
+   "id": "Q-0542a6",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*azithromycin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 121,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:27:11.615Z",
+   "ranAt": "2026-10-22T11:32:08.316Z",
    "rows": 3
   },
-  "Q-8f3847": {
-   "id": "Q-8f3847",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%azithromycin%' ORDER BY first_posting",
-   "ms": 110,
+  "Q-fe442d": {
+   "id": "Q-fe442d",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*azithromycin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 116,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:27:11.726Z",
+   "ranAt": "2026-10-22T11:32:08.434Z",
    "rows": 8
   },
-  "Q-b8ebc8": {
-   "id": "Q-b8ebc8",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%azithromycin%' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 1350,
+  "Q-73bef7": {
+   "id": "Q-73bef7",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*azithromycin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1179,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:27:13.078Z",
+   "ranAt": "2026-10-22T11:32:09.614Z",
    "rows": 249
   },
   "Q-5a2a45": {
    "id": "Q-5a2a45",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3011557028') ORDER BY fei, end_date",
-   "ms": 399,
+   "ms": 250,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:27:13.480Z",
+   "ranAt": "2026-10-22T11:32:09.866Z",
    "rows": 3
   },
   "Q-8c11bc": {
    "id": "Q-8c11bc",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3011557028') ORDER BY fei, action_date",
-   "ms": 210,
+   "ms": 129,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:27:13.691Z",
+   "ranAt": "2026-10-22T11:32:09.996Z",
    "rows": 0
   },
   "Q-2ac723": {
    "id": "Q-2ac723",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3011557028') OR (fei_match <> 'name_and_city' AND firm_key IN ('proficient rx')) ORDER BY date_published",
-   "ms": 127,
+   "ms": 117,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:27:13.819Z",
+   "ranAt": "2026-10-22T11:32:10.114Z",
    "rows": 0
   },
-  "Q-06faa5": {
-   "id": "Q-06faa5",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('proficient rx', 'teva') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%azithromycin%' ORDER BY initiation_date",
-   "ms": 141,
+  "Q-02baf9": {
+   "id": "Q-02baf9",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('proficient rx', 'teva') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*azithromycin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 149,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:27:13.961Z",
+   "ranAt": "2026-10-22T11:32:10.264Z",
    "rows": 0
   },
   "Q-8c02d7": {
    "id": "Q-8c02d7",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('50111078751', '71205067403')",
-   "ms": 829,
+   "ms": 608,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:27:14.792Z",
+   "ranAt": "2026-10-22T11:32:10.873Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-d30cdb": {
-   "id": "Q-d30cdb",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%azithromycin%'",
-   "ms": 766,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:27:15.559Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-ad80e6": {
+   "id": "Q-ad80e6",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*azithromycin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1278,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:32:12.153Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 11779,
+  "zetarisMs": 17975,
   "modelCalls": 1,
-  "tokensIn": 1188,
-  "tokensOut": 502,
+  "tokensIn": 2112,
+  "tokensOut": 530,
   "mode": "live"
  },
  "slug": "azithromycin",
@@ -1511,7 +1599,7 @@
     "id": "hospital-item:hospital-item:CG-153",
     "type": "HospitalItem",
     "key": "hospital-item:CG-153",
-    "label": "Corvale General: Azithromycin",
+    "label": "Corvale General: Azithromycin 250 mg/1",
     "attrs": {
      "key": "hospital-item:CG-153"
     },
@@ -1522,7 +1610,7 @@
     "id": "hospital-item:hospital-item:CG-154",
     "type": "HospitalItem",
     "key": "hospital-item:CG-154",
-    "label": "Corvale General: Azithromycin",
+    "label": "Corvale General: Azithromycin 500 mg/1",
     "attrs": {
      "key": "hospital-item:CG-154"
     },
@@ -1650,7 +1738,7 @@
     },
     "facts": [
      {
-      "id": "fact_e15b0ac2e5808144",
+      "id": "fact_6907b6bccc37e354",
       "about": "inspection:fda-inspection:1194148",
       "predicate": "classification",
       "value": "VAI",
@@ -1658,9 +1746,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:27:13.963Z"
+       "at": "2026-10-22T11:32:10.265Z"
       },
-      "assertedAt": "2026-10-22T07:27:13.963Z"
+      "assertedAt": "2026-10-22T11:32:10.265Z"
      }
     ],
     "depth": 4
@@ -1676,7 +1764,7 @@
     },
     "facts": [
      {
-      "id": "fact_18f5e894730337eb",
+      "id": "fact_f80a117faec6896a",
       "about": "inspection:fda-inspection:948193",
       "predicate": "classification",
       "value": "VAI",
@@ -1684,9 +1772,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:27:13.963Z"
+       "at": "2026-10-22T11:32:10.265Z"
       },
-      "assertedAt": "2026-10-22T07:27:13.963Z"
+      "assertedAt": "2026-10-22T11:32:10.265Z"
      }
     ],
     "depth": 4
@@ -1698,11 +1786,11 @@
     "from": "hospital-item:hospital-item:CG-153",
     "to": "package:ndc-package:50111-787-51",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:27:10.969Z",
+    "validFrom": "2026-10-22T11:32:07.762Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:27:10.969Z"
+     "at": "2026-10-22T11:32:07.762Z"
     }
    },
    {
@@ -1710,11 +1798,11 @@
     "from": "hospital-item:hospital-item:CG-154",
     "to": "package:ndc-package:71205-674-03",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:27:10.969Z",
+    "validFrom": "2026-10-22T11:32:07.762Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:27:10.969Z"
+     "at": "2026-10-22T11:32:07.762Z"
     }
    },
    {
@@ -1722,11 +1810,11 @@
     "from": "hospital-item:hospital-item:EA-E-000174",
     "to": "package:ndc-package:50111-787-51",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:27:10.969Z",
+    "validFrom": "2026-10-22T11:32:07.762Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:27:10.969Z"
+     "at": "2026-10-22T11:32:07.762Z"
     }
    },
    {
@@ -1734,11 +1822,11 @@
     "from": "hospital-item:hospital-item:EA-E-000276",
     "to": "package:ndc-package:71205-674-03",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:27:10.969Z",
+    "validFrom": "2026-10-22T11:32:07.762Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:27:10.969Z"
+     "at": "2026-10-22T11:32:07.762Z"
     }
    },
    {
@@ -1746,11 +1834,11 @@
     "from": "package:ndc-package:50111-787-51",
     "to": "product:ndc-product:50111-787",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:27:10.969Z",
+    "validFrom": "2026-10-22T11:32:07.762Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:27:10.969Z"
+     "at": "2026-10-22T11:32:07.762Z"
     }
    },
    {
@@ -1758,11 +1846,11 @@
     "from": "package:ndc-package:71205-674-03",
     "to": "product:ndc-product:71205-674",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:27:10.969Z",
+    "validFrom": "2026-10-22T11:32:07.762Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:27:10.969Z"
+     "at": "2026-10-22T11:32:07.762Z"
     }
    },
    {
@@ -1770,11 +1858,11 @@
     "from": "product:ndc-product:50111-787",
     "to": "drug:generic:azithromycin",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:27:10.969Z",
+    "validFrom": "2026-10-22T11:32:07.762Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:27:10.969Z"
+     "at": "2026-10-22T11:32:07.762Z"
     }
    },
    {
@@ -1782,11 +1870,11 @@
     "from": "product:ndc-product:50111-787",
     "to": "labeler:ndc-labeler:50111",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:27:10.969Z",
+    "validFrom": "2026-10-22T11:32:07.762Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:27:10.969Z"
+     "at": "2026-10-22T11:32:07.762Z"
     }
    },
    {
@@ -1794,11 +1882,11 @@
     "from": "product:ndc-product:71205-674",
     "to": "drug:generic:azithromycin",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:27:10.969Z",
+    "validFrom": "2026-10-22T11:32:07.762Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:27:10.969Z"
+     "at": "2026-10-22T11:32:07.762Z"
     }
    },
    {
@@ -1806,11 +1894,11 @@
     "from": "product:ndc-product:71205-674",
     "to": "labeler:ndc-labeler:71205",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:27:10.969Z",
+    "validFrom": "2026-10-22T11:32:07.762Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:27:10.969Z"
+     "at": "2026-10-22T11:32:07.762Z"
     }
    },
    {
@@ -1818,11 +1906,11 @@
     "from": "product:ndc-product:71205-674",
     "to": "site:fei:3011557028",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:27:13.962Z",
+    "validFrom": "2026-10-22T11:32:10.265Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:27:13.962Z"
+     "at": "2026-10-22T11:32:10.265Z"
     }
    },
    {
@@ -1830,11 +1918,11 @@
     "from": "inspection:fda-inspection:948193",
     "to": "site:fei:3011557028",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:27:13.963Z",
+    "validFrom": "2026-10-22T11:32:10.265Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:27:13.963Z"
+     "at": "2026-10-22T11:32:10.265Z"
     }
    },
    {
@@ -1842,11 +1930,11 @@
     "from": "inspection:fda-inspection:1194148",
     "to": "site:fei:3011557028",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:27:13.963Z",
+    "validFrom": "2026-10-22T11:32:10.265Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:27:13.963Z"
+     "at": "2026-10-22T11:32:10.265Z"
     }
    }
   ],

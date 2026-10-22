@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-4120ae",
+ "id": "case-2026-10-22-d1ac66",
  "question": "Why is mesna short, and what do we do?",
- "askedAt": "2026-10-22T09:01:00.464Z",
+ "askedAt": "2026-10-22T12:19:14.766Z",
  "asOf": "2026-10-21",
  "molecule": "mesna",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5HDEZERH6TDW2F04508MK8Z",
+  "contractId": "01M5HRSZG0K2QXYQ20PZ8F13T1",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-fba6d9"
+    "Q-9ca820"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1966,
+   "ms": 3496,
    "rows": 2,
-   "finding": "2 stock lines across 2 hospitals.",
+   "finding": "2 stock lines across 2 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-d880c0"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 620,
+   "ms": 379,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 0 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-68d798",
-    "Q-dd83eb"
+    "Q-fdfb70",
+    "Q-fb1b3d"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 379,
+   "ms": 261,
    "rows": 0,
    "finding": "Not on FDA's current shortage list.",
    "status": "empty"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-2cd92e"
+    "Q-b5c373"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1653,
+   "ms": 1208,
    "rows": 14,
    "finding": "6 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-808a5c",
     "Q-de2bfd",
     "Q-c4df35",
-    "Q-cf0754"
+    "Q-a6c757"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1230,
+   "ms": 668,
    "rows": 0,
    "finding": "0 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "empty"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1425,
+   "ms": 774,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-47e719"
+    "Q-dcb731"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1131,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1099,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -153,22 +164,65 @@
    "onHand": 73,
    "dailyUse": 3.266,
    "days": 22.4,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "mesna|100mg/ml|injection|10ml|vial",
+   "presentationLabel": "100 mg/mL injection, 10 mL vial",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-268",
    "ndc11": "00143926001",
-   "description": "mesna",
+   "description": "mesna 100 mg/mL",
    "labeler": "Hikma Pharmaceuticals USA Inc.",
-   "onHand": 43.01,
+   "onHand": 43,
    "dailyUse": 2.741,
    "days": 15.7,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "mesna|100mg/ml|injection|10ml|vial",
+   "presentationLabel": "100 mg/mL injection, 10 mL vial",
    "evidence": "E2"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "mesna|100mg/ml|injection|10ml|vial",
+   "label": "100 mg/mL injection, 10 mL vial",
+   "short": "100 mg/mL, 10 mL",
+   "unit": "vial",
+   "onHand": 116,
+   "dailyUse": 6.007,
+   "days": 19.3,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 73,
+     "dailyUse": 3.266,
+     "days": 22.4,
+     "lines": [
+      "EA-E-000024"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 43,
+     "dailyUse": 2.741,
+     "days": 15.7,
+     "lines": [
+      "CG-268"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -332,39 +386,49 @@
  ],
  "explanation": {
   "state": "no_signal",
-  "headline": "No FDA shortage signal for mesna at our plants; Corvale East has 22 days on hand and Corvale General has 16 days on hand",
+  "headline": "Mesna is not on FDA's shortage list as of 2026-10-21; Corvale East has 22.4 days on hand and Corvale General has 15.7 days on hand",
   "sentences": [
    {
-    "text": "Corvale East holds 73 units with a daily use of 3.3, providing 22 days on hand.",
+    "text": "FDA's records show mesna is not on the drug shortage list as of 2026-10-21.",
+    "cites": [
+     "D3"
+    ]
+   },
+   {
+    "text": "Corvale East holds 73 vials of mesna 100 mg/mL 10 mL at 3.3 vials per day, providing 22.4 days on hand.",
     "cites": [
      "D1"
     ]
    },
    {
-    "text": "Corvale General holds 43 units with a daily use of 2.7, providing 16 days on hand.",
+    "text": "Corvale General holds 43 vials of the same presentation at 2.7 vials per day, providing 15.7 days on hand.",
     "cites": [
      "D2"
     ]
    },
    {
-    "text": "The product label identifies Hikma Farmacêutica (Portugal) as the manufacturing plant.",
+    "text": "The rule-based best option is to buy from Sagent Pharmaceuticals, which is also not on FDA's shortage list today.",
     "cites": [
-     "E3"
+     "D4"
+    ]
+   },
+   {
+    "text": "Sagent Pharmaceuticals' plant is listed as SAGENT PHARMS INC.",
+    "cites": [
+     "D4"
+    ]
+   },
+   {
+    "text": "Alternative manufacturers Bamboo US Bidco LCC and Baxter Healthcare Company are not on the shortage list but their labels name no plant we could place.",
+    "cites": [
+     "D5",
+     "D6"
     ]
    }
   ],
   "verifier": {
-   "checked": 6,
-   "rejected": [
-    {
-     "text": "FDA's records show no shortage listing for mesna as of 2026-10-21.",
-     "reason": "cites nothing"
-    },
-    {
-     "text": "The recommended action is to buy from Sagent Pharmaceuticals, which is not on FDA's shortage list today.",
-     "reason": "cites nothing"
-    }
-   ],
+   "checked": 7,
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -372,45 +436,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -419,86 +504,86 @@
    "text": "Decision on lidocaine: switch lidocaine 1% 30 mL vials to 5 mL vials in the ED to reduce waste during the shortage. Rationale: Single-dose waste was a third of use (demo history). Approved by Alex Morgan, PharmD.",
    "approvedBy": "Alex Morgan, PharmD",
    "when": "2025-11-20",
-   "score": 0.257
+   "score": 0.258
   }
  ],
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T09:00:52.057Z",
+   "at": "2026-10-22T12:19:06.880Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract 4508MK8Z scope"
+   "reason": "in contract PZ8F13T1 scope"
   },
   {
-   "at": "2026-10-22T09:00:52.057Z",
+   "at": "2026-10-22T12:19:06.880Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 4508MK8Z scope"
+   "reason": "in contract PZ8F13T1 scope"
   },
   {
-   "at": "2026-10-22T09:00:54.024Z",
+   "at": "2026-10-22T12:19:10.377Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 4508MK8Z scope"
+   "reason": "in contract PZ8F13T1 scope"
   },
   {
-   "at": "2026-10-22T09:00:54.644Z",
+   "at": "2026-10-22T12:19:10.756Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 4508MK8Z scope"
+   "reason": "in contract PZ8F13T1 scope"
   },
   {
-   "at": "2026-10-22T09:00:55.024Z",
+   "at": "2026-10-22T12:19:11.016Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 4508MK8Z scope"
+   "reason": "in contract PZ8F13T1 scope"
   },
   {
-   "at": "2026-10-22T09:00:56.677Z",
+   "at": "2026-10-22T12:19:12.224Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 4508MK8Z scope"
+   "reason": "in contract PZ8F13T1 scope"
   },
   {
-   "at": "2026-10-22T09:00:57.906Z",
+   "at": "2026-10-22T12:19:12.892Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 4508MK8Z scope"
+   "reason": "in contract PZ8F13T1 scope"
   },
   {
-   "at": "2026-10-22T09:00:59.331Z",
+   "at": "2026-10-22T12:19:13.666Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 4508MK8Z scope"
+   "reason": "in contract PZ8F13T1 scope"
   },
   {
-   "at": "2026-10-22T09:01:00.463Z",
+   "at": "2026-10-22T12:19:14.765Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract 4508MK8Z scope"
+   "reason": "in contract PZ8F13T1 scope"
   },
   {
-   "at": "2026-10-22T09:01:00.465Z",
+   "at": "2026-10-22T12:19:14.766Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract 4508MK8Z scope"
+   "reason": "in contract PZ8F13T1 scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-fba6d9",
+   "queryId": "Q-9ca820",
    "row": 0,
    "label": "Corvale East: MESNA 100MG/ML 10ML MDV",
    "fields": {
@@ -509,37 +594,47 @@
     "description": "MESNA 100MG/ML 10ML MDV",
     "on_hand": "73.00",
     "daily_use": "3.266",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "mesna",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0143-9260-01",
     "spl_set_id": "8012b97b-4e39-451f-8e04-542d196e8bc6",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "MESNA 100 mg/mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-fba6d9",
+   "queryId": "Q-9ca820",
    "row": 1,
-   "label": "Corvale General: mesna",
+   "label": "Corvale General: mesna 100 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-268",
     "ndc11": "00143926001",
     "ndc_as_recorded": "00143926001",
-    "description": "mesna",
-    "on_hand": "43.01",
+    "description": "mesna 100 mg/mL",
+    "on_hand": "43.00",
     "daily_use": "2.741",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "mesna",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0143-9260-01",
     "spl_set_id": "8012b97b-4e39-451f-8e04-542d196e8bc6",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "MESNA 100 mg/mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E3": {
@@ -562,185 +657,246 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 73 units of mesna at 3.3 a day: 22 days on hand",
+   "label": "Corvale East holds 73 vials of mesna 100 mg/mL, 10 mL at 3.3 a day: 22.4 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "100 mg/mL injection, 10 mL vial",
     "on_hand": 73,
     "daily_use": 3.3,
-    "days_on_hand": 22
+    "days_on_hand": 22.4
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 43 units of mesna at 2.7 a day: 16 days on hand",
+   "label": "Corvale General holds 43 vials of mesna 100 mg/mL, 10 mL at 2.7 a day: 15.7 days on hand",
    "fields": {
     "hospital": "Corvale General",
+    "presentation": "100 mg/mL injection, 10 mL vial",
     "on_hand": 43,
     "daily_use": 2.7,
-    "days_on_hand": 16
+    "days_on_hand": 15.7
+   }
+  },
+  "D3": {
+   "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "mesna is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from Sagent Pharmaceuticals. Not on FDA's shortage list today. Plants: SAGENT PHARMS INC.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Bamboo US Bidco LCC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Baxter Healthcare Company. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-fba6d9": {
-   "id": "Q-fba6d9",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%mesna%' OR lower(s.description) LIKE '%mesna%' ORDER BY s.hospital, s.item_key",
-   "ms": 1965,
+  "Q-9ca820": {
+   "id": "Q-9ca820",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*mesna(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*mesna(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3494,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T09:00:54.022Z",
+   "ranAt": "2026-10-22T12:19:10.375Z",
    "rows": 2
   },
   "Q-d880c0": {
    "id": "Q-d880c0",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('8012b97b-4e39-451f-8e04-542d196e8bc6') ORDER BY ps.set_id, ps.establishment",
-   "ms": 618,
+   "ms": 375,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T09:00:54.643Z",
+   "ranAt": "2026-10-22T12:19:10.752Z",
    "rows": 1
   },
-  "Q-68d798": {
-   "id": "Q-68d798",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%mesna%' ORDER BY status, company_name, package_ndc",
-   "ms": 180,
+  "Q-fdfb70": {
+   "id": "Q-fdfb70",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*mesna(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 149,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T09:00:54.824Z",
+   "ranAt": "2026-10-22T12:19:10.904Z",
    "rows": 0
   },
-  "Q-dd83eb": {
-   "id": "Q-dd83eb",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%mesna%' ORDER BY first_posting",
-   "ms": 196,
+  "Q-fb1b3d": {
+   "id": "Q-fb1b3d",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*mesna(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 109,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T09:00:55.022Z",
+   "ranAt": "2026-10-22T12:19:11.015Z",
    "rows": 0
   },
-  "Q-2cd92e": {
-   "id": "Q-2cd92e",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%mesna%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 1651,
+  "Q-b5c373": {
+   "id": "Q-b5c373",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*mesna(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1207,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T09:00:56.674Z",
+   "ranAt": "2026-10-22T12:19:12.222Z",
    "rows": 14
   },
   "Q-808a5c": {
    "id": "Q-808a5c",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('') ORDER BY fei, end_date",
-   "ms": 484,
+   "ms": 296,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T09:00:57.161Z",
+   "ranAt": "2026-10-22T12:19:12.520Z",
    "rows": 0
   },
   "Q-de2bfd": {
    "id": "Q-de2bfd",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('') ORDER BY fei, action_date",
-   "ms": 229,
+   "ms": 144,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T09:00:57.391Z",
+   "ranAt": "2026-10-22T12:19:12.665Z",
    "rows": 0
   },
   "Q-c4df35": {
    "id": "Q-c4df35",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('') OR (fei_match <> 'name_and_city' AND firm_key IN ('hikma farmaceutica')) ORDER BY date_published",
-   "ms": 200,
+   "ms": 99,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T09:00:57.591Z",
+   "ranAt": "2026-10-22T12:19:12.766Z",
    "rows": 0
   },
-  "Q-cf0754": {
-   "id": "Q-cf0754",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('hikma farmaceutica', 'hikma') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%mesna%' ORDER BY initiation_date",
-   "ms": 312,
+  "Q-a6c757": {
+   "id": "Q-a6c757",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('hikma farmaceutica', 'hikma') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*mesna(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 124,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T09:00:57.904Z",
+   "ranAt": "2026-10-22T12:19:12.891Z",
    "rows": 0
   },
   "Q-0f8316": {
    "id": "Q-0f8316",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('00143926001')",
-   "ms": 1423,
+   "ms": 772,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T09:00:59.329Z",
+   "ranAt": "2026-10-22T12:19:13.665Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2522,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T09:00:21.184Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 2080,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T09:00:23.265Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 2458,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T09:00:25.725Z",
-   "rows": 2
-  },
-  "Q-47e719": {
-   "id": "Q-47e719",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%mesna%'",
-   "ms": 1130,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T09:01:00.461Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-dcb731": {
+   "id": "Q-dcb731",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*mesna(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1098,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:19:14.764Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 15448,
+  "zetarisMs": 18075,
   "modelCalls": 1,
-  "tokensIn": 537,
-  "tokensOut": 265,
+  "tokensIn": 899,
+  "tokensOut": 372,
   "mode": "live"
  },
  "slug": "mesna",
@@ -754,7 +910,7 @@
     "id": "hospital-item:hospital-item:CG-268",
     "type": "HospitalItem",
     "key": "hospital-item:CG-268",
-    "label": "Corvale General: mesna",
+    "label": "Corvale General: mesna 100 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-268"
     },
@@ -823,11 +979,11 @@
     "from": "hospital-item:hospital-item:CG-268",
     "to": "package:ndc-package:0143-9260-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T09:00:54.023Z",
+    "validFrom": "2026-10-22T12:19:10.376Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:00:54.023Z"
+     "at": "2026-10-22T12:19:10.376Z"
     }
    },
    {
@@ -835,11 +991,11 @@
     "from": "hospital-item:hospital-item:EA-E-000024",
     "to": "package:ndc-package:0143-9260-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T09:00:54.023Z",
+    "validFrom": "2026-10-22T12:19:10.376Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:00:54.023Z"
+     "at": "2026-10-22T12:19:10.376Z"
     }
    },
    {
@@ -847,11 +1003,11 @@
     "from": "package:ndc-package:0143-9260-01",
     "to": "product:ndc-product:0143-9260",
     "type": "package-of",
-    "validFrom": "2026-10-22T09:00:54.023Z",
+    "validFrom": "2026-10-22T12:19:10.376Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:00:54.023Z"
+     "at": "2026-10-22T12:19:10.376Z"
     }
    },
    {
@@ -859,11 +1015,11 @@
     "from": "product:ndc-product:0143-9260",
     "to": "drug:generic:mesna",
     "type": "of-drug",
-    "validFrom": "2026-10-22T09:00:54.023Z",
+    "validFrom": "2026-10-22T12:19:10.376Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:00:54.023Z"
+     "at": "2026-10-22T12:19:10.376Z"
     }
    },
    {
@@ -871,11 +1027,11 @@
     "from": "product:ndc-product:0143-9260",
     "to": "labeler:ndc-labeler:0143",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T09:00:54.023Z",
+    "validFrom": "2026-10-22T12:19:10.376Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:00:54.023Z"
+     "at": "2026-10-22T12:19:10.376Z"
     }
    }
   ],

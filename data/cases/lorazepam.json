@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-8ea254",
+ "id": "case-2026-10-22-ee285d",
  "question": "Why is lorazepam short, and what do we do?",
- "askedAt": "2026-10-22T07:58:54.841Z",
+ "askedAt": "2026-10-22T12:16:43.535Z",
  "asOf": "2026-10-21",
  "molecule": "lorazepam",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H9X509RDY4E4N3XNM82K5B",
+  "contractId": "01M5HRNB84MJ4ZT3787CDCKG0W",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-f682b6"
+    "Q-c236bc"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3607,
+   "ms": 3446,
    "rows": 6,
-   "finding": "6 stock lines across 2 hospitals.",
+   "finding": "6 stock lines across 2 hospitals, 3 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-0c2d6f"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 886,
+   "ms": 439,
    "rows": 2,
    "finding": "2 plant links on 2 labels; 2 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-ded279",
-    "Q-e7ac36"
+    "Q-252691",
+    "Q-299130"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 485,
+   "ms": 255,
    "rows": 12,
    "finding": "On FDA's list as Current for 4 companies.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-81e68c"
+    "Q-d3ff0a"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2435,
+   "ms": 1195,
    "rows": 19,
    "finding": "6 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-b2c6c3",
     "Q-18d6bd",
     "Q-87b3c1",
-    "Q-409d2b"
+    "Q-547d68"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1510,
+   "ms": 675,
    "rows": 66,
    "finding": "56 inspections (2 OAI at our plants), 4 compliance actions, 0 import-alert listings, 6 recalls.",
    "status": "ok"
@@ -104,7 +111,7 @@
    "sources": [
     "fda.citations"
    ],
-   "ms": 336,
+   "ms": 192,
    "rows": 0,
    "finding": "0 Form 483 observations recorded.",
    "status": "empty"
@@ -119,9 +126,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1961,
+   "ms": 957,
    "rows": 2,
    "finding": "2 approved interchanges on file.",
    "status": "ok"
@@ -129,19 +136,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-a119ab"
+    "Q-b5dfab"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1416,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1295,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -152,7 +163,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 3,
+   "ms": 1,
    "rows": 3,
    "finding": "3 past decisions recalled.",
    "status": "ok"
@@ -168,8 +179,11 @@
    "onHand": 17,
    "dailyUse": 5.069,
    "days": 3.4,
-   "unit": "package",
+   "unit": "each",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "lorazepam|2mg/ml|injection|1ml|each",
+   "presentationLabel": "2 mg/mL injection, 1 mL each",
    "evidence": "E1"
   },
   {
@@ -181,8 +195,11 @@
    "onHand": 30,
    "dailyUse": 6.843,
    "days": 4.4,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "lorazepam|2mg/ml|injection|10ml|vial",
+   "presentationLabel": "2 mg/mL injection, 10 mL vial",
    "evidence": "E2"
   },
   {
@@ -192,50 +209,169 @@
    "description": "LORAZEPAM 1MG TAB",
    "labeler": "Aphena Pharma Solutions - Tennessee, LLC",
    "onHand": 152,
-   "dailyUse": 3.983,
+   "dailyUse": 3.984,
    "days": 38.2,
-   "unit": "package",
+   "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 180, converted to units",
+   "presentation": "lorazepam|1mg|tablet||tablet",
+   "presentationLabel": "1 mg tablet",
    "evidence": "E3"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-263",
    "ndc11": "71610025580",
-   "description": "Lorazepam",
+   "description": "Lorazepam 1 mg/1",
    "labeler": "Aphena Pharma Solutions - Tennessee, LLC",
    "onHand": 125,
    "dailyUse": 4.35,
    "days": 28.7,
    "unit": "tablet",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "lorazepam|1mg|tablet||tablet",
+   "presentationLabel": "1 mg tablet",
    "evidence": "E4"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-79",
    "ndc11": "00409198530",
-   "description": "LORAZEPAM",
+   "description": "LORAZEPAM 2 mg/mL",
    "labeler": "Hospira, Inc.",
-   "onHand": 99.52,
+   "onHand": 99,
    "dailyUse": 6.778,
-   "days": 14.7,
+   "days": 14.6,
    "unit": "each",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "lorazepam|2mg/ml|injection|1ml|each",
+   "presentationLabel": "2 mg/mL injection, 1 mL each",
    "evidence": "E5"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-80",
    "ndc11": "00641600010",
-   "description": "Lorazepam",
+   "description": "Lorazepam 2 mg/mL",
    "labeler": "Hikma Pharmaceuticals USA Inc.",
-   "onHand": 83.98,
+   "onHand": 83,
    "dailyUse": 6.456,
-   "days": 13,
+   "days": 12.9,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "lorazepam|2mg/ml|injection|10ml|vial",
+   "presentationLabel": "2 mg/mL injection, 10 mL vial",
    "evidence": "E6"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "lorazepam|2mg/ml|injection|1ml|each",
+   "label": "2 mg/mL injection, 1 mL each",
+   "short": "2 mg/mL, 1 mL",
+   "unit": "each",
+   "onHand": 116,
+   "dailyUse": 11.847,
+   "days": 9.8,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 17,
+     "dailyUse": 5.069,
+     "days": 3.4,
+     "lines": [
+      "EA-E-000082"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 99,
+     "dailyUse": 6.778,
+     "days": 14.6,
+     "lines": [
+      "CG-79"
+     ],
+     "evidence": [
+      "E5"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "lorazepam|2mg/ml|injection|10ml|vial",
+   "label": "2 mg/mL injection, 10 mL vial",
+   "short": "2 mg/mL, 10 mL",
+   "unit": "vial",
+   "onHand": 113,
+   "dailyUse": 13.299,
+   "days": 8.5,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 30,
+     "dailyUse": 6.843,
+     "days": 4.4,
+     "lines": [
+      "EA-E-000111"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 83,
+     "dailyUse": 6.456,
+     "days": 12.9,
+     "lines": [
+      "CG-80"
+     ],
+     "evidence": [
+      "E6"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "lorazepam|1mg|tablet||tablet",
+   "label": "1 mg tablet",
+   "short": "1 mg",
+   "unit": "tablet",
+   "onHand": 277,
+   "dailyUse": 8.334,
+   "days": 33.2,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 152,
+     "dailyUse": 3.984,
+     "days": 38.2,
+     "lines": [
+      "EA-E-000295"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 125,
+     "dailyUse": 4.35,
+     "days": 28.7,
+     "lines": [
+      "CG-263"
+     ],
+     "evidence": [
+      "E4"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -600,6 +736,29 @@
  ],
  "options": [
   {
+   "kind": "transfer",
+   "rank": 1,
+   "title": "Transfer 4 units of 2 mg/mL, 1 mL from Corvale General to Corvale East",
+   "detail": "Corvale General has 15 days of 2 mg/mL injection, 1 mL each on hand and can spare 4 units while keeping two weeks; Corvale East has 3.4 days and would reach 4.",
+   "why": "Same presentation, no clinical change, no new supplier. Schedule III-V controlled substance: the transfer is documented between DEA registrants.",
+   "needs": "pharmacy director, plus a controlled-substance transfer record (Schedule III-V)",
+   "evidence": [
+    "E5",
+    "E1"
+   ],
+   "transfer": {
+    "qty": 4,
+    "unit": "each",
+    "presentation": "2 mg/mL injection, 1 mL each",
+    "from": "Corvale General",
+    "to": "Corvale East",
+    "fromDays": 14.6,
+    "toDays": 3.4,
+    "fromAfter": 14,
+    "toAfter": 4
+   }
+  },
+  {
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Civica, Inc.",
@@ -609,19 +768,10 @@
    "evidence": []
   },
   {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from REMEDYREPACK INC.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
    "kind": "alternate_concentration",
-   "rank": 3,
+   "rank": 5,
    "title": "Same molecule, alternate concentration or vial size: Lorazepam 2 mg/mL from Hikma Pharmaceuticals USA Inc.",
-   "detail": "Recalculate dose and volume; pharmacist verification required. Approved by Riley Brooks, PharmD on 2025-12-01.",
+   "detail": "Recalculate dose and volume; pharmacist verification required. Approved by Riley Brooks, PharmD on 2025-12-01. FDA lists this product Current (posted 2018-09-05).",
    "why": "Already approved by the P&T committee.",
    "needs": "pharmacist",
    "evidence": [
@@ -630,9 +780,9 @@
   },
   {
    "kind": "alternate_concentration",
-   "rank": 3,
+   "rank": 5,
    "title": "Same molecule, alternate concentration or vial size: LORAZEPAM 2 mg/mL from Hospira, Inc.",
-   "detail": "Recalculate dose and volume; pharmacist verification required. Approved by Alex Morgan, PharmD on 2026-05-04.",
+   "detail": "Recalculate dose and volume; pharmacist verification required. Approved by Alex Morgan, PharmD on 2026-05-04. FDA lists this product Current (posted 2018-05-03).",
    "why": "Already approved by the P&T committee.",
    "needs": "pharmacist",
    "evidence": [
@@ -714,58 +864,59 @@
  ],
  "explanation": {
   "state": "confirmed",
-  "headline": "FDA's records trace our supply to a plant classified OAI 694 days before the shortage posting",
+  "headline": "FDA's records trace our supply to a plant classified OAI 694 days before the posting",
   "sentences": [
    {
-    "text": "FDA first posted the lorazepam injection shortage on 2018-05-03 and it remains current as of 2026-10-21.",
+    "text": "FDA first posted the lorazepam injection shortage on 2018-05-03 and it remains Current as of 2026-10-21.",
     "cites": [
      "E35",
      "E31",
+     "E32",
+     "E33",
+     "E34",
+     "D16"
+    ]
+   },
+   {
+    "text": "Our Corvale General and Corvale East sites both use Hospira, Inc. product (NDC 00409198530) for the 2 mg/mL, 1 mL presentation.",
+    "cites": [
+     "E1",
+     "E5"
+    ]
+   },
+   {
+    "text": "The Hospira plant (FEI 1925262) received an OAI classification from an inspection that ended 2016-06-08, which was 694 days before the shortage posting.",
+    "cites": [
+     "E12",
+     "D7"
+    ]
+   },
+   {
+    "text": "A Warning Letter was issued to the same plant on 2017-02-14, 443 days before the posting, and a later inspection ending 2018-08-15 was classified OAI with a classification letter dated 2020-04-22.",
+    "cites": [
+     "E17",
+     "D9",
+     "E14",
      "D15"
     ]
    },
    {
-    "text": "The label for NDC 00409-1985-30 names Hospira, Inc. (FEI 1925262) as the manufacturing plant.",
+    "text": "Corvale East has 3.4 days on hand of the 2 mg/mL, 1 mL product while Corvale General has 14.6 days on hand.",
     "cites": [
-     "E18"
+     "D1",
+     "D2"
     ]
    },
    {
-    "text": "FDA inspection 976095 at that plant ended 2016-06-08 and was classified OAI, 694 days before the shortage posting.",
+    "text": "The top-ranked option by rule is to transfer 4 units of 2 mg/mL, 1 mL from Corvale General to Corvale East, which would bring Corvale East to 4 days on hand while Corvale General retains two weeks.",
     "cites": [
-     "E12",
-     "D3"
-    ]
-   },
-   {
-    "text": "A Warning Letter was issued to the same plant on 2017-02-14, 443 days before the posting.",
-    "cites": [
-     "E17",
-     "D5"
-    ]
-   },
-   {
-    "text": "A later inspection 1064827 ended 2018-08-15 and was also classified OAI, with the classification letter dated 2020-04-22.",
-    "cites": [
-     "E14",
-     "D9"
-    ]
-   },
-   {
-    "text": "The rule-identified best option is to buy from Civica, Inc., which is not on FDA's shortage list today.",
-    "cites": [
-     "D12"
+     "D17"
     ]
    }
   ],
   "verifier": {
-   "checked": 8,
-   "rejected": [
-    {
-     "text": "Hospira's FDA shortage entry shows limited supply available with next delivery June 2027 and estimated recovery December 2027.",
-     "reason": "month 2027-06 is not in the cited evidence"
-    }
-   ],
+   "checked": 7,
+   "rejected": [],
    "repaired": 1
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -773,45 +924,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -840,87 +1012,87 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:58:42.186Z",
+   "at": "2026-10-22T12:16:35.076Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract XNM82K5B scope"
+   "reason": "in contract 7CDCKG0W scope"
   },
   {
-   "at": "2026-10-22T07:58:42.186Z",
+   "at": "2026-10-22T12:16:35.076Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XNM82K5B scope"
+   "reason": "in contract 7CDCKG0W scope"
   },
   {
-   "at": "2026-10-22T07:58:45.796Z",
+   "at": "2026-10-22T12:16:38.523Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XNM82K5B scope"
+   "reason": "in contract 7CDCKG0W scope"
   },
   {
-   "at": "2026-10-22T07:58:46.682Z",
+   "at": "2026-10-22T12:16:38.963Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XNM82K5B scope"
+   "reason": "in contract 7CDCKG0W scope"
   },
   {
-   "at": "2026-10-22T07:58:47.168Z",
+   "at": "2026-10-22T12:16:39.218Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XNM82K5B scope"
+   "reason": "in contract 7CDCKG0W scope"
   },
   {
-   "at": "2026-10-22T07:58:49.603Z",
+   "at": "2026-10-22T12:16:40.413Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XNM82K5B scope"
+   "reason": "in contract 7CDCKG0W scope"
   },
   {
-   "at": "2026-10-22T07:58:51.112Z",
+   "at": "2026-10-22T12:16:41.088Z",
    "action": "What FDA wrote at the OAI inspections",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XNM82K5B scope"
+   "reason": "in contract 7CDCKG0W scope"
   },
   {
-   "at": "2026-10-22T07:58:51.459Z",
+   "at": "2026-10-22T12:16:41.282Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XNM82K5B scope"
+   "reason": "in contract 7CDCKG0W scope"
   },
   {
-   "at": "2026-10-22T07:58:53.421Z",
+   "at": "2026-10-22T12:16:42.240Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XNM82K5B scope"
+   "reason": "in contract 7CDCKG0W scope"
   },
   {
-   "at": "2026-10-22T07:58:54.837Z",
+   "at": "2026-10-22T12:16:43.534Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract XNM82K5B scope"
+   "reason": "in contract 7CDCKG0W scope"
   },
   {
-   "at": "2026-10-22T07:58:54.841Z",
+   "at": "2026-10-22T12:16:43.535Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract XNM82K5B scope"
+   "reason": "in contract 7CDCKG0W scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-f682b6",
+   "queryId": "Q-c236bc",
    "row": 0,
    "label": "Corvale East: LORAZEPAM 2MG/ML 1ML CART",
    "fields": {
@@ -931,19 +1103,24 @@
     "description": "LORAZEPAM 2MG/ML 1ML CART",
     "on_hand": "17.00",
     "daily_use": "5.069",
-    "unit": "package",
+    "unit": "each",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "LORAZEPAM",
     "labeler_name": "Hospira, Inc.",
     "package_ndc": "0409-1985-30",
     "spl_set_id": "20140b19-846b-425f-b191-670e17809945",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "LORAZEPAM 2 mg/mL",
+    "unit_content": "1 mL",
+    "pkg_unit": "cartridge"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-f682b6",
+   "queryId": "Q-c236bc",
    "row": 1,
    "label": "Corvale East: LORAZEPAM 2MG/ML 10ML SDV",
    "fields": {
@@ -954,19 +1131,24 @@
     "description": "LORAZEPAM 2MG/ML 10ML SDV",
     "on_hand": "30.00",
     "daily_use": "6.843",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Lorazepam",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0641-6000-10",
     "spl_set_id": null,
     "dosage_form": "INJECTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "LORAZEPAM 2 mg/mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-f682b6",
+   "queryId": "Q-c236bc",
    "row": 2,
    "label": "Corvale East: LORAZEPAM 1MG TAB",
    "fields": {
@@ -976,84 +1158,104 @@
     "ndc_as_recorded": "71610-255-80",
     "description": "LORAZEPAM 1MG TAB",
     "on_hand": "152.00",
-    "daily_use": "3.983",
-    "unit": "package",
+    "daily_use": "3.984",
+    "unit": "tablet",
+    "pkg_units": "180.00",
+    "unit_basis": "packages of 180, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Lorazepam",
     "labeler_name": "Aphena Pharma Solutions - Tennessee, LLC",
     "package_ndc": "71610-255-80",
     "spl_set_id": "973eff80-b2cd-42ca-8e88-e0151e691e59",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "LORAZEPAM 1 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-f682b6",
+   "queryId": "Q-c236bc",
    "row": 3,
-   "label": "Corvale General: Lorazepam",
+   "label": "Corvale General: Lorazepam 1 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-263",
     "ndc11": "71610025580",
     "ndc_as_recorded": "71610025580",
-    "description": "Lorazepam",
+    "description": "Lorazepam 1 mg/1",
     "on_hand": "125.00",
     "daily_use": "4.350",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Lorazepam",
     "labeler_name": "Aphena Pharma Solutions - Tennessee, LLC",
     "package_ndc": "71610-255-80",
     "spl_set_id": "973eff80-b2cd-42ca-8e88-e0151e691e59",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "LORAZEPAM 1 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E5": {
    "id": "E5",
-   "queryId": "Q-f682b6",
+   "queryId": "Q-c236bc",
    "row": 4,
-   "label": "Corvale General: LORAZEPAM",
+   "label": "Corvale General: LORAZEPAM 2 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-79",
     "ndc11": "00409198530",
     "ndc_as_recorded": "00409198530",
-    "description": "LORAZEPAM",
-    "on_hand": "99.52",
+    "description": "LORAZEPAM 2 mg/mL",
+    "on_hand": "99.00",
     "daily_use": "6.778",
     "unit": "each",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "LORAZEPAM",
     "labeler_name": "Hospira, Inc.",
     "package_ndc": "0409-1985-30",
     "spl_set_id": "20140b19-846b-425f-b191-670e17809945",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "LORAZEPAM 2 mg/mL",
+    "unit_content": "1 mL",
+    "pkg_unit": "cartridge"
    }
   },
   "E6": {
    "id": "E6",
-   "queryId": "Q-f682b6",
+   "queryId": "Q-c236bc",
    "row": 5,
-   "label": "Corvale General: Lorazepam",
+   "label": "Corvale General: Lorazepam 2 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-80",
     "ndc11": "00641600010",
     "ndc_as_recorded": "00641600010",
-    "description": "Lorazepam",
-    "on_hand": "83.98",
+    "description": "Lorazepam 2 mg/mL",
+    "on_hand": "83.00",
     "daily_use": "6.456",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Lorazepam",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0641-6000-10",
     "spl_set_id": null,
     "dosage_form": "INJECTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "LORAZEPAM 2 mg/mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E7": {
@@ -1342,7 +1544,7 @@
   },
   "E25": {
    "id": "E25",
-   "queryId": "Q-409d2b",
+   "queryId": "Q-547d68",
    "row": 0,
    "label": "Recall D-1307-2022",
    "fields": {
@@ -1360,7 +1562,7 @@
   },
   "E26": {
    "id": "E26",
-   "queryId": "Q-409d2b",
+   "queryId": "Q-547d68",
    "row": 1,
    "label": "Recall D-1309-2022",
    "fields": {
@@ -1378,7 +1580,7 @@
   },
   "E27": {
    "id": "E27",
-   "queryId": "Q-409d2b",
+   "queryId": "Q-547d68",
    "row": 2,
    "label": "Recall D-1310-2022",
    "fields": {
@@ -1396,7 +1598,7 @@
   },
   "E28": {
    "id": "E28",
-   "queryId": "Q-409d2b",
+   "queryId": "Q-547d68",
    "row": 3,
    "label": "Recall D-1308-2022",
    "fields": {
@@ -1414,7 +1616,7 @@
   },
   "E29": {
    "id": "E29",
-   "queryId": "Q-409d2b",
+   "queryId": "Q-547d68",
    "row": 4,
    "label": "Recall D-0574-2023",
    "fields": {
@@ -1432,7 +1634,7 @@
   },
   "E30": {
    "id": "E30",
-   "queryId": "Q-409d2b",
+   "queryId": "Q-547d68",
    "row": 5,
    "label": "Recall D-0551-2025",
    "fields": {
@@ -1450,7 +1652,7 @@
   },
   "E31": {
    "id": "E31",
-   "queryId": "Q-ded279",
+   "queryId": "Q-252691",
    "row": 0,
    "label": "FDA shortage list: Amphastar Pharmaceuticals, Inc., Current",
    "fields": {
@@ -1465,7 +1667,7 @@
   },
   "E32": {
    "id": "E32",
-   "queryId": "Q-ded279",
+   "queryId": "Q-252691",
    "row": 1,
    "label": "FDA shortage list: Fresenius Kabi USA, LLC, Current",
    "fields": {
@@ -1480,7 +1682,7 @@
   },
   "E33": {
    "id": "E33",
-   "queryId": "Q-ded279",
+   "queryId": "Q-252691",
    "row": 2,
    "label": "FDA shortage list: Hikma Pharmaceuticals USA, Inc., Current",
    "fields": {
@@ -1495,7 +1697,7 @@
   },
   "E34": {
    "id": "E34",
-   "queryId": "Q-ded279",
+   "queryId": "Q-252691",
    "row": 10,
    "label": "FDA shortage list: Hospira, Inc., a Pfizer Company, Current",
    "fields": {
@@ -1510,7 +1712,7 @@
   },
   "E35": {
    "id": "E35",
-   "queryId": "Q-ded279",
+   "queryId": "Q-252691",
    "row": 0,
    "label": "FDA first posted the shortage 2018-05-03",
    "fields": {
@@ -1563,28 +1765,82 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 199 units of lorazepam at 15.9 a day: 13 days on hand",
+   "label": "Corvale East holds 17 eachs of lorazepam 2 mg/mL, 1 mL at 5.1 a day: 3.4 days on hand",
    "fields": {
     "hospital": "Corvale East",
-    "on_hand": 199,
-    "daily_use": 15.9,
-    "days_on_hand": 13
+    "presentation": "2 mg/mL injection, 1 mL each",
+    "on_hand": 17,
+    "daily_use": 5.1,
+    "days_on_hand": 3.4
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 309 units of lorazepam at 17.6 a day: 18 days on hand",
+   "label": "Corvale General holds 99 eachs of lorazepam 2 mg/mL, 1 mL at 6.8 a day: 14.6 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 309,
-    "daily_use": 17.6,
-    "days_on_hand": 18
+    "presentation": "2 mg/mL injection, 1 mL each",
+    "on_hand": 99,
+    "daily_use": 6.8,
+    "days_on_hand": 14.6
    }
   },
   "D3": {
    "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale East holds 30 vials of lorazepam 2 mg/mL, 10 mL at 6.8 a day: 4.4 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "2 mg/mL injection, 10 mL vial",
+    "on_hand": 30,
+    "daily_use": 6.8,
+    "days_on_hand": 4.4
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 83 vials of lorazepam 2 mg/mL, 10 mL at 6.5 a day: 12.9 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "2 mg/mL injection, 10 mL vial",
+    "on_hand": 83,
+    "daily_use": 6.5,
+    "days_on_hand": 12.9
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale East holds 152 tablets of lorazepam 1 mg at 4 a day: 38.2 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "1 mg tablet",
+    "on_hand": 152,
+    "daily_use": 4,
+    "days_on_hand": 38.2
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 125 tablets of lorazepam 1 mg at 4.4 a day: 28.7 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "1 mg tablet",
+    "on_hand": 125,
+    "daily_use": 4.4,
+    "days_on_hand": 28.7
+   }
+  },
+  "D7": {
+   "id": "D7",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 976095 ended 2016-06-08, classified OAI — 694 days before FDA posted the shortage on 2018-05-03",
@@ -1594,8 +1850,8 @@
     "days": 694
    }
   },
-  "D4": {
-   "id": "D4",
+  "D8": {
+   "id": "D8",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 980304 ended 2016-06-13, classified VAI — 689 days before FDA posted the shortage on 2018-05-03",
@@ -1605,8 +1861,8 @@
     "days": 689
    }
   },
-  "D5": {
-   "id": "D5",
+  "D9": {
+   "id": "D9",
    "queryId": "derived",
    "row": -1,
    "label": "Warning Letter issued 2017-02-14 (case 506761) — 443 days before FDA posted the shortage on 2018-05-03",
@@ -1616,8 +1872,8 @@
     "days": 443
    }
   },
-  "D6": {
-   "id": "D6",
+  "D10": {
+   "id": "D10",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 1031233 ended 2017-10-27, classified VAI — 188 days before FDA posted the shortage on 2018-05-03",
@@ -1627,8 +1883,8 @@
     "days": 188
    }
   },
-  "D7": {
-   "id": "D7",
+  "D11": {
+   "id": "D11",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 1031560 ended 2017-11-16, classified VAI; classification letter 2018-02-28 — 168 days before FDA posted the shortage on 2018-05-03",
@@ -1638,8 +1894,8 @@
     "days": 168
    }
   },
-  "D8": {
-   "id": "D8",
+  "D12": {
+   "id": "D12",
    "queryId": "derived",
    "row": -1,
    "label": "Warning Letter issued 2017-12-05 (case 542310) — 149 days before FDA posted the shortage on 2018-05-03",
@@ -1649,8 +1905,8 @@
     "days": 149
    }
   },
-  "D9": {
-   "id": "D9",
+  "D13": {
+   "id": "D13",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 1064827 ended 2018-08-15, classified OAI; classification letter 2020-04-22 — 104 days after FDA posted the shortage on 2018-05-03",
@@ -1660,8 +1916,8 @@
     "days": 104
    }
   },
-  "D10": {
-   "id": "D10",
+  "D14": {
+   "id": "D14",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 1115467 ended 2020-01-17, classified VAI; classification letter 2020-04-15 — 624 days after FDA posted the shortage on 2018-05-03",
@@ -1671,8 +1927,8 @@
     "days": 624
    }
   },
-  "D11": {
-   "id": "D11",
+  "D15": {
+   "id": "D15",
    "queryId": "derived",
    "row": -1,
    "label": "FDA's OAI classification letter to Hospira, Inc. is dated 2020-04-22, 720 days after FDA posted the shortage on 2018-05-03",
@@ -1682,38 +1938,8 @@
     "days": 720
    }
   },
-  "D12": {
-   "id": "D12",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 3 by rule: Buy from Civica, Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
-   }
-  },
-  "D13": {
-   "id": "D13",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 3 by rule: Buy from REMEDYREPACK INC.. Not on FDA's shortage list today. Its label names no plant we could place.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
-   }
-  },
-  "D14": {
-   "id": "D14",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 3 by rule: Same molecule, alternate concentration or vial size: Lorazepam 2 mg/mL from Hikma Pharmaceuticals USA Inc.. Recalculate dose and volume; pharmacist verification required. Approved by Riley Brooks, PharmD on 2025-12-01.",
-   "fields": {
-    "kind": "alternate_concentration",
-    "needs": "pharmacist"
-   }
-  },
-  "D15": {
-   "id": "D15",
+  "D16": {
+   "id": "D16",
    "queryId": "derived",
    "row": -1,
    "label": "As of 2026-10-21 the shortage has been on FDA's list for 102 months",
@@ -1722,177 +1948,226 @@
     "posted": "2018-05-03",
     "months": 102
    }
+  },
+  "D17": {
+   "id": "D17",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 4 units of 2 mg/mL, 1 mL from Corvale General to Corvale East. Corvale General has 15 days of 2 mg/mL injection, 1 mL each on hand and can spare 4 units while keeping two weeks; Corvale East has 3.4 days and would reach 4.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director, plus a controlled-substance transfer record (Schedule III-V)"
+   }
+  },
+  "D18": {
+   "id": "D18",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Civica, Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D19": {
+   "id": "D19",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 5 by rule: Same molecule, alternate concentration or vial size: Lorazepam 2 mg/mL from Hikma Pharmaceuticals USA Inc.. Recalculate dose and volume; pharmacist verification required. Approved by Riley Brooks, PharmD on 2025-12-01. FDA lists this product Current (posted 2018-09-05).",
+   "fields": {
+    "kind": "alternate_concentration",
+    "needs": "pharmacist"
+   }
   }
  },
  "queries": {
-  "Q-f682b6": {
-   "id": "Q-f682b6",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%lorazepam%' OR lower(s.description) LIKE '%lorazepam%' ORDER BY s.hospital, s.item_key",
-   "ms": 3603,
+  "Q-c236bc": {
+   "id": "Q-c236bc",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*lorazepam(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*lorazepam(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3445,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:58:45.789Z",
+   "ranAt": "2026-10-22T12:16:38.521Z",
    "rows": 6
   },
   "Q-0c2d6f": {
    "id": "Q-0c2d6f",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('20140b19-846b-425f-b191-670e17809945', '973eff80-b2cd-42ca-8e88-e0151e691e59') ORDER BY ps.set_id, ps.establishment",
-   "ms": 883,
+   "ms": 438,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:58:46.679Z",
+   "ranAt": "2026-10-22T12:16:38.962Z",
    "rows": 2
   },
-  "Q-ded279": {
-   "id": "Q-ded279",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%lorazepam%' ORDER BY status, company_name, package_ndc",
-   "ms": 275,
+  "Q-252691": {
+   "id": "Q-252691",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*lorazepam(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 136,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:58:46.958Z",
+   "ranAt": "2026-10-22T12:16:39.099Z",
    "rows": 11
   },
-  "Q-e7ac36": {
-   "id": "Q-e7ac36",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%lorazepam%' ORDER BY first_posting",
-   "ms": 204,
+  "Q-299130": {
+   "id": "Q-299130",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*lorazepam(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 117,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:58:47.165Z",
+   "ranAt": "2026-10-22T12:16:39.217Z",
    "rows": 1
   },
-  "Q-81e68c": {
-   "id": "Q-81e68c",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%lorazepam%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2431,
+  "Q-d3ff0a": {
+   "id": "Q-d3ff0a",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*lorazepam(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1194,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:58:49.599Z",
+   "ranAt": "2026-10-22T12:16:40.412Z",
    "rows": 19
   },
   "Q-b2c6c3": {
    "id": "Q-b2c6c3",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('1925262', '3003849479', '3001833549', '2016148') ORDER BY fei, end_date",
-   "ms": 540,
+   "ms": 258,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:58:50.142Z",
+   "ranAt": "2026-10-22T12:16:40.672Z",
    "rows": 56
   },
   "Q-18d6bd": {
    "id": "Q-18d6bd",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('1925262', '3003849479', '3001833549', '2016148') ORDER BY fei, action_date",
-   "ms": 365,
+   "ms": 138,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:58:50.512Z",
+   "ranAt": "2026-10-22T12:16:40.811Z",
    "rows": 4
   },
   "Q-87b3c1": {
    "id": "Q-87b3c1",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('1925262', '3003849479') OR (fei_match <> 'name_and_city' AND firm_key IN ('hospira', 'aphena solutions tennessee')) ORDER BY date_published",
-   "ms": 288,
+   "ms": 127,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:58:50.805Z",
+   "ranAt": "2026-10-22T12:16:40.939Z",
    "rows": 0
   },
-  "Q-409d2b": {
-   "id": "Q-409d2b",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('hospira', 'aphena solutions tennessee', 'hikma') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%lorazepam%' ORDER BY initiation_date",
-   "ms": 300,
+  "Q-547d68": {
+   "id": "Q-547d68",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('hospira', 'aphena solutions tennessee', 'hikma') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*lorazepam(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 147,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:58:51.108Z",
+   "ranAt": "2026-10-22T12:16:41.087Z",
    "rows": 6
   },
   "Q-086820": {
    "id": "Q-086820",
    "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('976095', '1064827') ORDER BY inspection_id, cfr",
-   "ms": 331,
+   "ms": 191,
    "mode": "live",
    "sources": [
     "fda.citations"
    ],
-   "ranAt": "2026-10-22T07:58:51.444Z",
+   "ranAt": "2026-10-22T12:16:41.280Z",
    "rows": 0
   },
   "Q-5fce4d": {
    "id": "Q-5fce4d",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('00409198530', '00641600010', '71610025580')",
-   "ms": 1957,
+   "ms": 956,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:58:53.416Z",
+   "ranAt": "2026-10-22T12:16:42.238Z",
    "rows": 2
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-a119ab": {
-   "id": "Q-a119ab",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%lorazepam%'",
-   "ms": 1412,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:58:54.833Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-b5dfab": {
+   "id": "Q-b5dfab",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*lorazepam(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1293,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:16:43.533Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 15,
-  "zetarisMs": 17960,
+  "zetarisMs": 18648,
   "modelCalls": 1,
-  "tokensIn": 4150,
-  "tokensOut": 455,
+  "tokensIn": 5303,
+  "tokensOut": 502,
   "mode": "live"
  },
  "slug": "lorazepam",
@@ -1910,7 +2185,7 @@
     "id": "hospital-item:hospital-item:CG-263",
     "type": "HospitalItem",
     "key": "hospital-item:CG-263",
-    "label": "Corvale General: Lorazepam",
+    "label": "Corvale General: Lorazepam 1 mg/1",
     "attrs": {
      "key": "hospital-item:CG-263"
     },
@@ -1921,7 +2196,7 @@
     "id": "hospital-item:hospital-item:CG-79",
     "type": "HospitalItem",
     "key": "hospital-item:CG-79",
-    "label": "Corvale General: LORAZEPAM",
+    "label": "Corvale General: LORAZEPAM 2 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-79"
     },
@@ -1932,7 +2207,7 @@
     "id": "hospital-item:hospital-item:CG-80",
     "type": "HospitalItem",
     "key": "hospital-item:CG-80",
-    "label": "Corvale General: Lorazepam",
+    "label": "Corvale General: Lorazepam 2 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-80"
     },
@@ -2115,7 +2390,7 @@
     },
     "facts": [
      {
-      "id": "fact_dbccedefe5b256f2",
+      "id": "fact_f94500adc3984d5f",
       "about": "inspection:fda-inspection:1031233",
       "predicate": "classification",
       "value": "VAI",
@@ -2123,9 +2398,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:58:51.451Z"
+       "at": "2026-10-22T12:16:41.281Z"
       },
-      "assertedAt": "2026-10-22T07:58:51.451Z"
+      "assertedAt": "2026-10-22T12:16:41.281Z"
      }
     ],
     "depth": 4
@@ -2141,7 +2416,7 @@
     },
     "facts": [
      {
-      "id": "fact_3807bb0b03972542",
+      "id": "fact_15d747ba2e66eba2",
       "about": "inspection:fda-inspection:1031560",
       "predicate": "classification",
       "value": "VAI",
@@ -2149,9 +2424,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:58:51.453Z"
+       "at": "2026-10-22T12:16:41.281Z"
       },
-      "assertedAt": "2026-10-22T07:58:51.453Z"
+      "assertedAt": "2026-10-22T12:16:41.281Z"
      }
     ],
     "depth": 4
@@ -2167,7 +2442,7 @@
     },
     "facts": [
      {
-      "id": "fact_f12b8437d056e158",
+      "id": "fact_dbe66dccc9f7426d",
       "about": "inspection:fda-inspection:1064827",
       "predicate": "classification",
       "value": "OAI",
@@ -2175,9 +2450,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:58:51.451Z"
+       "at": "2026-10-22T12:16:41.281Z"
       },
-      "assertedAt": "2026-10-22T07:58:51.451Z"
+      "assertedAt": "2026-10-22T12:16:41.281Z"
      }
     ],
     "depth": 4
@@ -2193,7 +2468,7 @@
     },
     "facts": [
      {
-      "id": "fact_01d887172c08a0aa",
+      "id": "fact_fd5b27175291dbc7",
       "about": "inspection:fda-inspection:1115467",
       "predicate": "classification",
       "value": "VAI",
@@ -2201,9 +2476,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:58:51.451Z"
+       "at": "2026-10-22T12:16:41.281Z"
       },
-      "assertedAt": "2026-10-22T07:58:51.451Z"
+      "assertedAt": "2026-10-22T12:16:41.281Z"
      }
     ],
     "depth": 4
@@ -2219,7 +2494,7 @@
     },
     "facts": [
      {
-      "id": "fact_13f0c8de98de21bf",
+      "id": "fact_677eca4b666ff022",
       "about": "inspection:fda-inspection:1255699",
       "predicate": "classification",
       "value": "VAI",
@@ -2227,9 +2502,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:58:51.451Z"
+       "at": "2026-10-22T12:16:41.281Z"
       },
-      "assertedAt": "2026-10-22T07:58:51.451Z"
+      "assertedAt": "2026-10-22T12:16:41.281Z"
      }
     ],
     "depth": 4
@@ -2245,7 +2520,7 @@
     },
     "facts": [
      {
-      "id": "fact_9a3584cfc3c98030",
+      "id": "fact_16bf9740e7a1fc59",
       "about": "inspection:fda-inspection:762138",
       "predicate": "classification",
       "value": "VAI",
@@ -2253,9 +2528,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:58:51.449Z"
+       "at": "2026-10-22T12:16:41.281Z"
       },
-      "assertedAt": "2026-10-22T07:58:51.449Z"
+      "assertedAt": "2026-10-22T12:16:41.281Z"
      }
     ],
     "depth": 4
@@ -2271,7 +2546,7 @@
     },
     "facts": [
      {
-      "id": "fact_3f487f7c784272e9",
+      "id": "fact_2b5bf9a1ef6335ed",
       "about": "inspection:fda-inspection:805120",
       "predicate": "classification",
       "value": "VAI",
@@ -2279,9 +2554,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:58:51.449Z"
+       "at": "2026-10-22T12:16:41.281Z"
       },
-      "assertedAt": "2026-10-22T07:58:51.449Z"
+      "assertedAt": "2026-10-22T12:16:41.281Z"
      }
     ],
     "depth": 4
@@ -2297,7 +2572,7 @@
     },
     "facts": [
      {
-      "id": "fact_f58f632cdb89ceaf",
+      "id": "fact_ceb6db421d0317ca",
       "about": "inspection:fda-inspection:844785",
       "predicate": "classification",
       "value": "VAI",
@@ -2305,9 +2580,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:58:51.449Z"
+       "at": "2026-10-22T12:16:41.281Z"
       },
-      "assertedAt": "2026-10-22T07:58:51.449Z"
+      "assertedAt": "2026-10-22T12:16:41.281Z"
      }
     ],
     "depth": 4
@@ -2323,7 +2598,7 @@
     },
     "facts": [
      {
-      "id": "fact_44de9e36c05cba74",
+      "id": "fact_4bd8a9c7182c8412",
       "about": "inspection:fda-inspection:858721",
       "predicate": "classification",
       "value": "VAI",
@@ -2331,9 +2606,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:58:51.452Z"
+       "at": "2026-10-22T12:16:41.281Z"
       },
-      "assertedAt": "2026-10-22T07:58:51.452Z"
+      "assertedAt": "2026-10-22T12:16:41.281Z"
      }
     ],
     "depth": 4
@@ -2349,7 +2624,7 @@
     },
     "facts": [
      {
-      "id": "fact_bae3837036251cbc",
+      "id": "fact_5692ea5f495f845f",
       "about": "inspection:fda-inspection:867703",
       "predicate": "classification",
       "value": "VAI",
@@ -2357,9 +2632,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:58:51.453Z"
+       "at": "2026-10-22T12:16:41.281Z"
       },
-      "assertedAt": "2026-10-22T07:58:51.453Z"
+      "assertedAt": "2026-10-22T12:16:41.281Z"
      }
     ],
     "depth": 4
@@ -2375,7 +2650,7 @@
     },
     "facts": [
      {
-      "id": "fact_927fa13fa41bee57",
+      "id": "fact_35ffa749170894f3",
       "about": "inspection:fda-inspection:876340",
       "predicate": "classification",
       "value": "VAI",
@@ -2383,9 +2658,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:58:51.449Z"
+       "at": "2026-10-22T12:16:41.281Z"
       },
-      "assertedAt": "2026-10-22T07:58:51.449Z"
+      "assertedAt": "2026-10-22T12:16:41.281Z"
      }
     ],
     "depth": 4
@@ -2401,7 +2676,7 @@
     },
     "facts": [
      {
-      "id": "fact_1a07c8ecc4e1fd7e",
+      "id": "fact_a25f16dda31b4834",
       "about": "inspection:fda-inspection:919007",
       "predicate": "classification",
       "value": "VAI",
@@ -2409,9 +2684,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:58:51.450Z"
+       "at": "2026-10-22T12:16:41.281Z"
       },
-      "assertedAt": "2026-10-22T07:58:51.450Z"
+      "assertedAt": "2026-10-22T12:16:41.281Z"
      }
     ],
     "depth": 4
@@ -2427,7 +2702,7 @@
     },
     "facts": [
      {
-      "id": "fact_c5fbbbf50b05cb30",
+      "id": "fact_f3f00ba2690a0ed4",
       "about": "inspection:fda-inspection:976095",
       "predicate": "classification",
       "value": "OAI",
@@ -2435,9 +2710,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:58:51.450Z"
+       "at": "2026-10-22T12:16:41.281Z"
       },
-      "assertedAt": "2026-10-22T07:58:51.450Z"
+      "assertedAt": "2026-10-22T12:16:41.281Z"
      }
     ],
     "depth": 4
@@ -2453,7 +2728,7 @@
     },
     "facts": [
      {
-      "id": "fact_6da80a4f9e555c83",
+      "id": "fact_81a05e50656fe688",
       "about": "inspection:fda-inspection:980304",
       "predicate": "classification",
       "value": "VAI",
@@ -2461,9 +2736,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:58:51.453Z"
+       "at": "2026-10-22T12:16:41.281Z"
       },
-      "assertedAt": "2026-10-22T07:58:51.453Z"
+      "assertedAt": "2026-10-22T12:16:41.281Z"
      }
     ],
     "depth": 4
@@ -2508,11 +2783,11 @@
     "from": "hospital-item:hospital-item:CG-263",
     "to": "package:ndc-package:71610-255-80",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:58:45.795Z",
+    "validFrom": "2026-10-22T12:16:38.523Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:45.795Z"
+     "at": "2026-10-22T12:16:38.523Z"
     }
    },
    {
@@ -2520,11 +2795,11 @@
     "from": "hospital-item:hospital-item:CG-79",
     "to": "package:ndc-package:0409-1985-30",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:58:45.795Z",
+    "validFrom": "2026-10-22T12:16:38.523Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:45.795Z"
+     "at": "2026-10-22T12:16:38.523Z"
     }
    },
    {
@@ -2532,11 +2807,11 @@
     "from": "hospital-item:hospital-item:CG-80",
     "to": "package:ndc-package:0641-6000-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:58:45.795Z",
+    "validFrom": "2026-10-22T12:16:38.523Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:45.795Z"
+     "at": "2026-10-22T12:16:38.523Z"
     }
    },
    {
@@ -2544,11 +2819,11 @@
     "from": "hospital-item:hospital-item:EA-E-000082",
     "to": "package:ndc-package:0409-1985-30",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:58:45.794Z",
+    "validFrom": "2026-10-22T12:16:38.522Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:45.794Z"
+     "at": "2026-10-22T12:16:38.522Z"
     }
    },
    {
@@ -2556,11 +2831,11 @@
     "from": "hospital-item:hospital-item:EA-E-000111",
     "to": "package:ndc-package:0641-6000-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:58:45.794Z",
+    "validFrom": "2026-10-22T12:16:38.523Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:45.794Z"
+     "at": "2026-10-22T12:16:38.523Z"
     }
    },
    {
@@ -2568,11 +2843,11 @@
     "from": "hospital-item:hospital-item:EA-E-000295",
     "to": "package:ndc-package:71610-255-80",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:58:45.794Z",
+    "validFrom": "2026-10-22T12:16:38.523Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:45.794Z"
+     "at": "2026-10-22T12:16:38.523Z"
     }
    },
    {
@@ -2580,11 +2855,11 @@
     "from": "package:ndc-package:71610-255-80",
     "to": "product:ndc-product:71610-255",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:58:45.795Z",
+    "validFrom": "2026-10-22T12:16:38.523Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:45.795Z"
+     "at": "2026-10-22T12:16:38.523Z"
     }
    },
    {
@@ -2592,11 +2867,11 @@
     "from": "package:ndc-package:0409-1985-30",
     "to": "product:ndc-product:0409-1985",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:58:45.794Z",
+    "validFrom": "2026-10-22T12:16:38.522Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:45.794Z"
+     "at": "2026-10-22T12:16:38.522Z"
     }
    },
    {
@@ -2604,11 +2879,11 @@
     "from": "package:ndc-package:0641-6000-10",
     "to": "product:ndc-product:0641-6000",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:58:45.794Z",
+    "validFrom": "2026-10-22T12:16:38.523Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:45.794Z"
+     "at": "2026-10-22T12:16:38.523Z"
     }
    },
    {
@@ -2616,11 +2891,11 @@
     "from": "product:ndc-product:71610-255",
     "to": "drug:generic:lorazepam",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:58:45.795Z",
+    "validFrom": "2026-10-22T12:16:38.523Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:45.795Z"
+     "at": "2026-10-22T12:16:38.523Z"
     }
    },
    {
@@ -2628,11 +2903,11 @@
     "from": "product:ndc-product:71610-255",
     "to": "labeler:ndc-labeler:71610",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:58:45.795Z",
+    "validFrom": "2026-10-22T12:16:38.523Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:45.795Z"
+     "at": "2026-10-22T12:16:38.523Z"
     }
    },
    {
@@ -2640,11 +2915,11 @@
     "from": "product:ndc-product:71610-255",
     "to": "site:fei:3003849479",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:58:51.452Z",
+    "validFrom": "2026-10-22T12:16:41.281Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:51.452Z"
+     "at": "2026-10-22T12:16:41.281Z"
     }
    },
    {
@@ -2652,11 +2927,11 @@
     "from": "product:ndc-product:0409-1985",
     "to": "drug:generic:lorazepam",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:58:45.794Z",
+    "validFrom": "2026-10-22T12:16:38.522Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:45.794Z"
+     "at": "2026-10-22T12:16:38.522Z"
     }
    },
    {
@@ -2664,11 +2939,11 @@
     "from": "product:ndc-product:0409-1985",
     "to": "labeler:ndc-labeler:0409",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:58:45.794Z",
+    "validFrom": "2026-10-22T12:16:38.522Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:45.794Z"
+     "at": "2026-10-22T12:16:38.522Z"
     }
    },
    {
@@ -2676,11 +2951,11 @@
     "from": "product:ndc-product:0409-1985",
     "to": "site:fei:1925262",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:58:51.449Z",
+    "validFrom": "2026-10-22T12:16:41.281Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:51.449Z"
+     "at": "2026-10-22T12:16:41.281Z"
     }
    },
    {
@@ -2688,11 +2963,11 @@
     "from": "product:ndc-product:0641-6000",
     "to": "drug:generic:lorazepam",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:58:45.794Z",
+    "validFrom": "2026-10-22T12:16:38.523Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:45.794Z"
+     "at": "2026-10-22T12:16:38.523Z"
     }
    },
    {
@@ -2700,11 +2975,11 @@
     "from": "product:ndc-product:0641-6000",
     "to": "labeler:ndc-labeler:0641",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:58:45.794Z",
+    "validFrom": "2026-10-22T12:16:38.523Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:45.794Z"
+     "at": "2026-10-22T12:16:38.523Z"
     }
    },
    {
@@ -2712,11 +2987,11 @@
     "from": "shortage:fda-shortage:lorazepam-2018-05-03",
     "to": "drug:generic:lorazepam",
     "type": "affects",
-    "validFrom": "2026-10-22T07:58:51.457Z",
+    "validFrom": "2026-10-22T12:16:41.281Z",
     "source": {
      "kind": "fda-shortage-db",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:51.457Z"
+     "at": "2026-10-22T12:16:41.281Z"
     }
    },
    {
@@ -2724,11 +2999,11 @@
     "from": "inspection:fda-inspection:858721",
     "to": "site:fei:3003849479",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:58:51.452Z",
+    "validFrom": "2026-10-22T12:16:41.281Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:51.452Z"
+     "at": "2026-10-22T12:16:41.281Z"
     }
    },
    {
@@ -2736,11 +3011,11 @@
     "from": "inspection:fda-inspection:867703",
     "to": "site:fei:3003849479",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:58:51.452Z",
+    "validFrom": "2026-10-22T12:16:41.281Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:51.452Z"
+     "at": "2026-10-22T12:16:41.281Z"
     }
    },
    {
@@ -2748,11 +3023,11 @@
     "from": "inspection:fda-inspection:980304",
     "to": "site:fei:3003849479",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:58:51.453Z",
+    "validFrom": "2026-10-22T12:16:41.281Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:51.453Z"
+     "at": "2026-10-22T12:16:41.281Z"
     }
    },
    {
@@ -2760,11 +3035,11 @@
     "from": "inspection:fda-inspection:1031560",
     "to": "site:fei:3003849479",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:58:51.453Z",
+    "validFrom": "2026-10-22T12:16:41.281Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:51.453Z"
+     "at": "2026-10-22T12:16:41.281Z"
     }
    },
    {
@@ -2772,11 +3047,11 @@
     "from": "warning-letter:fda-warning-letter:542310",
     "to": "site:fei:3003849479",
     "type": "issued-to",
-    "validFrom": "2026-10-22T07:58:51.454Z",
+    "validFrom": "2026-10-22T12:16:41.281Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:51.454Z"
+     "at": "2026-10-22T12:16:41.281Z"
     }
    },
    {
@@ -2784,11 +3059,11 @@
     "from": "inspection:fda-inspection:762138",
     "to": "site:fei:1925262",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:58:51.449Z",
+    "validFrom": "2026-10-22T12:16:41.281Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:51.449Z"
+     "at": "2026-10-22T12:16:41.281Z"
     }
    },
    {
@@ -2796,11 +3071,11 @@
     "from": "inspection:fda-inspection:805120",
     "to": "site:fei:1925262",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:58:51.449Z",
+    "validFrom": "2026-10-22T12:16:41.281Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:51.449Z"
+     "at": "2026-10-22T12:16:41.281Z"
     }
    },
    {
@@ -2808,11 +3083,11 @@
     "from": "inspection:fda-inspection:844785",
     "to": "site:fei:1925262",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:58:51.449Z",
+    "validFrom": "2026-10-22T12:16:41.281Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:51.449Z"
+     "at": "2026-10-22T12:16:41.281Z"
     }
    },
    {
@@ -2820,11 +3095,11 @@
     "from": "inspection:fda-inspection:876340",
     "to": "site:fei:1925262",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:58:51.449Z",
+    "validFrom": "2026-10-22T12:16:41.281Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:51.449Z"
+     "at": "2026-10-22T12:16:41.281Z"
     }
    },
    {
@@ -2832,11 +3107,11 @@
     "from": "inspection:fda-inspection:919007",
     "to": "site:fei:1925262",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:58:51.450Z",
+    "validFrom": "2026-10-22T12:16:41.281Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:51.450Z"
+     "at": "2026-10-22T12:16:41.281Z"
     }
    },
    {
@@ -2844,11 +3119,11 @@
     "from": "inspection:fda-inspection:976095",
     "to": "site:fei:1925262",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:58:51.450Z",
+    "validFrom": "2026-10-22T12:16:41.281Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:51.450Z"
+     "at": "2026-10-22T12:16:41.281Z"
     }
    },
    {
@@ -2856,11 +3131,11 @@
     "from": "inspection:fda-inspection:1031233",
     "to": "site:fei:1925262",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:58:51.450Z",
+    "validFrom": "2026-10-22T12:16:41.281Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:51.450Z"
+     "at": "2026-10-22T12:16:41.281Z"
     }
    },
    {
@@ -2868,11 +3143,11 @@
     "from": "inspection:fda-inspection:1064827",
     "to": "site:fei:1925262",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:58:51.451Z",
+    "validFrom": "2026-10-22T12:16:41.281Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:51.451Z"
+     "at": "2026-10-22T12:16:41.281Z"
     }
    },
    {
@@ -2880,11 +3155,11 @@
     "from": "inspection:fda-inspection:1115467",
     "to": "site:fei:1925262",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:58:51.451Z",
+    "validFrom": "2026-10-22T12:16:41.281Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:51.451Z"
+     "at": "2026-10-22T12:16:41.281Z"
     }
    },
    {
@@ -2892,11 +3167,11 @@
     "from": "inspection:fda-inspection:1255699",
     "to": "site:fei:1925262",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:58:51.451Z",
+    "validFrom": "2026-10-22T12:16:41.281Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:51.451Z"
+     "at": "2026-10-22T12:16:41.281Z"
     }
    },
    {
@@ -2904,11 +3179,11 @@
     "from": "warning-letter:fda-warning-letter:506761",
     "to": "site:fei:1925262",
     "type": "issued-to",
-    "validFrom": "2026-10-22T07:58:51.450Z",
+    "validFrom": "2026-10-22T12:16:41.281Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:51.450Z"
+     "at": "2026-10-22T12:16:41.281Z"
     }
    }
   ],

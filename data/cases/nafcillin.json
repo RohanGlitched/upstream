@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-9c5ca0",
+ "id": "case-2026-10-22-7c67dc",
  "question": "Why is nafcillin sodium short, and what do we do?",
- "askedAt": "2026-10-22T08:05:09.273Z",
+ "askedAt": "2026-10-22T12:24:10.908Z",
  "asOf": "2026-10-21",
  "molecule": "nafcillin sodium",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5HA8HWYJ251HGWR2EEEHAGT",
+  "contractId": "01M5HS304C83FZCE29K6KCM62R",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-13a48a"
+    "Q-f08a51"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 4203,
+   "ms": 3300,
    "rows": 6,
-   "finding": "6 stock lines across 3 hospitals.",
+   "finding": "6 stock lines across 3 hospitals, 2 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-4d486b"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1032,
+   "ms": 396,
    "rows": 4,
    "finding": "4 plant links on 2 labels; 3 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-9c84c4",
-    "Q-9f28ca"
+    "Q-f3e482",
+    "Q-f58b03"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 608,
+   "ms": 253,
    "rows": 2,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-7c2520"
+    "Q-ff55a2"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2599,
+   "ms": 1200,
    "rows": 27,
    "finding": "10 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-30340e",
     "Q-beab84",
     "Q-59a601",
-    "Q-33e131"
+    "Q-9d8900"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1279,
+   "ms": 599,
    "rows": 19,
    "finding": "19 inspections (1 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,7 +111,7 @@
    "sources": [
     "fda.citations"
    ],
-   "ms": 296,
+   "ms": 138,
    "rows": 0,
    "finding": "0 Form 483 observations recorded.",
    "status": "empty"
@@ -119,9 +126,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1428,
+   "ms": 679,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -129,19 +136,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-662fb2"
+    "Q-f7f703"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1976,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1895,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -152,7 +163,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 2,
+   "ms": 1,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -168,8 +179,11 @@
    "onHand": 452,
    "dailyUse": 16.134,
    "days": 28,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "nafcillin sodium|1g/4ml|injection|4ml|vial",
+   "presentationLabel": "1 g/4 mL injection, 4 mL vial",
    "evidence": "E1"
   },
   {
@@ -181,34 +195,43 @@
    "onHand": 55,
    "dailyUse": 15.864,
    "days": 3.5,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "nafcillin sodium|2g/8ml|injection|8ml|vial",
+   "presentationLabel": "2 g/8 mL injection, 8 mL vial",
    "evidence": "E2"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-282",
    "ndc11": "23155090641",
-   "description": "Nafcillin Sodium",
+   "description": "Nafcillin Sodium 1 g/4mL",
    "labeler": "Heritage Pharmaceuticals Inc. d/b/a/ Avet Pharmaceuticals Inc.",
-   "onHand": 338.91,
+   "onHand": 338,
    "dailyUse": 16.577,
    "days": 20.4,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "nafcillin sodium|1g/4ml|injection|4ml|vial",
+   "presentationLabel": "1 g/4 mL injection, 4 mL vial",
    "evidence": "E3"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-283",
    "ndc11": "55150012316",
-   "description": "Nafcillin Sodium",
+   "description": "Nafcillin Sodium 2 g/8mL",
    "labeler": "Eugia US LLC",
-   "onHand": 402.78,
+   "onHand": 402,
    "dailyUse": 15.573,
-   "days": 25.9,
+   "days": 25.8,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "nafcillin sodium|2g/8ml|injection|8ml|vial",
+   "presentationLabel": "2 g/8 mL injection, 8 mL vial",
    "evidence": "E4"
   },
   {
@@ -222,6 +245,9 @@
    "days": 25.1,
    "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "nafcillin sodium|1g/4ml|injection|4ml|vial",
+   "presentationLabel": "1 g/4 mL injection, 4 mL vial",
    "evidence": "E5"
   },
   {
@@ -235,7 +261,106 @@
    "days": 15.7,
    "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "nafcillin sodium|2g/8ml|injection|8ml|vial",
+   "presentationLabel": "2 g/8 mL injection, 8 mL vial",
    "evidence": "E6"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "nafcillin sodium|2g/8ml|injection|8ml|vial",
+   "label": "2 g/8 mL injection, 8 mL vial",
+   "short": "2 g/8 mL, 8 mL",
+   "unit": "vial",
+   "onHand": 503,
+   "dailyUse": 34.374,
+   "days": 14.6,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 55,
+     "dailyUse": 15.864,
+     "days": 3.5,
+     "lines": [
+      "EA-E-000191"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 402,
+     "dailyUse": 15.573,
+     "days": 25.8,
+     "lines": [
+      "CG-283"
+     ],
+     "evidence": [
+      "E4"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 46,
+     "dailyUse": 2.937,
+     "days": 15.7,
+     "lines": [
+      "LS-LS-0086"
+     ],
+     "evidence": [
+      "E6"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "nafcillin sodium|1g/4ml|injection|4ml|vial",
+   "label": "1 g/4 mL injection, 4 mL vial",
+   "short": "1 g/4 mL, 4 mL",
+   "unit": "vial",
+   "onHand": 895,
+   "dailyUse": 36.901,
+   "days": 24.3,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 452,
+     "dailyUse": 16.134,
+     "days": 28,
+     "lines": [
+      "EA-E-000141"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 338,
+     "dailyUse": 16.577,
+     "days": 20.4,
+     "lines": [
+      "CG-282"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 105,
+     "dailyUse": 4.19,
+     "days": 25.1,
+     "lines": [
+      "LS-LS-0059"
+     ],
+     "evidence": [
+      "E5"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -622,6 +747,52 @@
  ],
  "options": [
   {
+   "kind": "transfer",
+   "rank": 1,
+   "title": "Transfer 168 vials of 2 g/8 mL, 8 mL from Corvale General to Corvale East",
+   "detail": "Corvale General has 26 days of 2 g/8 mL injection, 8 mL vials on hand and can spare 168 vials while keeping two weeks; Corvale East has 3.5 days and would reach 14.",
+   "why": "Same presentation, no clinical change, no new supplier.",
+   "needs": "pharmacy director (transfer request)",
+   "evidence": [
+    "E4",
+    "E2"
+   ],
+   "transfer": {
+    "qty": 168,
+    "unit": "vial",
+    "presentation": "2 g/8 mL injection, 8 mL vial",
+    "from": "Corvale General",
+    "to": "Corvale East",
+    "fromDays": 25.8,
+    "toDays": 3.5,
+    "fromAfter": 15,
+    "toAfter": 14
+   }
+  },
+  {
+   "kind": "transfer",
+   "rank": 1,
+   "title": "Transfer 4 vials of 2 g/8 mL, 8 mL from Corvale Lakeside to Corvale East",
+   "detail": "Corvale Lakeside has 16 days of 2 g/8 mL injection, 8 mL vials on hand and can spare 4 vials while keeping two weeks; Corvale East has 3.5 days and would reach 4.",
+   "why": "Same presentation, no clinical change, no new supplier.",
+   "needs": "pharmacy director (transfer request)",
+   "evidence": [
+    "E6",
+    "E2"
+   ],
+   "transfer": {
+    "qty": 4,
+    "unit": "vial",
+    "presentation": "2 g/8 mL injection, 8 mL vial",
+    "from": "Corvale Lakeside",
+    "to": "Corvale East",
+    "fromDays": 15.7,
+    "toDays": 3.5,
+    "fromAfter": 14,
+    "toAfter": 4
+   }
+  },
+  {
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Armas Pharmaceuticals Inc.",
@@ -816,55 +987,58 @@
   }
  ],
  "explanation": {
-  "state": "confirmed",
-  "headline": "FDA's records trace this shortage to a plant on our own labels",
+  "state": "check",
+  "headline": "Nafcillin sodium is not on FDA's shortage list as of 2026-10-21; internal inventory shows Corvale East at 3.5 days on hand for the 2 g/8 mL vial",
   "sentences": [
    {
-    "text": "The Eugia US LLC product (NDC 55150012316) lists Aurobindo Pharma Limited (FEI 3004446312) as a registered plant for analysis and manufacture.",
+    "text": "FDA's drug shortage list does not include nafcillin sodium as of 2026-10-21.",
     "cites": [
-     "E23"
+     "D7"
     ]
    },
    {
-    "text": "FDA inspection 1286862 of that plant ended on 2025-09-05 and was classified OAI, with the classification known on 2025-12-04.",
+    "text": "Corvale East holds 55 vials of the 2 g/8 mL presentation with a daily use of 15.9 vials, leaving 3.5 days on hand.",
     "cites": [
-     "E22"
+     "D1"
     ]
    },
    {
-    "text": "The same product also names Apitoria Pharma Private Limited (FEI 3004051616) for analysis and API manufacture, and EUGIA SEZ PRIVATE LIMITED (FEI 3011905047) for analysis, manufacture, and pack, both with VAI inspection histories.",
+    "text": "Corvale General holds 402 vials of the same presentation with a daily use of 15.6 vials, providing 25.8 days on hand.",
     "cites": [
-     "E15",
-     "E26"
+     "D2"
     ]
    },
    {
-    "text": "A separate Heritage/Avet product (NDC 23155090641) names Antibiotice SA as the manufacturing plant, but that plant is not placed in FDA registration data.",
+    "text": "Corvale Lakeside holds 46 vials with a daily use of 2.9 vials, providing 15.7 days on hand.",
     "cites": [
-     "E7"
-    ]
-   },
-   {
-    "text": "Current inventory across the three Corvale sites ranges from 16 to 23 days on hand at present usage rates.",
-    "cites": [
-     "D1",
-     "D2",
      "D3"
+    ]
+   },
+   {
+    "text": "The top-ranked option by rule is to transfer 168 vials of the 2 g/8 mL vial from Corvale General to Corvale East, which would raise Corvale East to 14 days on hand while Corvale General retains two weeks of supply.",
+    "cites": [
+     "D8"
+    ]
+   },
+   {
+    "text": "An alternate manufacturer option lists Armas Pharmaceuticals Inc., but its label names no plant that could be placed for regulatory review.",
+    "cites": [
+     "D10"
+    ]
+   },
+   {
+    "text": "The current supply for the 2 g/8 mL vial at Corvale East and Corvale General is labeled by Eugia US LLC under NDC 55150012316, with registered manufacturing plants including Apitoria Pharma Private Limited (VAI 2025-12-12), Aurobindo Pharma Limited (OAI 2025-09-05), and Eugia SEZ Private Limited (VAI 2019-03-01).",
+    "cites": [
+     "E4",
+     "E15",
+     "E23",
+     "E26"
     ]
    }
   ],
   "verifier": {
-   "checked": 7,
-   "rejected": [
-    {
-     "text": "That OAI classification occurred 411 days before the posting date of 2026-10-21.",
-     "reason": "date 2026-10-21 is not in the cited evidence"
-    },
-    {
-     "text": "FDA's records trace our supply to a plant classified OAI 411 days before the posting",
-     "reason": "headline: number 411 is not in the cited evidence"
-    }
-   ],
+   "checked": 8,
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -872,45 +1046,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -925,87 +1120,87 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T08:04:55.840Z",
+   "at": "2026-10-22T12:24:02.444Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract 2EEEHAGT scope"
+   "reason": "in contract K6KCM62R scope"
   },
   {
-   "at": "2026-10-22T08:04:55.840Z",
+   "at": "2026-10-22T12:24:02.444Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 2EEEHAGT scope"
+   "reason": "in contract K6KCM62R scope"
   },
   {
-   "at": "2026-10-22T08:05:00.045Z",
+   "at": "2026-10-22T12:24:05.744Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 2EEEHAGT scope"
+   "reason": "in contract K6KCM62R scope"
   },
   {
-   "at": "2026-10-22T08:05:01.077Z",
+   "at": "2026-10-22T12:24:06.141Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 2EEEHAGT scope"
+   "reason": "in contract K6KCM62R scope"
   },
   {
-   "at": "2026-10-22T08:05:01.686Z",
+   "at": "2026-10-22T12:24:06.393Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 2EEEHAGT scope"
+   "reason": "in contract K6KCM62R scope"
   },
   {
-   "at": "2026-10-22T08:05:04.285Z",
+   "at": "2026-10-22T12:24:07.593Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 2EEEHAGT scope"
+   "reason": "in contract K6KCM62R scope"
   },
   {
-   "at": "2026-10-22T08:05:05.563Z",
+   "at": "2026-10-22T12:24:08.192Z",
    "action": "What FDA wrote at the OAI inspections",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 2EEEHAGT scope"
+   "reason": "in contract K6KCM62R scope"
   },
   {
-   "at": "2026-10-22T08:05:05.866Z",
+   "at": "2026-10-22T12:24:08.332Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 2EEEHAGT scope"
+   "reason": "in contract K6KCM62R scope"
   },
   {
-   "at": "2026-10-22T08:05:07.296Z",
+   "at": "2026-10-22T12:24:09.012Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 2EEEHAGT scope"
+   "reason": "in contract K6KCM62R scope"
   },
   {
-   "at": "2026-10-22T08:05:09.270Z",
+   "at": "2026-10-22T12:24:10.906Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract 2EEEHAGT scope"
+   "reason": "in contract K6KCM62R scope"
   },
   {
-   "at": "2026-10-22T08:05:09.274Z",
+   "at": "2026-10-22T12:24:10.908Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract 2EEEHAGT scope"
+   "reason": "in contract K6KCM62R scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-13a48a",
+   "queryId": "Q-f08a51",
    "row": 0,
    "label": "Corvale East: NAFCILLIN SODIUM 1G/4ML 4ML SDV",
    "fields": {
@@ -1016,19 +1211,24 @@
     "description": "NAFCILLIN SODIUM 1G/4ML 4ML SDV",
     "on_hand": "452.00",
     "daily_use": "16.134",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Nafcillin Sodium",
     "labeler_name": "Heritage Pharmaceuticals Inc. d/b/a/ Avet Pharmaceuticals Inc.",
     "package_ndc": "23155-906-41",
     "spl_set_id": "8a00624c-c436-4102-a042-dab54022bcc2",
     "dosage_form": "INJECTION, POWDER, FOR SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "NAFCILLIN SODIUM 1 g/4mL",
+    "unit_content": "4 mL",
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-13a48a",
+   "queryId": "Q-f08a51",
    "row": 1,
    "label": "Corvale East: NAFCILLIN SODIUM 2G/8ML 8ML SDV",
    "fields": {
@@ -1039,65 +1239,80 @@
     "description": "NAFCILLIN SODIUM 2G/8ML 8ML SDV",
     "on_hand": "55.00",
     "daily_use": "15.864",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Nafcillin Sodium",
     "labeler_name": "Eugia US LLC",
     "package_ndc": "55150-123-16",
     "spl_set_id": "34821770-929c-40ea-a9e4-d4405dc869e1",
     "dosage_form": "INJECTION, POWDER, FOR SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "NAFCILLIN SODIUM 2 g/8mL",
+    "unit_content": "8 mL",
+    "pkg_unit": "vial"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-13a48a",
+   "queryId": "Q-f08a51",
    "row": 2,
-   "label": "Corvale General: Nafcillin Sodium",
+   "label": "Corvale General: Nafcillin Sodium 1 g/4mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-282",
     "ndc11": "23155090641",
     "ndc_as_recorded": "23155090641",
-    "description": "Nafcillin Sodium",
-    "on_hand": "338.91",
+    "description": "Nafcillin Sodium 1 g/4mL",
+    "on_hand": "338.00",
     "daily_use": "16.577",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Nafcillin Sodium",
     "labeler_name": "Heritage Pharmaceuticals Inc. d/b/a/ Avet Pharmaceuticals Inc.",
     "package_ndc": "23155-906-41",
     "spl_set_id": "8a00624c-c436-4102-a042-dab54022bcc2",
     "dosage_form": "INJECTION, POWDER, FOR SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "NAFCILLIN SODIUM 1 g/4mL",
+    "unit_content": "4 mL",
+    "pkg_unit": "vial"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-13a48a",
+   "queryId": "Q-f08a51",
    "row": 3,
-   "label": "Corvale General: Nafcillin Sodium",
+   "label": "Corvale General: Nafcillin Sodium 2 g/8mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-283",
     "ndc11": "55150012316",
     "ndc_as_recorded": "55150012316",
-    "description": "Nafcillin Sodium",
-    "on_hand": "402.78",
+    "description": "Nafcillin Sodium 2 g/8mL",
+    "on_hand": "402.00",
     "daily_use": "15.573",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Nafcillin Sodium",
     "labeler_name": "Eugia US LLC",
     "package_ndc": "55150-123-16",
     "spl_set_id": "34821770-929c-40ea-a9e4-d4405dc869e1",
     "dosage_form": "INJECTION, POWDER, FOR SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "NAFCILLIN SODIUM 2 g/8mL",
+    "unit_content": "8 mL",
+    "pkg_unit": "vial"
    }
   },
   "E5": {
    "id": "E5",
-   "queryId": "Q-13a48a",
+   "queryId": "Q-f08a51",
    "row": 4,
    "label": "Corvale Lakeside: Nafcillin Sodium 1 g/4mL 4 mL vial",
    "fields": {
@@ -1109,18 +1324,23 @@
     "on_hand": "105.00",
     "daily_use": "4.190",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Nafcillin Sodium",
     "labeler_name": "Heritage Pharmaceuticals Inc. d/b/a/ Avet Pharmaceuticals Inc.",
     "package_ndc": "23155-906-41",
     "spl_set_id": "8a00624c-c436-4102-a042-dab54022bcc2",
     "dosage_form": "INJECTION, POWDER, FOR SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "NAFCILLIN SODIUM 1 g/4mL",
+    "unit_content": "4 mL",
+    "pkg_unit": "vial"
    }
   },
   "E6": {
    "id": "E6",
-   "queryId": "Q-13a48a",
+   "queryId": "Q-f08a51",
    "row": 5,
    "label": "Corvale Lakeside: Nafcillin Sodium 2 g/8mL 8 mL vial",
    "fields": {
@@ -1132,13 +1352,18 @@
     "on_hand": "46.00",
     "daily_use": "2.937",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Nafcillin Sodium",
     "labeler_name": "Eugia US LLC",
     "package_ndc": "55150-123-16",
     "spl_set_id": "34821770-929c-40ea-a9e4-d4405dc869e1",
     "dosage_form": "INJECTION, POWDER, FOR SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "NAFCILLIN SODIUM 2 g/8mL",
+    "unit_content": "8 mL",
+    "pkg_unit": "vial"
    }
   },
   "E7": {
@@ -1465,208 +1690,309 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 507 units of nafcillin sodium at 32 a day: 16 days on hand",
+   "label": "Corvale East holds 55 vials of nafcillin sodium 2 g/8 mL, 8 mL at 15.9 a day: 3.5 days on hand",
    "fields": {
     "hospital": "Corvale East",
-    "on_hand": 507,
-    "daily_use": 32,
-    "days_on_hand": 16
+    "presentation": "2 g/8 mL injection, 8 mL vial",
+    "on_hand": 55,
+    "daily_use": 15.9,
+    "days_on_hand": 3.5
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 742 units of nafcillin sodium at 32.2 a day: 23 days on hand",
+   "label": "Corvale General holds 402 vials of nafcillin sodium 2 g/8 mL, 8 mL at 15.6 a day: 25.8 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 742,
-    "daily_use": 32.2,
-    "days_on_hand": 23
+    "presentation": "2 g/8 mL injection, 8 mL vial",
+    "on_hand": 402,
+    "daily_use": 15.6,
+    "days_on_hand": 25.8
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 151 units of nafcillin sodium at 7.1 a day: 21 days on hand",
+   "label": "Corvale Lakeside holds 46 vials of nafcillin sodium 2 g/8 mL, 8 mL at 2.9 a day: 15.7 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
-    "on_hand": 151,
-    "daily_use": 7.1,
-    "days_on_hand": 21
+    "presentation": "2 g/8 mL injection, 8 mL vial",
+    "on_hand": 46,
+    "daily_use": 2.9,
+    "days_on_hand": 15.7
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale East holds 452 vials of nafcillin sodium 1 g/4 mL, 4 mL at 16.1 a day: 28 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "1 g/4 mL injection, 4 mL vial",
+    "on_hand": 452,
+    "daily_use": 16.1,
+    "days_on_hand": 28
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 338 vials of nafcillin sodium 1 g/4 mL, 4 mL at 16.6 a day: 20.4 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "1 g/4 mL injection, 4 mL vial",
+    "on_hand": 338,
+    "daily_use": 16.6,
+    "days_on_hand": 20.4
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale Lakeside holds 105 vials of nafcillin sodium 1 g/4 mL, 4 mL at 4.2 a day: 25.1 days on hand",
+   "fields": {
+    "hospital": "Corvale Lakeside",
+    "presentation": "1 g/4 mL injection, 4 mL vial",
+    "on_hand": 105,
+    "daily_use": 4.2,
+    "days_on_hand": 25.1
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "nafcillin sodium is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D8": {
+   "id": "D8",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 168 vials of 2 g/8 mL, 8 mL from Corvale General to Corvale East. Corvale General has 26 days of 2 g/8 mL injection, 8 mL vials on hand and can spare 168 vials while keeping two weeks; Corvale East has 3.5 days and would reach 14.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D9": {
+   "id": "D9",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 4 vials of 2 g/8 mL, 8 mL from Corvale Lakeside to Corvale East. Corvale Lakeside has 16 days of 2 g/8 mL injection, 8 mL vials on hand and can spare 4 vials while keeping two weeks; Corvale East has 3.5 days and would reach 4.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D10": {
+   "id": "D10",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Armas Pharmaceuticals Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-13a48a": {
-   "id": "Q-13a48a",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%nafcillin%' OR lower(s.description) LIKE '%nafcillin%' ORDER BY s.hospital, s.item_key",
-   "ms": 4200,
+  "Q-f08a51": {
+   "id": "Q-f08a51",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*nafcillin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*nafcillin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3299,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T08:05:00.040Z",
+   "ranAt": "2026-10-22T12:24:05.743Z",
    "rows": 6
   },
   "Q-4d486b": {
    "id": "Q-4d486b",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('8a00624c-c436-4102-a042-dab54022bcc2', '34821770-929c-40ea-a9e4-d4405dc869e1') ORDER BY ps.set_id, ps.establishment",
-   "ms": 1028,
+   "ms": 395,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:05:01.073Z",
+   "ranAt": "2026-10-22T12:24:06.140Z",
    "rows": 4
   },
-  "Q-9c84c4": {
-   "id": "Q-9c84c4",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%nafcillin%' ORDER BY status, company_name, package_ndc",
-   "ms": 279,
+  "Q-f3e482": {
+   "id": "Q-f3e482",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*nafcillin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 123,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T08:05:01.357Z",
+   "ranAt": "2026-10-22T12:24:06.264Z",
    "rows": 0
   },
-  "Q-9f28ca": {
-   "id": "Q-9f28ca",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%nafcillin%' ORDER BY first_posting",
-   "ms": 321,
+  "Q-f58b03": {
+   "id": "Q-f58b03",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*nafcillin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 127,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T08:05:01.681Z",
+   "ranAt": "2026-10-22T12:24:06.392Z",
    "rows": 2
   },
-  "Q-7c2520": {
-   "id": "Q-7c2520",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%nafcillin%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2595,
+  "Q-ff55a2": {
+   "id": "Q-ff55a2",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*nafcillin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1198,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:05:04.281Z",
+   "ranAt": "2026-10-22T12:24:07.592Z",
    "rows": 27
   },
   "Q-30340e": {
    "id": "Q-30340e",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3004051616', '3004446312', '3011905047') ORDER BY fei, end_date",
-   "ms": 515,
+   "ms": 252,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T08:05:04.801Z",
+   "ranAt": "2026-10-22T12:24:07.845Z",
    "rows": 19
   },
   "Q-beab84": {
    "id": "Q-beab84",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3004051616', '3004446312', '3011905047') ORDER BY fei, action_date",
-   "ms": 292,
+   "ms": 113,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T08:05:05.097Z",
+   "ranAt": "2026-10-22T12:24:07.958Z",
    "rows": 0
   },
   "Q-59a601": {
    "id": "Q-59a601",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3004051616', '3004446312', '3011905047') OR (fei_match <> 'name_and_city' AND firm_key IN ('apitoria', 'aurobindo', 'eugia sez', 'antibiotice')) ORDER BY date_published",
-   "ms": 234,
+   "ms": 104,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T08:05:05.335Z",
+   "ranAt": "2026-10-22T12:24:08.064Z",
    "rows": 0
   },
-  "Q-33e131": {
-   "id": "Q-33e131",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('apitoria', 'aurobindo', 'eugia sez', 'antibiotice', 'heritage d b a avet', 'eugia') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%nafcillin%' ORDER BY initiation_date",
-   "ms": 221,
+  "Q-9d8900": {
+   "id": "Q-9d8900",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('apitoria', 'aurobindo', 'eugia sez', 'antibiotice', 'heritage d b a avet', 'eugia') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*nafcillin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 126,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T08:05:05.559Z",
+   "ranAt": "2026-10-22T12:24:08.191Z",
    "rows": 0
   },
   "Q-ef8f12": {
    "id": "Q-ef8f12",
    "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('1286862') ORDER BY inspection_id, cfr",
-   "ms": 292,
+   "ms": 137,
    "mode": "live",
    "sources": [
     "fda.citations"
    ],
-   "ranAt": "2026-10-22T08:05:05.855Z",
+   "ranAt": "2026-10-22T12:24:08.329Z",
    "rows": 0
   },
   "Q-1e2e57": {
    "id": "Q-1e2e57",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('23155090641', '55150012316')",
-   "ms": 1422,
+   "ms": 678,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:05:07.288Z",
+   "ranAt": "2026-10-22T12:24:09.010Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-662fb2": {
-   "id": "Q-662fb2",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%nafcillin%'",
-   "ms": 1968,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:05:09.265Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-f7f703": {
+   "id": "Q-f7f703",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*nafcillin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1893,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:24:10.905Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 15,
-  "zetarisMs": 18738,
+  "zetarisMs": 18653,
   "modelCalls": 1,
-  "tokensIn": 2627,
-  "tokensOut": 453,
+  "tokensIn": 4343,
+  "tokensOut": 558,
   "mode": "live"
  },
  "slug": "nafcillin",
@@ -1684,7 +2010,7 @@
     "id": "hospital-item:hospital-item:CG-282",
     "type": "HospitalItem",
     "key": "hospital-item:CG-282",
-    "label": "Corvale General: Nafcillin Sodium",
+    "label": "Corvale General: Nafcillin Sodium 1 g/4mL",
     "attrs": {
      "key": "hospital-item:CG-282"
     },
@@ -1695,7 +2021,7 @@
     "id": "hospital-item:hospital-item:CG-283",
     "type": "HospitalItem",
     "key": "hospital-item:CG-283",
-    "label": "Corvale General: Nafcillin Sodium",
+    "label": "Corvale General: Nafcillin Sodium 2 g/8mL",
     "attrs": {
      "key": "hospital-item:CG-283"
     },
@@ -1867,7 +2193,7 @@
     },
     "facts": [
      {
-      "id": "fact_1e5a7a46799e78b4",
+      "id": "fact_f77e9f02bce53383",
       "about": "inspection:fda-inspection:1046218",
       "predicate": "classification",
       "value": "VAI",
@@ -1875,9 +2201,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:05:05.863Z"
+       "at": "2026-10-22T12:24:08.331Z"
       },
-      "assertedAt": "2026-10-22T08:05:05.863Z"
+      "assertedAt": "2026-10-22T12:24:08.331Z"
      }
     ],
     "depth": 4
@@ -1893,7 +2219,7 @@
     },
     "facts": [
      {
-      "id": "fact_5f137b8857a7bb6d",
+      "id": "fact_f2d10e898a354d7f",
       "about": "inspection:fda-inspection:1050666",
       "predicate": "classification",
       "value": "VAI",
@@ -1901,9 +2227,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:05:05.864Z"
+       "at": "2026-10-22T12:24:08.331Z"
       },
-      "assertedAt": "2026-10-22T08:05:05.864Z"
+      "assertedAt": "2026-10-22T12:24:08.331Z"
      }
     ],
     "depth": 4
@@ -1919,7 +2245,7 @@
     },
     "facts": [
      {
-      "id": "fact_f7db8d40c68182de",
+      "id": "fact_b8e917567a0a66c3",
       "about": "inspection:fda-inspection:1081040",
       "predicate": "classification",
       "value": "VAI",
@@ -1927,9 +2253,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:05:05.865Z"
+       "at": "2026-10-22T12:24:08.331Z"
       },
-      "assertedAt": "2026-10-22T08:05:05.865Z"
+      "assertedAt": "2026-10-22T12:24:08.331Z"
      }
     ],
     "depth": 4
@@ -1945,7 +2271,7 @@
     },
     "facts": [
      {
-      "id": "fact_13042e02496e7226",
+      "id": "fact_b2bb130412abc0a6",
       "about": "inspection:fda-inspection:1109465",
       "predicate": "classification",
       "value": "VAI",
@@ -1953,9 +2279,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:05:05.860Z"
+       "at": "2026-10-22T12:24:08.331Z"
       },
-      "assertedAt": "2026-10-22T08:05:05.860Z"
+      "assertedAt": "2026-10-22T12:24:08.331Z"
      }
     ],
     "depth": 4
@@ -1971,7 +2297,7 @@
     },
     "facts": [
      {
-      "id": "fact_a15d24602a727096",
+      "id": "fact_c5b220ba4c20db46",
       "about": "inspection:fda-inspection:1118385",
       "predicate": "classification",
       "value": "VAI",
@@ -1979,9 +2305,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:05:05.863Z"
+       "at": "2026-10-22T12:24:08.331Z"
       },
-      "assertedAt": "2026-10-22T08:05:05.863Z"
+      "assertedAt": "2026-10-22T12:24:08.331Z"
      }
     ],
     "depth": 4
@@ -1997,7 +2323,7 @@
     },
     "facts": [
      {
-      "id": "fact_73ba21450bd29609",
+      "id": "fact_faea7a85d387d872",
       "about": "inspection:fda-inspection:1241780",
       "predicate": "classification",
       "value": "VAI",
@@ -2005,9 +2331,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:05:05.864Z"
+       "at": "2026-10-22T12:24:08.331Z"
       },
-      "assertedAt": "2026-10-22T08:05:05.864Z"
+      "assertedAt": "2026-10-22T12:24:08.331Z"
      }
     ],
     "depth": 4
@@ -2023,7 +2349,7 @@
     },
     "facts": [
      {
-      "id": "fact_8d0029d205c0c472",
+      "id": "fact_4632671ab7b0b3e4",
       "about": "inspection:fda-inspection:1245719",
       "predicate": "classification",
       "value": "VAI",
@@ -2031,9 +2357,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:05:05.861Z"
+       "at": "2026-10-22T12:24:08.331Z"
       },
-      "assertedAt": "2026-10-22T08:05:05.861Z"
+      "assertedAt": "2026-10-22T12:24:08.331Z"
      }
     ],
     "depth": 4
@@ -2049,7 +2375,7 @@
     },
     "facts": [
      {
-      "id": "fact_66856ed3b1370ffd",
+      "id": "fact_dd8bf1e2a3ab2a7b",
       "about": "inspection:fda-inspection:1257318",
       "predicate": "classification",
       "value": "VAI",
@@ -2057,9 +2383,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:05:05.861Z"
+       "at": "2026-10-22T12:24:08.331Z"
       },
-      "assertedAt": "2026-10-22T08:05:05.861Z"
+      "assertedAt": "2026-10-22T12:24:08.331Z"
      }
     ],
     "depth": 4
@@ -2075,7 +2401,7 @@
     },
     "facts": [
      {
-      "id": "fact_668ff72cb0afdb32",
+      "id": "fact_2a566575adef7c7b",
       "about": "inspection:fda-inspection:1286862",
       "predicate": "classification",
       "value": "OAI",
@@ -2083,9 +2409,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:05:05.864Z"
+       "at": "2026-10-22T12:24:08.331Z"
       },
-      "assertedAt": "2026-10-22T08:05:05.864Z"
+      "assertedAt": "2026-10-22T12:24:08.331Z"
      }
     ],
     "depth": 4
@@ -2101,7 +2427,7 @@
     },
     "facts": [
      {
-      "id": "fact_f3d3e7d8242384fe",
+      "id": "fact_546ff1a9a21b55f8",
       "about": "inspection:fda-inspection:1297984",
       "predicate": "classification",
       "value": "VAI",
@@ -2109,9 +2435,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:05:05.861Z"
+       "at": "2026-10-22T12:24:08.331Z"
       },
-      "assertedAt": "2026-10-22T08:05:05.861Z"
+      "assertedAt": "2026-10-22T12:24:08.331Z"
      }
     ],
     "depth": 4
@@ -2127,7 +2453,7 @@
     },
     "facts": [
      {
-      "id": "fact_0ba907f29aa0fa0b",
+      "id": "fact_84b579fffb5367da",
       "about": "inspection:fda-inspection:582942",
       "predicate": "classification",
       "value": "VAI",
@@ -2135,9 +2461,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:05:05.860Z"
+       "at": "2026-10-22T12:24:08.330Z"
       },
-      "assertedAt": "2026-10-22T08:05:05.860Z"
+      "assertedAt": "2026-10-22T12:24:08.330Z"
      }
     ],
     "depth": 4
@@ -2153,7 +2479,7 @@
     },
     "facts": [
      {
-      "id": "fact_a0085578c6bdb6a4",
+      "id": "fact_9b91890878f7e03e",
       "about": "inspection:fda-inspection:583461",
       "predicate": "classification",
       "value": "VAI",
@@ -2161,9 +2487,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:05:05.862Z"
+       "at": "2026-10-22T12:24:08.331Z"
       },
-      "assertedAt": "2026-10-22T08:05:05.862Z"
+      "assertedAt": "2026-10-22T12:24:08.331Z"
      }
     ],
     "depth": 4
@@ -2179,7 +2505,7 @@
     },
     "facts": [
      {
-      "id": "fact_8454521e92f4b5e3",
+      "id": "fact_f2f28b0ca3ecf7f0",
       "about": "inspection:fda-inspection:684549",
       "predicate": "classification",
       "value": "VAI",
@@ -2187,9 +2513,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:05:05.862Z"
+       "at": "2026-10-22T12:24:08.331Z"
       },
-      "assertedAt": "2026-10-22T08:05:05.862Z"
+      "assertedAt": "2026-10-22T12:24:08.331Z"
      }
     ],
     "depth": 4
@@ -2205,7 +2531,7 @@
     },
     "facts": [
      {
-      "id": "fact_cb30325d1753b0d9",
+      "id": "fact_3022f97c0b4aa220",
       "about": "inspection:fda-inspection:754572",
       "predicate": "classification",
       "value": "VAI",
@@ -2213,9 +2539,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:05:05.860Z"
+       "at": "2026-10-22T12:24:08.331Z"
       },
-      "assertedAt": "2026-10-22T08:05:05.860Z"
+      "assertedAt": "2026-10-22T12:24:08.331Z"
      }
     ],
     "depth": 4
@@ -2231,7 +2557,7 @@
     },
     "facts": [
      {
-      "id": "fact_b326fb7da29841c0",
+      "id": "fact_e33f9909369e0109",
       "about": "inspection:fda-inspection:793023",
       "predicate": "classification",
       "value": "VAI",
@@ -2239,9 +2565,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:05:05.863Z"
+       "at": "2026-10-22T12:24:08.331Z"
       },
-      "assertedAt": "2026-10-22T08:05:05.863Z"
+      "assertedAt": "2026-10-22T12:24:08.331Z"
      }
     ],
     "depth": 4
@@ -2257,7 +2583,7 @@
     },
     "facts": [
      {
-      "id": "fact_2579f7ca781c5031",
+      "id": "fact_44e9b3a1b74e4290",
       "about": "inspection:fda-inspection:996399",
       "predicate": "classification",
       "value": "VAI",
@@ -2265,9 +2591,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:05:05.860Z"
+       "at": "2026-10-22T12:24:08.331Z"
       },
-      "assertedAt": "2026-10-22T08:05:05.860Z"
+      "assertedAt": "2026-10-22T12:24:08.331Z"
      }
     ],
     "depth": 4
@@ -2279,11 +2605,11 @@
     "from": "hospital-item:hospital-item:CG-282",
     "to": "package:ndc-package:23155-906-41",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:05:00.044Z",
+    "validFrom": "2026-10-22T12:24:05.744Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:00.044Z"
+     "at": "2026-10-22T12:24:05.744Z"
     }
    },
    {
@@ -2291,11 +2617,11 @@
     "from": "hospital-item:hospital-item:CG-283",
     "to": "package:ndc-package:55150-123-16",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:05:00.044Z",
+    "validFrom": "2026-10-22T12:24:05.744Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:00.044Z"
+     "at": "2026-10-22T12:24:05.744Z"
     }
    },
    {
@@ -2303,11 +2629,11 @@
     "from": "hospital-item:hospital-item:EA-E-000141",
     "to": "package:ndc-package:23155-906-41",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:05:00.044Z",
+    "validFrom": "2026-10-22T12:24:05.744Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:00.044Z"
+     "at": "2026-10-22T12:24:05.744Z"
     }
    },
    {
@@ -2315,11 +2641,11 @@
     "from": "hospital-item:hospital-item:EA-E-000191",
     "to": "package:ndc-package:55150-123-16",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:05:00.044Z",
+    "validFrom": "2026-10-22T12:24:05.744Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:00.044Z"
+     "at": "2026-10-22T12:24:05.744Z"
     }
    },
    {
@@ -2327,11 +2653,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0059",
     "to": "package:ndc-package:23155-906-41",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:05:00.044Z",
+    "validFrom": "2026-10-22T12:24:05.744Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:00.044Z"
+     "at": "2026-10-22T12:24:05.744Z"
     }
    },
    {
@@ -2339,11 +2665,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0086",
     "to": "package:ndc-package:55150-123-16",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:05:00.045Z",
+    "validFrom": "2026-10-22T12:24:05.744Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:00.045Z"
+     "at": "2026-10-22T12:24:05.744Z"
     }
    },
    {
@@ -2351,11 +2677,11 @@
     "from": "package:ndc-package:23155-906-41",
     "to": "product:ndc-product:23155-906",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:05:00.044Z",
+    "validFrom": "2026-10-22T12:24:05.744Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:00.044Z"
+     "at": "2026-10-22T12:24:05.744Z"
     }
    },
    {
@@ -2363,11 +2689,11 @@
     "from": "package:ndc-package:55150-123-16",
     "to": "product:ndc-product:55150-123",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:05:00.044Z",
+    "validFrom": "2026-10-22T12:24:05.744Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:00.044Z"
+     "at": "2026-10-22T12:24:05.744Z"
     }
    },
    {
@@ -2375,11 +2701,11 @@
     "from": "product:ndc-product:23155-906",
     "to": "drug:generic:nafcillin sodium",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:05:00.044Z",
+    "validFrom": "2026-10-22T12:24:05.744Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:00.044Z"
+     "at": "2026-10-22T12:24:05.744Z"
     }
    },
    {
@@ -2387,11 +2713,11 @@
     "from": "product:ndc-product:23155-906",
     "to": "labeler:ndc-labeler:23155",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:05:00.044Z",
+    "validFrom": "2026-10-22T12:24:05.744Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:00.044Z"
+     "at": "2026-10-22T12:24:05.744Z"
     }
    },
    {
@@ -2399,11 +2725,11 @@
     "from": "product:ndc-product:55150-123",
     "to": "drug:generic:nafcillin sodium",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:05:00.044Z",
+    "validFrom": "2026-10-22T12:24:05.744Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:00.044Z"
+     "at": "2026-10-22T12:24:05.744Z"
     }
    },
    {
@@ -2411,11 +2737,11 @@
     "from": "product:ndc-product:55150-123",
     "to": "labeler:ndc-labeler:55150",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:05:00.044Z",
+    "validFrom": "2026-10-22T12:24:05.744Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:00.044Z"
+     "at": "2026-10-22T12:24:05.744Z"
     }
    },
    {
@@ -2423,11 +2749,11 @@
     "from": "product:ndc-product:55150-123",
     "to": "site:fei:3004051616",
     "type": "made-at",
-    "validFrom": "2026-10-22T08:05:05.859Z",
+    "validFrom": "2026-10-22T12:24:08.330Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:05.859Z"
+     "at": "2026-10-22T12:24:08.330Z"
     }
    },
    {
@@ -2435,11 +2761,11 @@
     "from": "product:ndc-product:55150-123",
     "to": "site:fei:3004446312",
     "type": "made-at",
-    "validFrom": "2026-10-22T08:05:05.861Z",
+    "validFrom": "2026-10-22T12:24:08.331Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:05.861Z"
+     "at": "2026-10-22T12:24:08.331Z"
     }
    },
    {
@@ -2447,11 +2773,11 @@
     "from": "product:ndc-product:55150-123",
     "to": "site:fei:3011905047",
     "type": "made-at",
-    "validFrom": "2026-10-22T08:05:05.864Z",
+    "validFrom": "2026-10-22T12:24:08.331Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:05.864Z"
+     "at": "2026-10-22T12:24:08.331Z"
     }
    },
    {
@@ -2459,11 +2785,11 @@
     "from": "inspection:fda-inspection:582942",
     "to": "site:fei:3004051616",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:05:05.860Z",
+    "validFrom": "2026-10-22T12:24:08.330Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:05.860Z"
+     "at": "2026-10-22T12:24:08.330Z"
     }
    },
    {
@@ -2471,11 +2797,11 @@
     "from": "inspection:fda-inspection:754572",
     "to": "site:fei:3004051616",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:05:05.860Z",
+    "validFrom": "2026-10-22T12:24:08.330Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:05.860Z"
+     "at": "2026-10-22T12:24:08.330Z"
     }
    },
    {
@@ -2483,11 +2809,11 @@
     "from": "inspection:fda-inspection:996399",
     "to": "site:fei:3004051616",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:05:05.860Z",
+    "validFrom": "2026-10-22T12:24:08.331Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:05.860Z"
+     "at": "2026-10-22T12:24:08.331Z"
     }
    },
    {
@@ -2495,11 +2821,11 @@
     "from": "inspection:fda-inspection:1109465",
     "to": "site:fei:3004051616",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:05:05.860Z",
+    "validFrom": "2026-10-22T12:24:08.331Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:05.860Z"
+     "at": "2026-10-22T12:24:08.331Z"
     }
    },
    {
@@ -2507,11 +2833,11 @@
     "from": "inspection:fda-inspection:1245719",
     "to": "site:fei:3004051616",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:05:05.861Z",
+    "validFrom": "2026-10-22T12:24:08.331Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:05.861Z"
+     "at": "2026-10-22T12:24:08.331Z"
     }
    },
    {
@@ -2519,11 +2845,11 @@
     "from": "inspection:fda-inspection:1257318",
     "to": "site:fei:3004051616",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:05:05.861Z",
+    "validFrom": "2026-10-22T12:24:08.331Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:05.861Z"
+     "at": "2026-10-22T12:24:08.331Z"
     }
    },
    {
@@ -2531,11 +2857,11 @@
     "from": "inspection:fda-inspection:1297984",
     "to": "site:fei:3004051616",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:05:05.861Z",
+    "validFrom": "2026-10-22T12:24:08.331Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:05.861Z"
+     "at": "2026-10-22T12:24:08.331Z"
     }
    },
    {
@@ -2543,11 +2869,11 @@
     "from": "inspection:fda-inspection:583461",
     "to": "site:fei:3004446312",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:05:05.862Z",
+    "validFrom": "2026-10-22T12:24:08.331Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:05.862Z"
+     "at": "2026-10-22T12:24:08.331Z"
     }
    },
    {
@@ -2555,11 +2881,11 @@
     "from": "inspection:fda-inspection:684549",
     "to": "site:fei:3004446312",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:05:05.862Z",
+    "validFrom": "2026-10-22T12:24:08.331Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:05.862Z"
+     "at": "2026-10-22T12:24:08.331Z"
     }
    },
    {
@@ -2567,11 +2893,11 @@
     "from": "inspection:fda-inspection:793023",
     "to": "site:fei:3004446312",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:05:05.862Z",
+    "validFrom": "2026-10-22T12:24:08.331Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:05.862Z"
+     "at": "2026-10-22T12:24:08.331Z"
     }
    },
    {
@@ -2579,11 +2905,11 @@
     "from": "inspection:fda-inspection:1046218",
     "to": "site:fei:3004446312",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:05:05.863Z",
+    "validFrom": "2026-10-22T12:24:08.331Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:05.863Z"
+     "at": "2026-10-22T12:24:08.331Z"
     }
    },
    {
@@ -2591,11 +2917,11 @@
     "from": "inspection:fda-inspection:1118385",
     "to": "site:fei:3004446312",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:05:05.863Z",
+    "validFrom": "2026-10-22T12:24:08.331Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:05.863Z"
+     "at": "2026-10-22T12:24:08.331Z"
     }
    },
    {
@@ -2603,11 +2929,11 @@
     "from": "inspection:fda-inspection:1241780",
     "to": "site:fei:3004446312",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:05:05.864Z",
+    "validFrom": "2026-10-22T12:24:08.331Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:05.864Z"
+     "at": "2026-10-22T12:24:08.331Z"
     }
    },
    {
@@ -2615,11 +2941,11 @@
     "from": "inspection:fda-inspection:1286862",
     "to": "site:fei:3004446312",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:05:05.864Z",
+    "validFrom": "2026-10-22T12:24:08.331Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:05.864Z"
+     "at": "2026-10-22T12:24:08.331Z"
     }
    },
    {
@@ -2627,11 +2953,11 @@
     "from": "inspection:fda-inspection:1050666",
     "to": "site:fei:3011905047",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:05:05.864Z",
+    "validFrom": "2026-10-22T12:24:08.331Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:05.864Z"
+     "at": "2026-10-22T12:24:08.331Z"
     }
    },
    {
@@ -2639,11 +2965,11 @@
     "from": "inspection:fda-inspection:1081040",
     "to": "site:fei:3011905047",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:05:05.865Z",
+    "validFrom": "2026-10-22T12:24:08.331Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:05.865Z"
+     "at": "2026-10-22T12:24:08.331Z"
     }
    }
   ],

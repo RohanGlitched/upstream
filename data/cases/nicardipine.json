@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-be6335",
+ "id": "case-2026-10-22-d423f3",
  "question": "Why is nicardipine hydrochloride short, and what do we do?",
- "askedAt": "2026-10-22T08:06:28.414Z",
+ "askedAt": "2026-10-22T12:25:06.698Z",
  "asOf": "2026-10-21",
  "molecule": "nicardipine hydrochloride",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5HAAYTHPG57N83SBW7SGFV2",
+  "contractId": "01M5HS4MAPHN8G9D7W2H58GFXS",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-41a6c2"
+    "Q-7b8e7c"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 4167,
+   "ms": 4978,
    "rows": 3,
-   "finding": "3 stock lines across 3 hospitals.",
+   "finding": "3 stock lines across 3 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-1d7dee"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1154,
+   "ms": 656,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,29 +51,31 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-6573ec",
-    "Q-9800f0"
+    "Q-a8f791",
+    "Q-ea996b"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 660,
-   "rows": 1,
+   "ms": 278,
+   "rows": 0,
    "finding": "Not on FDA's current shortage list.",
-   "status": "ok"
+   "status": "empty"
   },
   {
    "key": "market",
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-79697d"
+    "Q-993d29"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2925,
+   "ms": 1403,
    "rows": 40,
    "finding": "20 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-4d8dde",
     "Q-fab3a0",
     "Q-8b682b",
-    "Q-19ff6b"
+    "Q-18fbfb"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1425,
+   "ms": 918,
    "rows": 21,
    "finding": "21 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1108,
+   "ms": 756,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-d30b73"
+    "Q-d2a37b"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2359,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1813,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 2,
+   "ms": 1,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -153,21 +164,27 @@
    "onHand": 222,
    "dailyUse": 13.159,
    "days": 16.9,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "nicardipine hydrochloride|25mg/10ml|injection|10ml|vial",
+   "presentationLabel": "25 mg/10 mL injection, 10 mL vial",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-286",
    "ndc11": "82432010301",
-   "description": "Nicardipine Hydrochloride",
+   "description": "Nicardipine Hydrochloride 25 mg/10mL",
    "labeler": "Chengdu Shuode Pharmaceutical Co., Ltd",
-   "onHand": 226.44,
+   "onHand": 226,
    "dailyUse": 14.355,
-   "days": 15.8,
+   "days": 15.7,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "nicardipine hydrochloride|25mg/10ml|injection|10ml|vial",
+   "presentationLabel": "25 mg/10 mL injection, 10 mL vial",
    "evidence": "E2"
   },
   {
@@ -181,7 +198,59 @@
    "days": 27.9,
    "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "nicardipine hydrochloride|25mg/10ml|injection|10ml|vial",
+   "presentationLabel": "25 mg/10 mL injection, 10 mL vial",
    "evidence": "E3"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "nicardipine hydrochloride|25mg/10ml|injection|10ml|vial",
+   "label": "25 mg/10 mL injection, 10 mL vial",
+   "short": "25 mg/10 mL, 10 mL",
+   "unit": "vial",
+   "onHand": 534,
+   "dailyUse": 30.597,
+   "days": 17.5,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 222,
+     "dailyUse": 13.159,
+     "days": 16.9,
+     "lines": [
+      "EA-E-000318"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 226,
+     "dailyUse": 14.355,
+     "days": 15.7,
+     "lines": [
+      "CG-286"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 86,
+     "dailyUse": 3.083,
+     "days": 27.9,
+     "lines": [
+      "LS-LS-0138"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -463,15 +532,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 2,
-   "title": "Buy from Lifestar Pharma LLC",
-   "detail": "Not on FDA's shortage list today. Plants: Steril-Gene Life Sciences Private Limited (last inspection VAI 2022-11-25).",
-   "why": "Same product, no clinical change, plant record clear.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 2,
    "title": "Buy from Qilu Pharmaceutical Co., Ltd.",
    "detail": "Not on FDA's shortage list today. Plants: Qilu Pharmaceutical (Hainan) Co., Ltd. (last inspection VAI 2023-05-19).",
    "why": "Same product, no clinical change, plant record clear.",
@@ -625,49 +685,42 @@
  ],
  "explanation": {
   "state": "no_signal",
-  "headline": "FDA's records show no signal at our plants",
+  "headline": "Nicardipine hydrochloride is not on FDA's shortage list as of 2026-10-21; Corvale East has 16.9 days on hand, Corvale General 15.7 days, Corvale Lakeside 27.9 days",
   "sentences": [
    {
-    "text": "The labeled manufacturer for the NDC in our system is Chengdu Shuode Pharmaceutical Co., Ltd, which received an NAI inspection on 2025-05-22.",
+    "text": "FDA's records show nicardipine hydrochloride is not on the drug shortage list as of 2026-10-21.",
     "cites": [
-     "E4"
+     "D4"
     ]
    },
    {
-    "text": "Corvale East has 222 units on hand at 13.2 units per day, providing 17 days of supply.",
+    "text": "Corvale East holds 222 vials of the 25 mg/10 mL presentation with 13.2 vials used per day, giving 16.9 days on hand.",
     "cites": [
      "D1"
     ]
    },
    {
-    "text": "Corvale General has 226 units on hand at 14.4 units per day, providing 16 days of supply.",
+    "text": "Corvale General holds 226 vials with 14.4 vials used per day, giving 15.7 days on hand.",
     "cites": [
      "D2"
     ]
    },
    {
-    "text": "Corvale Lakeside has 86 units on hand at 3.1 units per day, providing 28 days of supply.",
+    "text": "Corvale Lakeside holds 86 vials with 3.1 vials used per day, giving 27.9 days on hand.",
     "cites": [
      "D3"
+    ]
+   },
+   {
+    "text": "The rule-based best option is to buy from Caplin Steriles Limited, which is not on FDA's shortage list today and whose plant was last inspected NAI on 2024-08-09.",
+    "cites": [
+     "D5"
     ]
    }
   ],
   "verifier": {
-   "checked": 7,
-   "rejected": [
-    {
-     "text": "FDA's public shortage list does not include nicardipine hydrochloride as of 2026-10-21.",
-     "reason": "date 2026-10-21 is not in the cited evidence"
-    },
-    {
-     "text": "Caplin Steriles Limited, the recommended alternative source, is not on the FDA shortage list and its facility was last inspected NAI on 2024-08-09.",
-     "reason": "date 2024-08-09 is not in the cited evidence"
-    },
-    {
-     "text": "No FDA shortage signal for nicardipine hydrochloride; Caplin Steriles Limited is not on the FDA shortage list and its plant was last inspected NAI 2024-08-09",
-     "reason": "headline: date 2024-08-09 is not in the cited evidence"
-    }
-   ],
+   "checked": 6,
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -675,45 +728,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -728,80 +802,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T08:06:14.610Z",
+   "at": "2026-10-22T12:24:55.895Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract BW7SGFV2 scope"
+   "reason": "in contract 2H58GFXS scope"
   },
   {
-   "at": "2026-10-22T08:06:14.611Z",
+   "at": "2026-10-22T12:24:55.895Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract BW7SGFV2 scope"
+   "reason": "in contract 2H58GFXS scope"
   },
   {
-   "at": "2026-10-22T08:06:18.779Z",
+   "at": "2026-10-22T12:25:00.873Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract BW7SGFV2 scope"
+   "reason": "in contract 2H58GFXS scope"
   },
   {
-   "at": "2026-10-22T08:06:19.933Z",
+   "at": "2026-10-22T12:25:01.529Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract BW7SGFV2 scope"
+   "reason": "in contract 2H58GFXS scope"
   },
   {
-   "at": "2026-10-22T08:06:20.593Z",
+   "at": "2026-10-22T12:25:01.807Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract BW7SGFV2 scope"
+   "reason": "in contract 2H58GFXS scope"
   },
   {
-   "at": "2026-10-22T08:06:23.518Z",
+   "at": "2026-10-22T12:25:03.210Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract BW7SGFV2 scope"
+   "reason": "in contract 2H58GFXS scope"
   },
   {
-   "at": "2026-10-22T08:06:24.945Z",
+   "at": "2026-10-22T12:25:04.128Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract BW7SGFV2 scope"
+   "reason": "in contract 2H58GFXS scope"
   },
   {
-   "at": "2026-10-22T08:06:26.052Z",
+   "at": "2026-10-22T12:25:04.884Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract BW7SGFV2 scope"
+   "reason": "in contract 2H58GFXS scope"
   },
   {
-   "at": "2026-10-22T08:06:28.412Z",
+   "at": "2026-10-22T12:25:06.697Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract BW7SGFV2 scope"
+   "reason": "in contract 2H58GFXS scope"
   },
   {
-   "at": "2026-10-22T08:06:28.415Z",
+   "at": "2026-10-22T12:25:06.698Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract BW7SGFV2 scope"
+   "reason": "in contract 2H58GFXS scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-41a6c2",
+   "queryId": "Q-7b8e7c",
    "row": 0,
    "label": "Corvale East: NICARDIPINE HYDROCHLORIDE 25MG0ML 10ML SDV",
    "fields": {
@@ -812,42 +886,52 @@
     "description": "NICARDIPINE HYDROCHLORIDE 25MG0ML 10ML SDV",
     "on_hand": "222.00",
     "daily_use": "13.159",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Nicardipine Hydrochloride",
     "labeler_name": "Chengdu Shuode Pharmaceutical Co., Ltd",
     "package_ndc": "82432-103-01",
     "spl_set_id": "433dbca3-0a86-44c2-835d-1051c1c93878",
     "dosage_form": "INJECTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "NICARDIPINE HYDROCHLORIDE 25 mg/10mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-41a6c2",
+   "queryId": "Q-7b8e7c",
    "row": 1,
-   "label": "Corvale General: Nicardipine Hydrochloride",
+   "label": "Corvale General: Nicardipine Hydrochloride 25 mg/10mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-286",
     "ndc11": "82432010301",
     "ndc_as_recorded": "82432010301",
-    "description": "Nicardipine Hydrochloride",
-    "on_hand": "226.44",
+    "description": "Nicardipine Hydrochloride 25 mg/10mL",
+    "on_hand": "226.00",
     "daily_use": "14.355",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Nicardipine Hydrochloride",
     "labeler_name": "Chengdu Shuode Pharmaceutical Co., Ltd",
     "package_ndc": "82432-103-01",
     "spl_set_id": "433dbca3-0a86-44c2-835d-1051c1c93878",
     "dosage_form": "INJECTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "NICARDIPINE HYDROCHLORIDE 25 mg/10mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-41a6c2",
+   "queryId": "Q-7b8e7c",
    "row": 2,
    "label": "Corvale Lakeside: niCARdipine Hydrochloride 25 mg/10mL 10 mL vial",
    "fields": {
@@ -859,13 +943,18 @@
     "on_hand": "86.00",
     "daily_use": "3.083",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Nicardipine Hydrochloride",
     "labeler_name": "Chengdu Shuode Pharmaceutical Co., Ltd",
     "package_ndc": "82432-103-01",
     "spl_set_id": "433dbca3-0a86-44c2-835d-1051c1c93878",
     "dosage_form": "INJECTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "NICARDIPINE HYDROCHLORIDE 25 mg/10mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E4": {
@@ -888,197 +977,259 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 222 units of nicardipine hydrochloride at 13.2 a day: 17 days on hand",
+   "label": "Corvale East holds 222 vials of nicardipine hydrochloride 25 mg/10 mL, 10 mL at 13.2 a day: 16.9 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "25 mg/10 mL injection, 10 mL vial",
     "on_hand": 222,
     "daily_use": 13.2,
-    "days_on_hand": 17
+    "days_on_hand": 16.9
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 226 units of nicardipine hydrochloride at 14.4 a day: 16 days on hand",
+   "label": "Corvale General holds 226 vials of nicardipine hydrochloride 25 mg/10 mL, 10 mL at 14.4 a day: 15.7 days on hand",
    "fields": {
     "hospital": "Corvale General",
+    "presentation": "25 mg/10 mL injection, 10 mL vial",
     "on_hand": 226,
     "daily_use": 14.4,
-    "days_on_hand": 16
+    "days_on_hand": 15.7
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 86 units of nicardipine hydrochloride at 3.1 a day: 28 days on hand",
+   "label": "Corvale Lakeside holds 86 vials of nicardipine hydrochloride 25 mg/10 mL, 10 mL at 3.1 a day: 27.9 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
+    "presentation": "25 mg/10 mL injection, 10 mL vial",
     "on_hand": 86,
     "daily_use": 3.1,
-    "days_on_hand": 28
+    "days_on_hand": 27.9
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "nicardipine hydrochloride is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from Caplin Steriles Limited. Not on FDA's shortage list today. Plants: Caplin Steriles Limited (last inspection NAI 2024-08-09).",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from Cipla USA Inc.. Not on FDA's shortage list today. Plants: APOTHECON PHARMACEUTICALS PRIVATE LIMITED (last inspection VAI 2023-01-27); GLAND PHARMA LIMITED (last inspection VAI 2024-07-25).",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from Qilu Pharmaceutical Co., Ltd.. Not on FDA's shortage list today. Plants: Qilu Pharmaceutical (Hainan) Co., Ltd. (last inspection VAI 2023-05-19).",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-41a6c2": {
-   "id": "Q-41a6c2",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%nicardipine%' OR lower(s.description) LIKE '%nicardipine%' ORDER BY s.hospital, s.item_key",
-   "ms": 4163,
+  "Q-7b8e7c": {
+   "id": "Q-7b8e7c",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*nicardipine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*nicardipine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 4976,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T08:06:18.774Z",
+   "ranAt": "2026-10-22T12:25:00.871Z",
    "rows": 3
   },
   "Q-1d7dee": {
    "id": "Q-1d7dee",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('433dbca3-0a86-44c2-835d-1051c1c93878') ORDER BY ps.set_id, ps.establishment",
-   "ms": 1150,
+   "ms": 654,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:06:19.929Z",
+   "ranAt": "2026-10-22T12:25:01.528Z",
    "rows": 1
   },
-  "Q-6573ec": {
-   "id": "Q-6573ec",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%nicardipine%' ORDER BY status, company_name, package_ndc",
-   "ms": 285,
+  "Q-a8f791": {
+   "id": "Q-a8f791",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*nicardipine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 139,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T08:06:20.218Z",
+   "ranAt": "2026-10-22T12:25:01.668Z",
    "rows": 0
   },
-  "Q-9800f0": {
-   "id": "Q-9800f0",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%nicardipine%' ORDER BY first_posting",
-   "ms": 367,
+  "Q-ea996b": {
+   "id": "Q-ea996b",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*nicardipine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 136,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T08:06:20.589Z",
-   "rows": 1
+   "ranAt": "2026-10-22T12:25:01.805Z",
+   "rows": 0
   },
-  "Q-79697d": {
-   "id": "Q-79697d",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%nicardipine%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2920,
+  "Q-993d29": {
+   "id": "Q-993d29",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*nicardipine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1401,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:06:23.513Z",
+   "ranAt": "2026-10-22T12:25:03.209Z",
    "rows": 40
   },
   "Q-4d8dde": {
    "id": "Q-4d8dde",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3018360274', '3005035920', '3008405956', '3002647489', '3014319211', '3008250362') ORDER BY fei, end_date",
-   "ms": 576,
+   "ms": 354,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T08:06:24.094Z",
+   "ranAt": "2026-10-22T12:25:03.564Z",
    "rows": 21
   },
   "Q-fab3a0": {
    "id": "Q-fab3a0",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3018360274', '3005035920', '3008405956', '3002647489', '3014319211', '3008250362') ORDER BY fei, action_date",
-   "ms": 289,
+   "ms": 164,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T08:06:24.387Z",
+   "ranAt": "2026-10-22T12:25:03.729Z",
    "rows": 0
   },
   "Q-8b682b": {
    "id": "Q-8b682b",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3018360274') OR (fei_match <> 'name_and_city' AND firm_key IN ('chengdu shuode')) ORDER BY date_published",
-   "ms": 250,
+   "ms": 166,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T08:06:24.640Z",
+   "ranAt": "2026-10-22T12:25:03.896Z",
    "rows": 0
   },
-  "Q-19ff6b": {
-   "id": "Q-19ff6b",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('chengdu shuode') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%nicardipine%' ORDER BY initiation_date",
-   "ms": 297,
+  "Q-18fbfb": {
+   "id": "Q-18fbfb",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('chengdu shuode') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*nicardipine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 228,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T08:06:24.940Z",
+   "ranAt": "2026-10-22T12:25:04.127Z",
    "rows": 0
   },
   "Q-697dc7": {
    "id": "Q-697dc7",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('82432010301')",
-   "ms": 1103,
+   "ms": 755,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:06:26.048Z",
+   "ranAt": "2026-10-22T12:25:04.883Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-d30b73": {
-   "id": "Q-d30b73",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%nicardipine%'",
-   "ms": 2354,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:06:28.406Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-d2a37b": {
+   "id": "Q-d2a37b",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*nicardipine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1812,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:25:06.696Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 19125,
+  "zetarisMs": 20993,
   "modelCalls": 1,
-  "tokensIn": 653,
-  "tokensOut": 370,
+  "tokensIn": 1149,
+  "tokensOut": 373,
   "mode": "live"
  },
  "slug": "nicardipine",
@@ -1093,7 +1244,7 @@
     "id": "hospital-item:hospital-item:CG-286",
     "type": "HospitalItem",
     "key": "hospital-item:CG-286",
-    "label": "Corvale General: Nicardipine Hydrochloride",
+    "label": "Corvale General: Nicardipine Hydrochloride 25 mg/10mL",
     "attrs": {
      "key": "hospital-item:CG-286"
     },
@@ -1184,11 +1335,11 @@
     "from": "hospital-item:hospital-item:CG-286",
     "to": "package:ndc-package:82432-103-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:06:18.778Z",
+    "validFrom": "2026-10-22T12:25:00.873Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:06:18.778Z"
+     "at": "2026-10-22T12:25:00.873Z"
     }
    },
    {
@@ -1196,11 +1347,11 @@
     "from": "hospital-item:hospital-item:EA-E-000318",
     "to": "package:ndc-package:82432-103-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:06:18.778Z",
+    "validFrom": "2026-10-22T12:25:00.873Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:06:18.778Z"
+     "at": "2026-10-22T12:25:00.873Z"
     }
    },
    {
@@ -1208,11 +1359,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0138",
     "to": "package:ndc-package:82432-103-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:06:18.778Z",
+    "validFrom": "2026-10-22T12:25:00.873Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:06:18.778Z"
+     "at": "2026-10-22T12:25:00.873Z"
     }
    },
    {
@@ -1220,11 +1371,11 @@
     "from": "package:ndc-package:82432-103-01",
     "to": "product:ndc-product:82432-103",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:06:18.778Z",
+    "validFrom": "2026-10-22T12:25:00.873Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:06:18.778Z"
+     "at": "2026-10-22T12:25:00.873Z"
     }
    },
    {
@@ -1232,11 +1383,11 @@
     "from": "product:ndc-product:82432-103",
     "to": "drug:generic:nicardipine hydrochloride",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:06:18.778Z",
+    "validFrom": "2026-10-22T12:25:00.873Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:06:18.778Z"
+     "at": "2026-10-22T12:25:00.873Z"
     }
    },
    {
@@ -1244,11 +1395,11 @@
     "from": "product:ndc-product:82432-103",
     "to": "labeler:ndc-labeler:82432",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:06:18.778Z",
+    "validFrom": "2026-10-22T12:25:00.873Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:06:18.778Z"
+     "at": "2026-10-22T12:25:00.873Z"
     }
    },
    {
@@ -1256,11 +1407,11 @@
     "from": "product:ndc-product:82432-103",
     "to": "site:fei:3018360274",
     "type": "made-at",
-    "validFrom": "2026-10-22T08:06:24.944Z",
+    "validFrom": "2026-10-22T12:25:04.128Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:06:24.944Z"
+     "at": "2026-10-22T12:25:04.128Z"
     }
    }
   ],

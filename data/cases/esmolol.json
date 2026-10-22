@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-d3fb33",
+ "id": "case-2026-10-22-da45e6",
  "question": "Why is esmolol hydrochloride short, and what do we do?",
- "askedAt": "2026-10-22T07:44:46.150Z",
+ "askedAt": "2026-10-22T11:56:46.817Z",
  "asOf": "2026-10-21",
  "molecule": "esmolol hydrochloride",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H93C7A8WEGXRBK1GTAAPD5",
+  "contractId": "01M5HQGVMVQ4VBCB2290C3ABNH",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-e7082e"
+    "Q-5ef50d"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2575,
+   "ms": 3161,
    "rows": 2,
-   "finding": "2 stock lines across 2 hospitals.",
+   "finding": "2 stock lines across 2 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-050704"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 670,
+   "ms": 410,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-f68f48",
-    "Q-f09d69"
+    "Q-90b575",
+    "Q-9c223d"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 335,
+   "ms": 285,
    "rows": 0,
    "finding": "Not on FDA's current shortage list.",
    "status": "empty"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-e7e6ac"
+    "Q-28d0df"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1848,
+   "ms": 1136,
    "rows": 39,
    "finding": "15 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-a0dcbe",
     "Q-7bfccc",
     "Q-bf0ba0",
-    "Q-657e81"
+    "Q-391a74"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1145,
+   "ms": 532,
    "rows": 1,
    "finding": "1 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 959,
+   "ms": 738,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-a35200"
+    "Q-3d5cd8"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1007,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1101,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 0,
+   "ms": 1,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -153,22 +164,65 @@
    "onHand": 214,
    "dailyUse": 10.739,
    "days": 19.9,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "esmolol hydrochloride|100mg/10ml|injection|10ml|vial",
+   "presentationLabel": "100 mg/10 mL injection, 10 mL vial",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-211",
    "ndc11": "71872704901",
-   "description": "Esmolol Hydrochloride",
+   "description": "Esmolol Hydrochloride 100 mg/10mL",
    "labeler": "Medical Purchasing Solutions, LLC",
-   "onHand": 386.37,
+   "onHand": 386,
    "dailyUse": 13.871,
-   "days": 27.9,
+   "days": 27.8,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "esmolol hydrochloride|100mg/10ml|injection|10ml|vial",
+   "presentationLabel": "100 mg/10 mL injection, 10 mL vial",
    "evidence": "E2"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "esmolol hydrochloride|100mg/10ml|injection|10ml|vial",
+   "label": "100 mg/10 mL injection, 10 mL vial",
+   "short": "100 mg/10 mL, 10 mL",
+   "unit": "vial",
+   "onHand": 600,
+   "dailyUse": 24.61,
+   "days": 24.4,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 214,
+     "dailyUse": 10.739,
+     "days": 19.9,
+     "lines": [
+      "EA-E-000296"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 386,
+     "dailyUse": 13.871,
+     "days": 27.8,
+     "lines": [
+      "CG-211"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -363,15 +417,6 @@
  "options": [
   {
    "kind": "alternate_manufacturer",
-   "rank": 2,
-   "title": "Buy from Henry Schein, Inc.",
-   "detail": "Not on FDA's shortage list today. Plants: Eugia Pharma Specialities Limited Hyderabad - 500032 India SAMPLE PACKAGE LABEL Label1.jpg.",
-   "why": "Same product, no clinical change, plant record clear.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Amneal Pharmaceuticals LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
@@ -436,15 +481,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Henry Schein, Inc",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Mylan Institutional LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -455,15 +491,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from ProPharma Distribution",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from REMEDYREPACK INC.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -506,45 +533,50 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "Esmolol hydrochloride is not on FDA's shortage list; current hospital inventory covers 20 to 28 days and the repackager was last inspected 2024-09-11 with VAI classification",
+  "headline": "Esmolol hydrochloride is not on FDA's shortage list as of 2026-10-21; Corvale East has 19.9 days on hand and Corvale General has 27.8 days on hand",
   "sentences": [
    {
-    "text": "Corvale East holds 214 units at 10.7 units per day, providing 20 days on hand.",
+    "text": "FDA's records show esmolol hydrochloride is not on the drug shortage list as of 2026-10-21.",
+    "cites": [
+     "D3"
+    ]
+   },
+   {
+    "text": "Corvale East holds 214 vials of the 100 mg/10 mL presentation with 10.7 vials used per day, providing 19.9 days on hand.",
     "cites": [
      "D1"
     ]
    },
    {
-    "text": "Corvale General holds 386 units at 13.9 units per day, providing 28 days on hand.",
+    "text": "Corvale General holds 386 vials of the same presentation with 13.9 vials used per day, providing 27.8 days on hand.",
     "cites": [
      "D2"
     ]
    },
    {
-    "text": "The product label identifies Medical Purchasing Solutions, LLC as the repackager (FEI 3014288534).",
+    "text": "The product label identifies Medical Purchasing Solutions, LLC as the labeler and plant (FEI 3014288534) with a VAI inspection classification dated 2024-09-11.",
     "cites": [
-     "E4"
+     "E4",
+     "E3"
     ]
    },
    {
-    "text": "FDA inspected that facility on 2024-09-11 and classified the inspection VAI.",
+    "text": "The rule-based best option is to buy from Amneal Pharmaceuticals LLC, which is not on FDA's shortage list today, though its label names no plant we could place.",
     "cites": [
-     "E3"
+     "D4"
+    ]
+   },
+   {
+    "text": "Alternate manufacturers Baxter Healthcare Company and Baxter Healthcare Corporation are also not on FDA's shortage list today, but their labels name no plant we could place.",
+    "cites": [
+     "D5",
+     "D6"
     ]
    }
   ],
   "verifier": {
    "checked": 7,
-   "rejected": [
-    {
-     "text": "FDA's shortage list does not include esmolol hydrochloride as of 2026-10-21.",
-     "reason": "cites nothing"
-    },
-    {
-     "text": "Buyers should verify current allocation status with Henry Schein, Inc. and confirm no new FDA shortage posting has appeared.",
-     "reason": "cites nothing"
-    }
-   ],
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -552,45 +584,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -605,80 +658,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:44:37.611Z",
+   "at": "2026-10-22T11:56:39.452Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract 1GTAAPD5 scope"
+   "reason": "in contract 90C3ABNH scope"
   },
   {
-   "at": "2026-10-22T07:44:37.611Z",
+   "at": "2026-10-22T11:56:39.452Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 1GTAAPD5 scope"
+   "reason": "in contract 90C3ABNH scope"
   },
   {
-   "at": "2026-10-22T07:44:40.187Z",
+   "at": "2026-10-22T11:56:42.614Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 1GTAAPD5 scope"
+   "reason": "in contract 90C3ABNH scope"
   },
   {
-   "at": "2026-10-22T07:44:40.857Z",
+   "at": "2026-10-22T11:56:43.024Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 1GTAAPD5 scope"
+   "reason": "in contract 90C3ABNH scope"
   },
   {
-   "at": "2026-10-22T07:44:41.191Z",
+   "at": "2026-10-22T11:56:43.309Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 1GTAAPD5 scope"
+   "reason": "in contract 90C3ABNH scope"
   },
   {
-   "at": "2026-10-22T07:44:43.039Z",
+   "at": "2026-10-22T11:56:44.445Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 1GTAAPD5 scope"
+   "reason": "in contract 90C3ABNH scope"
   },
   {
-   "at": "2026-10-22T07:44:44.185Z",
+   "at": "2026-10-22T11:56:44.978Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 1GTAAPD5 scope"
+   "reason": "in contract 90C3ABNH scope"
   },
   {
-   "at": "2026-10-22T07:44:45.143Z",
+   "at": "2026-10-22T11:56:45.715Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 1GTAAPD5 scope"
+   "reason": "in contract 90C3ABNH scope"
   },
   {
-   "at": "2026-10-22T07:44:46.150Z",
+   "at": "2026-10-22T11:56:46.816Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract 1GTAAPD5 scope"
+   "reason": "in contract 90C3ABNH scope"
   },
   {
-   "at": "2026-10-22T07:44:46.151Z",
+   "at": "2026-10-22T11:56:46.817Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract 1GTAAPD5 scope"
+   "reason": "in contract 90C3ABNH scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-e7082e",
+   "queryId": "Q-5ef50d",
    "row": 0,
    "label": "Corvale East: ESMOLOL HYDROCHLORIDE 100MG0ML 10ML SDV",
    "fields": {
@@ -689,37 +742,47 @@
     "description": "ESMOLOL HYDROCHLORIDE 100MG0ML 10ML SDV",
     "on_hand": "214.00",
     "daily_use": "10.739",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Esmolol Hydrochloride",
     "labeler_name": "Medical Purchasing Solutions, LLC",
     "package_ndc": "71872-7049-1",
     "spl_set_id": "6bb9921c-a0f9-309f-e053-2a91aa0a1e5e",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "ESMOLOL HYDROCHLORIDE 100 mg/10mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-e7082e",
+   "queryId": "Q-5ef50d",
    "row": 1,
-   "label": "Corvale General: Esmolol Hydrochloride",
+   "label": "Corvale General: Esmolol Hydrochloride 100 mg/10mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-211",
     "ndc11": "71872704901",
     "ndc_as_recorded": "71872704901",
-    "description": "Esmolol Hydrochloride",
-    "on_hand": "386.37",
+    "description": "Esmolol Hydrochloride 100 mg/10mL",
+    "on_hand": "386.00",
     "daily_use": "13.871",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Esmolol Hydrochloride",
     "labeler_name": "Medical Purchasing Solutions, LLC",
     "package_ndc": "71872-7049-1",
     "spl_set_id": "6bb9921c-a0f9-309f-e053-2a91aa0a1e5e",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "ESMOLOL HYDROCHLORIDE 100 mg/10mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E3": {
@@ -758,185 +821,246 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 214 units of esmolol hydrochloride at 10.7 a day: 20 days on hand",
+   "label": "Corvale East holds 214 vials of esmolol hydrochloride 100 mg/10 mL, 10 mL at 10.7 a day: 19.9 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "100 mg/10 mL injection, 10 mL vial",
     "on_hand": 214,
     "daily_use": 10.7,
-    "days_on_hand": 20
+    "days_on_hand": 19.9
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 386 units of esmolol hydrochloride at 13.9 a day: 28 days on hand",
+   "label": "Corvale General holds 386 vials of esmolol hydrochloride 100 mg/10 mL, 10 mL at 13.9 a day: 27.8 days on hand",
    "fields": {
     "hospital": "Corvale General",
+    "presentation": "100 mg/10 mL injection, 10 mL vial",
     "on_hand": 386,
     "daily_use": 13.9,
-    "days_on_hand": 28
+    "days_on_hand": 27.8
+   }
+  },
+  "D3": {
+   "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "esmolol hydrochloride is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Amneal Pharmaceuticals LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Baxter Healthcare Company. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Baxter Healthcare Corporation. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-e7082e": {
-   "id": "Q-e7082e",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%esmolol%' OR lower(s.description) LIKE '%esmolol%' ORDER BY s.hospital, s.item_key",
-   "ms": 2573,
+  "Q-5ef50d": {
+   "id": "Q-5ef50d",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*esmolol(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*esmolol(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3160,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:44:40.185Z",
+   "ranAt": "2026-10-22T11:56:42.612Z",
    "rows": 2
   },
   "Q-050704": {
    "id": "Q-050704",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('6bb9921c-a0f9-309f-e053-2a91aa0a1e5e') ORDER BY ps.set_id, ps.establishment",
-   "ms": 668,
+   "ms": 409,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:44:40.855Z",
+   "ranAt": "2026-10-22T11:56:43.023Z",
    "rows": 1
   },
-  "Q-f68f48": {
-   "id": "Q-f68f48",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%esmolol%' ORDER BY status, company_name, package_ndc",
-   "ms": 161,
+  "Q-90b575": {
+   "id": "Q-90b575",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*esmolol(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 129,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:44:41.018Z",
+   "ranAt": "2026-10-22T11:56:43.153Z",
    "rows": 0
   },
-  "Q-f09d69": {
-   "id": "Q-f09d69",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%esmolol%' ORDER BY first_posting",
-   "ms": 170,
+  "Q-9c223d": {
+   "id": "Q-9c223d",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*esmolol(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 154,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:44:41.189Z",
+   "ranAt": "2026-10-22T11:56:43.308Z",
    "rows": 0
   },
-  "Q-e7e6ac": {
-   "id": "Q-e7e6ac",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%esmolol%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 1846,
+  "Q-28d0df": {
+   "id": "Q-28d0df",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*esmolol(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1135,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:44:43.037Z",
+   "ranAt": "2026-10-22T11:56:44.444Z",
    "rows": 39
   },
   "Q-a0dcbe": {
    "id": "Q-a0dcbe",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3014288534') ORDER BY fei, end_date",
-   "ms": 473,
+   "ms": 213,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:44:43.512Z",
+   "ranAt": "2026-10-22T11:56:44.658Z",
    "rows": 1
   },
   "Q-7bfccc": {
    "id": "Q-7bfccc",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3014288534') ORDER BY fei, action_date",
-   "ms": 260,
+   "ms": 104,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:44:43.774Z",
+   "ranAt": "2026-10-22T11:56:44.763Z",
    "rows": 0
   },
   "Q-bf0ba0": {
    "id": "Q-bf0ba0",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3014288534') OR (fei_match <> 'name_and_city' AND firm_key IN ('medical purchasing solutions')) ORDER BY date_published",
-   "ms": 205,
+   "ms": 92,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:44:43.983Z",
+   "ranAt": "2026-10-22T11:56:44.856Z",
    "rows": 0
   },
-  "Q-657e81": {
-   "id": "Q-657e81",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('medical purchasing solutions') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%esmolol%' ORDER BY initiation_date",
-   "ms": 198,
+  "Q-391a74": {
+   "id": "Q-391a74",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('medical purchasing solutions') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*esmolol(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 119,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:44:44.182Z",
+   "ranAt": "2026-10-22T11:56:44.976Z",
    "rows": 0
   },
   "Q-ef0581": {
    "id": "Q-ef0581",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('71872704901')",
-   "ms": 957,
+   "ms": 736,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:44:45.141Z",
+   "ranAt": "2026-10-22T11:56:45.714Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-a35200": {
-   "id": "Q-a35200",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%esmolol%'",
-   "ms": 1005,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:44:46.148Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-3d5cd8": {
+   "id": "Q-3d5cd8",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*esmolol(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1100,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:56:46.815Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 13887,
+  "zetarisMs": 17559,
   "modelCalls": 1,
-  "tokensIn": 693,
-  "tokensOut": 345,
+  "tokensIn": 1062,
+  "tokensOut": 431,
   "mode": "live"
  },
  "slug": "esmolol",
@@ -950,7 +1074,7 @@
     "id": "hospital-item:hospital-item:CG-211",
     "type": "HospitalItem",
     "key": "hospital-item:CG-211",
-    "label": "Corvale General: Esmolol Hydrochloride",
+    "label": "Corvale General: Esmolol Hydrochloride 100 mg/10mL",
     "attrs": {
      "key": "hospital-item:CG-211"
     },
@@ -1034,7 +1158,7 @@
     },
     "facts": [
      {
-      "id": "fact_6ec23d99b940b1f1",
+      "id": "fact_ced8228729018fb5",
       "about": "inspection:fda-inspection:1249077",
       "predicate": "classification",
       "value": "VAI",
@@ -1042,9 +1166,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:44:44.184Z"
+       "at": "2026-10-22T11:56:44.977Z"
       },
-      "assertedAt": "2026-10-22T07:44:44.184Z"
+      "assertedAt": "2026-10-22T11:56:44.977Z"
      }
     ],
     "depth": 4
@@ -1056,11 +1180,11 @@
     "from": "hospital-item:hospital-item:CG-211",
     "to": "package:ndc-package:71872-7049-1",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:44:40.186Z",
+    "validFrom": "2026-10-22T11:56:42.614Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:44:40.186Z"
+     "at": "2026-10-22T11:56:42.614Z"
     }
    },
    {
@@ -1068,11 +1192,11 @@
     "from": "hospital-item:hospital-item:EA-E-000296",
     "to": "package:ndc-package:71872-7049-1",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:44:40.186Z",
+    "validFrom": "2026-10-22T11:56:42.614Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:44:40.186Z"
+     "at": "2026-10-22T11:56:42.614Z"
     }
    },
    {
@@ -1080,11 +1204,11 @@
     "from": "package:ndc-package:71872-7049-1",
     "to": "product:ndc-product:71872-7049",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:44:40.186Z",
+    "validFrom": "2026-10-22T11:56:42.614Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:44:40.186Z"
+     "at": "2026-10-22T11:56:42.614Z"
     }
    },
    {
@@ -1092,11 +1216,11 @@
     "from": "product:ndc-product:71872-7049",
     "to": "drug:generic:esmolol hydrochloride",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:44:40.186Z",
+    "validFrom": "2026-10-22T11:56:42.614Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:44:40.186Z"
+     "at": "2026-10-22T11:56:42.614Z"
     }
    },
    {
@@ -1104,11 +1228,11 @@
     "from": "product:ndc-product:71872-7049",
     "to": "labeler:ndc-labeler:71872",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:44:40.186Z",
+    "validFrom": "2026-10-22T11:56:42.614Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:44:40.186Z"
+     "at": "2026-10-22T11:56:42.614Z"
     }
    },
    {
@@ -1116,11 +1240,11 @@
     "from": "product:ndc-product:71872-7049",
     "to": "site:fei:3014288534",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:44:44.184Z",
+    "validFrom": "2026-10-22T11:56:44.977Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:44:44.184Z"
+     "at": "2026-10-22T11:56:44.977Z"
     }
    },
    {
@@ -1128,11 +1252,11 @@
     "from": "inspection:fda-inspection:1249077",
     "to": "site:fei:3014288534",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:44:44.184Z",
+    "validFrom": "2026-10-22T11:56:44.977Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:44:44.184Z"
+     "at": "2026-10-22T11:56:44.977Z"
     }
    }
   ],

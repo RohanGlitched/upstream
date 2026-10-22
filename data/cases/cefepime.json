@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-408de5",
+ "id": "case-2026-10-22-dc1859",
  "question": "Why is cefepime short, and what do we do?",
- "askedAt": "2026-10-22T07:31:47.566Z",
+ "askedAt": "2026-10-22T11:36:50.581Z",
  "asOf": "2026-10-21",
  "molecule": "cefepime",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H8BHKVPC923BX5DS27E0DJ",
+  "contractId": "01M5HPC9WAHXTRDMZFCTXGB554",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-52ed69"
+    "Q-2e795d"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3090,
+   "ms": 3493,
    "rows": 5,
-   "finding": "5 stock lines across 3 hospitals.",
+   "finding": "5 stock lines across 3 hospitals, 2 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-1fffa4"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 776,
+   "ms": 483,
    "rows": 2,
    "finding": "2 plant links on 2 labels; 0 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-3e280a",
-    "Q-0aa340"
+    "Q-412618",
+    "Q-420ab6"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 399,
+   "ms": 290,
    "rows": 3,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,14 +68,16 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-e6c93c"
+    "Q-a395e8"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2232,
-   "rows": 31,
-   "finding": "11 labelers make it in this form.",
+   "ms": 1317,
+   "rows": 30,
+   "finding": "10 labelers make it in this form.",
    "status": "ok"
   },
   {
@@ -81,15 +88,15 @@
     "Q-808a5c",
     "Q-de2bfd",
     "Q-7a934c",
-    "Q-22a9d3"
+    "Q-b834a2"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1315,
+   "ms": 576,
    "rows": 0,
    "finding": "0 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "empty"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1305,
+   "ms": 706,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-527765"
+    "Q-f0a756"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1745,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 2103,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 1,
+   "ms": 0,
    "rows": 0,
    "finding": "No past decisions on this drug.",
    "status": "empty"
@@ -153,8 +164,11 @@
    "onHand": 282,
    "dailyUse": 13.527,
    "days": 20.8,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "cefepime hydrochloride|2g|injection||vial",
+   "presentationLabel": "2 g injection",
    "evidence": "E1"
   },
   {
@@ -166,34 +180,43 @@
    "onHand": 95,
    "dailyUse": 17.327,
    "days": 5.5,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "cefepime|2g|injection||vial",
+   "presentationLabel": "2 g injection",
    "evidence": "E2"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-170",
    "ndc11": "00409973510",
-   "description": "Cefepime",
+   "description": "Cefepime 2 g/1",
    "labeler": "Hospira, Inc.",
-   "onHand": 321.43,
+   "onHand": 321,
    "dailyUse": 15.856,
-   "days": 20.3,
+   "days": 20.2,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "cefepime|2g|injection||vial",
+   "presentationLabel": "2 g injection",
    "evidence": "E3"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-171",
    "ndc11": "00143947810",
-   "description": "Cefepime Hydrochloride",
+   "description": "Cefepime Hydrochloride 2 g/1",
    "labeler": "Hikma Pharmaceuticals USA Inc.",
-   "onHand": 303.88,
+   "onHand": 303,
    "dailyUse": 16.074,
    "days": 18.9,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "cefepime hydrochloride|2g|injection||vial",
+   "presentationLabel": "2 g injection",
    "evidence": "E4"
   },
   {
@@ -207,7 +230,94 @@
    "days": 17.6,
    "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "cefepime|2g|injection||vial",
+   "presentationLabel": "2 g injection",
    "evidence": "E5"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "cefepime|2g|injection||vial",
+   "label": "2 g injection",
+   "short": "2 g",
+   "unit": "vial",
+   "onHand": 461,
+   "dailyUse": 35.746,
+   "days": 12.9,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 95,
+     "dailyUse": 17.327,
+     "days": 5.5,
+     "lines": [
+      "EA-E-000101"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 321,
+     "dailyUse": 15.856,
+     "days": 20.2,
+     "lines": [
+      "CG-170"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 45,
+     "dailyUse": 2.563,
+     "days": 17.6,
+     "lines": [
+      "LS-LS-0043"
+     ],
+     "evidence": [
+      "E5"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "cefepime hydrochloride|2g|injection||vial",
+   "label": "2 g injection",
+   "short": "2 g",
+   "unit": "vial",
+   "onHand": 585,
+   "dailyUse": 29.601,
+   "days": 19.8,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 282,
+     "dailyUse": 13.527,
+     "days": 20.8,
+     "lines": [
+      "EA-E-000031"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 303,
+     "dailyUse": 16.074,
+     "days": 18.9,
+     "lines": [
+      "CG-171"
+     ],
+     "evidence": [
+      "E4"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -312,7 +422,7 @@
    "ndc11": "63323032620",
    "dosageForm": "INJECTION, POWDER, FOR SOLUTION",
    "plants": [],
-   "onShortageList": false,
+   "onShortageList": true,
    "inOurStock": false
   },
   {
@@ -378,17 +488,55 @@
    "plants": [],
    "onShortageList": false,
    "inOurStock": false
-  },
-  {
-   "labeler": "Wockhardt Suisse USA LLC",
-   "ndc11": "87706086601",
-   "dosageForm": "INJECTION, POWDER, FOR SOLUTION",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
   }
  ],
  "options": [
+  {
+   "kind": "transfer",
+   "rank": 1,
+   "title": "Transfer 99 vials of 2 g from Corvale General to Corvale East",
+   "detail": "Corvale General has 20 days of 2 g injection on hand and can spare 99 vials while keeping two weeks; Corvale East has 5.5 days and would reach 11.",
+   "why": "Same presentation, no clinical change, no new supplier.",
+   "needs": "pharmacy director (transfer request)",
+   "evidence": [
+    "E3",
+    "E2"
+   ],
+   "transfer": {
+    "qty": 99,
+    "unit": "vial",
+    "presentation": "2 g injection",
+    "from": "Corvale General",
+    "to": "Corvale East",
+    "fromDays": 20.2,
+    "toDays": 5.5,
+    "fromAfter": 14,
+    "toAfter": 11
+   }
+  },
+  {
+   "kind": "transfer",
+   "rank": 1,
+   "title": "Transfer 9 vials of 2 g from Corvale Lakeside to Corvale East",
+   "detail": "Corvale Lakeside has 18 days of 2 g injection on hand and can spare 9 vials while keeping two weeks; Corvale East has 5.5 days and would reach 6.",
+   "why": "Same presentation, no clinical change, no new supplier.",
+   "needs": "pharmacy director (transfer request)",
+   "evidence": [
+    "E5",
+    "E2"
+   ],
+   "transfer": {
+    "qty": 9,
+    "unit": "vial",
+    "presentation": "2 g injection",
+    "from": "Corvale Lakeside",
+    "to": "Corvale East",
+    "fromDays": 17.6,
+    "toDays": 5.5,
+    "fromAfter": 14,
+    "toAfter": 6
+   }
+  },
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
@@ -411,15 +559,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Baxter Healthcare Corporation",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Fresenius Kabi USA, LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -460,15 +599,6 @@
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
    "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Wockhardt Suisse USA LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
   }
  ],
  "timeline": [
@@ -482,46 +612,47 @@
  ],
  "explanation": {
   "state": "no_signal",
-  "headline": "FDA shortage list shows Fresenius Kabi USA, LLC cefepime discontinued as of 2026-02-10; no public FDA signal at our plants",
+  "headline": "FDA's records show cefepime is not on the drug shortage list as of 2026-10-21",
   "sentences": [
    {
-    "text": "FDA's shortage list records Fresenius Kabi USA, LLC cefepime hydrochloride injection as discontinued with an initial posting date of 2026-02-10.",
+    "text": "FDA's drug shortage list does not include cefepime as of 2026-10-21.",
     "cites": [
-     "E8"
+     "D6"
     ]
    },
    {
-    "text": "No public FDA shortage signal exists for the plants named on the labels we hold (HIKMA FARMACÊUTICA (PORTUGAL) and ACS DOBFAR).",
+    "text": "Corvale East holds 95 vials of the 2 g injection with 5.5 days of supply at current use.",
     "cites": [
-     "E6",
-     "E7",
-     "E8"
+     "D1"
     ]
    },
    {
-    "text": "Corvale East has 12 days on hand, Corvale General has 20 days on hand, and Corvale Lakeside has 18 days on hand.",
+    "text": "Corvale General holds 321 vials of the same presentation with 20.2 days of supply.",
     "cites": [
-     "D1",
-     "D2",
-     "D3"
+     "D2"
     ]
    },
    {
-    "text": "The recommended buying option is Apotex Corp., which is not on FDA's shortage list today.",
+    "text": "The top-ranked option by rule is to transfer 99 vials of 2 g from Corvale General to Corvale East.",
     "cites": [
-     "E8"
+     "D7"
     ]
    },
    {
-    "text": "Apotex Corp.'s label does not name a plant we could place.",
+    "text": "Corvale General can spare 99 vials while retaining at least two weeks of inventory.",
     "cites": [
-     "E6",
-     "E7"
+     "D7"
+    ]
+   },
+   {
+    "text": "After the transfer Corvale East would have approximately 11 days of supply.",
+    "cites": [
+     "D7"
     ]
    }
   ],
   "verifier": {
-   "checked": 6,
+   "checked": 7,
    "rejected": [],
    "repaired": 0
   },
@@ -530,125 +661,146 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [],
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:31:36.700Z",
+   "at": "2026-10-22T11:36:41.610Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract DS27E0DJ scope"
+   "reason": "in contract CTXGB554 scope"
   },
   {
-   "at": "2026-10-22T07:31:36.701Z",
+   "at": "2026-10-22T11:36:41.610Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract DS27E0DJ scope"
+   "reason": "in contract CTXGB554 scope"
   },
   {
-   "at": "2026-10-22T07:31:39.793Z",
+   "at": "2026-10-22T11:36:45.104Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract DS27E0DJ scope"
+   "reason": "in contract CTXGB554 scope"
   },
   {
-   "at": "2026-10-22T07:31:40.569Z",
+   "at": "2026-10-22T11:36:45.588Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract DS27E0DJ scope"
+   "reason": "in contract CTXGB554 scope"
   },
   {
-   "at": "2026-10-22T07:31:40.968Z",
+   "at": "2026-10-22T11:36:45.878Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract DS27E0DJ scope"
+   "reason": "in contract CTXGB554 scope"
   },
   {
-   "at": "2026-10-22T07:31:43.199Z",
+   "at": "2026-10-22T11:36:47.195Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract DS27E0DJ scope"
+   "reason": "in contract CTXGB554 scope"
   },
   {
-   "at": "2026-10-22T07:31:44.515Z",
+   "at": "2026-10-22T11:36:47.771Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract DS27E0DJ scope"
+   "reason": "in contract CTXGB554 scope"
   },
   {
-   "at": "2026-10-22T07:31:45.820Z",
+   "at": "2026-10-22T11:36:48.477Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract DS27E0DJ scope"
+   "reason": "in contract CTXGB554 scope"
   },
   {
-   "at": "2026-10-22T07:31:47.565Z",
+   "at": "2026-10-22T11:36:50.581Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract DS27E0DJ scope"
+   "reason": "in contract CTXGB554 scope"
   },
   {
-   "at": "2026-10-22T07:31:47.566Z",
+   "at": "2026-10-22T11:36:50.581Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract DS27E0DJ scope"
+   "reason": "in contract CTXGB554 scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-52ed69",
+   "queryId": "Q-2e795d",
    "row": 0,
    "label": "Corvale East: CEFEPIME HYDROCHLORIDE 2G",
    "fields": {
@@ -659,19 +811,24 @@
     "description": "CEFEPIME HYDROCHLORIDE 2G",
     "on_hand": "282.00",
     "daily_use": "13.527",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Cefepime Hydrochloride",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0143-9478-10",
     "spl_set_id": "f64c181e-28c5-48ab-aa67-5ca0e3fd079c",
     "dosage_form": "INJECTION, POWDER, FOR SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "CEFEPIME HYDROCHLORIDE 2 g/1",
+    "unit_content": null,
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-52ed69",
+   "queryId": "Q-2e795d",
    "row": 1,
    "label": "Corvale East: CEFEPIME 2G",
    "fields": {
@@ -682,65 +839,80 @@
     "description": "CEFEPIME 2G",
     "on_hand": "95.00",
     "daily_use": "17.327",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Cefepime",
     "labeler_name": "Hospira, Inc.",
     "package_ndc": "0409-9735-10",
     "spl_set_id": "e80c27e2-164d-4836-ba24-c160d75dc5d3",
     "dosage_form": "INJECTION, POWDER, FOR SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "CEFEPIME HYDROCHLORIDE 2 g/1",
+    "unit_content": null,
+    "pkg_unit": "vial"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-52ed69",
+   "queryId": "Q-2e795d",
    "row": 2,
-   "label": "Corvale General: Cefepime",
+   "label": "Corvale General: Cefepime 2 g/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-170",
     "ndc11": "00409973510",
     "ndc_as_recorded": "00409973510",
-    "description": "Cefepime",
-    "on_hand": "321.43",
+    "description": "Cefepime 2 g/1",
+    "on_hand": "321.00",
     "daily_use": "15.856",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Cefepime",
     "labeler_name": "Hospira, Inc.",
     "package_ndc": "0409-9735-10",
     "spl_set_id": "e80c27e2-164d-4836-ba24-c160d75dc5d3",
     "dosage_form": "INJECTION, POWDER, FOR SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "CEFEPIME HYDROCHLORIDE 2 g/1",
+    "unit_content": null,
+    "pkg_unit": "vial"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-52ed69",
+   "queryId": "Q-2e795d",
    "row": 3,
-   "label": "Corvale General: Cefepime Hydrochloride",
+   "label": "Corvale General: Cefepime Hydrochloride 2 g/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-171",
     "ndc11": "00143947810",
     "ndc_as_recorded": "00143947810",
-    "description": "Cefepime Hydrochloride",
-    "on_hand": "303.88",
+    "description": "Cefepime Hydrochloride 2 g/1",
+    "on_hand": "303.00",
     "daily_use": "16.074",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Cefepime Hydrochloride",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0143-9478-10",
     "spl_set_id": "f64c181e-28c5-48ab-aa67-5ca0e3fd079c",
     "dosage_form": "INJECTION, POWDER, FOR SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "CEFEPIME HYDROCHLORIDE 2 g/1",
+    "unit_content": null,
+    "pkg_unit": "vial"
    }
   },
   "E5": {
    "id": "E5",
-   "queryId": "Q-52ed69",
+   "queryId": "Q-2e795d",
    "row": 4,
    "label": "Corvale Lakeside: Cefepime 2 g/1 10 mL vial",
    "fields": {
@@ -752,13 +924,18 @@
     "on_hand": "45.00",
     "daily_use": "2.563",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Cefepime",
     "labeler_name": "Hospira, Inc.",
     "package_ndc": "0409-9735-10",
     "spl_set_id": "e80c27e2-164d-4836-ba24-c160d75dc5d3",
     "dosage_form": "INJECTION, POWDER, FOR SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "CEFEPIME HYDROCHLORIDE 2 g/1",
+    "unit_content": null,
+    "pkg_unit": "vial"
    }
   },
   "E6": {
@@ -795,7 +972,7 @@
   },
   "E8": {
    "id": "E8",
-   "queryId": "Q-3e280a",
+   "queryId": "Q-412618",
    "row": 0,
    "label": "FDA shortage list: Fresenius Kabi USA, LLC, To Be Discontinued",
    "fields": {
@@ -812,197 +989,285 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 377 units of cefepime at 30.9 a day: 12 days on hand",
+   "label": "Corvale East holds 95 vials of cefepime 2 g at 17.3 a day: 5.5 days on hand",
    "fields": {
     "hospital": "Corvale East",
-    "on_hand": 377,
-    "daily_use": 30.9,
-    "days_on_hand": 12
+    "presentation": "2 g injection",
+    "on_hand": 95,
+    "daily_use": 17.3,
+    "days_on_hand": 5.5
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 625 units of cefepime at 31.9 a day: 20 days on hand",
+   "label": "Corvale General holds 321 vials of cefepime 2 g at 15.9 a day: 20.2 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 625,
-    "daily_use": 31.9,
-    "days_on_hand": 20
+    "presentation": "2 g injection",
+    "on_hand": 321,
+    "daily_use": 15.9,
+    "days_on_hand": 20.2
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 45 units of cefepime at 2.6 a day: 18 days on hand",
+   "label": "Corvale Lakeside holds 45 vials of cefepime 2 g at 2.6 a day: 17.6 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
+    "presentation": "2 g injection",
     "on_hand": 45,
     "daily_use": 2.6,
-    "days_on_hand": 18
+    "days_on_hand": 17.6
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale East holds 282 vials of cefepime 2 g at 13.5 a day: 20.8 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "2 g injection",
+    "on_hand": 282,
+    "daily_use": 13.5,
+    "days_on_hand": 20.8
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 303 vials of cefepime 2 g at 16.1 a day: 18.9 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "2 g injection",
+    "on_hand": 303,
+    "daily_use": 16.1,
+    "days_on_hand": 18.9
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "cefepime is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 99 vials of 2 g from Corvale General to Corvale East. Corvale General has 20 days of 2 g injection on hand and can spare 99 vials while keeping two weeks; Corvale East has 5.5 days and would reach 11.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D8": {
+   "id": "D8",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 9 vials of 2 g from Corvale Lakeside to Corvale East. Corvale Lakeside has 18 days of 2 g injection on hand and can spare 9 vials while keeping two weeks; Corvale East has 5.5 days and would reach 6.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D9": {
+   "id": "D9",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Apotex Corp.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-52ed69": {
-   "id": "Q-52ed69",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%cefepime%' OR lower(s.description) LIKE '%cefepime%' ORDER BY s.hospital, s.item_key",
-   "ms": 3085,
+  "Q-2e795d": {
+   "id": "Q-2e795d",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cefepime(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cefepime(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3491,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:31:39.787Z",
+   "ranAt": "2026-10-22T11:36:45.102Z",
    "rows": 5
   },
   "Q-1fffa4": {
    "id": "Q-1fffa4",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('f64c181e-28c5-48ab-aa67-5ca0e3fd079c', 'e80c27e2-164d-4836-ba24-c160d75dc5d3') ORDER BY ps.set_id, ps.establishment",
-   "ms": 772,
+   "ms": 483,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:31:40.565Z",
+   "ranAt": "2026-10-22T11:36:45.587Z",
    "rows": 2
   },
-  "Q-3e280a": {
-   "id": "Q-3e280a",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%cefepime%' ORDER BY status, company_name, package_ndc",
-   "ms": 220,
+  "Q-412618": {
+   "id": "Q-412618",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cefepime(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 141,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:31:40.788Z",
+   "ranAt": "2026-10-22T11:36:45.729Z",
    "rows": 2
   },
-  "Q-0aa340": {
-   "id": "Q-0aa340",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%cefepime%' ORDER BY first_posting",
-   "ms": 173,
+  "Q-420ab6": {
+   "id": "Q-420ab6",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cefepime(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 146,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:31:40.964Z",
+   "ranAt": "2026-10-22T11:36:45.877Z",
    "rows": 1
   },
-  "Q-e6c93c": {
-   "id": "Q-e6c93c",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%cefepime%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2226,
+  "Q-a395e8": {
+   "id": "Q-a395e8",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cefepime(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1315,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:31:43.195Z",
-   "rows": 31
+   "ranAt": "2026-10-22T11:36:47.193Z",
+   "rows": 30
   },
   "Q-808a5c": {
    "id": "Q-808a5c",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('') ORDER BY fei, end_date",
-   "ms": 626,
+   "ms": 201,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:31:43.825Z",
+   "ranAt": "2026-10-22T11:36:47.395Z",
    "rows": 0
   },
   "Q-de2bfd": {
    "id": "Q-de2bfd",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('') ORDER BY fei, action_date",
-   "ms": 222,
+   "ms": 111,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:31:44.050Z",
+   "ranAt": "2026-10-22T11:36:47.507Z",
    "rows": 0
   },
   "Q-7a934c": {
    "id": "Q-7a934c",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('') OR (fei_match <> 'name_and_city' AND firm_key IN ('acs dobfar', 'hikma farmaceutica')) ORDER BY date_published",
-   "ms": 178,
+   "ms": 127,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:31:44.231Z",
+   "ranAt": "2026-10-22T11:36:47.636Z",
    "rows": 0
   },
-  "Q-22a9d3": {
-   "id": "Q-22a9d3",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('acs dobfar', 'hikma farmaceutica', 'hikma', 'hospira') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%cefepime%' ORDER BY initiation_date",
-   "ms": 275,
+  "Q-b834a2": {
+   "id": "Q-b834a2",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('acs dobfar', 'hikma farmaceutica', 'hikma', 'hospira') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cefepime(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 133,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:31:44.509Z",
+   "ranAt": "2026-10-22T11:36:47.770Z",
    "rows": 0
   },
   "Q-6f1c0b": {
    "id": "Q-6f1c0b",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('00143947810', '00409973510')",
-   "ms": 1302,
+   "ms": 705,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:31:45.816Z",
+   "ranAt": "2026-10-22T11:36:48.476Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-527765": {
-   "id": "Q-527765",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%cefepime%'",
-   "ms": 1741,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:31:47.561Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-f0a756": {
+   "id": "Q-f0a756",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cefepime(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 2101,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:36:50.579Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 16191,
+  "zetarisMs": 19162,
   "modelCalls": 1,
-  "tokensIn": 788,
-  "tokensOut": 324,
+  "tokensIn": 2171,
+  "tokensOut": 302,
   "mode": "live"
  },
  "slug": "cefepime",
@@ -1019,7 +1284,7 @@
     "id": "hospital-item:hospital-item:CG-170",
     "type": "HospitalItem",
     "key": "hospital-item:CG-170",
-    "label": "Corvale General: Cefepime",
+    "label": "Corvale General: Cefepime 2 g/1",
     "attrs": {
      "key": "hospital-item:CG-170"
     },
@@ -1030,7 +1295,7 @@
     "id": "hospital-item:hospital-item:CG-171",
     "type": "HospitalItem",
     "key": "hospital-item:CG-171",
-    "label": "Corvale General: Cefepime Hydrochloride",
+    "label": "Corvale General: Cefepime Hydrochloride 2 g/1",
     "attrs": {
      "key": "hospital-item:CG-171"
     },
@@ -1154,11 +1419,11 @@
     "from": "hospital-item:hospital-item:CG-170",
     "to": "package:ndc-package:0409-9735-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:31:39.791Z",
+    "validFrom": "2026-10-22T11:36:45.103Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:31:39.791Z"
+     "at": "2026-10-22T11:36:45.103Z"
     }
    },
    {
@@ -1166,11 +1431,11 @@
     "from": "hospital-item:hospital-item:CG-171",
     "to": "package:ndc-package:0143-9478-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:31:39.792Z",
+    "validFrom": "2026-10-22T11:36:45.103Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:31:39.792Z"
+     "at": "2026-10-22T11:36:45.103Z"
     }
    },
    {
@@ -1178,11 +1443,11 @@
     "from": "hospital-item:hospital-item:EA-E-000031",
     "to": "package:ndc-package:0143-9478-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:31:39.791Z",
+    "validFrom": "2026-10-22T11:36:45.103Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:31:39.791Z"
+     "at": "2026-10-22T11:36:45.103Z"
     }
    },
    {
@@ -1190,11 +1455,11 @@
     "from": "hospital-item:hospital-item:EA-E-000101",
     "to": "package:ndc-package:0409-9735-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:31:39.791Z",
+    "validFrom": "2026-10-22T11:36:45.103Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:31:39.791Z"
+     "at": "2026-10-22T11:36:45.103Z"
     }
    },
    {
@@ -1202,11 +1467,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0043",
     "to": "package:ndc-package:0409-9735-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:31:39.792Z",
+    "validFrom": "2026-10-22T11:36:45.104Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:31:39.792Z"
+     "at": "2026-10-22T11:36:45.104Z"
     }
    },
    {
@@ -1214,11 +1479,11 @@
     "from": "package:ndc-package:0409-9735-10",
     "to": "product:ndc-product:0409-9735",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:31:39.791Z",
+    "validFrom": "2026-10-22T11:36:45.103Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:31:39.791Z"
+     "at": "2026-10-22T11:36:45.103Z"
     }
    },
    {
@@ -1226,11 +1491,11 @@
     "from": "package:ndc-package:0143-9478-10",
     "to": "product:ndc-product:0143-9478",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:31:39.791Z",
+    "validFrom": "2026-10-22T11:36:45.103Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:31:39.791Z"
+     "at": "2026-10-22T11:36:45.103Z"
     }
    },
    {
@@ -1238,11 +1503,11 @@
     "from": "product:ndc-product:0409-9735",
     "to": "drug:generic:cefepime",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:31:39.791Z",
+    "validFrom": "2026-10-22T11:36:45.103Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:31:39.791Z"
+     "at": "2026-10-22T11:36:45.103Z"
     }
    },
    {
@@ -1250,11 +1515,11 @@
     "from": "product:ndc-product:0409-9735",
     "to": "labeler:ndc-labeler:0409",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:31:39.791Z",
+    "validFrom": "2026-10-22T11:36:45.103Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:31:39.791Z"
+     "at": "2026-10-22T11:36:45.103Z"
     }
    },
    {
@@ -1262,11 +1527,11 @@
     "from": "product:ndc-product:0143-9478",
     "to": "drug:generic:cefepime",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:31:39.791Z",
+    "validFrom": "2026-10-22T11:36:45.103Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:31:39.791Z"
+     "at": "2026-10-22T11:36:45.103Z"
     }
    },
    {
@@ -1274,11 +1539,11 @@
     "from": "product:ndc-product:0143-9478",
     "to": "labeler:ndc-labeler:0143",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:31:39.791Z",
+    "validFrom": "2026-10-22T11:36:45.103Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:31:39.791Z"
+     "at": "2026-10-22T11:36:45.103Z"
     }
    }
   ],

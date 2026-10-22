@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-60b45f",
+ "id": "case-2026-10-22-0e170e",
  "question": "Why is cyclophosphamide short, and what do we do?",
- "askedAt": "2026-10-22T07:37:21.524Z",
+ "askedAt": "2026-10-22T11:41:13.484Z",
  "asOf": "2026-10-21",
  "molecule": "cyclophosphamide",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H8NRGNFNDY10WWT2EHBMS9",
+  "contractId": "01M5HPMBWSFASEYNZBM3FFWCSX",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-e4dffa"
+    "Q-fbe60d"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3480,
+   "ms": 3516,
    "rows": 2,
-   "finding": "2 stock lines across 2 hospitals.",
+   "finding": "2 stock lines across 2 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-7bfc24"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 781,
+   "ms": 413,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-835014",
-    "Q-e7c999"
+    "Q-f97522",
+    "Q-bf4a2f"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 456,
+   "ms": 256,
    "rows": 0,
    "finding": "Not on FDA's current shortage list.",
    "status": "empty"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-6aa5e5"
+    "Q-43d564"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1795,
+   "ms": 1138,
    "rows": 90,
    "finding": "21 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-7258a8",
     "Q-cd7f3d",
     "Q-5fa029",
-    "Q-66bc71"
+    "Q-ea2218"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1072,
+   "ms": 659,
    "rows": 30,
    "finding": "29 inspections (0 OAI at our plants), 1 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1165,
+   "ms": 574,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-6510df"
+    "Q-161162"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1321,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1109,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 3,
+   "ms": 0,
    "rows": 0,
    "finding": "No past decisions on this drug.",
    "status": "empty"
@@ -153,22 +164,65 @@
    "onHand": 54,
    "dailyUse": 2.651,
    "days": 20.4,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "cyclophosphamide|2g/100ml|injection|100ml|vial",
+   "presentationLabel": "2 g/100 mL injection, 100 mL vial",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-188",
    "ndc11": "65219013320",
-   "description": "cyclophosphamide",
+   "description": "cyclophosphamide 2 g/100mL",
    "labeler": "Fresenius Kabi USA, LLC",
-   "onHand": 62.67,
+   "onHand": 62,
    "dailyUse": 2.864,
-   "days": 21.9,
+   "days": 21.6,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "cyclophosphamide|2g/100ml|injection|100ml|vial",
+   "presentationLabel": "2 g/100 mL injection, 100 mL vial",
    "evidence": "E2"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "cyclophosphamide|2g/100ml|injection|100ml|vial",
+   "label": "2 g/100 mL injection, 100 mL vial",
+   "short": "2 g/100 mL, 100 mL",
+   "unit": "vial",
+   "onHand": 116,
+   "dailyUse": 5.515,
+   "days": 21,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 54,
+     "dailyUse": 2.651,
+     "days": 20.4,
+     "lines": [
+      "EA-E-000225"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 62,
+     "dailyUse": 2.864,
+     "days": 21.6,
+     "lines": [
+      "CG-188"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -681,46 +735,55 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "FDA's records show cyclophosphamide supplied from a plant with VAI inspections in 2018 and 2026; drug not on FDA shortage list today",
+  "headline": "Cyclophosphamide is not on FDA's shortage list as of 2026-10-21; Corvale sites hold 20.4 and 21.6 days on hand; the label traces supply to a plant with a VAI inspection known 2026-07-14",
   "sentences": [
    {
-    "text": "The product label identifies Jiangsu Hengrui Pharmaceuticals Co., Ltd. (Jinqiao Road Site) as the manufacturing plant for cyclophosphamide labeled by Fresenius Kabi USA, LLC.",
+    "text": "FDA's drug shortage list does not include cyclophosphamide as of 2026-10-21.",
+    "cites": [
+     "D3"
+    ]
+   },
+   {
+    "text": "Corvale East holds 54 vials of the 2 g/100 mL presentation at 2.7 vials per day, providing 20.4 days on hand.",
+    "cites": [
+     "D1"
+    ]
+   },
+   {
+    "text": "Corvale General holds 62 vials of the same presentation at 2.9 vials per day, providing 21.6 days on hand.",
+    "cites": [
+     "D2"
+    ]
+   },
+   {
+    "text": "The product label for NDC 65219013320 names Jiangsu Hengrui Pharmaceuticals Co., Ltd. (Jinqiao Road Site) as a registered plant for analysis, API manufacture, manufacture, and pack.",
     "cites": [
      "E5"
     ]
    },
    {
-    "text": "FDA inspection 1053330 at that plant ended on 2018-04-13 and was classified VAI, with the classification known on 2018-06-14.",
-    "cites": [
-     "E3"
-    ]
-   },
-   {
-    "text": "A more recent FDA inspection 1319132 at the same plant ended on 2026-04-15 and was also classified VAI, with the classification known on 2026-07-14.",
+    "text": "FDA inspection 1319132 at that plant ended 2026-04-15 with a VAI classification and was known to FDA on 2026-07-14.",
     "cites": [
      "E4"
     ]
    },
    {
-    "text": "Corvale East holds 54 units with 20 days on hand at current use, and Corvale General holds 63 units with 22 days on hand.",
+    "text": "The rule-based alternate manufacturer ranked 2 is Avenacy, LLC, which is not on FDA's shortage list today and uses plant EPIC PHARMA LLC.",
     "cites": [
-     "D1",
-     "D2"
+     "D4"
+    ]
+   },
+   {
+    "text": "Check current allocation and lead time from Avenacy, LLC and confirm whether the VAI inspection at the Jiangsu Hengrui site affects supply continuity.",
+    "cites": [
+     "D4",
+     "E4"
     ]
    }
   ],
   "verifier": {
-   "checked": 7,
-   "rejected": [
-    {
-     "text": "As of today 2026-10-21, cyclophosphamide does not appear on FDA's drug shortage list.",
-     "reason": "cites nothing"
-    },
-    {
-     "text": "The rule-based best option is to buy from Avenacy, LLC, whose plant is EPIC PHARMA LLC; verify that this source is available and meets formulary requirements.",
-     "reason": "cites nothing"
-    }
-   ],
+   "checked": 8,
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -728,125 +791,146 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [],
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:37:11.447Z",
+   "at": "2026-10-22T11:41:05.818Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract T2EHBMS9 scope"
+   "reason": "in contract M3FFWCSX scope"
   },
   {
-   "at": "2026-10-22T07:37:11.447Z",
+   "at": "2026-10-22T11:41:05.818Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract T2EHBMS9 scope"
+   "reason": "in contract M3FFWCSX scope"
   },
   {
-   "at": "2026-10-22T07:37:14.929Z",
+   "at": "2026-10-22T11:41:09.334Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract T2EHBMS9 scope"
+   "reason": "in contract M3FFWCSX scope"
   },
   {
-   "at": "2026-10-22T07:37:15.710Z",
+   "at": "2026-10-22T11:41:09.747Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract T2EHBMS9 scope"
+   "reason": "in contract M3FFWCSX scope"
   },
   {
-   "at": "2026-10-22T07:37:16.166Z",
+   "at": "2026-10-22T11:41:10.003Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract T2EHBMS9 scope"
+   "reason": "in contract M3FFWCSX scope"
   },
   {
-   "at": "2026-10-22T07:37:17.961Z",
+   "at": "2026-10-22T11:41:11.141Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract T2EHBMS9 scope"
+   "reason": "in contract M3FFWCSX scope"
   },
   {
-   "at": "2026-10-22T07:37:19.035Z",
+   "at": "2026-10-22T11:41:11.800Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract T2EHBMS9 scope"
+   "reason": "in contract M3FFWCSX scope"
   },
   {
-   "at": "2026-10-22T07:37:20.200Z",
+   "at": "2026-10-22T11:41:12.374Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract T2EHBMS9 scope"
+   "reason": "in contract M3FFWCSX scope"
   },
   {
-   "at": "2026-10-22T07:37:21.521Z",
+   "at": "2026-10-22T11:41:13.484Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract T2EHBMS9 scope"
+   "reason": "in contract M3FFWCSX scope"
   },
   {
-   "at": "2026-10-22T07:37:21.525Z",
+   "at": "2026-10-22T11:41:13.485Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract T2EHBMS9 scope"
+   "reason": "in contract M3FFWCSX scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-e4dffa",
+   "queryId": "Q-fbe60d",
    "row": 0,
    "label": "Corvale East: CYCLOPHOSPHAMIDE 2G00ML 100ML SDV",
    "fields": {
@@ -857,37 +941,47 @@
     "description": "CYCLOPHOSPHAMIDE 2G00ML 100ML SDV",
     "on_hand": "54.00",
     "daily_use": "2.651",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "cyclophosphamide",
     "labeler_name": "Fresenius Kabi USA, LLC",
     "package_ndc": "65219-133-20",
     "spl_set_id": "31986d36-a1bf-4903-93a4-ce7386241ba1",
     "dosage_form": "INJECTION, POWDER, FOR SOLUTION",
-    "route": "INTRAVENOUS|ORAL"
+    "route": "INTRAVENOUS|ORAL",
+    "strength": "CYCLOPHOSPHAMIDE 2 g/100mL",
+    "unit_content": "100 mL",
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-e4dffa",
+   "queryId": "Q-fbe60d",
    "row": 1,
-   "label": "Corvale General: cyclophosphamide",
+   "label": "Corvale General: cyclophosphamide 2 g/100mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-188",
     "ndc11": "65219013320",
     "ndc_as_recorded": "65219013320",
-    "description": "cyclophosphamide",
-    "on_hand": "62.67",
+    "description": "cyclophosphamide 2 g/100mL",
+    "on_hand": "62.00",
     "daily_use": "2.864",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "cyclophosphamide",
     "labeler_name": "Fresenius Kabi USA, LLC",
     "package_ndc": "65219-133-20",
     "spl_set_id": "31986d36-a1bf-4903-93a4-ce7386241ba1",
     "dosage_form": "INJECTION, POWDER, FOR SOLUTION",
-    "route": "INTRAVENOUS|ORAL"
+    "route": "INTRAVENOUS|ORAL",
+    "strength": "CYCLOPHOSPHAMIDE 2 g/100mL",
+    "unit_content": "100 mL",
+    "pkg_unit": "vial"
    }
   },
   "E3": {
@@ -942,185 +1036,246 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 54 units of cyclophosphamide at 2.7 a day: 20 days on hand",
+   "label": "Corvale East holds 54 vials of cyclophosphamide 2 g/100 mL, 100 mL at 2.7 a day: 20.4 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "2 g/100 mL injection, 100 mL vial",
     "on_hand": 54,
     "daily_use": 2.7,
-    "days_on_hand": 20
+    "days_on_hand": 20.4
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 63 units of cyclophosphamide at 2.9 a day: 22 days on hand",
+   "label": "Corvale General holds 62 vials of cyclophosphamide 2 g/100 mL, 100 mL at 2.9 a day: 21.6 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 63,
+    "presentation": "2 g/100 mL injection, 100 mL vial",
+    "on_hand": 62,
     "daily_use": 2.9,
-    "days_on_hand": 22
+    "days_on_hand": 21.6
+   }
+  },
+  "D3": {
+   "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "cyclophosphamide is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from Avenacy, LLC. Not on FDA's shortage list today. Plants: EPIC PHARMA LLC.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from Avyxa Pharma, LLC. Not on FDA's shortage list today. Plants: Dr.Reddys Laboratories Limited (last inspection VAI 2024-05-17).",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from Baxter Healthcare Company. Not on FDA's shortage list today. Plants: Baxter Healthcare Corporation Deerfield.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-e4dffa": {
-   "id": "Q-e4dffa",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%cyclophosphamide%' OR lower(s.description) LIKE '%cyclophosphamide%' ORDER BY s.hospital, s.item_key",
-   "ms": 3476,
+  "Q-fbe60d": {
+   "id": "Q-fbe60d",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cyclophosphamide(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cyclophosphamide(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3514,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:37:14.923Z",
+   "ranAt": "2026-10-22T11:41:09.332Z",
    "rows": 2
   },
   "Q-7bfc24": {
    "id": "Q-7bfc24",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('31986d36-a1bf-4903-93a4-ce7386241ba1') ORDER BY ps.set_id, ps.establishment",
-   "ms": 778,
+   "ms": 411,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:37:15.707Z",
+   "ranAt": "2026-10-22T11:41:09.745Z",
    "rows": 1
   },
-  "Q-835014": {
-   "id": "Q-835014",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%cyclophosphamide%' ORDER BY status, company_name, package_ndc",
-   "ms": 206,
+  "Q-f97522": {
+   "id": "Q-f97522",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cyclophosphamide(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 131,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:37:15.916Z",
+   "ranAt": "2026-10-22T11:41:09.878Z",
    "rows": 0
   },
-  "Q-e7c999": {
-   "id": "Q-e7c999",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%cyclophosphamide%' ORDER BY first_posting",
-   "ms": 243,
+  "Q-bf4a2f": {
+   "id": "Q-bf4a2f",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cyclophosphamide(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 122,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:37:16.162Z",
+   "ranAt": "2026-10-22T11:41:10.001Z",
    "rows": 0
   },
-  "Q-6aa5e5": {
-   "id": "Q-6aa5e5",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%cyclophosphamide%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 1790,
+  "Q-43d564": {
+   "id": "Q-43d564",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cyclophosphamide(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1137,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:37:17.956Z",
+   "ranAt": "2026-10-22T11:41:11.139Z",
    "rows": 90
   },
   "Q-7258a8": {
    "id": "Q-7258a8",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3006689263', '3006549835', '2431929') ORDER BY fei, end_date",
-   "ms": 453,
+   "ms": 270,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:37:18.415Z",
+   "ranAt": "2026-10-22T11:41:11.411Z",
    "rows": 29
   },
   "Q-cd7f3d": {
    "id": "Q-cd7f3d",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3006689263', '3006549835', '2431929') ORDER BY fei, action_date",
-   "ms": 195,
+   "ms": 116,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:37:18.612Z",
+   "ranAt": "2026-10-22T11:41:11.529Z",
    "rows": 1
   },
   "Q-5fa029": {
    "id": "Q-5fa029",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3006689263') OR (fei_match <> 'name_and_city' AND firm_key IN ('jiangsu hengrui')) ORDER BY date_published",
-   "ms": 189,
+   "ms": 111,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:37:18.804Z",
+   "ranAt": "2026-10-22T11:41:11.641Z",
    "rows": 0
   },
-  "Q-66bc71": {
-   "id": "Q-66bc71",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('jiangsu hengrui', 'fresenius kabi') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%cyclophosphamide%' ORDER BY initiation_date",
-   "ms": 222,
+  "Q-ea2218": {
+   "id": "Q-ea2218",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('jiangsu hengrui', 'fresenius kabi') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cyclophosphamide(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 156,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:37:19.029Z",
+   "ranAt": "2026-10-22T11:41:11.798Z",
    "rows": 0
   },
   "Q-a71bd6": {
    "id": "Q-a71bd6",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('65219013320')",
-   "ms": 1161,
+   "ms": 572,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:37:20.197Z",
+   "ranAt": "2026-10-22T11:41:12.373Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-6510df": {
-   "id": "Q-6510df",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%cyclophosphamide%'",
-   "ms": 1317,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:37:21.518Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-161162": {
+   "id": "Q-161162",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cyclophosphamide(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1109,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:41:13.482Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 15401,
+  "zetarisMs": 17857,
   "modelCalls": 1,
-  "tokensIn": 831,
-  "tokensOut": 423,
+  "tokensIn": 1236,
+  "tokensOut": 503,
   "mode": "live"
  },
  "slug": "cyclophosphamide",
@@ -1134,7 +1289,7 @@
     "id": "hospital-item:hospital-item:CG-188",
     "type": "HospitalItem",
     "key": "hospital-item:CG-188",
-    "label": "Corvale General: cyclophosphamide",
+    "label": "Corvale General: cyclophosphamide 2 g/100mL",
     "attrs": {
      "key": "hospital-item:CG-188"
     },
@@ -1218,7 +1373,7 @@
     },
     "facts": [
      {
-      "id": "fact_3e04414915747226",
+      "id": "fact_8a9eda525d8e6189",
       "about": "inspection:fda-inspection:1053330",
       "predicate": "classification",
       "value": "VAI",
@@ -1226,9 +1381,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:37:19.033Z"
+       "at": "2026-10-22T11:41:11.800Z"
       },
-      "assertedAt": "2026-10-22T07:37:19.033Z"
+      "assertedAt": "2026-10-22T11:41:11.800Z"
      }
     ],
     "depth": 4
@@ -1244,7 +1399,7 @@
     },
     "facts": [
      {
-      "id": "fact_0c55652918e192dc",
+      "id": "fact_93f001af269df34a",
       "about": "inspection:fda-inspection:1319132",
       "predicate": "classification",
       "value": "VAI",
@@ -1252,9 +1407,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:37:19.034Z"
+       "at": "2026-10-22T11:41:11.800Z"
       },
-      "assertedAt": "2026-10-22T07:37:19.034Z"
+      "assertedAt": "2026-10-22T11:41:11.800Z"
      }
     ],
     "depth": 4
@@ -1266,11 +1421,11 @@
     "from": "hospital-item:hospital-item:CG-188",
     "to": "package:ndc-package:65219-133-20",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:37:14.928Z",
+    "validFrom": "2026-10-22T11:41:09.334Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:14.928Z"
+     "at": "2026-10-22T11:41:09.334Z"
     }
    },
    {
@@ -1278,11 +1433,11 @@
     "from": "hospital-item:hospital-item:EA-E-000225",
     "to": "package:ndc-package:65219-133-20",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:37:14.927Z",
+    "validFrom": "2026-10-22T11:41:09.334Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:14.927Z"
+     "at": "2026-10-22T11:41:09.334Z"
     }
    },
    {
@@ -1290,11 +1445,11 @@
     "from": "package:ndc-package:65219-133-20",
     "to": "product:ndc-product:65219-133",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:37:14.927Z",
+    "validFrom": "2026-10-22T11:41:09.334Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:14.927Z"
+     "at": "2026-10-22T11:41:09.334Z"
     }
    },
    {
@@ -1302,11 +1457,11 @@
     "from": "product:ndc-product:65219-133",
     "to": "drug:generic:cyclophosphamide",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:37:14.927Z",
+    "validFrom": "2026-10-22T11:41:09.334Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:14.927Z"
+     "at": "2026-10-22T11:41:09.334Z"
     }
    },
    {
@@ -1314,11 +1469,11 @@
     "from": "product:ndc-product:65219-133",
     "to": "labeler:ndc-labeler:65219",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:37:14.927Z",
+    "validFrom": "2026-10-22T11:41:09.334Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:14.927Z"
+     "at": "2026-10-22T11:41:09.334Z"
     }
    },
    {
@@ -1326,11 +1481,11 @@
     "from": "product:ndc-product:65219-133",
     "to": "site:fei:3006689263",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:37:19.033Z",
+    "validFrom": "2026-10-22T11:41:11.800Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:19.033Z"
+     "at": "2026-10-22T11:41:11.800Z"
     }
    },
    {
@@ -1338,11 +1493,11 @@
     "from": "inspection:fda-inspection:1053330",
     "to": "site:fei:3006689263",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:37:19.033Z",
+    "validFrom": "2026-10-22T11:41:11.800Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:19.033Z"
+     "at": "2026-10-22T11:41:11.800Z"
     }
    },
    {
@@ -1350,11 +1505,11 @@
     "from": "inspection:fda-inspection:1319132",
     "to": "site:fei:3006689263",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:37:19.034Z",
+    "validFrom": "2026-10-22T11:41:11.800Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:19.034Z"
+     "at": "2026-10-22T11:41:11.800Z"
     }
    }
   ],

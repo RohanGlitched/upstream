@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-ffe73b",
- "question": "Carboplatin is short again. Why, and what do we do?",
- "askedAt": "2026-10-22T06:36:26.372Z",
+ "id": "case-2026-10-22-48392c",
+ "question": "Why is carboplatin short, and what do we do?",
+ "askedAt": "2026-10-22T11:35:34.121Z",
  "asOf": "2026-10-21",
  "molecule": "carboplatin",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H565JRSVRXE44GQVC31N6N",
+  "contractId": "01M5HPA0BHJKPNW8PM8WCADGYW",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-83799e"
+    "Q-f8a0fc"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2279,
+   "ms": 3120,
    "rows": 8,
-   "finding": "8 stock lines across 3 hospitals.",
+   "finding": "8 stock lines across 3 hospitals, 2 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-75e19f"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 423,
+   "ms": 388,
    "rows": 3,
    "finding": "3 plant links on 3 labels; 2 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-0ae550",
-    "Q-fac1d7"
+    "Q-6a06a0",
+    "Q-bd8f50"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 218,
+   "ms": 210,
    "rows": 36,
    "finding": "On FDA's list as Current for 8 companies.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-697c1e"
+    "Q-d6b70e"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1293,
+   "ms": 1164,
    "rows": 49,
    "finding": "11 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-e9d9a0",
     "Q-b55bd0",
     "Q-403c2f",
-    "Q-cf1615"
+    "Q-5f2d52"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 785,
+   "ms": 640,
    "rows": 42,
    "finding": "37 inspections (1 OAI at our plants), 3 compliance actions, 2 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,7 +111,7 @@
    "sources": [
     "fda.citations"
    ],
-   "ms": 190,
+   "ms": 142,
    "rows": 11,
    "finding": "11 Form 483 observations recorded.",
    "status": "ok"
@@ -119,9 +126,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1061,
+   "ms": 797,
    "rows": 2,
    "finding": "2 approved interchanges on file.",
    "status": "ok"
@@ -129,19 +136,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-baa0f7"
+    "Q-5855fc"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 5293,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1336,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -152,7 +163,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 6,
+   "ms": 1,
    "rows": 3,
    "finding": "3 past decisions recalled.",
    "status": "ok"
@@ -168,8 +179,11 @@
    "onHand": 54,
    "dailyUse": 3.576,
    "days": 15.1,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "carboplatin|10mg/ml|injection|60ml|vial",
+   "presentationLabel": "10 mg/mL injection, 60 mL vial",
    "evidence": "E1"
   },
   {
@@ -181,47 +195,59 @@
    "onHand": 77,
    "dailyUse": 3.729,
    "days": 20.6,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "carboplatin|10mg/ml|injection|5ml|vial",
+   "presentationLabel": "10 mg/mL injection, 5 mL vial",
    "evidence": "E2"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-10",
    "ndc11": "00703423901",
-   "description": "CARBOplatin",
+   "description": "CARBOplatin 10 mg/mL",
    "labeler": "Teva Parenteral Medicines, Inc.",
-   "onHand": 25.87,
+   "onHand": 25,
    "dailyUse": 2.874,
-   "days": 9,
+   "days": 8.7,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "carboplatin|10mg/ml|injection|60ml|vial",
+   "presentationLabel": "10 mg/mL injection, 60 mL vial",
    "evidence": "E3"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-11",
    "ndc11": "16729029512",
-   "description": "Carboplatin",
+   "description": "Carboplatin 10 mg/mL",
    "labeler": "Accord Healthcare, Inc.",
-   "onHand": 25.45,
+   "onHand": 25,
    "dailyUse": 2.829,
-   "days": 9,
+   "days": 8.8,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "carboplatin|10mg/ml|injection|60ml|vial",
+   "presentationLabel": "10 mg/mL injection, 60 mL vial",
    "evidence": "E4"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-165",
    "ndc11": "60505628201",
-   "description": "CARBOPLATIN",
+   "description": "CARBOPLATIN 10 mg/mL",
    "labeler": "Apotex Corp.",
-   "onHand": 25.01,
+   "onHand": 25,
    "dailyUse": 2.778,
    "days": 9,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "carboplatin|10mg/ml|injection|5ml|vial",
+   "presentationLabel": "10 mg/mL injection, 5 mL vial",
    "evidence": "E5"
   },
   {
@@ -235,6 +261,9 @@
    "days": 1.5,
    "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "carboplatin|10mg/ml|injection|60ml|vial",
+   "presentationLabel": "10 mg/mL injection, 60 mL vial",
    "evidence": "E6"
   },
   {
@@ -248,6 +277,9 @@
    "days": 1.6,
    "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "carboplatin|10mg/ml|injection|60ml|vial",
+   "presentationLabel": "10 mg/mL injection, 60 mL vial",
    "evidence": "E7"
   },
   {
@@ -261,7 +293,110 @@
    "days": 2.5,
    "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "carboplatin|10mg/ml|injection|5ml|vial",
+   "presentationLabel": "10 mg/mL injection, 5 mL vial",
    "evidence": "E8"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "carboplatin|10mg/ml|injection|60ml|vial",
+   "label": "10 mg/mL injection, 60 mL vial",
+   "short": "10 mg/mL, 60 mL",
+   "unit": "vial",
+   "onHand": 106,
+   "dailyUse": 10.586,
+   "days": 10,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 54,
+     "dailyUse": 3.576,
+     "days": 15.1,
+     "lines": [
+      "EA-E-000122"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 50,
+     "dailyUse": 5.703,
+     "days": 8.8,
+     "lines": [
+      "CG-10",
+      "CG-11"
+     ],
+     "evidence": [
+      "E3",
+      "E4"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 2,
+     "dailyUse": 1.307,
+     "days": 1.5,
+     "lines": [
+      "LS-LS-0047",
+      "LS-LS-0054"
+     ],
+     "evidence": [
+      "E6",
+      "E7"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "carboplatin|10mg/ml|injection|5ml|vial",
+   "label": "10 mg/mL injection, 5 mL vial",
+   "short": "10 mg/mL, 5 mL",
+   "unit": "vial",
+   "onHand": 104,
+   "dailyUse": 7.31,
+   "days": 14.2,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 77,
+     "dailyUse": 3.729,
+     "days": 20.6,
+     "lines": [
+      "EA-E-000201"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 25,
+     "dailyUse": 2.778,
+     "days": 9,
+     "lines": [
+      "CG-165"
+     ],
+     "evidence": [
+      "E5"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 2,
+     "dailyUse": 0.803,
+     "days": 2.5,
+     "lines": [
+      "LS-LS-0093"
+     ],
+     "evidence": [
+      "E8"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -694,53 +829,93 @@
   {
    "kind": "transfer",
    "rank": 1,
-   "title": "Transfer 26 from Corvale East to Corvale Lakeside",
-   "detail": "Corvale East has 18 days on hand and can spare 26 while keeping two weeks; Corvale Lakeside has 1.9 days and would reach 14.",
-   "why": "Same product, no clinical change, no new supplier.",
+   "title": "Transfer 3 vials of 10 mg/mL, 60 mL from Corvale East to Corvale Lakeside",
+   "detail": "Corvale East has 15 days of 10 mg/mL injection, 60 mL vials on hand and can spare 3 vials while keeping two weeks; Corvale Lakeside has 1.5 days and would reach 4.",
+   "why": "Same presentation, no clinical change, no new supplier.",
    "needs": "pharmacy director (transfer request)",
    "evidence": [
     "E1",
-    "E2",
     "E6",
-    "E7",
-    "E8"
-   ]
+    "E7"
+   ],
+   "transfer": {
+    "qty": 3,
+    "unit": "vial",
+    "presentation": "10 mg/mL injection, 60 mL vial",
+    "from": "Corvale East",
+    "to": "Corvale Lakeside",
+    "fromDays": 15.1,
+    "toDays": 1.5,
+    "fromAfter": 14,
+    "toAfter": 4
+   }
   },
   {
    "kind": "transfer",
    "rank": 1,
-   "title": "Transfer 2 from Corvale East to Corvale General",
-   "detail": "Corvale East has 18 days on hand and can spare 2 while keeping two weeks; Corvale General has 9 days and would reach 9.",
-   "why": "Same product, no clinical change, no new supplier.",
+   "title": "Transfer 10 vials of 10 mg/mL, 5 mL from Corvale East to Corvale Lakeside",
+   "detail": "Corvale East has 21 days of 10 mg/mL injection, 5 mL vials on hand and can spare 10 vials while keeping two weeks; Corvale Lakeside has 2.5 days and would reach 15.",
+   "why": "Same presentation, no clinical change, no new supplier.",
    "needs": "pharmacy director (transfer request)",
    "evidence": [
-    "E1",
     "E2",
-    "E3",
-    "E4",
+    "E8"
+   ],
+   "transfer": {
+    "qty": 10,
+    "unit": "vial",
+    "presentation": "10 mg/mL injection, 5 mL vial",
+    "from": "Corvale East",
+    "to": "Corvale Lakeside",
+    "fromDays": 20.6,
+    "toDays": 2.5,
+    "fromAfter": 18,
+    "toAfter": 15
+   }
+  },
+  {
+   "kind": "transfer",
+   "rank": 1,
+   "title": "Transfer 14 vials of 10 mg/mL, 5 mL from Corvale East to Corvale General",
+   "detail": "Corvale East has 21 days of 10 mg/mL injection, 5 mL vials on hand and can spare 14 vials while keeping two weeks; Corvale General has 9 days and would reach 14.",
+   "why": "Same presentation, no clinical change, no new supplier.",
+   "needs": "pharmacy director (transfer request)",
+   "evidence": [
+    "E2",
     "E5"
-   ]
+   ],
+   "transfer": {
+    "qty": 14,
+    "unit": "vial",
+    "presentation": "10 mg/mL injection, 5 mL vial",
+    "from": "Corvale East",
+    "to": "Corvale General",
+    "fromDays": 20.6,
+    "toDays": 9,
+    "fromAfter": 17,
+    "toAfter": 14
+   }
   },
   {
    "kind": "alternate_manufacturer",
-   "rank": 2,
-   "title": "Same product, alternate manufacturer: CARBOplatin 10 mg/mL from Apotex Corp.",
-   "detail": "Same product from Apotex Corp.; substitute NDC, no clinical change. Approved by Alex Morgan, PharmD on 2026-05-16.",
-   "why": "Already approved by the P&T committee.",
-   "needs": "pharmacist",
-   "evidence": [
-    "E33"
-   ]
-  },
-  {
-   "kind": "alternate_concentration",
-   "rank": 3,
-   "title": "Same molecule, alternate concentration or vial size: CARBOplatin 10 mg/mL from Teva Parenteral Medicines, Inc.",
-   "detail": "Recalculate dose and volume; pharmacist verification required. Approved by Casey Nguyen, MD on 2026-01-18.",
+   "rank": 4,
+   "title": "Same product, alternate manufacturer: CARBOplatin 10 mg/mL from Teva Parenteral Medicines, Inc.",
+   "detail": "Recalculate dose and volume; pharmacist verification required. Approved by Casey Nguyen, MD on 2026-01-18. FDA lists this product Current (posted 2023-04-28).",
    "why": "Already approved by the P&T committee.",
    "needs": "pharmacist",
    "evidence": [
     "E34"
+   ]
+  },
+  {
+   "kind": "alternate_concentration",
+   "rank": 5,
+   "title": "Same molecule, alternate concentration or vial size: CARBOplatin 10 mg/mL from Apotex Corp.",
+   "detail": "Same product from Apotex Corp.; substitute NDC, no clinical change. Approved by Alex Morgan, PharmD on 2026-05-16. FDA lists this product To Be Discontinued (posted 2026-06-01).",
+   "why": "Already approved by the P&T committee.",
+   "needs": "pharmacist",
+   "evidence": [
+    "E33"
    ]
   }
  ],
@@ -793,56 +968,56 @@
   "headline": "FDA's records trace our supply to a plant classified OAI 23 days before the shortage posting",
   "sentences": [
    {
-    "text": "FDA first posted the carboplatin shortage on 2023-04-28 and it remains current as of 2026-10-21.",
+    "text": "FDA first posted the carboplatin shortage on 2023-04-28 and it remains Current as of 2026-10-21.",
     "cites": [
      "E32",
      "D12"
     ]
    },
    {
-    "text": "The Accord Healthcare product on the shortage list uses carboplatin manufactured by Intas Pharmaceuticals Limited, a registered plant on the label.",
+    "text": "Accord Healthcare Inc. is listed on the FDA shortage list with package NDC 16729-295-12.",
     "cites": [
-     "E21",
      "E22"
     ]
    },
    {
-    "text": "FDA inspection 1191818 at Intas ended 2022-12-02 and was classified OAI, with the classification letter dated 2023-04-05.",
+    "text": "The Accord product label names Intas Pharmaceuticals Limited as the manufacturing plant (FEI 3004011473).",
     "cites": [
-     "E17"
+     "E21"
     ]
    },
    {
-    "text": "That OAI classification letter came 23 days before FDA posted the shortage on 2023-04-28.",
+    "text": "FDA inspection 1191818 of Intas Pharmaceuticals Limited ended 2022-12-02 and was classified OAI; the classification letter is dated 2023-04-05, 23 days before the shortage posting.",
     "cites": [
-     "D8"
+     "E17",
+     "D11"
     ]
    },
    {
-    "text": "FDA subsequently issued an import alert for Intas on 2023-06-01 and a warning letter on 2023-07-28.",
+    "text": "Our Corvale East and Corvale Lakeside sites both stock Teva-labeled carboplatin 10 mg/mL 60 mL vials (NDC 00703423901) manufactured by PHARMACHEMIE BV.",
     "cites": [
-     "E19",
-     "E18"
+     "E1",
+     "E6",
+     "E9"
     ]
    },
    {
-    "text": "An alternate manufacturer, Apotex Corp., is approved for same-product substitution and its plant Teyro Labs Private Limited received a VAI classification on 2025-11-12.",
+    "text": "The top-ranked transfer option is to move 3 vials of 10 mg/mL 60 mL from Corvale East (15 days on hand) to Corvale Lakeside (1.5 days on hand), which would give Lakeside 4 days of supply.",
     "cites": [
-     "E11",
-     "E10",
-     "E33"
-    ]
-   },
-   {
-    "text": "The top-ranked operational option is to transfer 26 units from Corvale East to Corvale Lakeside, which would give Lakeside 14 days on hand while East retains two weeks.",
-    "cites": [
-     "D9"
+     "D1",
+     "D3",
+     "D13"
     ]
    }
   ],
   "verifier": {
    "checked": 8,
-   "rejected": [],
+   "rejected": [
+    {
+     "text": "An import alert 66-40 for Intas Pharmaceuticals Limited was published 2023-06-01, 34 days after the posting, and a Warning Letter was issued 2023-07-28, 91 days after the posting.",
+     "reason": "Intas Pharmaceuticals Limited is not in the cited evidence"
+    }
+   ],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -850,45 +1025,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -917,87 +1113,87 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T06:36:14.810Z",
+   "at": "2026-10-22T11:35:26.321Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract QVC31N6N scope"
+   "reason": "in contract 8WCADGYW scope"
   },
   {
-   "at": "2026-10-22T06:36:14.810Z",
+   "at": "2026-10-22T11:35:26.322Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract QVC31N6N scope"
+   "reason": "in contract 8WCADGYW scope"
   },
   {
-   "at": "2026-10-22T06:36:17.095Z",
+   "at": "2026-10-22T11:35:29.442Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract QVC31N6N scope"
+   "reason": "in contract 8WCADGYW scope"
   },
   {
-   "at": "2026-10-22T06:36:17.519Z",
+   "at": "2026-10-22T11:35:29.831Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract QVC31N6N scope"
+   "reason": "in contract 8WCADGYW scope"
   },
   {
-   "at": "2026-10-22T06:36:17.737Z",
+   "at": "2026-10-22T11:35:30.040Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract QVC31N6N scope"
+   "reason": "in contract 8WCADGYW scope"
   },
   {
-   "at": "2026-10-22T06:36:19.031Z",
+   "at": "2026-10-22T11:35:31.204Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract QVC31N6N scope"
+   "reason": "in contract 8WCADGYW scope"
   },
   {
-   "at": "2026-10-22T06:36:19.816Z",
+   "at": "2026-10-22T11:35:31.845Z",
    "action": "What FDA wrote at the OAI inspections",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract QVC31N6N scope"
+   "reason": "in contract 8WCADGYW scope"
   },
   {
-   "at": "2026-10-22T06:36:20.011Z",
+   "at": "2026-10-22T11:35:31.987Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract QVC31N6N scope"
+   "reason": "in contract 8WCADGYW scope"
   },
   {
-   "at": "2026-10-22T06:36:21.072Z",
+   "at": "2026-10-22T11:35:32.784Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract QVC31N6N scope"
+   "reason": "in contract 8WCADGYW scope"
   },
   {
-   "at": "2026-10-22T06:36:26.365Z",
+   "at": "2026-10-22T11:35:34.120Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract QVC31N6N scope"
+   "reason": "in contract 8WCADGYW scope"
   },
   {
-   "at": "2026-10-22T06:36:26.372Z",
+   "at": "2026-10-22T11:35:34.121Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract QVC31N6N scope"
+   "reason": "in contract 8WCADGYW scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-83799e",
+   "queryId": "Q-f8a0fc",
    "row": 0,
    "label": "Corvale East: CARBOPLATIN 10MG/ML 60ML MDV",
    "fields": {
@@ -1008,19 +1204,24 @@
     "description": "CARBOPLATIN 10MG/ML 60ML MDV",
     "on_hand": "54.00",
     "daily_use": "3.576",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "CARBOplatin",
     "labeler_name": "Teva Parenteral Medicines, Inc.",
     "package_ndc": "0703-4239-01",
     "spl_set_id": "f330f5a2-2cad-402f-bcbb-26245a753276",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "CARBOPLATIN 10 mg/mL",
+    "unit_content": "60 mL",
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-83799e",
+   "queryId": "Q-f8a0fc",
    "row": 1,
    "label": "Corvale East: CARBOPLATIN 10MG/ML 5ML MDV",
    "fields": {
@@ -1031,88 +1232,108 @@
     "description": "CARBOPLATIN 10MG/ML 5ML MDV",
     "on_hand": "77.00",
     "daily_use": "3.729",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "CARBOPLATIN",
     "labeler_name": "Apotex Corp.",
     "package_ndc": "60505-6282-1",
     "spl_set_id": "1c275825-0275-4c73-b650-e4c1519f13b8",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "CARBOPLATIN 10 mg/mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-83799e",
+   "queryId": "Q-f8a0fc",
    "row": 2,
-   "label": "Corvale General: CARBOplatin",
+   "label": "Corvale General: CARBOplatin 10 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-10",
     "ndc11": "00703423901",
     "ndc_as_recorded": "00703423901",
-    "description": "CARBOplatin",
-    "on_hand": "25.87",
+    "description": "CARBOplatin 10 mg/mL",
+    "on_hand": "25.00",
     "daily_use": "2.874",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "CARBOplatin",
     "labeler_name": "Teva Parenteral Medicines, Inc.",
     "package_ndc": "0703-4239-01",
     "spl_set_id": "f330f5a2-2cad-402f-bcbb-26245a753276",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "CARBOPLATIN 10 mg/mL",
+    "unit_content": "60 mL",
+    "pkg_unit": "vial"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-83799e",
+   "queryId": "Q-f8a0fc",
    "row": 3,
-   "label": "Corvale General: Carboplatin",
+   "label": "Corvale General: Carboplatin 10 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-11",
     "ndc11": "16729029512",
     "ndc_as_recorded": "16729029512",
-    "description": "Carboplatin",
-    "on_hand": "25.45",
+    "description": "Carboplatin 10 mg/mL",
+    "on_hand": "25.00",
     "daily_use": "2.829",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Carboplatin",
     "labeler_name": "Accord Healthcare, Inc.",
     "package_ndc": "16729-295-12",
     "spl_set_id": "48aa7ef3-9f44-2a08-e054-00144ff88e88",
     "dosage_form": "INJECTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "CARBOPLATIN 10 mg/mL",
+    "unit_content": "60 mL",
+    "pkg_unit": "vial"
    }
   },
   "E5": {
    "id": "E5",
-   "queryId": "Q-83799e",
+   "queryId": "Q-f8a0fc",
    "row": 4,
-   "label": "Corvale General: CARBOPLATIN",
+   "label": "Corvale General: CARBOPLATIN 10 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-165",
     "ndc11": "60505628201",
     "ndc_as_recorded": "60505628201",
-    "description": "CARBOPLATIN",
-    "on_hand": "25.01",
+    "description": "CARBOPLATIN 10 mg/mL",
+    "on_hand": "25.00",
     "daily_use": "2.778",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "CARBOPLATIN",
     "labeler_name": "Apotex Corp.",
     "package_ndc": "60505-6282-1",
     "spl_set_id": "1c275825-0275-4c73-b650-e4c1519f13b8",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "CARBOPLATIN 10 mg/mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E6": {
    "id": "E6",
-   "queryId": "Q-83799e",
+   "queryId": "Q-f8a0fc",
    "row": 5,
    "label": "Corvale Lakeside: CARBOplatin 10 mg/mL 60 mL vial",
    "fields": {
@@ -1124,18 +1345,23 @@
     "on_hand": "1.00",
     "daily_use": "0.670",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "CARBOplatin",
     "labeler_name": "Teva Parenteral Medicines, Inc.",
     "package_ndc": "0703-4239-01",
     "spl_set_id": "f330f5a2-2cad-402f-bcbb-26245a753276",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "CARBOPLATIN 10 mg/mL",
+    "unit_content": "60 mL",
+    "pkg_unit": "vial"
    }
   },
   "E7": {
    "id": "E7",
-   "queryId": "Q-83799e",
+   "queryId": "Q-f8a0fc",
    "row": 6,
    "label": "Corvale Lakeside: CARBOplatin 10 mg/mL 60 mL vial",
    "fields": {
@@ -1147,18 +1373,23 @@
     "on_hand": "1.00",
     "daily_use": "0.637",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Carboplatin",
     "labeler_name": "Accord Healthcare, Inc.",
     "package_ndc": "16729-295-12",
     "spl_set_id": "48aa7ef3-9f44-2a08-e054-00144ff88e88",
     "dosage_form": "INJECTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "CARBOPLATIN 10 mg/mL",
+    "unit_content": "60 mL",
+    "pkg_unit": "vial"
    }
   },
   "E8": {
    "id": "E8",
-   "queryId": "Q-83799e",
+   "queryId": "Q-f8a0fc",
    "row": 7,
    "label": "Corvale Lakeside: CARBOplatin 10 mg/mL 5 mL vial",
    "fields": {
@@ -1170,13 +1401,18 @@
     "on_hand": "2.00",
     "daily_use": "0.803",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "CARBOPLATIN",
     "labeler_name": "Apotex Corp.",
     "package_ndc": "60505-6282-1",
     "spl_set_id": "1c275825-0275-4c73-b650-e4c1519f13b8",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "CARBOPLATIN 10 mg/mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E9": {
@@ -1384,7 +1620,7 @@
   },
   "E22": {
    "id": "E22",
-   "queryId": "Q-0ae550",
+   "queryId": "Q-6a06a0",
    "row": 0,
    "label": "FDA shortage list: Accord Healthcare Inc., Current",
    "fields": {
@@ -1399,7 +1635,7 @@
   },
   "E23": {
    "id": "E23",
-   "queryId": "Q-0ae550",
+   "queryId": "Q-6a06a0",
    "row": 4,
    "label": "FDA shortage list: Avyxa Pharma, LLC, Current",
    "fields": {
@@ -1414,7 +1650,7 @@
   },
   "E24": {
    "id": "E24",
-   "queryId": "Q-0ae550",
+   "queryId": "Q-6a06a0",
    "row": 6,
    "label": "FDA shortage list: Eugia US LLC, Current",
    "fields": {
@@ -1429,7 +1665,7 @@
   },
   "E25": {
    "id": "E25",
-   "queryId": "Q-0ae550",
+   "queryId": "Q-6a06a0",
    "row": 7,
    "label": "FDA shortage list: Eugia US LLC, Current",
    "fields": {
@@ -1444,7 +1680,7 @@
   },
   "E26": {
    "id": "E26",
-   "queryId": "Q-0ae550",
+   "queryId": "Q-6a06a0",
    "row": 8,
    "label": "FDA shortage list: Fresenius Kabi USA, LLC, Current",
    "fields": {
@@ -1459,7 +1695,7 @@
   },
   "E27": {
    "id": "E27",
-   "queryId": "Q-0ae550",
+   "queryId": "Q-6a06a0",
    "row": 9,
    "label": "FDA shortage list: Gland Pharma Limited, Current",
    "fields": {
@@ -1474,7 +1710,7 @@
   },
   "E28": {
    "id": "E28",
-   "queryId": "Q-0ae550",
+   "queryId": "Q-6a06a0",
    "row": 13,
    "label": "FDA shortage list: Hospira, Inc., a Pfizer Company, Current",
    "fields": {
@@ -1489,7 +1725,7 @@
   },
   "E29": {
    "id": "E29",
-   "queryId": "Q-0ae550",
+   "queryId": "Q-6a06a0",
    "row": 21,
    "label": "FDA shortage list: Teva Pharmaceuticals USA, Inc., Current",
    "fields": {
@@ -1504,7 +1740,7 @@
   },
   "E30": {
    "id": "E30",
-   "queryId": "Q-0ae550",
+   "queryId": "Q-6a06a0",
    "row": 25,
    "label": "FDA shortage list: Teyro Labs, Current",
    "fields": {
@@ -1519,7 +1755,7 @@
   },
   "E31": {
    "id": "E31",
-   "queryId": "Q-0ae550",
+   "queryId": "Q-6a06a0",
    "row": 29,
    "label": "FDA shortage list: Ingenus Pharmaceuticals LLC, To Be Discontinued",
    "fields": {
@@ -1534,7 +1770,7 @@
   },
   "E32": {
    "id": "E32",
-   "queryId": "Q-0ae550",
+   "queryId": "Q-6a06a0",
    "row": 0,
    "label": "FDA first posted the shortage 2023-04-28",
    "fields": {
@@ -1587,40 +1823,82 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 131 units of carboplatin at 7.3 a day: 18 days on hand",
+   "label": "Corvale East holds 54 vials of carboplatin 10 mg/mL, 60 mL at 3.6 a day: 15.1 days on hand",
    "fields": {
     "hospital": "Corvale East",
-    "on_hand": 131,
-    "daily_use": 7.3,
-    "days_on_hand": 18
+    "presentation": "10 mg/mL injection, 60 mL vial",
+    "on_hand": 54,
+    "daily_use": 3.6,
+    "days_on_hand": 15.1
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 76 units of carboplatin at 8.5 a day: 9 days on hand",
+   "label": "Corvale General holds 50 vials of carboplatin 10 mg/mL, 60 mL at 5.7 a day: 8.8 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 76,
-    "daily_use": 8.5,
-    "days_on_hand": 9
+    "presentation": "10 mg/mL injection, 60 mL vial",
+    "on_hand": 50,
+    "daily_use": 5.7,
+    "days_on_hand": 8.8
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 4 units of carboplatin at 2.1 a day: 2 days on hand",
+   "label": "Corvale Lakeside holds 2 vials of carboplatin 10 mg/mL, 60 mL at 1.3 a day: 1.5 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
-    "on_hand": 4,
-    "daily_use": 2.1,
-    "days_on_hand": 2
+    "presentation": "10 mg/mL injection, 60 mL vial",
+    "on_hand": 2,
+    "daily_use": 1.3,
+    "days_on_hand": 1.5
    }
   },
   "D4": {
    "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale East holds 77 vials of carboplatin 10 mg/mL, 5 mL at 3.7 a day: 20.6 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "10 mg/mL injection, 5 mL vial",
+    "on_hand": 77,
+    "daily_use": 3.7,
+    "days_on_hand": 20.6
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 25 vials of carboplatin 10 mg/mL, 5 mL at 2.8 a day: 9 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "10 mg/mL injection, 5 mL vial",
+    "on_hand": 25,
+    "daily_use": 2.8,
+    "days_on_hand": 9
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale Lakeside holds 2 vials of carboplatin 10 mg/mL, 5 mL at 0.8 a day: 2.5 days on hand",
+   "fields": {
+    "hospital": "Corvale Lakeside",
+    "presentation": "10 mg/mL injection, 5 mL vial",
+    "on_hand": 2,
+    "daily_use": 0.8,
+    "days_on_hand": 2.5
+   }
+  },
+  "D7": {
+   "id": "D7",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 1191818 ended 2022-12-02, classified OAI; classification letter 2023-04-05; Form 483: Absence of Written Procedures; Procedures for sterile drug products; Following/documenting laboratory controls (11 observations) — 147 days before FDA posted the shortage on 2023-04-28",
@@ -1630,8 +1908,8 @@
     "days": 147
    }
   },
-  "D5": {
-   "id": "D5",
+  "D8": {
+   "id": "D8",
    "queryId": "derived",
    "row": -1,
    "label": "Import alert 66-40 listing published 2023-06-01 — 34 days after FDA posted the shortage on 2023-04-28",
@@ -1641,8 +1919,8 @@
     "days": 34
    }
   },
-  "D6": {
-   "id": "D6",
+  "D9": {
+   "id": "D9",
    "queryId": "derived",
    "row": -1,
    "label": "Warning Letter issued 2023-07-28 (case 652067) — 91 days after FDA posted the shortage on 2023-04-28",
@@ -1652,8 +1930,8 @@
     "days": 91
    }
   },
-  "D7": {
-   "id": "D7",
+  "D10": {
+   "id": "D10",
    "queryId": "derived",
    "row": -1,
    "label": "Import alert 66-40 listing published 2023-11-14 (matched by firm name; FDA gives no FEI) — 200 days after FDA posted the shortage on 2023-04-28",
@@ -1663,8 +1941,8 @@
     "days": 200
    }
   },
-  "D8": {
-   "id": "D8",
+  "D11": {
+   "id": "D11",
    "queryId": "derived",
    "row": -1,
    "label": "FDA's OAI classification letter to Intas Pharmaceuticals Limited is dated 2023-04-05, 23 days before FDA posted the shortage on 2023-04-28",
@@ -1672,36 +1950,6 @@
     "letter": "2023-04-05",
     "posted": "2023-04-28",
     "days": 23
-   }
-  },
-  "D9": {
-   "id": "D9",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 1 by rule: Transfer 26 from Corvale East to Corvale Lakeside. Corvale East has 18 days on hand and can spare 26 while keeping two weeks; Corvale Lakeside has 1.9 days and would reach 14.",
-   "fields": {
-    "kind": "transfer",
-    "needs": "pharmacy director (transfer request)"
-   }
-  },
-  "D10": {
-   "id": "D10",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 1 by rule: Transfer 2 from Corvale East to Corvale General. Corvale East has 18 days on hand and can spare 2 while keeping two weeks; Corvale General has 9 days and would reach 9.",
-   "fields": {
-    "kind": "transfer",
-    "needs": "pharmacy director (transfer request)"
-   }
-  },
-  "D11": {
-   "id": "D11",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 2 by rule: Same product, alternate manufacturer: CARBOplatin 10 mg/mL from Apotex Corp.. Same product from Apotex Corp.; substitute NDC, no clinical change. Approved by Alex Morgan, PharmD on 2026-05-16.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "pharmacist"
    }
   },
   "D12": {
@@ -1714,179 +1962,229 @@
     "posted": "2023-04-28",
     "months": 42
    }
+  },
+  "D13": {
+   "id": "D13",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 3 vials of 10 mg/mL, 60 mL from Corvale East to Corvale Lakeside. Corvale East has 15 days of 10 mg/mL injection, 60 mL vials on hand and can spare 3 vials while keeping two weeks; Corvale Lakeside has 1.5 days and would reach 4.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D14": {
+   "id": "D14",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 10 vials of 10 mg/mL, 5 mL from Corvale East to Corvale Lakeside. Corvale East has 21 days of 10 mg/mL injection, 5 mL vials on hand and can spare 10 vials while keeping two weeks; Corvale Lakeside has 2.5 days and would reach 15.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D15": {
+   "id": "D15",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 14 vials of 10 mg/mL, 5 mL from Corvale East to Corvale General. Corvale East has 21 days of 10 mg/mL injection, 5 mL vials on hand and can spare 14 vials while keeping two weeks; Corvale General has 9 days and would reach 14.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
   }
  },
  "queries": {
-  "Q-83799e": {
-   "id": "Q-83799e",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%carboplatin%' OR lower(s.description) LIKE '%carboplatin%' ORDER BY s.hospital, s.item_key",
-   "ms": 2277,
+  "Q-f8a0fc": {
+   "id": "Q-f8a0fc",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*carboplatin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*carboplatin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3118,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T06:36:17.087Z",
+   "ranAt": "2026-10-22T11:35:29.439Z",
    "rows": 8
   },
   "Q-75e19f": {
    "id": "Q-75e19f",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('f330f5a2-2cad-402f-bcbb-26245a753276', '1c275825-0275-4c73-b650-e4c1519f13b8', '48aa7ef3-9f44-2a08-e054-00144ff88e88') ORDER BY ps.set_id, ps.establishment",
-   "ms": 422,
+   "ms": 387,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T06:36:17.517Z",
+   "ranAt": "2026-10-22T11:35:29.829Z",
    "rows": 3
   },
-  "Q-0ae550": {
-   "id": "Q-0ae550",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%carboplatin%' ORDER BY status, company_name, package_ndc",
-   "ms": 112,
+  "Q-6a06a0": {
+   "id": "Q-6a06a0",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*carboplatin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 106,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T06:36:17.631Z",
+   "ranAt": "2026-10-22T11:35:29.937Z",
    "rows": 35
   },
-  "Q-fac1d7": {
-   "id": "Q-fac1d7",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%carboplatin%' ORDER BY first_posting",
-   "ms": 104,
+  "Q-bd8f50": {
+   "id": "Q-bd8f50",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*carboplatin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 102,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T06:36:17.736Z",
+   "ranAt": "2026-10-22T11:35:30.039Z",
    "rows": 1
   },
-  "Q-697c1e": {
-   "id": "Q-697c1e",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%carboplatin%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 1291,
+  "Q-d6b70e": {
+   "id": "Q-d6b70e",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*carboplatin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1163,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T06:36:19.029Z",
+   "ranAt": "2026-10-22T11:35:31.203Z",
    "rows": 49
   },
   "Q-e9d9a0": {
    "id": "Q-e9d9a0",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3021389808', '3004011473', '3009056604', '3011960448', '1450022', '3001174929') ORDER BY fei, end_date",
-   "ms": 313,
+   "ms": 303,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T06:36:19.344Z",
+   "ranAt": "2026-10-22T11:35:31.507Z",
    "rows": 37
   },
   "Q-b55bd0": {
    "id": "Q-b55bd0",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3021389808', '3004011473', '3009056604', '3011960448', '1450022', '3001174929') ORDER BY fei, action_date",
-   "ms": 136,
+   "ms": 114,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T06:36:19.481Z",
+   "ranAt": "2026-10-22T11:35:31.622Z",
    "rows": 3
   },
   "Q-403c2f": {
    "id": "Q-403c2f",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3021389808', '3004011473') OR (fei_match <> 'name_and_city' AND firm_key IN ('teyro', 'intas', 'pharmachemie')) ORDER BY date_published",
-   "ms": 143,
+   "ms": 94,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T06:36:19.625Z",
+   "ranAt": "2026-10-22T11:35:31.717Z",
    "rows": 2
   },
-  "Q-cf1615": {
-   "id": "Q-cf1615",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('teyro', 'intas', 'pharmachemie', 'teva parenteral medicines', 'apotex', 'accord') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%carboplatin%' ORDER BY initiation_date",
-   "ms": 188,
+  "Q-5f2d52": {
+   "id": "Q-5f2d52",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('teyro', 'intas', 'pharmachemie', 'teva parenteral medicines', 'apotex', 'accord') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*carboplatin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 126,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T06:36:19.814Z",
+   "ranAt": "2026-10-22T11:35:31.843Z",
    "rows": 0
   },
   "Q-c730e9": {
    "id": "Q-c730e9",
    "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('1191818') ORDER BY inspection_id, cfr",
-   "ms": 189,
+   "ms": 141,
    "mode": "live",
    "sources": [
     "fda.citations"
    ],
-   "ranAt": "2026-10-22T06:36:20.005Z",
+   "ranAt": "2026-10-22T11:35:31.986Z",
    "rows": 11
   },
   "Q-bbee4f": {
    "id": "Q-bbee4f",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('00703423901', '60505628201', '16729029512')",
-   "ms": 1059,
+   "ms": 796,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T06:36:21.070Z",
+   "ranAt": "2026-10-22T11:35:32.783Z",
    "rows": 2
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 1502,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T06:36:22.574Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1294,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T06:36:23.868Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1586,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T06:36:25.455Z",
-   "rows": 2
-  },
-  "Q-baa0f7": {
-   "id": "Q-baa0f7",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%carboplatin%'",
-   "ms": 907,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T06:36:26.363Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-5855fc": {
+   "id": "Q-5855fc",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*carboplatin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1334,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:35:34.119Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 15,
-  "zetarisMs": 11523,
+  "zetarisMs": 17992,
   "modelCalls": 1,
-  "tokensIn": 4372,
-  "tokensOut": 466,
+  "tokensIn": 5722,
+  "tokensOut": 548,
   "mode": "live"
  },
+ "slug": "carboplatin",
  "graph": {
   "roots": [
    "hospital-item:hospital-item:CG-10",
@@ -1903,7 +2201,7 @@
     "id": "hospital-item:hospital-item:CG-10",
     "type": "HospitalItem",
     "key": "hospital-item:CG-10",
-    "label": "Corvale General: CARBOplatin",
+    "label": "Corvale General: CARBOplatin 10 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-10"
     },
@@ -1914,7 +2212,7 @@
     "id": "hospital-item:hospital-item:CG-11",
     "type": "HospitalItem",
     "key": "hospital-item:CG-11",
-    "label": "Corvale General: Carboplatin",
+    "label": "Corvale General: Carboplatin 10 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-11"
     },
@@ -1925,7 +2223,7 @@
     "id": "hospital-item:hospital-item:CG-165",
     "type": "HospitalItem",
     "key": "hospital-item:CG-165",
-    "label": "Corvale General: CARBOPLATIN",
+    "label": "Corvale General: CARBOPLATIN 10 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-165"
     },
@@ -2141,7 +2439,7 @@
     },
     "facts": [
      {
-      "id": "fact_0e616bd70e5a2a26",
+      "id": "fact_0e73cf6fe167a8fc",
       "about": "inspection:fda-inspection:1092798",
       "predicate": "classification",
       "value": "VAI",
@@ -2149,9 +2447,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T06:36:20.009Z"
+       "at": "2026-10-22T11:35:31.987Z"
       },
-      "assertedAt": "2026-10-22T06:36:20.009Z"
+      "assertedAt": "2026-10-22T11:35:31.987Z"
      }
     ],
     "depth": 4
@@ -2167,7 +2465,7 @@
     },
     "facts": [
      {
-      "id": "fact_451d21e143ae9499",
+      "id": "fact_96f2101d12b9f4df",
       "about": "inspection:fda-inspection:1119170",
       "predicate": "classification",
       "value": "VAI",
@@ -2175,9 +2473,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T06:36:20.009Z"
+       "at": "2026-10-22T11:35:31.987Z"
       },
-      "assertedAt": "2026-10-22T06:36:20.009Z"
+      "assertedAt": "2026-10-22T11:35:31.987Z"
      }
     ],
     "depth": 4
@@ -2193,7 +2491,7 @@
     },
     "facts": [
      {
-      "id": "fact_6af29aec24ec39b7",
+      "id": "fact_76e3f6de9d0da8dc",
       "about": "inspection:fda-inspection:1191818",
       "predicate": "classification",
       "value": "OAI",
@@ -2201,9 +2499,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T06:36:20.009Z"
+       "at": "2026-10-22T11:35:31.987Z"
       },
-      "assertedAt": "2026-10-22T06:36:20.009Z"
+      "assertedAt": "2026-10-22T11:35:31.987Z"
      }
     ],
     "depth": 4
@@ -2219,7 +2517,7 @@
     },
     "facts": [
      {
-      "id": "fact_8dfe03801391758b",
+      "id": "fact_c8a9f3f94e85ba8b",
       "about": "inspection:fda-inspection:1291008",
       "predicate": "classification",
       "value": "VAI",
@@ -2227,9 +2525,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T06:36:20.008Z"
+       "at": "2026-10-22T11:35:31.987Z"
       },
-      "assertedAt": "2026-10-22T06:36:20.008Z"
+      "assertedAt": "2026-10-22T11:35:31.987Z"
      }
     ],
     "depth": 4
@@ -2245,7 +2543,7 @@
     },
     "facts": [
      {
-      "id": "fact_62f3fba4748e86e3",
+      "id": "fact_8ff516d7653b6152",
       "about": "inspection:fda-inspection:755472",
       "predicate": "classification",
       "value": "VAI",
@@ -2253,9 +2551,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T06:36:20.009Z"
+       "at": "2026-10-22T11:35:31.987Z"
       },
-      "assertedAt": "2026-10-22T06:36:20.009Z"
+      "assertedAt": "2026-10-22T11:35:31.987Z"
      }
     ],
     "depth": 4
@@ -2271,7 +2569,7 @@
     },
     "facts": [
      {
-      "id": "fact_7b8eb64a91e71d04",
+      "id": "fact_6c103ba7b4c358f2",
       "about": "inspection:fda-inspection:992746",
       "predicate": "classification",
       "value": "VAI",
@@ -2279,9 +2577,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T06:36:20.009Z"
+       "at": "2026-10-22T11:35:31.987Z"
       },
-      "assertedAt": "2026-10-22T06:36:20.009Z"
+      "assertedAt": "2026-10-22T11:35:31.987Z"
      }
     ],
     "depth": 4
@@ -2315,11 +2613,11 @@
     "from": "hospital-item:hospital-item:CG-10",
     "to": "package:ndc-package:0703-4239-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T06:36:17.093Z",
+    "validFrom": "2026-10-22T11:35:29.441Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:36:17.093Z"
+     "at": "2026-10-22T11:35:29.441Z"
     }
    },
    {
@@ -2327,11 +2625,11 @@
     "from": "hospital-item:hospital-item:CG-11",
     "to": "package:ndc-package:16729-295-12",
     "type": "stocks",
-    "validFrom": "2026-10-22T06:36:17.093Z",
+    "validFrom": "2026-10-22T11:35:29.441Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:36:17.093Z"
+     "at": "2026-10-22T11:35:29.441Z"
     }
    },
    {
@@ -2339,11 +2637,11 @@
     "from": "hospital-item:hospital-item:CG-165",
     "to": "package:ndc-package:60505-6282-1",
     "type": "stocks",
-    "validFrom": "2026-10-22T06:36:17.094Z",
+    "validFrom": "2026-10-22T11:35:29.441Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:36:17.094Z"
+     "at": "2026-10-22T11:35:29.441Z"
     }
    },
    {
@@ -2351,11 +2649,11 @@
     "from": "hospital-item:hospital-item:EA-E-000122",
     "to": "package:ndc-package:0703-4239-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T06:36:17.091Z",
+    "validFrom": "2026-10-22T11:35:29.441Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:36:17.091Z"
+     "at": "2026-10-22T11:35:29.441Z"
     }
    },
    {
@@ -2363,11 +2661,11 @@
     "from": "hospital-item:hospital-item:EA-E-000201",
     "to": "package:ndc-package:60505-6282-1",
     "type": "stocks",
-    "validFrom": "2026-10-22T06:36:17.092Z",
+    "validFrom": "2026-10-22T11:35:29.441Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:36:17.092Z"
+     "at": "2026-10-22T11:35:29.441Z"
     }
    },
    {
@@ -2375,11 +2673,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0047",
     "to": "package:ndc-package:0703-4239-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T06:36:17.094Z",
+    "validFrom": "2026-10-22T11:35:29.441Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:36:17.094Z"
+     "at": "2026-10-22T11:35:29.441Z"
     }
    },
    {
@@ -2387,11 +2685,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0054",
     "to": "package:ndc-package:16729-295-12",
     "type": "stocks",
-    "validFrom": "2026-10-22T06:36:17.094Z",
+    "validFrom": "2026-10-22T11:35:29.441Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:36:17.094Z"
+     "at": "2026-10-22T11:35:29.441Z"
     }
    },
    {
@@ -2399,11 +2697,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0093",
     "to": "package:ndc-package:60505-6282-1",
     "type": "stocks",
-    "validFrom": "2026-10-22T06:36:17.094Z",
+    "validFrom": "2026-10-22T11:35:29.441Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:36:17.094Z"
+     "at": "2026-10-22T11:35:29.441Z"
     }
    },
    {
@@ -2411,11 +2709,11 @@
     "from": "package:ndc-package:0703-4239-01",
     "to": "product:ndc-product:0703-4239",
     "type": "package-of",
-    "validFrom": "2026-10-22T06:36:17.091Z",
+    "validFrom": "2026-10-22T11:35:29.441Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:36:17.091Z"
+     "at": "2026-10-22T11:35:29.441Z"
     }
    },
    {
@@ -2423,11 +2721,11 @@
     "from": "package:ndc-package:16729-295-12",
     "to": "product:ndc-product:16729-295",
     "type": "package-of",
-    "validFrom": "2026-10-22T06:36:17.093Z",
+    "validFrom": "2026-10-22T11:35:29.441Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:36:17.093Z"
+     "at": "2026-10-22T11:35:29.441Z"
     }
    },
    {
@@ -2435,11 +2733,11 @@
     "from": "package:ndc-package:60505-6282-1",
     "to": "product:ndc-product:60505-6282",
     "type": "package-of",
-    "validFrom": "2026-10-22T06:36:17.093Z",
+    "validFrom": "2026-10-22T11:35:29.441Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:36:17.093Z"
+     "at": "2026-10-22T11:35:29.441Z"
     }
    },
    {
@@ -2447,11 +2745,11 @@
     "from": "product:ndc-product:0703-4239",
     "to": "drug:generic:carboplatin",
     "type": "of-drug",
-    "validFrom": "2026-10-22T06:36:17.092Z",
+    "validFrom": "2026-10-22T11:35:29.441Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:36:17.092Z"
+     "at": "2026-10-22T11:35:29.441Z"
     }
    },
    {
@@ -2459,11 +2757,11 @@
     "from": "product:ndc-product:0703-4239",
     "to": "labeler:ndc-labeler:0703",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T06:36:17.092Z",
+    "validFrom": "2026-10-22T11:35:29.441Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:36:17.092Z"
+     "at": "2026-10-22T11:35:29.441Z"
     }
    },
    {
@@ -2471,11 +2769,11 @@
     "from": "product:ndc-product:16729-295",
     "to": "drug:generic:carboplatin",
     "type": "of-drug",
-    "validFrom": "2026-10-22T06:36:17.093Z",
+    "validFrom": "2026-10-22T11:35:29.441Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:36:17.093Z"
+     "at": "2026-10-22T11:35:29.441Z"
     }
    },
    {
@@ -2483,11 +2781,11 @@
     "from": "product:ndc-product:16729-295",
     "to": "labeler:ndc-labeler:16729",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T06:36:17.093Z",
+    "validFrom": "2026-10-22T11:35:29.441Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:36:17.093Z"
+     "at": "2026-10-22T11:35:29.441Z"
     }
    },
    {
@@ -2495,11 +2793,11 @@
     "from": "product:ndc-product:16729-295",
     "to": "site:fei:3004011473",
     "type": "made-at",
-    "validFrom": "2026-10-22T06:36:20.008Z",
+    "validFrom": "2026-10-22T11:35:31.987Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:36:20.008Z"
+     "at": "2026-10-22T11:35:31.987Z"
     }
    },
    {
@@ -2507,11 +2805,11 @@
     "from": "product:ndc-product:60505-6282",
     "to": "drug:generic:carboplatin",
     "type": "of-drug",
-    "validFrom": "2026-10-22T06:36:17.093Z",
+    "validFrom": "2026-10-22T11:35:29.441Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:36:17.093Z"
+     "at": "2026-10-22T11:35:29.441Z"
     }
    },
    {
@@ -2519,11 +2817,11 @@
     "from": "product:ndc-product:60505-6282",
     "to": "labeler:ndc-labeler:60505",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T06:36:17.093Z",
+    "validFrom": "2026-10-22T11:35:29.441Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:36:17.093Z"
+     "at": "2026-10-22T11:35:29.441Z"
     }
    },
    {
@@ -2531,11 +2829,11 @@
     "from": "product:ndc-product:60505-6282",
     "to": "site:fei:3021389808",
     "type": "made-at",
-    "validFrom": "2026-10-22T06:36:20.008Z",
+    "validFrom": "2026-10-22T11:35:31.987Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:36:20.008Z"
+     "at": "2026-10-22T11:35:31.987Z"
     }
    },
    {
@@ -2543,11 +2841,11 @@
     "from": "shortage:fda-shortage:carboplatin-2023-04-28",
     "to": "drug:generic:carboplatin",
     "type": "affects",
-    "validFrom": "2026-10-22T06:36:20.010Z",
+    "validFrom": "2026-10-22T11:35:31.987Z",
     "source": {
      "kind": "fda-shortage-db",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:36:20.010Z"
+     "at": "2026-10-22T11:35:31.987Z"
     }
    },
    {
@@ -2555,11 +2853,11 @@
     "from": "inspection:fda-inspection:755472",
     "to": "site:fei:3004011473",
     "type": "inspected",
-    "validFrom": "2026-10-22T06:36:20.009Z",
+    "validFrom": "2026-10-22T11:35:31.987Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:36:20.009Z"
+     "at": "2026-10-22T11:35:31.987Z"
     }
    },
    {
@@ -2567,11 +2865,11 @@
     "from": "inspection:fda-inspection:992746",
     "to": "site:fei:3004011473",
     "type": "inspected",
-    "validFrom": "2026-10-22T06:36:20.009Z",
+    "validFrom": "2026-10-22T11:35:31.987Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:36:20.009Z"
+     "at": "2026-10-22T11:35:31.987Z"
     }
    },
    {
@@ -2579,11 +2877,11 @@
     "from": "inspection:fda-inspection:1092798",
     "to": "site:fei:3004011473",
     "type": "inspected",
-    "validFrom": "2026-10-22T06:36:20.009Z",
+    "validFrom": "2026-10-22T11:35:31.987Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:36:20.009Z"
+     "at": "2026-10-22T11:35:31.987Z"
     }
    },
    {
@@ -2591,11 +2889,11 @@
     "from": "inspection:fda-inspection:1119170",
     "to": "site:fei:3004011473",
     "type": "inspected",
-    "validFrom": "2026-10-22T06:36:20.009Z",
+    "validFrom": "2026-10-22T11:35:31.987Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:36:20.009Z"
+     "at": "2026-10-22T11:35:31.987Z"
     }
    },
    {
@@ -2603,11 +2901,11 @@
     "from": "inspection:fda-inspection:1191818",
     "to": "site:fei:3004011473",
     "type": "inspected",
-    "validFrom": "2026-10-22T06:36:20.009Z",
+    "validFrom": "2026-10-22T11:35:31.987Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:36:20.009Z"
+     "at": "2026-10-22T11:35:31.987Z"
     }
    },
    {
@@ -2615,11 +2913,11 @@
     "from": "warning-letter:fda-warning-letter:652067",
     "to": "site:fei:3004011473",
     "type": "issued-to",
-    "validFrom": "2026-10-22T06:36:20.009Z",
+    "validFrom": "2026-10-22T11:35:31.987Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:36:20.009Z"
+     "at": "2026-10-22T11:35:31.987Z"
     }
    },
    {
@@ -2627,11 +2925,11 @@
     "from": "import-alert:fda-import-alert:66-40",
     "to": "site:fei:3004011473",
     "type": "lists",
-    "validFrom": "2026-10-22T06:36:20.009Z",
+    "validFrom": "2026-10-22T11:35:31.987Z",
     "source": {
      "kind": "fda-import-alert",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:36:20.009Z"
+     "at": "2026-10-22T11:35:31.987Z"
     }
    },
    {
@@ -2639,11 +2937,11 @@
     "from": "inspection:fda-inspection:1291008",
     "to": "site:fei:3021389808",
     "type": "inspected",
-    "validFrom": "2026-10-22T06:36:20.008Z",
+    "validFrom": "2026-10-22T11:35:31.987Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:36:20.008Z"
+     "at": "2026-10-22T11:35:31.987Z"
     }
    }
   ],

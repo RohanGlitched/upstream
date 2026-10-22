@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-dbebc1",
+ "id": "case-2026-10-22-c1bfd3",
  "question": "Why is acetaminophen short, and what do we do?",
- "askedAt": "2026-10-22T07:23:25.766Z",
+ "askedAt": "2026-10-22T11:25:54.979Z",
  "asOf": "2026-10-21",
  "molecule": "acetaminophen",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H7W5QJHJ0S5MVF5CSGDR0T",
+  "contractId": "01M5HNR09NYHZZS27X1Y2MHMF9",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-db2020"
+    "Q-cbb7ef"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2327,
-   "rows": 9,
-   "finding": "9 stock lines across 3 hospitals.",
+   "ms": 3420,
+   "rows": 3,
+   "finding": "3 stock lines across 3 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -31,14 +35,15 @@
    "title": "Where our supply is made",
    "purpose": "Follow each product's label to the plants it names, and place each plant in FDA's registration file.",
    "queryIds": [
-    "Q-eacfd1"
+    "Q-1cd505"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 526,
-   "rows": 3,
-   "finding": "3 plant links on 3 labels; 2 placed in FDA's registration file.",
+   "ms": 583,
+   "rows": 1,
+   "finding": "1 plant links on 1 labels; 0 placed in FDA's registration file.",
    "status": "ok"
   },
   {
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-fa2c5b",
-    "Q-872c54"
+    "Q-1e3148",
+    "Q-4d0d03"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 269,
+   "ms": 280,
    "rows": 8,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-d20937"
+    "Q-47b9f2"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1480,
+   "ms": 1294,
    "rows": 29,
    "finding": "18 labelers make it in this form.",
    "status": "ok"
@@ -78,35 +85,20 @@
    "title": "What FDA found at those plants",
    "purpose": "Read every FDA drug inspection, warning letter, import alert and recall for these plants.",
    "queryIds": [
-    "Q-df9040",
-    "Q-fdd892",
-    "Q-91ef67",
-    "Q-6119d7"
+    "Q-808a5c",
+    "Q-de2bfd",
+    "Q-b93d7d",
+    "Q-e5119e"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 750,
-   "rows": 15,
-   "finding": "12 inspections (1 OAI at our plants), 1 compliance actions, 0 import-alert listings, 2 recalls.",
-   "status": "ok"
-  },
-  {
-   "key": "signals",
-   "title": "What FDA wrote at the OAI inspections",
-   "purpose": "Read the Form 483 observations recorded at those inspections.",
-   "queryIds": [
-    "Q-7ba5bd"
-   ],
-   "sources": [
-    "fda.citations"
-   ],
-   "ms": 207,
-   "rows": 6,
-   "finding": "6 Form 483 observations recorded.",
+   "ms": 798,
+   "rows": 2,
+   "finding": "0 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 2 recalls.",
    "status": "ok"
   },
   {
@@ -114,14 +106,14 @@
    "title": "What our P&T committee already approved",
    "purpose": "Read Corvale General's approved interchanges for these items.",
    "queryIds": [
-    "Q-655122"
+    "Q-6fc822"
    ],
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 679,
+   "ms": 670,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -129,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-c38d3b"
+    "Q-3aada3"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 6498,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 11485,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -152,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 4,
+   "ms": 3,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -168,74 +164,28 @@
    "onHand": 497,
    "dailyUse": 18.459,
    "days": 26.9,
-   "unit": "package",
+   "unit": "bag",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 40, converted to units",
+   "presentation": "acetaminophen|10mg/ml|injection|100ml|bag",
+   "presentationLabel": "10 mg/mL injection, 100 mL bag",
    "evidence": "E1"
-  },
-  {
-   "hospital": "Corvale East",
-   "itemKey": "EA-E-000209",
-   "ndc11": "63187077812",
-   "description": "HYDROCODONE BITARTRATE AND ACETAMINOPHEN 10MG TAB",
-   "labeler": "Proficient Rx LP",
-   "onHand": 263,
-   "dailyUse": 15.721,
-   "days": 16.7,
-   "unit": "package",
-   "ndcMatch": "dashed 10-digit, converted",
-   "evidence": "E2"
-  },
-  {
-   "hospital": "Corvale East",
-   "itemKey": "EA-E-000287",
-   "ndc11": "71335218208",
-   "description": "OXYCODONE AND ACETAMINOPHEN 10MG TAB",
-   "labeler": "Bryant Ranch Prepack",
-   "onHand": 526,
-   "dailyUse": 16.633,
-   "days": 31.6,
-   "unit": "package",
-   "ndcMatch": "dashed 10-digit, converted",
-   "evidence": "E3"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-131",
    "ndc11": "36000030660",
-   "description": "Acetaminophen",
+   "description": "Acetaminophen 10 mg/mL",
    "labeler": "Baxter Healthcare Corporation",
-   "onHand": 300.59,
+   "onHand": 300,
    "dailyUse": 19.157,
    "days": 15.7,
    "unit": "bag",
    "ndcMatch": "11-digit as recorded",
-   "evidence": "E4"
-  },
-  {
-   "hospital": "Corvale General",
-   "itemKey": "CG-237",
-   "ndc11": "63187077812",
-   "description": "Hydrocodone Bitartrate and Acetaminophen",
-   "labeler": "Proficient Rx LP",
-   "onHand": 558.03,
-   "dailyUse": 19.404,
-   "days": 28.8,
-   "unit": "tablet",
-   "ndcMatch": "11-digit as recorded",
-   "evidence": "E5"
-  },
-  {
-   "hospital": "Corvale General",
-   "itemKey": "CG-300",
-   "ndc11": "71335218208",
-   "description": "Oxycodone and Acetaminophen",
-   "labeler": "Bryant Ranch Prepack",
-   "onHand": 493.22,
-   "dailyUse": 18.887,
-   "days": 26.1,
-   "unit": "tablet",
-   "ndcMatch": "11-digit as recorded",
-   "evidence": "E6"
+   "unitBasis": "units of use, whole units only",
+   "presentation": "acetaminophen|10mg/ml|injection|100ml|bag",
+   "presentationLabel": "10 mg/mL injection, 100 mL bag",
+   "evidence": "E2"
   },
   {
    "hospital": "Corvale Lakeside",
@@ -248,33 +198,59 @@
    "days": 8.8,
    "unit": "bag",
    "ndcMatch": "dashed 10-digit, converted",
-   "evidence": "E7"
-  },
+   "unitBasis": "units of use, as exported",
+   "presentation": "acetaminophen|10mg/ml|injection|100ml|bag",
+   "presentationLabel": "10 mg/mL injection, 100 mL bag",
+   "evidence": "E3"
+  }
+ ],
+ "presentations": [
   {
-   "hospital": "Corvale Lakeside",
-   "itemKey": "LS-LS-0097",
-   "ndc11": "63187077812",
-   "description": "Hydrocodone Bitartrate and Acetaminophen 10 mg/1",
-   "labeler": "Proficient Rx LP",
-   "onHand": 59,
-   "dailyUse": 4.76,
-   "days": 12.4,
-   "unit": "tablet",
-   "ndcMatch": "dashed 10-digit, converted",
-   "evidence": "E8"
-  },
-  {
-   "hospital": "Corvale Lakeside",
-   "itemKey": "LS-LS-0126",
-   "ndc11": "71335218208",
-   "description": "Oxycodone and Acetaminophen 10 mg/1",
-   "labeler": "Bryant Ranch Prepack",
-   "onHand": 76,
-   "dailyUse": 5.47,
-   "days": 13.9,
-   "unit": "tablet",
-   "ndcMatch": "dashed 10-digit, converted",
-   "evidence": "E9"
+   "key": "acetaminophen|10mg/ml|injection|100ml|bag",
+   "label": "10 mg/mL injection, 100 mL bag",
+   "short": "10 mg/mL, 100 mL",
+   "unit": "bag",
+   "onHand": 834,
+   "dailyUse": 41.803,
+   "days": 20,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 497,
+     "dailyUse": 18.459,
+     "days": 26.9,
+     "lines": [
+      "EA-E-000152"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 300,
+     "dailyUse": 19.157,
+     "days": 15.7,
+     "lines": [
+      "CG-131"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 37,
+     "dailyUse": 4.187,
+     "days": 8.8,
+     "lines": [
+      "LS-LS-0067"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -299,193 +275,11 @@
      "lastClassification": null,
      "signals": [],
      "evidence": [
-      "E10"
+      "E4"
      ]
     }
    ],
    "evidence": "E1"
-  },
-  {
-   "ndc11": "63187077812",
-   "packageNdc": "63187-778-12",
-   "labeler": "Proficient Rx LP",
-   "generic": "Hydrocodone Bitartrate and Acetaminophen",
-   "setId": "199d4915-cb3b-48f3-835d-a45d04a5c940",
-   "plants": [
-    {
-     "key": "079196022",
-     "name": "Proficient Rx LP",
-     "duns": "079196022",
-     "fei": "3011557028",
-     "country": "USA",
-     "address": "3607 Old Conejo Road, Thousand Oaks, California (CA) 91320, United States (USA)",
-     "operations": "REPACK",
-     "linkSource": "spl_establishment",
-     "linkQuality": "registered plant",
-     "health": "clear",
-     "lastClassification": {
-      "classification": "VAI",
-      "endDate": "2022-12-08"
-     },
-     "signals": [
-      {
-       "kind": "inspection_vai",
-       "date": "2015-10-22",
-       "knownDate": "2016-01-20",
-       "knownBasis": "end_plus_90_estimate",
-       "fei": "3011557028",
-       "firm": "Proficient Rx LP",
-       "text": "FDA inspection 948193 ended 2015-10-22, classified VAI",
-       "evidence": "E11"
-      },
-      {
-       "kind": "inspection_vai",
-       "date": "2022-12-08",
-       "knownDate": "2023-02-08",
-       "knownBasis": "fmd145_letter",
-       "fei": "3011557028",
-       "firm": "Proficient Rx LP",
-       "text": "FDA inspection 1194148 ended 2022-12-08, classified VAI; classification letter 2023-02-08",
-       "evidence": "E12"
-      }
-     ],
-     "evidence": [
-      "E13"
-     ]
-    }
-   ],
-   "evidence": "E2"
-  },
-  {
-   "ndc11": "71335218208",
-   "packageNdc": "71335-2182-8",
-   "labeler": "Bryant Ranch Prepack",
-   "generic": "Oxycodone and Acetaminophen",
-   "setId": "f11f356e-967d-4099-9d87-5497790b397c",
-   "plants": [
-    {
-     "key": "171714327",
-     "name": "Bryant Ranch Prepack",
-     "duns": "171714327",
-     "fei": "1000519407",
-     "country": "USA",
-     "address": "1919 North Victory Place, Burbank, California (CA) 91504, United States (USA)",
-     "operations": "RELABEL;REPACK",
-     "linkSource": "spl_establishment",
-     "linkQuality": "registered plant",
-     "health": "watch",
-     "lastClassification": {
-      "classification": "VAI",
-      "endDate": "2026-07-16"
-     },
-     "signals": [
-      {
-       "kind": "inspection_oai",
-       "date": "2009-06-11",
-       "knownDate": "2009-09-09",
-       "knownBasis": "end_plus_90_estimate",
-       "fei": "1000519407",
-       "firm": "Bryant Ranch PrePack",
-       "text": "FDA inspection 590126 ended 2009-06-11, classified OAI; Form 483: Lack of written stability program; Identification of persons involved, each significant step; Complaint Investigation/Follow-Up Findings (6 observations)",
-       "evidence": "E15"
-      },
-      {
-       "kind": "warning_letter",
-       "date": "2010-04-08",
-       "knownDate": "2010-04-08",
-       "knownBasis": "action date",
-       "fei": "1000519407",
-       "firm": "Bryant Ranch PrePack",
-       "text": "Warning Letter issued 2010-04-08 (case 72525)",
-       "evidence": "E24"
-      },
-      {
-       "kind": "inspection_vai",
-       "date": "2010-09-29",
-       "knownDate": "2010-12-28",
-       "knownBasis": "end_plus_90_estimate",
-       "fei": "1000519407",
-       "firm": "Bryant Ranch PrePack",
-       "text": "FDA inspection 682974 ended 2010-09-29, classified VAI",
-       "evidence": "E16"
-      },
-      {
-       "kind": "inspection_vai",
-       "date": "2011-06-30",
-       "knownDate": "2011-09-28",
-       "knownBasis": "end_plus_90_estimate",
-       "fei": "1000519407",
-       "firm": "Bryant Ranch PrePack",
-       "text": "FDA inspection 732513 ended 2011-06-30, classified VAI",
-       "evidence": "E17"
-      },
-      {
-       "kind": "inspection_vai",
-       "date": "2013-07-11",
-       "knownDate": "2013-10-09",
-       "knownBasis": "end_plus_90_estimate",
-       "fei": "1000519407",
-       "firm": "Bryant Ranch PrePack",
-       "text": "FDA inspection 840224 ended 2013-07-11, classified VAI",
-       "evidence": "E18"
-      },
-      {
-       "kind": "inspection_vai",
-       "date": "2016-12-15",
-       "knownDate": "2017-03-15",
-       "knownBasis": "end_plus_90_estimate",
-       "fei": "1000519407",
-       "firm": "Bryant Ranch PrePack",
-       "text": "FDA inspection 995337 ended 2016-12-15, classified VAI",
-       "evidence": "E19"
-      },
-      {
-       "kind": "inspection_vai",
-       "date": "2019-11-18",
-       "knownDate": "2019-12-11",
-       "knownBasis": "fmd145_letter",
-       "fei": "1000519407",
-       "firm": "Bryant Ranch PrePack",
-       "text": "FDA inspection 1110509 ended 2019-11-18, classified VAI; classification letter 2019-12-11",
-       "evidence": "E20"
-      },
-      {
-       "kind": "inspection_vai",
-       "date": "2022-03-17",
-       "knownDate": "2022-05-19",
-       "knownBasis": "fmd145_letter",
-       "fei": "1000519407",
-       "firm": "Bryant Ranch PrePack",
-       "text": "FDA inspection 1165537 ended 2022-03-17, classified VAI; classification letter 2022-05-19",
-       "evidence": "E21"
-      },
-      {
-       "kind": "inspection_vai",
-       "date": "2024-01-25",
-       "knownDate": "2024-04-15",
-       "knownBasis": "fmd145_letter",
-       "fei": "1000519407",
-       "firm": "Bryant Ranch PrePack",
-       "text": "FDA inspection 1228907 ended 2024-01-25, classified VAI; classification letter 2024-04-15",
-       "evidence": "E22"
-      },
-      {
-       "kind": "inspection_vai",
-       "date": "2026-07-16",
-       "knownDate": "2026-10-14",
-       "knownBasis": "fmd145_letter",
-       "fei": "1000519407",
-       "firm": "Bryant Ranch PrePack",
-       "text": "FDA inspection 1326578 ended 2026-07-16, classified VAI; classification letter 2026-10-14",
-       "evidence": "E23"
-      }
-     ],
-     "evidence": [
-      "E25"
-     ]
-    }
-   ],
-   "evidence": "E3"
   }
  ],
  "shortage": {
@@ -498,7 +292,7 @@
     "status": "To Be Discontinued",
     "updated": "2025-11-03",
     "info": "Discontinuation of the manufacture of the drug",
-    "evidence": "E28"
+    "evidence": "E7"
    }
   ],
   "reasons": [],
@@ -660,6 +454,52 @@
  ],
  "options": [
   {
+   "kind": "transfer",
+   "rank": 1,
+   "title": "Transfer 22 bags of 10 mg/mL, 100 mL from Corvale East to Corvale Lakeside",
+   "detail": "Corvale East has 27 days of 10 mg/mL injection, 100 mL bags on hand and can spare 22 bags while keeping two weeks; Corvale Lakeside has 8.8 days and would reach 14.",
+   "why": "Same presentation, no clinical change, no new supplier.",
+   "needs": "pharmacy director (transfer request)",
+   "evidence": [
+    "E1",
+    "E3"
+   ],
+   "transfer": {
+    "qty": 22,
+    "unit": "bag",
+    "presentation": "10 mg/mL injection, 100 mL bag",
+    "from": "Corvale East",
+    "to": "Corvale Lakeside",
+    "fromDays": 26.9,
+    "toDays": 8.8,
+    "fromAfter": 26,
+    "toAfter": 14
+   }
+  },
+  {
+   "kind": "transfer",
+   "rank": 1,
+   "title": "Transfer 22 bags of 10 mg/mL, 100 mL from Corvale General to Corvale Lakeside",
+   "detail": "Corvale General has 16 days of 10 mg/mL injection, 100 mL bags on hand and can spare 22 bags while keeping two weeks; Corvale Lakeside has 8.8 days and would reach 14.",
+   "why": "Same presentation, no clinical change, no new supplier.",
+   "needs": "pharmacy director (transfer request)",
+   "evidence": [
+    "E2",
+    "E3"
+   ],
+   "transfer": {
+    "qty": 22,
+    "unit": "bag",
+    "presentation": "10 mg/mL injection, 100 mL bag",
+    "from": "Corvale General",
+    "to": "Corvale Lakeside",
+    "fromDays": 15.7,
+    "toDays": 8.8,
+    "fromAfter": 15,
+    "toAfter": 14
+   }
+  },
+  {
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from B. Braun Medical Inc.",
@@ -761,15 +601,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from REMEDYREPACK INC.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Sagent Pharmaceuticals",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -815,102 +646,18 @@
  ],
  "timeline": [
   {
-   "date": "2009-06-11",
-   "kind": "inspection_oai",
-   "label": "FDA inspection 590126 ended 2009-06-11, classified OAI; Form 483: Lack of written stability program; Identification of persons involved, each significant step; Complaint Investigation/Follow-Up Findings (6 observations)",
-   "daysBeforePosting": null,
-   "evidence": "E15"
-  },
-  {
-   "date": "2010-04-08",
-   "kind": "warning_letter",
-   "label": "Warning Letter issued 2010-04-08 (case 72525)",
-   "daysBeforePosting": null,
-   "evidence": "E24"
-  },
-  {
-   "date": "2010-09-29",
-   "kind": "inspection_vai",
-   "label": "FDA inspection 682974 ended 2010-09-29, classified VAI",
-   "daysBeforePosting": null,
-   "evidence": "E16"
-  },
-  {
-   "date": "2011-06-30",
-   "kind": "inspection_vai",
-   "label": "FDA inspection 732513 ended 2011-06-30, classified VAI",
-   "daysBeforePosting": null,
-   "evidence": "E17"
-  },
-  {
-   "date": "2013-07-11",
-   "kind": "inspection_vai",
-   "label": "FDA inspection 840224 ended 2013-07-11, classified VAI",
-   "daysBeforePosting": null,
-   "evidence": "E18"
-  },
-  {
-   "date": "2015-10-22",
-   "kind": "inspection_vai",
-   "label": "FDA inspection 948193 ended 2015-10-22, classified VAI",
-   "daysBeforePosting": null,
-   "evidence": "E11"
-  },
-  {
-   "date": "2016-12-15",
-   "kind": "inspection_vai",
-   "label": "FDA inspection 995337 ended 2016-12-15, classified VAI",
-   "daysBeforePosting": null,
-   "evidence": "E19"
-  },
-  {
-   "date": "2019-11-18",
-   "kind": "inspection_vai",
-   "label": "FDA inspection 1110509 ended 2019-11-18, classified VAI; classification letter 2019-12-11",
-   "daysBeforePosting": null,
-   "evidence": "E20"
-  },
-  {
-   "date": "2022-03-17",
-   "kind": "inspection_vai",
-   "label": "FDA inspection 1165537 ended 2022-03-17, classified VAI; classification letter 2022-05-19",
-   "daysBeforePosting": null,
-   "evidence": "E21"
-  },
-  {
    "date": "2022-08-04",
    "kind": "recall",
    "label": "Class II recall D-1348-2022 by Baxter Healthcare Corporation started 2022-08-04: Temperature Abuse: Product distributed in refrigerated trucks with labels attached to pallets indicating \"Refrigerate Up",
    "daysBeforePosting": null,
-   "evidence": "E26"
-  },
-  {
-   "date": "2022-12-08",
-   "kind": "inspection_vai",
-   "label": "FDA inspection 1194148 ended 2022-12-08, classified VAI; classification letter 2023-02-08",
-   "daysBeforePosting": null,
-   "evidence": "E12"
-  },
-  {
-   "date": "2024-01-25",
-   "kind": "inspection_vai",
-   "label": "FDA inspection 1228907 ended 2024-01-25, classified VAI; classification letter 2024-04-15",
-   "daysBeforePosting": null,
-   "evidence": "E22"
+   "evidence": "E5"
   },
   {
    "date": "2025-08-20",
    "kind": "recall",
    "label": "Class II recall D-0596-2025 by Baxter Healthcare Corporation started 2025-08-20: Discoloration",
    "daysBeforePosting": null,
-   "evidence": "E27"
-  },
-  {
-   "date": "2026-07-16",
-   "kind": "inspection_vai",
-   "label": "FDA inspection 1326578 ended 2026-07-16, classified VAI; classification letter 2026-10-14",
-   "daysBeforePosting": null,
-   "evidence": "E23"
+   "evidence": "E6"
   },
   {
    "date": "2026-10-21",
@@ -921,48 +668,57 @@
   }
  ],
  "explanation": {
-  "state": "confirmed",
-  "headline": "FDA records show a Baxter Healthcare recall for discoloration initiated 2025-08-20 and an Endo Pharmaceuticals discontinuation posted 2025-11-03; our sites have 12 to 25 days on hand",
+  "state": "no_signal",
+  "headline": "FDA's records show acetaminophen is not on the drug shortage list as of 2026-10-21",
   "sentences": [
    {
-    "text": "FDA's shortage list shows Endo Pharmaceuticals' acetaminophen/oxycodone tablet was posted as To Be Discontinued on 2025-11-03.",
+    "text": "FDA's drug shortage list does not include acetaminophen as of 2026-10-21.",
     "cites": [
-     "E28"
+     "D4"
     ]
    },
    {
-    "text": "A Baxter Healthcare recall for acetaminophen injection due to discoloration was initiated on 2025-08-20 and remains ongoing.",
+    "text": "Our supply of acetaminophen 10 mg/mL 100 mL bags is labeled by Baxter Healthcare Corporation with NDC 36000-306-60.",
     "cites": [
-     "E27"
+     "E1",
+     "E3",
+     "E4"
     ]
    },
    {
-    "text": "Corvale East holds 1,286 units at 50.8 per day, providing 25 days on hand.",
+    "text": "Corvale East holds 497 bags with 26.9 days on hand at 18.5 bags per day.",
     "cites": [
      "D1"
     ]
    },
    {
-    "text": "Corvale General holds 1,352 units at 57.4 per day, providing 24 days on hand.",
+    "text": "Corvale Lakeside holds 37 bags with 8.8 days on hand at 4.2 bags per day.",
     "cites": [
-     "D2"
+     "D3"
     ]
    },
    {
-    "text": "Corvale Lakeside holds 172 units at 14.4 per day, providing 12 days on hand.",
+    "text": "The top-ranked option by rule is to transfer 22 bags from Corvale East to Corvale Lakeside, which would give Corvale East 27 days on hand after transfer and bring Corvale Lakeside to 14 days.",
     "cites": [
-     "D3"
+     "D5"
+    ]
+   },
+   {
+    "text": "An alternative transfer of 22 bags from Corvale General would leave Corvale General with 16 days on hand and bring Corvale Lakeside to 14 days.",
+    "cites": [
+     "D6"
+    ]
+   },
+   {
+    "text": "A third option is to buy from B. Braun Medical Inc., which is not on FDA's shortage list today.",
+    "cites": [
+     "D7"
     ]
    }
   ],
   "verifier": {
-   "checked": 7,
-   "rejected": [
-    {
-     "text": "The recommended option is to buy from B. Braun Medical Inc., which is not on FDA's shortage list today.",
-     "reason": "cites nothing"
-    }
-   ],
+   "checked": 8,
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -970,45 +726,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -1023,87 +800,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:23:13.011Z",
+   "at": "2026-10-22T11:25:36.438Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract 5CSGDR0T scope"
+   "reason": "in contract 1Y2MHMF9 scope"
   },
   {
-   "at": "2026-10-22T07:23:13.012Z",
+   "at": "2026-10-22T11:25:36.439Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 5CSGDR0T scope"
+   "reason": "in contract 1Y2MHMF9 scope"
   },
   {
-   "at": "2026-10-22T07:23:15.346Z",
+   "at": "2026-10-22T11:25:39.863Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 5CSGDR0T scope"
+   "reason": "in contract 1Y2MHMF9 scope"
   },
   {
-   "at": "2026-10-22T07:23:15.871Z",
+   "at": "2026-10-22T11:25:40.446Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 5CSGDR0T scope"
+   "reason": "in contract 1Y2MHMF9 scope"
   },
   {
-   "at": "2026-10-22T07:23:16.140Z",
+   "at": "2026-10-22T11:25:40.726Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 5CSGDR0T scope"
+   "reason": "in contract 1Y2MHMF9 scope"
   },
   {
-   "at": "2026-10-22T07:23:17.621Z",
+   "at": "2026-10-22T11:25:42.021Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 5CSGDR0T scope"
+   "reason": "in contract 1Y2MHMF9 scope"
   },
   {
-   "at": "2026-10-22T07:23:18.371Z",
-   "action": "What FDA wrote at the OAI inspections",
-   "capability": "zetaris.read",
-   "decision": "allowed",
-   "reason": "in contract 5CSGDR0T scope"
-  },
-  {
-   "at": "2026-10-22T07:23:18.583Z",
+   "at": "2026-10-22T11:25:42.820Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 5CSGDR0T scope"
+   "reason": "in contract 1Y2MHMF9 scope"
   },
   {
-   "at": "2026-10-22T07:23:19.262Z",
+   "at": "2026-10-22T11:25:43.491Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 5CSGDR0T scope"
+   "reason": "in contract 1Y2MHMF9 scope"
   },
   {
-   "at": "2026-10-22T07:23:25.761Z",
+   "at": "2026-10-22T11:25:54.975Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract 5CSGDR0T scope"
+   "reason": "in contract 1Y2MHMF9 scope"
   },
   {
-   "at": "2026-10-22T07:23:25.766Z",
+   "at": "2026-10-22T11:25:54.979Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract 5CSGDR0T scope"
+   "reason": "in contract 1Y2MHMF9 scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-db2020",
+   "queryId": "Q-cbb7ef",
    "row": 0,
    "label": "Corvale East: ACETAMINOPHEN 10MG/ML 100ML BAG",
    "fields": {
@@ -1114,135 +884,53 @@
     "description": "ACETAMINOPHEN 10MG/ML 100ML BAG",
     "on_hand": "497.00",
     "daily_use": "18.459",
-    "unit": "package",
+    "unit": "bag",
+    "pkg_units": "40.00",
+    "unit_basis": "packages of 40, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Acetaminophen",
     "labeler_name": "Baxter Healthcare Corporation",
     "package_ndc": "36000-306-60",
     "spl_set_id": "0f67c1bd-915b-4681-88dd-22f5154a80b3",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "ACETAMINOPHEN 10 mg/mL",
+    "unit_content": "100 mL",
+    "pkg_unit": "bag"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-db2020",
+   "queryId": "Q-cbb7ef",
    "row": 1,
-   "label": "Corvale East: HYDROCODONE BITARTRATE AND ACETAMINOPHEN 10MG TAB",
-   "fields": {
-    "hospital": "Corvale East",
-    "item_key": "EA-E-000209",
-    "ndc11": "63187077812",
-    "ndc_as_recorded": "63187-778-12",
-    "description": "HYDROCODONE BITARTRATE AND ACETAMINOPHEN 10MG TAB",
-    "on_hand": "263.00",
-    "daily_use": "15.721",
-    "unit": "package",
-    "ndc_match": "dashed 10-digit, converted",
-    "generic_name": "Hydrocodone Bitartrate and Acetaminophen",
-    "labeler_name": "Proficient Rx LP",
-    "package_ndc": "63187-778-12",
-    "spl_set_id": "199d4915-cb3b-48f3-835d-a45d04a5c940",
-    "dosage_form": "TABLET",
-    "route": "ORAL"
-   }
-  },
-  "E3": {
-   "id": "E3",
-   "queryId": "Q-db2020",
-   "row": 2,
-   "label": "Corvale East: OXYCODONE AND ACETAMINOPHEN 10MG TAB",
-   "fields": {
-    "hospital": "Corvale East",
-    "item_key": "EA-E-000287",
-    "ndc11": "71335218208",
-    "ndc_as_recorded": "71335-2182-8",
-    "description": "OXYCODONE AND ACETAMINOPHEN 10MG TAB",
-    "on_hand": "526.00",
-    "daily_use": "16.633",
-    "unit": "package",
-    "ndc_match": "dashed 10-digit, converted",
-    "generic_name": "Oxycodone and Acetaminophen",
-    "labeler_name": "Bryant Ranch Prepack",
-    "package_ndc": "71335-2182-8",
-    "spl_set_id": "f11f356e-967d-4099-9d87-5497790b397c",
-    "dosage_form": "TABLET",
-    "route": "ORAL"
-   }
-  },
-  "E4": {
-   "id": "E4",
-   "queryId": "Q-db2020",
-   "row": 3,
-   "label": "Corvale General: Acetaminophen",
+   "label": "Corvale General: Acetaminophen 10 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-131",
     "ndc11": "36000030660",
     "ndc_as_recorded": "36000030660",
-    "description": "Acetaminophen",
-    "on_hand": "300.59",
+    "description": "Acetaminophen 10 mg/mL",
+    "on_hand": "300.00",
     "daily_use": "19.157",
     "unit": "bag",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Acetaminophen",
     "labeler_name": "Baxter Healthcare Corporation",
     "package_ndc": "36000-306-60",
     "spl_set_id": "0f67c1bd-915b-4681-88dd-22f5154a80b3",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "ACETAMINOPHEN 10 mg/mL",
+    "unit_content": "100 mL",
+    "pkg_unit": "bag"
    }
   },
-  "E5": {
-   "id": "E5",
-   "queryId": "Q-db2020",
-   "row": 4,
-   "label": "Corvale General: Hydrocodone Bitartrate and Acetaminophen",
-   "fields": {
-    "hospital": "Corvale General",
-    "item_key": "CG-237",
-    "ndc11": "63187077812",
-    "ndc_as_recorded": "63187077812",
-    "description": "Hydrocodone Bitartrate and Acetaminophen",
-    "on_hand": "558.03",
-    "daily_use": "19.404",
-    "unit": "tablet",
-    "ndc_match": "11-digit as recorded",
-    "generic_name": "Hydrocodone Bitartrate and Acetaminophen",
-    "labeler_name": "Proficient Rx LP",
-    "package_ndc": "63187-778-12",
-    "spl_set_id": "199d4915-cb3b-48f3-835d-a45d04a5c940",
-    "dosage_form": "TABLET",
-    "route": "ORAL"
-   }
-  },
-  "E6": {
-   "id": "E6",
-   "queryId": "Q-db2020",
-   "row": 5,
-   "label": "Corvale General: Oxycodone and Acetaminophen",
-   "fields": {
-    "hospital": "Corvale General",
-    "item_key": "CG-300",
-    "ndc11": "71335218208",
-    "ndc_as_recorded": "71335218208",
-    "description": "Oxycodone and Acetaminophen",
-    "on_hand": "493.22",
-    "daily_use": "18.887",
-    "unit": "tablet",
-    "ndc_match": "11-digit as recorded",
-    "generic_name": "Oxycodone and Acetaminophen",
-    "labeler_name": "Bryant Ranch Prepack",
-    "package_ndc": "71335-2182-8",
-    "spl_set_id": "f11f356e-967d-4099-9d87-5497790b397c",
-    "dosage_form": "TABLET",
-    "route": "ORAL"
-   }
-  },
-  "E7": {
-   "id": "E7",
-   "queryId": "Q-db2020",
-   "row": 6,
+  "E3": {
+   "id": "E3",
+   "queryId": "Q-cbb7ef",
+   "row": 2,
    "label": "Corvale Lakeside: Acetaminophen 10 mg/mL 100 mL bag",
    "fields": {
     "hospital": "Corvale Lakeside",
@@ -1253,64 +941,23 @@
     "on_hand": "37.00",
     "daily_use": "4.187",
     "unit": "bag",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Acetaminophen",
     "labeler_name": "Baxter Healthcare Corporation",
     "package_ndc": "36000-306-60",
     "spl_set_id": "0f67c1bd-915b-4681-88dd-22f5154a80b3",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "ACETAMINOPHEN 10 mg/mL",
+    "unit_content": "100 mL",
+    "pkg_unit": "bag"
    }
   },
-  "E8": {
-   "id": "E8",
-   "queryId": "Q-db2020",
-   "row": 7,
-   "label": "Corvale Lakeside: Hydrocodone Bitartrate and Acetaminophen 10 mg/1",
-   "fields": {
-    "hospital": "Corvale Lakeside",
-    "item_key": "LS-LS-0097",
-    "ndc11": "63187077812",
-    "ndc_as_recorded": "63187-778-12",
-    "description": "Hydrocodone Bitartrate and Acetaminophen 10 mg/1",
-    "on_hand": "59.00",
-    "daily_use": "4.760",
-    "unit": "tablet",
-    "ndc_match": "dashed 10-digit, converted",
-    "generic_name": "Hydrocodone Bitartrate and Acetaminophen",
-    "labeler_name": "Proficient Rx LP",
-    "package_ndc": "63187-778-12",
-    "spl_set_id": "199d4915-cb3b-48f3-835d-a45d04a5c940",
-    "dosage_form": "TABLET",
-    "route": "ORAL"
-   }
-  },
-  "E9": {
-   "id": "E9",
-   "queryId": "Q-db2020",
-   "row": 8,
-   "label": "Corvale Lakeside: Oxycodone and Acetaminophen 10 mg/1",
-   "fields": {
-    "hospital": "Corvale Lakeside",
-    "item_key": "LS-LS-0126",
-    "ndc11": "71335218208",
-    "ndc_as_recorded": "71335-2182-8",
-    "description": "Oxycodone and Acetaminophen 10 mg/1",
-    "on_hand": "76.00",
-    "daily_use": "5.470",
-    "unit": "tablet",
-    "ndc_match": "dashed 10-digit, converted",
-    "generic_name": "Oxycodone and Acetaminophen",
-    "labeler_name": "Bryant Ranch Prepack",
-    "package_ndc": "71335-2182-8",
-    "spl_set_id": "f11f356e-967d-4099-9d87-5497790b397c",
-    "dosage_form": "TABLET",
-    "route": "ORAL"
-   }
-  },
-  "E10": {
-   "id": "E10",
-   "queryId": "Q-eacfd1",
+  "E4": {
+   "id": "E4",
+   "queryId": "Q-1cd505",
    "row": 0,
    "label": "Label 0f67c1bd names BAXTER HLTHCARE CORP",
    "fields": {
@@ -1324,244 +971,9 @@
     "last_inspection": null
    }
   },
-  "E11": {
-   "id": "E11",
-   "queryId": "Q-df9040",
-   "row": 9,
-   "label": "FDA inspection 948193 (VAI)",
-   "fields": {
-    "inspection_id": "948193",
-    "fei": "3011557028",
-    "legal_name": "Proficient Rx LP",
-    "country": "United States",
-    "end_date": "2015-10-22",
-    "classification": "VAI",
-    "known_date": "2016-01-20",
-    "known_date_basis": "end_plus_90_estimate"
-   }
-  },
-  "E12": {
-   "id": "E12",
-   "queryId": "Q-df9040",
-   "row": 11,
-   "label": "FDA inspection 1194148 (VAI)",
-   "fields": {
-    "inspection_id": "1194148",
-    "fei": "3011557028",
-    "legal_name": "Proficient Rx LP",
-    "country": "United States",
-    "end_date": "2022-12-08",
-    "classification": "VAI",
-    "known_date": "2023-02-08",
-    "known_date_basis": "fmd145_letter"
-   }
-  },
-  "E13": {
-   "id": "E13",
-   "queryId": "Q-eacfd1",
-   "row": 1,
-   "label": "Label 199d4915 names Proficient Rx LP",
-   "fields": {
-    "product_labeler": "Proficient Rx LP",
-    "ndc11": "63187077812",
-    "plant": "Proficient Rx LP",
-    "fei": "3011557028",
-    "country": "USA",
-    "operations": "REPACK",
-    "link": "registered plant",
-    "last_inspection": "VAI 2022-12-08"
-   }
-  },
-  "E14": {
-   "id": "E14",
-   "queryId": "Q-7ba5bd",
-   "row": 0,
-   "label": "Form 483 at inspection 590126: Lack of written stability program",
-   "fields": {
-    "inspection_id": "590126",
-    "fei": "1000519407",
-    "end_date": "2009-06-11",
-    "cfr": "21 CFR 211.166(a)",
-    "short_description": "Lack of written stability program"
-   }
-  },
-  "E15": {
-   "id": "E15",
-   "queryId": "Q-df9040",
-   "row": 0,
-   "label": "FDA inspection 590126 (OAI); Form 483: Lack of written stability program; Identification of persons involved, each significant step; Complaint Investigation/Follow-Up Findings (6 observations)",
-   "fields": {
-    "inspection_id": "590126",
-    "fei": "1000519407",
-    "legal_name": "Bryant Ranch PrePack",
-    "country": "United States",
-    "end_date": "2009-06-11",
-    "classification": "OAI",
-    "known_date": "2009-09-09",
-    "known_date_basis": "end_plus_90_estimate"
-   }
-  },
-  "E16": {
-   "id": "E16",
-   "queryId": "Q-df9040",
-   "row": 1,
-   "label": "FDA inspection 682974 (VAI)",
-   "fields": {
-    "inspection_id": "682974",
-    "fei": "1000519407",
-    "legal_name": "Bryant Ranch PrePack",
-    "country": "United States",
-    "end_date": "2010-09-29",
-    "classification": "VAI",
-    "known_date": "2010-12-28",
-    "known_date_basis": "end_plus_90_estimate"
-   }
-  },
-  "E17": {
-   "id": "E17",
-   "queryId": "Q-df9040",
-   "row": 2,
-   "label": "FDA inspection 732513 (VAI)",
-   "fields": {
-    "inspection_id": "732513",
-    "fei": "1000519407",
-    "legal_name": "Bryant Ranch PrePack",
-    "country": "United States",
-    "end_date": "2011-06-30",
-    "classification": "VAI",
-    "known_date": "2011-09-28",
-    "known_date_basis": "end_plus_90_estimate"
-   }
-  },
-  "E18": {
-   "id": "E18",
-   "queryId": "Q-df9040",
-   "row": 3,
-   "label": "FDA inspection 840224 (VAI)",
-   "fields": {
-    "inspection_id": "840224",
-    "fei": "1000519407",
-    "legal_name": "Bryant Ranch PrePack",
-    "country": "United States",
-    "end_date": "2013-07-11",
-    "classification": "VAI",
-    "known_date": "2013-10-09",
-    "known_date_basis": "end_plus_90_estimate"
-   }
-  },
-  "E19": {
-   "id": "E19",
-   "queryId": "Q-df9040",
-   "row": 4,
-   "label": "FDA inspection 995337 (VAI)",
-   "fields": {
-    "inspection_id": "995337",
-    "fei": "1000519407",
-    "legal_name": "Bryant Ranch PrePack",
-    "country": "United States",
-    "end_date": "2016-12-15",
-    "classification": "VAI",
-    "known_date": "2017-03-15",
-    "known_date_basis": "end_plus_90_estimate"
-   }
-  },
-  "E20": {
-   "id": "E20",
-   "queryId": "Q-df9040",
-   "row": 5,
-   "label": "FDA inspection 1110509 (VAI)",
-   "fields": {
-    "inspection_id": "1110509",
-    "fei": "1000519407",
-    "legal_name": "Bryant Ranch PrePack",
-    "country": "United States",
-    "end_date": "2019-11-18",
-    "classification": "VAI",
-    "known_date": "2019-12-11",
-    "known_date_basis": "fmd145_letter"
-   }
-  },
-  "E21": {
-   "id": "E21",
-   "queryId": "Q-df9040",
-   "row": 6,
-   "label": "FDA inspection 1165537 (VAI)",
-   "fields": {
-    "inspection_id": "1165537",
-    "fei": "1000519407",
-    "legal_name": "Bryant Ranch PrePack",
-    "country": "United States",
-    "end_date": "2022-03-17",
-    "classification": "VAI",
-    "known_date": "2022-05-19",
-    "known_date_basis": "fmd145_letter"
-   }
-  },
-  "E22": {
-   "id": "E22",
-   "queryId": "Q-df9040",
-   "row": 7,
-   "label": "FDA inspection 1228907 (VAI)",
-   "fields": {
-    "inspection_id": "1228907",
-    "fei": "1000519407",
-    "legal_name": "Bryant Ranch PrePack",
-    "country": "United States",
-    "end_date": "2024-01-25",
-    "classification": "VAI",
-    "known_date": "2024-04-15",
-    "known_date_basis": "fmd145_letter"
-   }
-  },
-  "E23": {
-   "id": "E23",
-   "queryId": "Q-df9040",
-   "row": 8,
-   "label": "FDA inspection 1326578 (VAI)",
-   "fields": {
-    "inspection_id": "1326578",
-    "fei": "1000519407",
-    "legal_name": "Bryant Ranch PrePack",
-    "country": "United States",
-    "end_date": "2026-07-16",
-    "classification": "VAI",
-    "known_date": "2026-10-14",
-    "known_date_basis": "fmd145_letter"
-   }
-  },
-  "E24": {
-   "id": "E24",
-   "queryId": "Q-fdd892",
-   "row": 0,
-   "label": "Warning Letter 2010-04-08",
-   "fields": {
-    "fei": "1000519407",
-    "legal_name": "Bryant Ranch PrePack",
-    "country": "United States",
-    "action_date": "2010-04-08",
-    "action_type": "Warning Letter",
-    "case_id": "72525"
-   }
-  },
-  "E25": {
-   "id": "E25",
-   "queryId": "Q-eacfd1",
-   "row": 2,
-   "label": "Label f11f356e names Bryant Ranch Prepack",
-   "fields": {
-    "product_labeler": "Bryant Ranch Prepack",
-    "ndc11": "71335218208",
-    "plant": "Bryant Ranch Prepack",
-    "fei": "1000519407",
-    "country": "USA",
-    "operations": "RELABEL;REPACK",
-    "link": "registered plant",
-    "last_inspection": "VAI 2026-07-16"
-   }
-  },
-  "E26": {
-   "id": "E26",
-   "queryId": "Q-6119d7",
+  "E5": {
+   "id": "E5",
+   "queryId": "Q-e5119e",
    "row": 0,
    "label": "Recall D-1348-2022",
    "fields": {
@@ -1577,9 +989,9 @@
     "product_description": "Acetaminophen Injection, 10 mg/mL, 1,000 mg/100 mL, 100 mL VIAFLO container bag, Single Dose Container, For Intravenous Use Only, Rx Only, Baxter Healthcare Cor"
    }
   },
-  "E27": {
-   "id": "E27",
-   "queryId": "Q-6119d7",
+  "E6": {
+   "id": "E6",
+   "queryId": "Q-e5119e",
    "row": 1,
    "label": "Recall D-0596-2025",
    "fields": {
@@ -1595,9 +1007,9 @@
     "product_description": "Acetaminophen Injection 1000 mg/100 mL (10 mg/mL), packaged in 100 mL Viaflo container, Rx only, Baxter Healthcare Corporation, Deerfield, IL 60015, Made in Ire"
    }
   },
-  "E28": {
-   "id": "E28",
-   "queryId": "Q-fa2c5b",
+  "E7": {
+   "id": "E7",
+   "queryId": "Q-1e3148",
    "row": 0,
    "label": "FDA shortage list: Endo Pharmaceuticals, Inc., To Be Discontinued",
    "fields": {
@@ -1614,253 +1026,276 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 1286 units of acetaminophen at 50.8 a day: 25 days on hand",
+   "label": "Corvale East holds 497 bags of acetaminophen 10 mg/mL, 100 mL at 18.5 a day: 26.9 days on hand",
    "fields": {
     "hospital": "Corvale East",
-    "on_hand": 1286,
-    "daily_use": 50.8,
-    "days_on_hand": 25
+    "presentation": "10 mg/mL injection, 100 mL bag",
+    "on_hand": 497,
+    "daily_use": 18.5,
+    "days_on_hand": 26.9
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 1352 units of acetaminophen at 57.4 a day: 24 days on hand",
+   "label": "Corvale General holds 300 bags of acetaminophen 10 mg/mL, 100 mL at 19.2 a day: 15.7 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 1352,
-    "daily_use": 57.4,
-    "days_on_hand": 24
+    "presentation": "10 mg/mL injection, 100 mL bag",
+    "on_hand": 300,
+    "daily_use": 19.2,
+    "days_on_hand": 15.7
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 172 units of acetaminophen at 14.4 a day: 12 days on hand",
+   "label": "Corvale Lakeside holds 37 bags of acetaminophen 10 mg/mL, 100 mL at 4.2 a day: 8.8 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
-    "on_hand": 172,
-    "daily_use": 14.4,
-    "days_on_hand": 12
+    "presentation": "10 mg/mL injection, 100 mL bag",
+    "on_hand": 37,
+    "daily_use": 4.2,
+    "days_on_hand": 8.8
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "acetaminophen is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 22 bags of 10 mg/mL, 100 mL from Corvale East to Corvale Lakeside. Corvale East has 27 days of 10 mg/mL injection, 100 mL bags on hand and can spare 22 bags while keeping two weeks; Corvale Lakeside has 8.8 days and would reach 14.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 22 bags of 10 mg/mL, 100 mL from Corvale General to Corvale Lakeside. Corvale General has 16 days of 10 mg/mL injection, 100 mL bags on hand and can spare 22 bags while keeping two weeks; Corvale Lakeside has 8.8 days and would reach 14.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from B. Braun Medical Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-db2020": {
-   "id": "Q-db2020",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%acetaminophen%' OR lower(s.description) LIKE '%acetaminophen%' ORDER BY s.hospital, s.item_key",
-   "ms": 2326,
+  "Q-cbb7ef": {
+   "id": "Q-cbb7ef",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*acetaminophen(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*acetaminophen(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3418,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:23:15.338Z",
-   "rows": 9
-  },
-  "Q-eacfd1": {
-   "id": "Q-eacfd1",
-   "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('0f67c1bd-915b-4681-88dd-22f5154a80b3', '199d4915-cb3b-48f3-835d-a45d04a5c940', 'f11f356e-967d-4099-9d87-5497790b397c') ORDER BY ps.set_id, ps.establishment",
-   "ms": 524,
-   "mode": "live",
-   "sources": [
-    "lightning.metastore.upstream"
-   ],
-   "ranAt": "2026-10-22T07:23:15.869Z",
+   "ranAt": "2026-10-22T11:25:39.857Z",
    "rows": 3
   },
-  "Q-fa2c5b": {
-   "id": "Q-fa2c5b",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%acetaminophen%' ORDER BY status, company_name, package_ndc",
-   "ms": 140,
+  "Q-1cd505": {
+   "id": "Q-1cd505",
+   "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('0f67c1bd-915b-4681-88dd-22f5154a80b3') ORDER BY ps.set_id, ps.establishment",
+   "ms": 581,
+   "mode": "live",
+   "sources": [
+    "fda.spl_establishments",
+    "fda.registrations"
+   ],
+   "ranAt": "2026-10-22T11:25:40.444Z",
+   "rows": 1
+  },
+  "Q-1e3148": {
+   "id": "Q-1e3148",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*acetaminophen(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 137,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:23:16.011Z",
+   "ranAt": "2026-10-22T11:25:40.583Z",
    "rows": 6
   },
-  "Q-872c54": {
-   "id": "Q-872c54",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%acetaminophen%' ORDER BY first_posting",
-   "ms": 127,
+  "Q-4d0d03": {
+   "id": "Q-4d0d03",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*acetaminophen(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 141,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:23:16.139Z",
+   "ranAt": "2026-10-22T11:25:40.725Z",
    "rows": 2
   },
-  "Q-d20937": {
-   "id": "Q-d20937",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%acetaminophen%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 1479,
+  "Q-47b9f2": {
+   "id": "Q-47b9f2",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*acetaminophen(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1293,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:23:17.619Z",
+   "ranAt": "2026-10-22T11:25:42.019Z",
    "rows": 29
   },
-  "Q-df9040": {
-   "id": "Q-df9040",
-   "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3011557028', '1000519407') ORDER BY fei, end_date",
-   "ms": 283,
+  "Q-808a5c": {
+   "id": "Q-808a5c",
+   "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('') ORDER BY fei, end_date",
+   "ms": 307,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:23:17.904Z",
-   "rows": 12
+   "ranAt": "2026-10-22T11:25:42.328Z",
+   "rows": 0
   },
-  "Q-fdd892": {
-   "id": "Q-fdd892",
-   "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3011557028', '1000519407') ORDER BY fei, action_date",
-   "ms": 200,
+  "Q-de2bfd": {
+   "id": "Q-de2bfd",
+   "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('') ORDER BY fei, action_date",
+   "ms": 182,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:23:18.105Z",
-   "rows": 1
+   "ranAt": "2026-10-22T11:25:42.511Z",
+   "rows": 0
   },
-  "Q-91ef67": {
-   "id": "Q-91ef67",
-   "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3011557028', '1000519407') OR (fei_match <> 'name_and_city' AND firm_key IN ('baxter hlthcare', 'proficient rx', 'bryant ranch prepack')) ORDER BY date_published",
-   "ms": 117,
+  "Q-b93d7d": {
+   "id": "Q-b93d7d",
+   "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('') OR (fei_match <> 'name_and_city' AND firm_key IN ('baxter hlthcare')) ORDER BY date_published",
+   "ms": 119,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:23:18.223Z",
+   "ranAt": "2026-10-22T11:25:42.632Z",
    "rows": 0
   },
-  "Q-6119d7": {
-   "id": "Q-6119d7",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('baxter hlthcare', 'proficient rx', 'bryant ranch prepack', 'baxter') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%acetaminophen%' ORDER BY initiation_date",
-   "ms": 146,
+  "Q-e5119e": {
+   "id": "Q-e5119e",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('baxter hlthcare', 'baxter') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*acetaminophen(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 185,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:23:18.370Z",
+   "ranAt": "2026-10-22T11:25:42.817Z",
    "rows": 2
   },
-  "Q-7ba5bd": {
-   "id": "Q-7ba5bd",
-   "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('590126') ORDER BY inspection_id, cfr",
-   "ms": 205,
-   "mode": "live",
-   "sources": [
-    "fda.citations"
-   ],
-   "ranAt": "2026-10-22T07:23:18.577Z",
-   "rows": 6
-  },
-  "Q-655122": {
-   "id": "Q-655122",
-   "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('36000030660', '63187077812', '71335218208')",
-   "ms": 677,
+  "Q-6fc822": {
+   "id": "Q-6fc822",
+   "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('36000030660')",
+   "ms": 669,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:23:19.260Z",
+   "ranAt": "2026-10-22T11:25:43.489Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-c38d3b": {
-   "id": "Q-c38d3b",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%acetaminophen%'",
-   "ms": 1123,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:23:25.759Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-3aada3": {
+   "id": "Q-3aada3",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*acetaminophen(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1272,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:54.974Z",
    "rows": 0
   }
  },
  "usage": {
-  "zetarisQueries": 15,
-  "zetarisMs": 12718,
+  "zetarisQueries": 14,
+  "zetarisMs": 18512,
   "modelCalls": 1,
-  "tokensIn": 0,
-  "tokensOut": 0,
+  "tokensIn": 2442,
+  "tokensOut": 419,
   "mode": "live"
  },
  "slug": "acetaminophen",
  "graph": {
   "roots": [
    "hospital-item:hospital-item:CG-131",
-   "hospital-item:hospital-item:CG-237",
-   "hospital-item:hospital-item:CG-300",
    "hospital-item:hospital-item:EA-E-000152",
-   "hospital-item:hospital-item:EA-E-000209",
-   "hospital-item:hospital-item:EA-E-000287",
-   "hospital-item:hospital-item:LS-LS-0067",
-   "hospital-item:hospital-item:LS-LS-0097",
-   "hospital-item:hospital-item:LS-LS-0126"
+   "hospital-item:hospital-item:LS-LS-0067"
   ],
   "nodes": [
    {
     "id": "hospital-item:hospital-item:CG-131",
     "type": "HospitalItem",
     "key": "hospital-item:CG-131",
-    "label": "Corvale General: Acetaminophen",
+    "label": "Corvale General: Acetaminophen 10 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-131"
-    },
-    "facts": [],
-    "depth": 0
-   },
-   {
-    "id": "hospital-item:hospital-item:CG-237",
-    "type": "HospitalItem",
-    "key": "hospital-item:CG-237",
-    "label": "Corvale General: Hydrocodone Bitartrate and Acetaminophen",
-    "attrs": {
-     "key": "hospital-item:CG-237"
-    },
-    "facts": [],
-    "depth": 0
-   },
-   {
-    "id": "hospital-item:hospital-item:CG-300",
-    "type": "HospitalItem",
-    "key": "hospital-item:CG-300",
-    "label": "Corvale General: Oxycodone and Acetaminophen",
-    "attrs": {
-     "key": "hospital-item:CG-300"
     },
     "facts": [],
     "depth": 0
@@ -1877,56 +1312,12 @@
     "depth": 0
    },
    {
-    "id": "hospital-item:hospital-item:EA-E-000209",
-    "type": "HospitalItem",
-    "key": "hospital-item:EA-E-000209",
-    "label": "Corvale East: HYDROCODONE BITARTRATE AND ACETAMINOPHEN 10MG TAB",
-    "attrs": {
-     "key": "hospital-item:EA-E-000209"
-    },
-    "facts": [],
-    "depth": 0
-   },
-   {
-    "id": "hospital-item:hospital-item:EA-E-000287",
-    "type": "HospitalItem",
-    "key": "hospital-item:EA-E-000287",
-    "label": "Corvale East: OXYCODONE AND ACETAMINOPHEN 10MG TAB",
-    "attrs": {
-     "key": "hospital-item:EA-E-000287"
-    },
-    "facts": [],
-    "depth": 0
-   },
-   {
     "id": "hospital-item:hospital-item:LS-LS-0067",
     "type": "HospitalItem",
     "key": "hospital-item:LS-LS-0067",
     "label": "Corvale Lakeside: Acetaminophen 10 mg/mL 100 mL bag",
     "attrs": {
      "key": "hospital-item:LS-LS-0067"
-    },
-    "facts": [],
-    "depth": 0
-   },
-   {
-    "id": "hospital-item:hospital-item:LS-LS-0097",
-    "type": "HospitalItem",
-    "key": "hospital-item:LS-LS-0097",
-    "label": "Corvale Lakeside: Hydrocodone Bitartrate and Acetaminophen 10 mg/1",
-    "attrs": {
-     "key": "hospital-item:LS-LS-0097"
-    },
-    "facts": [],
-    "depth": 0
-   },
-   {
-    "id": "hospital-item:hospital-item:LS-LS-0126",
-    "type": "HospitalItem",
-    "key": "hospital-item:LS-LS-0126",
-    "label": "Corvale Lakeside: Oxycodone and Acetaminophen 10 mg/1",
-    "attrs": {
-     "key": "hospital-item:LS-LS-0126"
     },
     "facts": [],
     "depth": 0
@@ -1943,56 +1334,12 @@
     "depth": 1
    },
    {
-    "id": "package:ndc-package:63187-778-12",
-    "type": "Package",
-    "key": "ndc-package:63187-778-12",
-    "label": "ndc-package:63187-778-12",
-    "attrs": {
-     "key": "ndc-package:63187-778-12"
-    },
-    "facts": [],
-    "depth": 1
-   },
-   {
-    "id": "package:ndc-package:71335-2182-8",
-    "type": "Package",
-    "key": "ndc-package:71335-2182-8",
-    "label": "ndc-package:71335-2182-8",
-    "attrs": {
-     "key": "ndc-package:71335-2182-8"
-    },
-    "facts": [],
-    "depth": 1
-   },
-   {
     "id": "product:ndc-product:36000-306",
     "type": "Product",
     "key": "ndc-product:36000-306",
     "label": "Acetaminophen",
     "attrs": {
      "key": "ndc-product:36000-306"
-    },
-    "facts": [],
-    "depth": 2
-   },
-   {
-    "id": "product:ndc-product:63187-778",
-    "type": "Product",
-    "key": "ndc-product:63187-778",
-    "label": "Hydrocodone Bitartrate and Acetaminophen",
-    "attrs": {
-     "key": "ndc-product:63187-778"
-    },
-    "facts": [],
-    "depth": 2
-   },
-   {
-    "id": "product:ndc-product:71335-2182",
-    "type": "Product",
-    "key": "ndc-product:71335-2182",
-    "label": "Oxycodone and Acetaminophen",
-    "attrs": {
-     "key": "ndc-product:71335-2182"
     },
     "facts": [],
     "depth": 2
@@ -2018,347 +1365,6 @@
     },
     "facts": [],
     "depth": 3
-   },
-   {
-    "id": "labeler:ndc-labeler:63187",
-    "type": "Labeler",
-    "key": "ndc-labeler:63187",
-    "label": "Proficient Rx LP",
-    "attrs": {
-     "key": "ndc-labeler:63187"
-    },
-    "facts": [],
-    "depth": 3
-   },
-   {
-    "id": "labeler:ndc-labeler:71335",
-    "type": "Labeler",
-    "key": "ndc-labeler:71335",
-    "label": "Bryant Ranch Prepack",
-    "attrs": {
-     "key": "ndc-labeler:71335"
-    },
-    "facts": [],
-    "depth": 3
-   },
-   {
-    "id": "site:fei:1000519407",
-    "type": "Site",
-    "key": "fei:1000519407",
-    "label": "Bryant Ranch Prepack",
-    "attrs": {
-     "key": "fei:1000519407"
-    },
-    "facts": [],
-    "depth": 3
-   },
-   {
-    "id": "site:fei:3011557028",
-    "type": "Site",
-    "key": "fei:3011557028",
-    "label": "Proficient Rx LP",
-    "attrs": {
-     "key": "fei:3011557028"
-    },
-    "facts": [],
-    "depth": 3
-   },
-   {
-    "id": "inspection:fda-inspection:1110509",
-    "type": "Inspection",
-    "key": "fda-inspection:1110509",
-    "label": "fda-inspection:1110509",
-    "attrs": {
-     "key": "fda-inspection:1110509",
-     "classification": "VAI"
-    },
-    "facts": [
-     {
-      "id": "fact_14c954f13c3a6912",
-      "about": "inspection:fda-inspection:1110509",
-      "predicate": "classification",
-      "value": "VAI",
-      "confidence": 0.5,
-      "source": {
-       "kind": "fda-inspection",
-       "by": "upstream-investigator",
-       "at": "2026-10-22T07:23:18.581Z"
-      },
-      "assertedAt": "2026-10-22T07:23:18.581Z"
-     }
-    ],
-    "depth": 4
-   },
-   {
-    "id": "inspection:fda-inspection:1165537",
-    "type": "Inspection",
-    "key": "fda-inspection:1165537",
-    "label": "fda-inspection:1165537",
-    "attrs": {
-     "key": "fda-inspection:1165537",
-     "classification": "VAI"
-    },
-    "facts": [
-     {
-      "id": "fact_4006cf488df34854",
-      "about": "inspection:fda-inspection:1165537",
-      "predicate": "classification",
-      "value": "VAI",
-      "confidence": 0.5,
-      "source": {
-       "kind": "fda-inspection",
-       "by": "upstream-investigator",
-       "at": "2026-10-22T07:23:18.581Z"
-      },
-      "assertedAt": "2026-10-22T07:23:18.581Z"
-     }
-    ],
-    "depth": 4
-   },
-   {
-    "id": "inspection:fda-inspection:1194148",
-    "type": "Inspection",
-    "key": "fda-inspection:1194148",
-    "label": "fda-inspection:1194148",
-    "attrs": {
-     "key": "fda-inspection:1194148",
-     "classification": "VAI"
-    },
-    "facts": [
-     {
-      "id": "fact_30bacfcf6d527119",
-      "about": "inspection:fda-inspection:1194148",
-      "predicate": "classification",
-      "value": "VAI",
-      "confidence": 0.5,
-      "source": {
-       "kind": "fda-inspection",
-       "by": "upstream-investigator",
-       "at": "2026-10-22T07:23:18.580Z"
-      },
-      "assertedAt": "2026-10-22T07:23:18.580Z"
-     }
-    ],
-    "depth": 4
-   },
-   {
-    "id": "inspection:fda-inspection:1228907",
-    "type": "Inspection",
-    "key": "fda-inspection:1228907",
-    "label": "fda-inspection:1228907",
-    "attrs": {
-     "key": "fda-inspection:1228907",
-     "classification": "VAI"
-    },
-    "facts": [
-     {
-      "id": "fact_379c4f0e8bcda4b8",
-      "about": "inspection:fda-inspection:1228907",
-      "predicate": "classification",
-      "value": "VAI",
-      "confidence": 0.5,
-      "source": {
-       "kind": "fda-inspection",
-       "by": "upstream-investigator",
-       "at": "2026-10-22T07:23:18.582Z"
-      },
-      "assertedAt": "2026-10-22T07:23:18.582Z"
-     }
-    ],
-    "depth": 4
-   },
-   {
-    "id": "inspection:fda-inspection:1326578",
-    "type": "Inspection",
-    "key": "fda-inspection:1326578",
-    "label": "fda-inspection:1326578",
-    "attrs": {
-     "key": "fda-inspection:1326578",
-     "classification": "VAI"
-    },
-    "facts": [
-     {
-      "id": "fact_1ab6031b4b908040",
-      "about": "inspection:fda-inspection:1326578",
-      "predicate": "classification",
-      "value": "VAI",
-      "confidence": 0.5,
-      "source": {
-       "kind": "fda-inspection",
-       "by": "upstream-investigator",
-       "at": "2026-10-22T07:23:18.582Z"
-      },
-      "assertedAt": "2026-10-22T07:23:18.582Z"
-     }
-    ],
-    "depth": 4
-   },
-   {
-    "id": "inspection:fda-inspection:590126",
-    "type": "Inspection",
-    "key": "fda-inspection:590126",
-    "label": "fda-inspection:590126",
-    "attrs": {
-     "key": "fda-inspection:590126",
-     "classification": "OAI"
-    },
-    "facts": [
-     {
-      "id": "fact_85da8b3d24652386",
-      "about": "inspection:fda-inspection:590126",
-      "predicate": "classification",
-      "value": "OAI",
-      "confidence": 0.5,
-      "source": {
-       "kind": "fda-inspection",
-       "by": "upstream-investigator",
-       "at": "2026-10-22T07:23:18.580Z"
-      },
-      "assertedAt": "2026-10-22T07:23:18.580Z"
-     }
-    ],
-    "depth": 4
-   },
-   {
-    "id": "inspection:fda-inspection:682974",
-    "type": "Inspection",
-    "key": "fda-inspection:682974",
-    "label": "fda-inspection:682974",
-    "attrs": {
-     "key": "fda-inspection:682974",
-     "classification": "VAI"
-    },
-    "facts": [
-     {
-      "id": "fact_5dcf17be0116ed19",
-      "about": "inspection:fda-inspection:682974",
-      "predicate": "classification",
-      "value": "VAI",
-      "confidence": 0.5,
-      "source": {
-       "kind": "fda-inspection",
-       "by": "upstream-investigator",
-       "at": "2026-10-22T07:23:18.580Z"
-      },
-      "assertedAt": "2026-10-22T07:23:18.580Z"
-     }
-    ],
-    "depth": 4
-   },
-   {
-    "id": "inspection:fda-inspection:732513",
-    "type": "Inspection",
-    "key": "fda-inspection:732513",
-    "label": "fda-inspection:732513",
-    "attrs": {
-     "key": "fda-inspection:732513",
-     "classification": "VAI"
-    },
-    "facts": [
-     {
-      "id": "fact_83724cb32375aca7",
-      "about": "inspection:fda-inspection:732513",
-      "predicate": "classification",
-      "value": "VAI",
-      "confidence": 0.5,
-      "source": {
-       "kind": "fda-inspection",
-       "by": "upstream-investigator",
-       "at": "2026-10-22T07:23:18.580Z"
-      },
-      "assertedAt": "2026-10-22T07:23:18.580Z"
-     }
-    ],
-    "depth": 4
-   },
-   {
-    "id": "inspection:fda-inspection:840224",
-    "type": "Inspection",
-    "key": "fda-inspection:840224",
-    "label": "fda-inspection:840224",
-    "attrs": {
-     "key": "fda-inspection:840224",
-     "classification": "VAI"
-    },
-    "facts": [
-     {
-      "id": "fact_d33a7376e97e972d",
-      "about": "inspection:fda-inspection:840224",
-      "predicate": "classification",
-      "value": "VAI",
-      "confidence": 0.5,
-      "source": {
-       "kind": "fda-inspection",
-       "by": "upstream-investigator",
-       "at": "2026-10-22T07:23:18.580Z"
-      },
-      "assertedAt": "2026-10-22T07:23:18.580Z"
-     }
-    ],
-    "depth": 4
-   },
-   {
-    "id": "inspection:fda-inspection:948193",
-    "type": "Inspection",
-    "key": "fda-inspection:948193",
-    "label": "fda-inspection:948193",
-    "attrs": {
-     "key": "fda-inspection:948193",
-     "classification": "VAI"
-    },
-    "facts": [
-     {
-      "id": "fact_80196efd0032ca29",
-      "about": "inspection:fda-inspection:948193",
-      "predicate": "classification",
-      "value": "VAI",
-      "confidence": 0.5,
-      "source": {
-       "kind": "fda-inspection",
-       "by": "upstream-investigator",
-       "at": "2026-10-22T07:23:18.579Z"
-      },
-      "assertedAt": "2026-10-22T07:23:18.579Z"
-     }
-    ],
-    "depth": 4
-   },
-   {
-    "id": "inspection:fda-inspection:995337",
-    "type": "Inspection",
-    "key": "fda-inspection:995337",
-    "label": "fda-inspection:995337",
-    "attrs": {
-     "key": "fda-inspection:995337",
-     "classification": "VAI"
-    },
-    "facts": [
-     {
-      "id": "fact_c80b5cff5bef27f7",
-      "about": "inspection:fda-inspection:995337",
-      "predicate": "classification",
-      "value": "VAI",
-      "confidence": 0.5,
-      "source": {
-       "kind": "fda-inspection",
-       "by": "upstream-investigator",
-       "at": "2026-10-22T07:23:18.581Z"
-      },
-      "assertedAt": "2026-10-22T07:23:18.581Z"
-     }
-    ],
-    "depth": 4
-   },
-   {
-    "id": "warning-letter:fda-warning-letter:72525",
-    "type": "WarningLetter",
-    "key": "fda-warning-letter:72525",
-    "label": "fda-warning-letter:72525",
-    "attrs": {
-     "key": "fda-warning-letter:72525"
-    },
-    "facts": [],
-    "depth": 4
    }
   ],
   "edges": [
@@ -2367,35 +1373,11 @@
     "from": "hospital-item:hospital-item:CG-131",
     "to": "package:ndc-package:36000-306-60",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:23:15.344Z",
+    "validFrom": "2026-10-22T11:25:39.862Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:15.344Z"
-    }
-   },
-   {
-    "id": "rel_716457bb98fbdfb5",
-    "from": "hospital-item:hospital-item:CG-237",
-    "to": "package:ndc-package:63187-778-12",
-    "type": "stocks",
-    "validFrom": "2026-10-22T07:23:15.344Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:15.344Z"
-    }
-   },
-   {
-    "id": "rel_a3c47d0a83fd986a",
-    "from": "hospital-item:hospital-item:CG-300",
-    "to": "package:ndc-package:71335-2182-8",
-    "type": "stocks",
-    "validFrom": "2026-10-22T07:23:15.344Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:15.344Z"
+     "at": "2026-10-22T11:25:39.862Z"
     }
    },
    {
@@ -2403,35 +1385,11 @@
     "from": "hospital-item:hospital-item:EA-E-000152",
     "to": "package:ndc-package:36000-306-60",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:23:15.341Z",
+    "validFrom": "2026-10-22T11:25:39.861Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:15.341Z"
-    }
-   },
-   {
-    "id": "rel_91a181a6e80fea7a",
-    "from": "hospital-item:hospital-item:EA-E-000209",
-    "to": "package:ndc-package:63187-778-12",
-    "type": "stocks",
-    "validFrom": "2026-10-22T07:23:15.343Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:15.343Z"
-    }
-   },
-   {
-    "id": "rel_a1fad785d8a4a2d6",
-    "from": "hospital-item:hospital-item:EA-E-000287",
-    "to": "package:ndc-package:71335-2182-8",
-    "type": "stocks",
-    "validFrom": "2026-10-22T07:23:15.343Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:15.343Z"
+     "at": "2026-10-22T11:25:39.861Z"
     }
    },
    {
@@ -2439,35 +1397,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0067",
     "to": "package:ndc-package:36000-306-60",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:23:15.344Z",
+    "validFrom": "2026-10-22T11:25:39.863Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:15.344Z"
-    }
-   },
-   {
-    "id": "rel_8912f19350519725",
-    "from": "hospital-item:hospital-item:LS-LS-0097",
-    "to": "package:ndc-package:63187-778-12",
-    "type": "stocks",
-    "validFrom": "2026-10-22T07:23:15.345Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:15.345Z"
-    }
-   },
-   {
-    "id": "rel_e208f3d93d0e7acc",
-    "from": "hospital-item:hospital-item:LS-LS-0126",
-    "to": "package:ndc-package:71335-2182-8",
-    "type": "stocks",
-    "validFrom": "2026-10-22T07:23:15.345Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:15.345Z"
+     "at": "2026-10-22T11:25:39.863Z"
     }
    },
    {
@@ -2475,35 +1409,11 @@
     "from": "package:ndc-package:36000-306-60",
     "to": "product:ndc-product:36000-306",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:23:15.342Z",
+    "validFrom": "2026-10-22T11:25:39.862Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:15.342Z"
-    }
-   },
-   {
-    "id": "rel_64c3c1b4f7d8cd64",
-    "from": "package:ndc-package:63187-778-12",
-    "to": "product:ndc-product:63187-778",
-    "type": "package-of",
-    "validFrom": "2026-10-22T07:23:15.343Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:15.343Z"
-    }
-   },
-   {
-    "id": "rel_ffcd662721dcdf3e",
-    "from": "package:ndc-package:71335-2182-8",
-    "to": "product:ndc-product:71335-2182",
-    "type": "package-of",
-    "validFrom": "2026-10-22T07:23:15.343Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:15.343Z"
+     "at": "2026-10-22T11:25:39.862Z"
     }
    },
    {
@@ -2511,11 +1421,11 @@
     "from": "product:ndc-product:36000-306",
     "to": "drug:generic:acetaminophen",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:23:15.342Z",
+    "validFrom": "2026-10-22T11:25:39.862Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:15.342Z"
+     "at": "2026-10-22T11:25:39.862Z"
     }
    },
    {
@@ -2523,239 +1433,20 @@
     "from": "product:ndc-product:36000-306",
     "to": "labeler:ndc-labeler:36000",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:23:15.342Z",
+    "validFrom": "2026-10-22T11:25:39.862Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:15.342Z"
-    }
-   },
-   {
-    "id": "rel_08cf8c6b95fcab5f",
-    "from": "product:ndc-product:63187-778",
-    "to": "drug:generic:acetaminophen",
-    "type": "of-drug",
-    "validFrom": "2026-10-22T07:23:15.343Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:15.343Z"
-    }
-   },
-   {
-    "id": "rel_c4d8a2fd25830cfe",
-    "from": "product:ndc-product:63187-778",
-    "to": "labeler:ndc-labeler:63187",
-    "type": "labeled-by",
-    "validFrom": "2026-10-22T07:23:15.343Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:15.343Z"
-    }
-   },
-   {
-    "id": "rel_32184243ebd8274e",
-    "from": "product:ndc-product:63187-778",
-    "to": "site:fei:3011557028",
-    "type": "made-at",
-    "validFrom": "2026-10-22T07:23:18.579Z",
-    "source": {
-     "kind": "dailymed-spl",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:18.579Z"
-    }
-   },
-   {
-    "id": "rel_f203c49987b6c4d6",
-    "from": "product:ndc-product:71335-2182",
-    "to": "drug:generic:acetaminophen",
-    "type": "of-drug",
-    "validFrom": "2026-10-22T07:23:15.343Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:15.343Z"
-    }
-   },
-   {
-    "id": "rel_3e773fad8fffd75f",
-    "from": "product:ndc-product:71335-2182",
-    "to": "labeler:ndc-labeler:71335",
-    "type": "labeled-by",
-    "validFrom": "2026-10-22T07:23:15.344Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:15.344Z"
-    }
-   },
-   {
-    "id": "rel_fbc06f39007e89e4",
-    "from": "product:ndc-product:71335-2182",
-    "to": "site:fei:1000519407",
-    "type": "made-at",
-    "validFrom": "2026-10-22T07:23:18.580Z",
-    "source": {
-     "kind": "dailymed-spl",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:18.580Z"
-    }
-   },
-   {
-    "id": "rel_c7de9932b14bddc9",
-    "from": "inspection:fda-inspection:948193",
-    "to": "site:fei:3011557028",
-    "type": "inspected",
-    "validFrom": "2026-10-22T07:23:18.579Z",
-    "source": {
-     "kind": "fda-inspection",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:18.579Z"
-    }
-   },
-   {
-    "id": "rel_c1f2efb382e10163",
-    "from": "inspection:fda-inspection:1194148",
-    "to": "site:fei:3011557028",
-    "type": "inspected",
-    "validFrom": "2026-10-22T07:23:18.580Z",
-    "source": {
-     "kind": "fda-inspection",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:18.580Z"
-    }
-   },
-   {
-    "id": "rel_746f8a510450f02a",
-    "from": "inspection:fda-inspection:590126",
-    "to": "site:fei:1000519407",
-    "type": "inspected",
-    "validFrom": "2026-10-22T07:23:18.580Z",
-    "source": {
-     "kind": "fda-inspection",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:18.580Z"
-    }
-   },
-   {
-    "id": "rel_0a3a99490c4a4839",
-    "from": "inspection:fda-inspection:682974",
-    "to": "site:fei:1000519407",
-    "type": "inspected",
-    "validFrom": "2026-10-22T07:23:18.580Z",
-    "source": {
-     "kind": "fda-inspection",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:18.580Z"
-    }
-   },
-   {
-    "id": "rel_5c9d8241466edc99",
-    "from": "inspection:fda-inspection:732513",
-    "to": "site:fei:1000519407",
-    "type": "inspected",
-    "validFrom": "2026-10-22T07:23:18.580Z",
-    "source": {
-     "kind": "fda-inspection",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:18.580Z"
-    }
-   },
-   {
-    "id": "rel_4024908ba5d1b38e",
-    "from": "inspection:fda-inspection:840224",
-    "to": "site:fei:1000519407",
-    "type": "inspected",
-    "validFrom": "2026-10-22T07:23:18.580Z",
-    "source": {
-     "kind": "fda-inspection",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:18.580Z"
-    }
-   },
-   {
-    "id": "rel_f5f84814d1ae7306",
-    "from": "inspection:fda-inspection:995337",
-    "to": "site:fei:1000519407",
-    "type": "inspected",
-    "validFrom": "2026-10-22T07:23:18.580Z",
-    "source": {
-     "kind": "fda-inspection",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:18.580Z"
-    }
-   },
-   {
-    "id": "rel_fd8bad12b4cd2729",
-    "from": "inspection:fda-inspection:1110509",
-    "to": "site:fei:1000519407",
-    "type": "inspected",
-    "validFrom": "2026-10-22T07:23:18.581Z",
-    "source": {
-     "kind": "fda-inspection",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:18.581Z"
-    }
-   },
-   {
-    "id": "rel_d0171399d197e74c",
-    "from": "inspection:fda-inspection:1165537",
-    "to": "site:fei:1000519407",
-    "type": "inspected",
-    "validFrom": "2026-10-22T07:23:18.581Z",
-    "source": {
-     "kind": "fda-inspection",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:18.581Z"
-    }
-   },
-   {
-    "id": "rel_483c084e97e617f8",
-    "from": "inspection:fda-inspection:1228907",
-    "to": "site:fei:1000519407",
-    "type": "inspected",
-    "validFrom": "2026-10-22T07:23:18.581Z",
-    "source": {
-     "kind": "fda-inspection",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:18.581Z"
-    }
-   },
-   {
-    "id": "rel_b4d911a55a254bc7",
-    "from": "inspection:fda-inspection:1326578",
-    "to": "site:fei:1000519407",
-    "type": "inspected",
-    "validFrom": "2026-10-22T07:23:18.582Z",
-    "source": {
-     "kind": "fda-inspection",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:18.582Z"
-    }
-   },
-   {
-    "id": "rel_4a12d36a9e28ad6e",
-    "from": "warning-letter:fda-warning-letter:72525",
-    "to": "site:fei:1000519407",
-    "type": "issued-to",
-    "validFrom": "2026-10-22T07:23:18.580Z",
-    "source": {
-     "kind": "fda-warning-letter",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:18.580Z"
+     "at": "2026-10-22T11:25:39.862Z"
     }
    }
   ],
   "counts": {
-   "HospitalItem": 9,
-   "Package": 3,
-   "Product": 3,
+   "HospitalItem": 3,
+   "Package": 1,
+   "Product": 1,
    "Drug": 1,
-   "Labeler": 3,
-   "Site": 2,
-   "Inspection": 11,
-   "WarningLetter": 1
+   "Labeler": 1
   }
  }
 }

@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-1eb080",
+ "id": "case-2026-10-22-3c7f1a",
  "question": "Why is verapamil hydrochloride short, and what do we do?",
- "askedAt": "2026-10-22T09:09:01.906Z",
+ "askedAt": "2026-10-22T12:49:03.486Z",
  "asOf": "2026-10-21",
  "molecule": "verapamil hydrochloride",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5HDXJDBHHRNHQANBETXDM16",
+  "contractId": "01M5HTGJZ5Y309B9EV6W4T68FE",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-bc05c8"
+    "Q-82e55a"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 4821,
+   "ms": 3205,
    "rows": 2,
-   "finding": "2 stock lines across 2 hospitals.",
+   "finding": "2 stock lines across 2 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-716ae2"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1211,
+   "ms": 414,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-f20da0",
-    "Q-7b5736"
+    "Q-979e1a",
+    "Q-e36ea5"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 477,
+   "ms": 206,
    "rows": 4,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,13 +68,15 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-5cc387"
+    "Q-005af5"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1743,
-   "rows": 144,
+   "ms": 1116,
+   "rows": 133,
    "finding": "21 labelers make it in this form.",
    "status": "ok"
   },
@@ -81,15 +88,15 @@
     "Q-5a2a45",
     "Q-8c11bc",
     "Q-2ac723",
-    "Q-ce1bc6"
+    "Q-f2d257"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1229,
+   "ms": 531,
    "rows": 3,
    "finding": "3 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1212,
+   "ms": 558,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-4212a0"
+    "Q-7a6a4c"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 989,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1161,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 1,
+   "ms": 0,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -153,22 +164,65 @@
    "onHand": 209,
    "dailyUse": 9.54,
    "days": 21.9,
-   "unit": "package",
+   "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 30, converted to units",
+   "presentation": "verapamil hydrochloride|120mg|tablet||tablet",
+   "presentationLabel": "120 mg tablet",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-354",
    "ndc11": "63187084930",
-   "description": "verapamil hydrochloride",
+   "description": "verapamil hydrochloride 120 mg/1",
    "labeler": "Proficient Rx LP",
-   "onHand": 442.15,
+   "onHand": 442,
    "dailyUse": 14.066,
    "days": 31.4,
    "unit": "tablet",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "verapamil hydrochloride|120mg|tablet||tablet",
+   "presentationLabel": "120 mg tablet",
    "evidence": "E2"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "verapamil hydrochloride|120mg|tablet||tablet",
+   "label": "120 mg tablet",
+   "short": "120 mg",
+   "unit": "tablet",
+   "onHand": 651,
+   "dailyUse": 23.606,
+   "days": 27.6,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 209,
+     "dailyUse": 9.54,
+     "days": 21.9,
+     "lines": [
+      "EA-E-000210"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 442,
+     "dailyUse": 14.066,
+     "days": 31.4,
+     "lines": [
+      "CG-354"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -422,15 +476,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from A-S Medication Solutions",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Actavis Pharma, Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -440,25 +485,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Aphena Pharma Solutions - Tennessee, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from AvKARE",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Bryant Ranch Prepack",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -494,15 +521,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Golden State Medical Supply, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Heritage Pharmaceuticals Inc. d/b/a Avet Pharmaceuticals Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -513,69 +531,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Nivagen Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Northwind Health Company, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals,Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from PD-Rx Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Preferred Pharmaceuticals Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Preferred Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from REMEDYREPACK INC.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -625,47 +580,55 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "FDA shortage list shows Pfizer Inc. verapamil hydrochloride injection discontinued as of 2025-11-21; our current label names Proficient Rx LP with VAI inspections in 2015 and 2022",
+  "headline": "Verapamil hydrochloride is not on FDA's shortage list as of 2026-10-21; Pfizer injection discontinued 2025-11-21",
   "sentences": [
    {
-    "text": "FDA's shortage list records Pfizer Inc. verapamil hydrochloride injection as discontinued with an initial posting date of 2025-11-21.",
+    "text": "FDA's drug shortage list shows verapamil hydrochloride is not listed as of 2026-10-21.",
+    "cites": [
+     "D3"
+    ]
+   },
+   {
+    "text": "A Pfizer Inc. verapamil hydrochloride injection entry is marked To Be Discontinued with an initial posting date of 2025-11-21.",
     "cites": [
      "E6"
     ]
    },
    {
-    "text": "Our current product label identifies Proficient Rx LP as the labeler and plant (FEI 3011557028) for NDC 63187084930.",
+    "text": "Corvale East holds 209 tablets of the 120 mg presentation at 9.5 tablets per day, giving 21.9 days on hand.",
     "cites": [
-     "E5"
+     "D1"
     ]
    },
    {
-    "text": "FDA inspection records for that plant show a VAI classification on 2015-10-22 (known 2016-01-20) and another VAI on 2022-12-08 (known 2023-02-08).",
+    "text": "Corvale General holds 442 tablets of the 120 mg presentation at 14.1 tablets per day, giving 31.4 days on hand.",
     "cites": [
-     "E3",
-     "E4"
-    ]
-   },
-   {
-    "text": "Corvale East has 22 days on hand at current use and Corvale General has 31 days on hand.",
-    "cites": [
-     "D1",
      "D2"
+    ]
+   },
+   {
+    "text": "The rule ranks buying from Actavis Pharma, Inc. as the best option; it is not on FDA's shortage list today and its label names no plant we could place.",
+    "cites": [
+     "D4"
+    ]
+   },
+   {
+    "text": "Alternate manufacturers AvKARE and Cadila Pharmaceuticals Limited are also ranked but similarly list no identifiable plant.",
+    "cites": [
+     "D5",
+     "D6"
+    ]
+   },
+   {
+    "text": "Check current contract terms and allocation limits with Actavis Pharma, Inc. before placing orders.",
+    "cites": [
+     "D4"
     ]
    }
   ],
   "verifier": {
-   "checked": 7,
-   "rejected": [
-    {
-     "text": "The best option by rule is to buy from A-S Medication Solutions, which is not on FDA's shortage list today, though its label names no plant we could place.",
-     "reason": "cites nothing"
-    },
-    {
-     "text": "Check whether A-S Medication Solutions can confirm a manufacturing site and current supply reliability before committing.",
-     "reason": "cites nothing"
-    }
-   ],
+   "checked": 8,
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -673,45 +636,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -726,80 +710,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T09:08:50.220Z",
+   "at": "2026-10-22T12:48:56.294Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract BETXDM16 scope"
+   "reason": "in contract 6W4T68FE scope"
   },
   {
-   "at": "2026-10-22T09:08:50.220Z",
+   "at": "2026-10-22T12:48:56.294Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract BETXDM16 scope"
+   "reason": "in contract 6W4T68FE scope"
   },
   {
-   "at": "2026-10-22T09:08:55.043Z",
+   "at": "2026-10-22T12:48:59.499Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract BETXDM16 scope"
+   "reason": "in contract 6W4T68FE scope"
   },
   {
-   "at": "2026-10-22T09:08:56.253Z",
+   "at": "2026-10-22T12:48:59.914Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract BETXDM16 scope"
+   "reason": "in contract 6W4T68FE scope"
   },
   {
-   "at": "2026-10-22T09:08:56.730Z",
+   "at": "2026-10-22T12:49:00.119Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract BETXDM16 scope"
+   "reason": "in contract 6W4T68FE scope"
   },
   {
-   "at": "2026-10-22T09:08:58.474Z",
+   "at": "2026-10-22T12:49:01.235Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract BETXDM16 scope"
+   "reason": "in contract 6W4T68FE scope"
   },
   {
-   "at": "2026-10-22T09:08:59.704Z",
+   "at": "2026-10-22T12:49:01.766Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract BETXDM16 scope"
+   "reason": "in contract 6W4T68FE scope"
   },
   {
-   "at": "2026-10-22T09:09:00.916Z",
+   "at": "2026-10-22T12:49:02.324Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract BETXDM16 scope"
+   "reason": "in contract 6W4T68FE scope"
   },
   {
-   "at": "2026-10-22T09:09:01.905Z",
+   "at": "2026-10-22T12:49:03.486Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract BETXDM16 scope"
+   "reason": "in contract 6W4T68FE scope"
   },
   {
-   "at": "2026-10-22T09:09:01.906Z",
+   "at": "2026-10-22T12:49:03.486Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract BETXDM16 scope"
+   "reason": "in contract 6W4T68FE scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-bc05c8",
+   "queryId": "Q-82e55a",
    "row": 0,
    "label": "Corvale East: VERAPAMIL HYDROCHLORIDE 120MG TAB",
    "fields": {
@@ -810,37 +794,47 @@
     "description": "VERAPAMIL HYDROCHLORIDE 120MG TAB",
     "on_hand": "209.00",
     "daily_use": "9.540",
-    "unit": "package",
+    "unit": "tablet",
+    "pkg_units": "30.00",
+    "unit_basis": "packages of 30, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "verapamil hydrochloride",
     "labeler_name": "Proficient Rx LP",
     "package_ndc": "63187-849-30",
     "spl_set_id": "19cb23bd-cc6d-45fc-a1fc-b4130ea460a6",
     "dosage_form": "TABLET, FILM COATED, EXTENDED RELEASE",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "VERAPAMIL HYDROCHLORIDE 120 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-bc05c8",
+   "queryId": "Q-82e55a",
    "row": 1,
-   "label": "Corvale General: verapamil hydrochloride",
+   "label": "Corvale General: verapamil hydrochloride 120 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-354",
     "ndc11": "63187084930",
     "ndc_as_recorded": "63187084930",
-    "description": "verapamil hydrochloride",
-    "on_hand": "442.15",
+    "description": "verapamil hydrochloride 120 mg/1",
+    "on_hand": "442.00",
     "daily_use": "14.066",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "verapamil hydrochloride",
     "labeler_name": "Proficient Rx LP",
     "package_ndc": "63187-849-30",
     "spl_set_id": "19cb23bd-cc6d-45fc-a1fc-b4130ea460a6",
     "dosage_form": "TABLET, FILM COATED, EXTENDED RELEASE",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "VERAPAMIL HYDROCHLORIDE 120 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E3": {
@@ -893,7 +887,7 @@
   },
   "E6": {
    "id": "E6",
-   "queryId": "Q-f20da0",
+   "queryId": "Q-979e1a",
    "row": 0,
    "label": "FDA shortage list: Pfizer Inc., To Be Discontinued",
    "fields": {
@@ -910,185 +904,246 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 209 units of verapamil hydrochloride at 9.5 a day: 22 days on hand",
+   "label": "Corvale East holds 209 tablets of verapamil hydrochloride 120 mg at 9.5 a day: 21.9 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "120 mg tablet",
     "on_hand": 209,
     "daily_use": 9.5,
-    "days_on_hand": 22
+    "days_on_hand": 21.9
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 442 units of verapamil hydrochloride at 14.1 a day: 31 days on hand",
+   "label": "Corvale General holds 442 tablets of verapamil hydrochloride 120 mg at 14.1 a day: 31.4 days on hand",
    "fields": {
     "hospital": "Corvale General",
+    "presentation": "120 mg tablet",
     "on_hand": 442,
     "daily_use": 14.1,
-    "days_on_hand": 31
+    "days_on_hand": 31.4
+   }
+  },
+  "D3": {
+   "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "verapamil hydrochloride is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Actavis Pharma, Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from AvKARE. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Cadila Pharmaceuticals Limited. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-bc05c8": {
-   "id": "Q-bc05c8",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%verapamil%' OR lower(s.description) LIKE '%verapamil%' ORDER BY s.hospital, s.item_key",
-   "ms": 4819,
+  "Q-82e55a": {
+   "id": "Q-82e55a",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*verapamil(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*verapamil(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3204,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T09:08:55.039Z",
+   "ranAt": "2026-10-22T12:48:59.498Z",
    "rows": 2
   },
   "Q-716ae2": {
    "id": "Q-716ae2",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('19cb23bd-cc6d-45fc-a1fc-b4130ea460a6') ORDER BY ps.set_id, ps.establishment",
-   "ms": 1208,
+   "ms": 413,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T09:08:56.251Z",
+   "ranAt": "2026-10-22T12:48:59.913Z",
    "rows": 1
   },
-  "Q-f20da0": {
-   "id": "Q-f20da0",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%verapamil%' ORDER BY status, company_name, package_ndc",
-   "ms": 243,
+  "Q-979e1a": {
+   "id": "Q-979e1a",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*verapamil(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 100,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T09:08:56.496Z",
+   "ranAt": "2026-10-22T12:49:00.013Z",
    "rows": 1
   },
-  "Q-7b5736": {
-   "id": "Q-7b5736",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%verapamil%' ORDER BY first_posting",
-   "ms": 231,
+  "Q-e36ea5": {
+   "id": "Q-e36ea5",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*verapamil(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 103,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T09:08:56.729Z",
+   "ranAt": "2026-10-22T12:49:00.118Z",
    "rows": 3
   },
-  "Q-5cc387": {
-   "id": "Q-5cc387",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%verapamil%' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 1741,
+  "Q-005af5": {
+   "id": "Q-005af5",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*verapamil(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1114,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T09:08:58.471Z",
-   "rows": 144
+   "ranAt": "2026-10-22T12:49:01.234Z",
+   "rows": 133
   },
   "Q-5a2a45": {
    "id": "Q-5a2a45",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3011557028') ORDER BY fei, end_date",
-   "ms": 404,
+   "ms": 217,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T09:08:58.878Z",
+   "ranAt": "2026-10-22T12:49:01.453Z",
    "rows": 3
   },
   "Q-8c11bc": {
    "id": "Q-8c11bc",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3011557028') ORDER BY fei, action_date",
-   "ms": 217,
+   "ms": 104,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T09:08:59.096Z",
+   "ranAt": "2026-10-22T12:49:01.558Z",
    "rows": 0
   },
   "Q-2ac723": {
    "id": "Q-2ac723",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3011557028') OR (fei_match <> 'name_and_city' AND firm_key IN ('proficient rx')) ORDER BY date_published",
-   "ms": 203,
+   "ms": 89,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T09:08:59.301Z",
+   "ranAt": "2026-10-22T12:49:01.648Z",
    "rows": 0
   },
-  "Q-ce1bc6": {
-   "id": "Q-ce1bc6",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('proficient rx') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%verapamil%' ORDER BY initiation_date",
-   "ms": 399,
+  "Q-f2d257": {
+   "id": "Q-f2d257",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('proficient rx') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*verapamil(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 116,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T09:08:59.701Z",
+   "ranAt": "2026-10-22T12:49:01.765Z",
    "rows": 0
   },
   "Q-995558": {
    "id": "Q-995558",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('63187084930')",
-   "ms": 1211,
+   "ms": 557,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T09:09:00.915Z",
+   "ranAt": "2026-10-22T12:49:02.323Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2522,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T09:00:21.184Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 2080,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T09:00:23.265Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 2458,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T09:00:25.725Z",
-   "rows": 2
-  },
-  "Q-4212a0": {
-   "id": "Q-4212a0",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%verapamil%'",
-   "ms": 987,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T09:09:01.903Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-7a6a4c": {
+   "id": "Q-7a6a4c",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*verapamil(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1160,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:49:03.484Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 18723,
+  "zetarisMs": 17385,
   "modelCalls": 1,
-  "tokensIn": 873,
-  "tokensOut": 432,
+  "tokensIn": 1216,
+  "tokensOut": 415,
   "mode": "live"
  },
  "slug": "verapamil",
@@ -1102,7 +1157,7 @@
     "id": "hospital-item:hospital-item:CG-354",
     "type": "HospitalItem",
     "key": "hospital-item:CG-354",
-    "label": "Corvale General: verapamil hydrochloride",
+    "label": "Corvale General: verapamil hydrochloride 120 mg/1",
     "attrs": {
      "key": "hospital-item:CG-354"
     },
@@ -1186,7 +1241,7 @@
     },
     "facts": [
      {
-      "id": "fact_ea6685aad6061bd5",
+      "id": "fact_81dfb2427e423890",
       "about": "inspection:fda-inspection:1194148",
       "predicate": "classification",
       "value": "VAI",
@@ -1194,9 +1249,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:08:59.703Z"
+       "at": "2026-10-22T12:49:01.766Z"
       },
-      "assertedAt": "2026-10-22T09:08:59.703Z"
+      "assertedAt": "2026-10-22T12:49:01.766Z"
      }
     ],
     "depth": 4
@@ -1212,7 +1267,7 @@
     },
     "facts": [
      {
-      "id": "fact_61fa4fc6fa154253",
+      "id": "fact_fc29545157548ad6",
       "about": "inspection:fda-inspection:948193",
       "predicate": "classification",
       "value": "VAI",
@@ -1220,9 +1275,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:08:59.703Z"
+       "at": "2026-10-22T12:49:01.766Z"
       },
-      "assertedAt": "2026-10-22T09:08:59.703Z"
+      "assertedAt": "2026-10-22T12:49:01.766Z"
      }
     ],
     "depth": 4
@@ -1234,11 +1289,11 @@
     "from": "hospital-item:hospital-item:CG-354",
     "to": "package:ndc-package:63187-849-30",
     "type": "stocks",
-    "validFrom": "2026-10-22T09:08:55.042Z",
+    "validFrom": "2026-10-22T12:48:59.499Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:08:55.042Z"
+     "at": "2026-10-22T12:48:59.499Z"
     }
    },
    {
@@ -1246,11 +1301,11 @@
     "from": "hospital-item:hospital-item:EA-E-000210",
     "to": "package:ndc-package:63187-849-30",
     "type": "stocks",
-    "validFrom": "2026-10-22T09:08:55.042Z",
+    "validFrom": "2026-10-22T12:48:59.499Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:08:55.042Z"
+     "at": "2026-10-22T12:48:59.499Z"
     }
    },
    {
@@ -1258,11 +1313,11 @@
     "from": "package:ndc-package:63187-849-30",
     "to": "product:ndc-product:63187-849",
     "type": "package-of",
-    "validFrom": "2026-10-22T09:08:55.042Z",
+    "validFrom": "2026-10-22T12:48:59.499Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:08:55.042Z"
+     "at": "2026-10-22T12:48:59.499Z"
     }
    },
    {
@@ -1270,11 +1325,11 @@
     "from": "product:ndc-product:63187-849",
     "to": "drug:generic:verapamil hydrochloride",
     "type": "of-drug",
-    "validFrom": "2026-10-22T09:08:55.042Z",
+    "validFrom": "2026-10-22T12:48:59.499Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:08:55.042Z"
+     "at": "2026-10-22T12:48:59.499Z"
     }
    },
    {
@@ -1282,11 +1337,11 @@
     "from": "product:ndc-product:63187-849",
     "to": "labeler:ndc-labeler:63187",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T09:08:55.042Z",
+    "validFrom": "2026-10-22T12:48:59.499Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:08:55.042Z"
+     "at": "2026-10-22T12:48:59.499Z"
     }
    },
    {
@@ -1294,11 +1349,11 @@
     "from": "product:ndc-product:63187-849",
     "to": "site:fei:3011557028",
     "type": "made-at",
-    "validFrom": "2026-10-22T09:08:59.703Z",
+    "validFrom": "2026-10-22T12:49:01.766Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:08:59.703Z"
+     "at": "2026-10-22T12:49:01.766Z"
     }
    },
    {
@@ -1306,11 +1361,11 @@
     "from": "inspection:fda-inspection:948193",
     "to": "site:fei:3011557028",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:08:59.703Z",
+    "validFrom": "2026-10-22T12:49:01.766Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:08:59.703Z"
+     "at": "2026-10-22T12:49:01.766Z"
     }
    },
    {
@@ -1318,11 +1373,11 @@
     "from": "inspection:fda-inspection:1194148",
     "to": "site:fei:3011557028",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:08:59.703Z",
+    "validFrom": "2026-10-22T12:49:01.766Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:08:59.703Z"
+     "at": "2026-10-22T12:49:01.766Z"
     }
    }
   ],

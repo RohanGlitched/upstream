@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-a123a4",
+ "id": "case-2026-10-22-51c5fa",
  "question": "Why is clindamycin short, and what do we do?",
- "askedAt": "2026-10-22T07:35:05.056Z",
+ "askedAt": "2026-10-22T11:40:17.522Z",
  "asOf": "2026-10-21",
  "molecule": "clindamycin in 5 percent dextrose",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H8HK01CMGJGX6VWVXFTCJX",
+  "contractId": "01M5HPJMR8EHCYZN1F493HVZ27",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-e1c06b"
+    "Q-f27d7b"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2892,
+   "ms": 3386,
    "rows": 8,
-   "finding": "8 stock lines across 3 hospitals.",
+   "finding": "8 stock lines across 3 hospitals, 5 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-b40bcb"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 641,
+   "ms": 435,
    "rows": 4,
    "finding": "4 plant links on 4 labels; 3 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-aa5427",
-    "Q-f9ac11"
+    "Q-35858a",
+    "Q-2c85cf"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 393,
+   "ms": 228,
    "rows": 35,
    "finding": "On FDA's list as Current for 4 companies.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-feadd7"
+    "Q-0407b9"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2075,
+   "ms": 1258,
    "rows": 38,
    "finding": "10 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-589f4b",
     "Q-7d249e",
     "Q-2eec2d",
-    "Q-88c641"
+    "Q-768f2f"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1190,
+   "ms": 615,
    "rows": 44,
    "finding": "42 inspections (1 OAI at our plants), 2 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,7 +111,7 @@
    "sources": [
     "fda.citations"
    ],
-   "ms": 250,
+   "ms": 150,
    "rows": 6,
    "finding": "6 Form 483 observations recorded.",
    "status": "ok"
@@ -119,9 +126,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1149,
+   "ms": 664,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -129,19 +136,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-665cc7"
+    "Q-f955b9"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1730,
-   "rows": 7,
-   "finding": "12 stock rows across the system fail the NDC rule; 1 of them are this drug.",
+   "ms": 1427,
+   "rows": 10,
+   "finding": "11 stock rows across the system fail the NDC rule; 1 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -168,8 +179,11 @@
    "onHand": 88,
    "dailyUse": 14.249,
    "days": 6.2,
-   "unit": "package",
+   "unit": "bag",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 24, converted to units",
+   "presentation": "clindamycin in 5 percent dextrose|6mg/ml|injection|50ml|bag",
+   "presentationLabel": "6 mg/mL injection, 50 mL bag",
    "evidence": "E1"
   },
   {
@@ -181,60 +195,75 @@
    "onHand": 230,
    "dailyUse": 15.006,
    "days": 15.3,
-   "unit": "package",
+   "unit": "each",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "clindamycin phosphate|10mg/ml|lotion|60ml|each",
+   "presentationLabel": "10 mg/mL lotion, 60 mL each",
    "evidence": "E2"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-184",
    "ndc11": "16781046206",
-   "description": "CLINDAMYCIN",
+   "description": "CLINDAMYCIN 10 mg/mL",
    "labeler": "Bausch Health US, LLC",
-   "onHand": 238.29,
+   "onHand": 238,
    "dailyUse": 14.916,
    "days": 16,
    "unit": "each",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "clindamycin|10mg/ml|gel|7.3ml|each",
+   "presentationLabel": "10 mg/mL gel, 7.3 mL each",
    "evidence": "E3"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-185",
    "ndc11": "71335295301",
-   "description": "clindamycin phosphate",
+   "description": "clindamycin phosphate 10 mg/mL",
    "labeler": "Bryant Ranch Prepack",
-   "onHand": 307.34,
+   "onHand": 307,
    "dailyUse": 15.798,
-   "days": 19.5,
+   "days": 19.4,
    "unit": "each",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "clindamycin phosphate|10mg/ml|lotion|60ml|each",
+   "presentationLabel": "10 mg/mL lotion, 60 mL each",
    "evidence": "E4"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-20",
    "ndc11": "00781328809",
-   "description": "Clindamycin in 5 Percent Dextrose",
+   "description": "Clindamycin in 5 Percent Dextrose 6 mg/mL",
    "labeler": "Sandoz Inc",
-   "onHand": 181.68,
+   "onHand": 181,
    "dailyUse": 15.669,
    "days": 11.6,
    "unit": "bag",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "clindamycin in 5 percent dextrose|6mg/ml|injection|50ml|bag",
+   "presentationLabel": "6 mg/mL injection, 50 mL bag",
    "evidence": "E5"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-21",
    "ndc11": "00009077526",
-   "description": "clindamycin phosphate",
+   "description": "clindamycin phosphate 150 mg/mL",
    "labeler": "Pharmacia & Upjohn Company LLC",
-   "onHand": 182.22,
+   "onHand": 182,
    "dailyUse": 15.706,
    "days": 11.6,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "clindamycin phosphate|150mg/ml|injection|4ml|vial",
+   "presentationLabel": "150 mg/mL injection, 4 mL vial",
    "evidence": "E6"
   },
   {
@@ -248,6 +277,9 @@
    "days": 19.6,
    "unit": "vial",
    "ndcMatch": "blank in source",
+   "unitBasis": "units of use, as exported",
+   "presentation": "unplaced:LS-LS-0001",
+   "presentationLabel": "clindamycin phosphate 150 mg/mL 4 mL vial (NDC not in FDA's file)",
    "evidence": "E7"
   },
   {
@@ -261,7 +293,163 @@
    "days": 19.2,
    "unit": "bag",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "clindamycin in 5 percent dextrose|6mg/ml|injection|50ml|bag",
+   "presentationLabel": "6 mg/mL injection, 50 mL bag",
    "evidence": "E8"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "clindamycin in 5 percent dextrose|6mg/ml|injection|50ml|bag",
+   "label": "6 mg/mL injection, 50 mL bag",
+   "short": "6 mg/mL, 50 mL",
+   "unit": "bag",
+   "onHand": 347,
+   "dailyUse": 33.981,
+   "days": 10.2,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 88,
+     "dailyUse": 14.249,
+     "days": 6.2,
+     "lines": [
+      "EA-E-000125"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 181,
+     "dailyUse": 15.669,
+     "days": 11.6,
+     "lines": [
+      "CG-20"
+     ],
+     "evidence": [
+      "E5"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 78,
+     "dailyUse": 4.063,
+     "days": 19.2,
+     "lines": [
+      "LS-LS-0049"
+     ],
+     "evidence": [
+      "E8"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "clindamycin phosphate|150mg/ml|injection|4ml|vial",
+   "label": "150 mg/mL injection, 4 mL vial",
+   "short": "150 mg/mL, 4 mL",
+   "unit": "vial",
+   "onHand": 182,
+   "dailyUse": 15.706,
+   "days": 11.6,
+   "hospitals": [
+    {
+     "hospital": "Corvale General",
+     "onHand": 182,
+     "dailyUse": 15.706,
+     "days": 11.6,
+     "lines": [
+      "CG-21"
+     ],
+     "evidence": [
+      "E6"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "clindamycin phosphate|10mg/ml|lotion|60ml|each",
+   "label": "10 mg/mL lotion, 60 mL each",
+   "short": "10 mg/mL, 60 mL",
+   "unit": "each",
+   "onHand": 537,
+   "dailyUse": 30.804,
+   "days": 17.4,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 230,
+     "dailyUse": 15.006,
+     "days": 15.3,
+     "lines": [
+      "EA-E-000290"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 307,
+     "dailyUse": 15.798,
+     "days": 19.4,
+     "lines": [
+      "CG-185"
+     ],
+     "evidence": [
+      "E4"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "clindamycin|10mg/ml|gel|7.3ml|each",
+   "label": "10 mg/mL gel, 7.3 mL each",
+   "short": "10 mg/mL, 7.3 mL",
+   "unit": "each",
+   "onHand": 238,
+   "dailyUse": 14.916,
+   "days": 16,
+   "hospitals": [
+    {
+     "hospital": "Corvale General",
+     "onHand": 238,
+     "dailyUse": 14.916,
+     "days": 16,
+     "lines": [
+      "CG-184"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "unplaced:LS-LS-0001",
+   "label": "clindamycin phosphate 150 mg/mL 4 mL vial (NDC not in FDA's file)",
+   "short": "clindamycin phosphate 150 mg/mL 4 mL vial",
+   "unit": "vial",
+   "onHand": 55,
+   "dailyUse": 2.807,
+   "days": 19.6,
+   "hospitals": [
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 55,
+     "dailyUse": 2.807,
+     "days": 19.6,
+     "lines": [
+      "LS-LS-0001"
+     ],
+     "evidence": [
+      "E7"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -787,20 +975,34 @@
  ],
  "options": [
   {
+   "kind": "transfer",
+   "rank": 1,
+   "title": "Transfer 21 bags of 6 mg/mL, 50 mL from Corvale Lakeside to Corvale East",
+   "detail": "Corvale Lakeside has 19 days of 6 mg/mL injection, 50 mL bags on hand and can spare 21 bags while keeping two weeks; Corvale East has 6.2 days and would reach 8.",
+   "why": "Same presentation, no clinical change, no new supplier.",
+   "needs": "pharmacy director (transfer request)",
+   "evidence": [
+    "E8",
+    "E1"
+   ],
+   "transfer": {
+    "qty": 21,
+    "unit": "bag",
+    "presentation": "6 mg/mL injection, 50 mL bag",
+    "from": "Corvale Lakeside",
+    "to": "Corvale East",
+    "fromDays": 19.2,
+    "toDays": 6.2,
+    "fromAfter": 14,
+    "toAfter": 8
+   }
+  },
+  {
    "kind": "alternate_manufacturer",
    "rank": 2,
    "title": "Buy from Civica, Inc.",
    "detail": "Not on FDA's shortage list today. Plants: InfoRLife SA.",
    "why": "Same product, no clinical change, plant record clear.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Henry Schein, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
    "evidence": []
   },
@@ -871,17 +1073,17 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "FDA's shortage list shows clindamycin in 5% dextrose has been posted since 2023-03-21 and remains current for Baxter, Pfizer, Sagent, and Sandoz as of 2026-10-21",
+  "headline": "FDA's records trace our supply to a plant classified VAI 369 days before the shortage posting",
   "sentences": [
    {
-    "text": "FDA first posted the shortage on 2023-03-21 and the listing remains current as of 2026-10-21, a duration of 43 months.",
+    "text": "FDA first posted the clindamycin phosphate injection shortage on 2023-03-21 and it remains current as of 2026-10-21.",
     "cites": [
      "E42",
-     "D10"
+     "D11"
     ]
    },
    {
-    "text": "The shortage is listed for Baxter Healthcare, Pfizer Inc., Sagent Pharmaceuticals, and Sandoz Inc., all with current status.",
+    "text": "The shortage listing includes Baxter Healthcare, Pfizer Inc., Sagent Pharmaceuticals, and Sandoz Inc. as affected companies.",
     "cites": [
      "E37",
      "E38",
@@ -890,34 +1092,42 @@
     ]
    },
    {
-    "text": "Sandoz's label names InfoRLife SA as the manufacturing plant, but the plant is not placed in our records.",
+    "text": "Our Corvale East and Corvale Lakeside inventory both carry Sandoz Inc. product with NDC 0781-3288-09.",
+    "cites": [
+     "E1",
+     "E8"
+    ]
+   },
+   {
+    "text": "The Sandoz label names InfoRLife SA as the manufacturing plant.",
     "cites": [
      "E9"
     ]
    },
    {
-    "text": "The rule-based best option is to buy from Civica, Inc., which is not on FDA's shortage list today and uses InfoRLife SA.",
+    "text": "FDA inspection 1165537 at Bryant Ranch PrePack (FEI 1000519407) ended 2022-03-17 and was classified VAI, with the classification letter dated 2022-05-19 — 369 days before FDA posted the shortage on 2023-03-21.",
     "cites": [
-     "D7"
+     "D8",
+     "E17"
     ]
    },
    {
-    "text": "Corvale East has 11 days on hand, Corvale General has 15 days, and Corvale Lakeside has 19 days at current usage rates.",
+    "text": "Corvale East has 6.2 days on hand of the 6 mg/mL 50 mL bags while Corvale Lakeside has 19.2 days.",
     "cites": [
      "D1",
-     "D2",
      "D3"
+    ]
+   },
+   {
+    "text": "The top-ranked option is to transfer 21 bags of 6 mg/mL 50 mL from Corvale Lakeside to Corvale East, which would raise Corvale East to 8 days on hand while Corvale Lakeside retains two weeks of supply.",
+    "cites": [
+     "D12"
     ]
    }
   ],
   "verifier": {
-   "checked": 7,
-   "rejected": [
-    {
-     "text": "Sagent notes it is selling through remaining short-dated inventory through December 2026.",
-     "reason": "month 2026-12 is not in the cited evidence"
-    }
-   ],
+   "checked": 8,
+   "rejected": [],
    "repaired": 1
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -925,45 +1135,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
@@ -985,87 +1216,87 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:34:54.722Z",
+   "at": "2026-10-22T11:40:09.353Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract WVXFTCJX scope"
+   "reason": "in contract 493HVZ27 scope"
   },
   {
-   "at": "2026-10-22T07:34:54.722Z",
+   "at": "2026-10-22T11:40:09.353Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WVXFTCJX scope"
+   "reason": "in contract 493HVZ27 scope"
   },
   {
-   "at": "2026-10-22T07:34:57.618Z",
+   "at": "2026-10-22T11:40:12.741Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WVXFTCJX scope"
+   "reason": "in contract 493HVZ27 scope"
   },
   {
-   "at": "2026-10-22T07:34:58.259Z",
+   "at": "2026-10-22T11:40:13.177Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WVXFTCJX scope"
+   "reason": "in contract 493HVZ27 scope"
   },
   {
-   "at": "2026-10-22T07:34:58.653Z",
+   "at": "2026-10-22T11:40:13.404Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WVXFTCJX scope"
+   "reason": "in contract 493HVZ27 scope"
   },
   {
-   "at": "2026-10-22T07:35:00.727Z",
+   "at": "2026-10-22T11:40:14.663Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WVXFTCJX scope"
+   "reason": "in contract 493HVZ27 scope"
   },
   {
-   "at": "2026-10-22T07:35:01.918Z",
+   "at": "2026-10-22T11:40:15.277Z",
    "action": "What FDA wrote at the OAI inspections",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WVXFTCJX scope"
+   "reason": "in contract 493HVZ27 scope"
   },
   {
-   "at": "2026-10-22T07:35:02.176Z",
+   "at": "2026-10-22T11:40:15.431Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WVXFTCJX scope"
+   "reason": "in contract 493HVZ27 scope"
   },
   {
-   "at": "2026-10-22T07:35:03.325Z",
+   "at": "2026-10-22T11:40:16.094Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WVXFTCJX scope"
+   "reason": "in contract 493HVZ27 scope"
   },
   {
-   "at": "2026-10-22T07:35:05.055Z",
+   "at": "2026-10-22T11:40:17.521Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract WVXFTCJX scope"
+   "reason": "in contract 493HVZ27 scope"
   },
   {
-   "at": "2026-10-22T07:35:05.056Z",
+   "at": "2026-10-22T11:40:17.522Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract WVXFTCJX scope"
+   "reason": "in contract 493HVZ27 scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-e1c06b",
+   "queryId": "Q-f27d7b",
    "row": 0,
    "label": "Corvale East: CLINDAMYCIN IN 5 PERCENT DEXTROSE 6MG/ML 50ML BAG",
    "fields": {
@@ -1076,19 +1307,24 @@
     "description": "CLINDAMYCIN IN 5 PERCENT DEXTROSE 6MG/ML 50ML BAG",
     "on_hand": "88.00",
     "daily_use": "14.249",
-    "unit": "package",
+    "unit": "bag",
+    "pkg_units": "24.00",
+    "unit_basis": "packages of 24, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Clindamycin in 5 Percent Dextrose",
     "labeler_name": "Sandoz Inc",
     "package_ndc": "0781-3288-09",
     "spl_set_id": "231d95a6-5e5f-4a45-a92b-d3d16ef0a7ca",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "CLINDAMYCIN 6 mg/mL",
+    "unit_content": "50 mL",
+    "pkg_unit": "bag"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-e1c06b",
+   "queryId": "Q-f27d7b",
    "row": 1,
    "label": "Corvale East: CLINDAMYCIN PHOSPHATE 10MG/ML 60ML BTL",
    "fields": {
@@ -1099,111 +1335,136 @@
     "description": "CLINDAMYCIN PHOSPHATE 10MG/ML 60ML BTL",
     "on_hand": "230.00",
     "daily_use": "15.006",
-    "unit": "package",
+    "unit": "each",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "clindamycin phosphate",
     "labeler_name": "Bryant Ranch Prepack",
     "package_ndc": "71335-2953-1",
     "spl_set_id": "654477df-5cbb-491a-8aec-651598b76884",
     "dosage_form": "LOTION",
-    "route": "TOPICAL"
+    "route": "TOPICAL",
+    "strength": "CLINDAMYCIN PHOSPHATE 10 mg/mL",
+    "unit_content": "60 mL",
+    "pkg_unit": "bottle"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-e1c06b",
+   "queryId": "Q-f27d7b",
    "row": 2,
-   "label": "Corvale General: CLINDAMYCIN",
+   "label": "Corvale General: CLINDAMYCIN 10 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-184",
     "ndc11": "16781046206",
     "ndc_as_recorded": "16781046206",
-    "description": "CLINDAMYCIN",
-    "on_hand": "238.29",
+    "description": "CLINDAMYCIN 10 mg/mL",
+    "on_hand": "238.00",
     "daily_use": "14.916",
     "unit": "each",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "CLINDAMYCIN",
     "labeler_name": "Bausch Health US, LLC",
     "package_ndc": "16781-462-06",
     "spl_set_id": "f7b4e985-719a-4547-b624-94612d520991",
     "dosage_form": "GEL",
-    "route": "TOPICAL"
+    "route": "TOPICAL",
+    "strength": "CLINDAMYCIN PHOSPHATE 10 mg/mL",
+    "unit_content": "7.3 mL",
+    "pkg_unit": "bottle"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-e1c06b",
+   "queryId": "Q-f27d7b",
    "row": 3,
-   "label": "Corvale General: clindamycin phosphate",
+   "label": "Corvale General: clindamycin phosphate 10 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-185",
     "ndc11": "71335295301",
     "ndc_as_recorded": "71335295301",
-    "description": "clindamycin phosphate",
-    "on_hand": "307.34",
+    "description": "clindamycin phosphate 10 mg/mL",
+    "on_hand": "307.00",
     "daily_use": "15.798",
     "unit": "each",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "clindamycin phosphate",
     "labeler_name": "Bryant Ranch Prepack",
     "package_ndc": "71335-2953-1",
     "spl_set_id": "654477df-5cbb-491a-8aec-651598b76884",
     "dosage_form": "LOTION",
-    "route": "TOPICAL"
+    "route": "TOPICAL",
+    "strength": "CLINDAMYCIN PHOSPHATE 10 mg/mL",
+    "unit_content": "60 mL",
+    "pkg_unit": "bottle"
    }
   },
   "E5": {
    "id": "E5",
-   "queryId": "Q-e1c06b",
+   "queryId": "Q-f27d7b",
    "row": 4,
-   "label": "Corvale General: Clindamycin in 5 Percent Dextrose",
+   "label": "Corvale General: Clindamycin in 5 Percent Dextrose 6 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-20",
     "ndc11": "00781328809",
     "ndc_as_recorded": "00781328809",
-    "description": "Clindamycin in 5 Percent Dextrose",
-    "on_hand": "181.68",
+    "description": "Clindamycin in 5 Percent Dextrose 6 mg/mL",
+    "on_hand": "181.00",
     "daily_use": "15.669",
     "unit": "bag",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Clindamycin in 5 Percent Dextrose",
     "labeler_name": "Sandoz Inc",
     "package_ndc": "0781-3288-09",
     "spl_set_id": "231d95a6-5e5f-4a45-a92b-d3d16ef0a7ca",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "CLINDAMYCIN 6 mg/mL",
+    "unit_content": "50 mL",
+    "pkg_unit": "bag"
    }
   },
   "E6": {
    "id": "E6",
-   "queryId": "Q-e1c06b",
+   "queryId": "Q-f27d7b",
    "row": 5,
-   "label": "Corvale General: clindamycin phosphate",
+   "label": "Corvale General: clindamycin phosphate 150 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-21",
     "ndc11": "00009077526",
     "ndc_as_recorded": "00009077526",
-    "description": "clindamycin phosphate",
-    "on_hand": "182.22",
+    "description": "clindamycin phosphate 150 mg/mL",
+    "on_hand": "182.00",
     "daily_use": "15.706",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "clindamycin phosphate",
     "labeler_name": "Pharmacia & Upjohn Company LLC",
     "package_ndc": "0009-0775-26",
     "spl_set_id": "05a75685-0af5-407c-ac57-e380c882b49d",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "CLINDAMYCIN PHOSPHATE 150 mg/mL",
+    "unit_content": "4 mL",
+    "pkg_unit": "vial"
    }
   },
   "E7": {
    "id": "E7",
-   "queryId": "Q-e1c06b",
+   "queryId": "Q-f27d7b",
    "row": 6,
    "label": "Corvale Lakeside: clindamycin phosphate 150 mg/mL 4 mL vial",
    "fields": {
@@ -1215,18 +1476,23 @@
     "on_hand": "55.00",
     "daily_use": "2.807",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "blank in source",
     "generic_name": null,
     "labeler_name": null,
     "package_ndc": null,
     "spl_set_id": null,
     "dosage_form": null,
-    "route": null
+    "route": null,
+    "strength": null,
+    "unit_content": null,
+    "pkg_unit": null
    }
   },
   "E8": {
    "id": "E8",
-   "queryId": "Q-e1c06b",
+   "queryId": "Q-f27d7b",
    "row": 7,
    "label": "Corvale Lakeside: Clindamycin in 5 Percent Dextrose 6 mg/mL 50 mL bag",
    "fields": {
@@ -1238,13 +1504,18 @@
     "on_hand": "78.00",
     "daily_use": "4.063",
     "unit": "bag",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Clindamycin in 5 Percent Dextrose",
     "labeler_name": "Sandoz Inc",
     "package_ndc": "0781-3288-09",
     "spl_set_id": "231d95a6-5e5f-4a45-a92b-d3d16ef0a7ca",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "CLINDAMYCIN 6 mg/mL",
+    "unit_content": "50 mL",
+    "pkg_unit": "bag"
    }
   },
   "E9": {
@@ -1692,7 +1963,7 @@
   },
   "E37": {
    "id": "E37",
-   "queryId": "Q-aa5427",
+   "queryId": "Q-35858a",
    "row": 0,
    "label": "FDA shortage list: Baxter Healthcare, Current",
    "fields": {
@@ -1707,7 +1978,7 @@
   },
   "E38": {
    "id": "E38",
-   "queryId": "Q-aa5427",
+   "queryId": "Q-35858a",
    "row": 6,
    "label": "FDA shortage list: Pfizer Inc., Current",
    "fields": {
@@ -1722,7 +1993,7 @@
   },
   "E39": {
    "id": "E39",
-   "queryId": "Q-aa5427",
+   "queryId": "Q-35858a",
    "row": 9,
    "label": "FDA shortage list: Sagent Pharmaceuticals, Current",
    "fields": {
@@ -1737,7 +2008,7 @@
   },
   "E40": {
    "id": "E40",
-   "queryId": "Q-aa5427",
+   "queryId": "Q-35858a",
    "row": 12,
    "label": "FDA shortage list: Sandoz Inc., Current",
    "fields": {
@@ -1752,7 +2023,7 @@
   },
   "E41": {
    "id": "E41",
-   "queryId": "Q-aa5427",
+   "queryId": "Q-35858a",
    "row": 17,
    "label": "FDA shortage list: Amneal Pharmaceuticals, To Be Discontinued",
    "fields": {
@@ -1767,7 +2038,7 @@
   },
   "E42": {
    "id": "E42",
-   "queryId": "Q-aa5427",
+   "queryId": "Q-35858a",
    "row": 0,
    "label": "FDA first posted the shortage 2023-03-21",
    "fields": {
@@ -1784,40 +2055,95 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 318 units of clindamycin in 5 percent dextrose at 29.3 a day: 11 days on hand",
+   "label": "Corvale East holds 88 bags of clindamycin in 5 percent dextrose 6 mg/mL, 50 mL at 14.2 a day: 6.2 days on hand",
    "fields": {
     "hospital": "Corvale East",
-    "on_hand": 318,
-    "daily_use": 29.3,
-    "days_on_hand": 11
+    "presentation": "6 mg/mL injection, 50 mL bag",
+    "on_hand": 88,
+    "daily_use": 14.2,
+    "days_on_hand": 6.2
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 910 units of clindamycin in 5 percent dextrose at 62.1 a day: 15 days on hand",
+   "label": "Corvale General holds 181 bags of clindamycin in 5 percent dextrose 6 mg/mL, 50 mL at 15.7 a day: 11.6 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 910,
-    "daily_use": 62.1,
-    "days_on_hand": 15
+    "presentation": "6 mg/mL injection, 50 mL bag",
+    "on_hand": 181,
+    "daily_use": 15.7,
+    "days_on_hand": 11.6
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 133 units of clindamycin in 5 percent dextrose at 6.9 a day: 19 days on hand",
+   "label": "Corvale Lakeside holds 78 bags of clindamycin in 5 percent dextrose 6 mg/mL, 50 mL at 4.1 a day: 19.2 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
-    "on_hand": 133,
-    "daily_use": 6.9,
-    "days_on_hand": 19
+    "presentation": "6 mg/mL injection, 50 mL bag",
+    "on_hand": 78,
+    "daily_use": 4.1,
+    "days_on_hand": 19.2
    }
   },
   "D4": {
    "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 182 vials of clindamycin in 5 percent dextrose 150 mg/mL, 4 mL at 15.7 a day: 11.6 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "150 mg/mL injection, 4 mL vial",
+    "on_hand": 182,
+    "daily_use": 15.7,
+    "days_on_hand": 11.6
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale East holds 230 eachs of clindamycin in 5 percent dextrose 10 mg/mL, 60 mL at 15 a day: 15.3 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "10 mg/mL lotion, 60 mL each",
+    "on_hand": 230,
+    "daily_use": 15,
+    "days_on_hand": 15.3
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 307 eachs of clindamycin in 5 percent dextrose 10 mg/mL, 60 mL at 15.8 a day: 19.4 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "10 mg/mL lotion, 60 mL each",
+    "on_hand": 307,
+    "daily_use": 15.8,
+    "days_on_hand": 19.4
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 238 eachs of clindamycin in 5 percent dextrose 10 mg/mL, 7.3 mL at 14.9 a day: 16 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "10 mg/mL gel, 7.3 mL each",
+    "on_hand": 238,
+    "daily_use": 14.9,
+    "days_on_hand": 16
+   }
+  },
+  "D8": {
+   "id": "D8",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 1165537 ended 2022-03-17, classified VAI; classification letter 2022-05-19 — 369 days before FDA posted the shortage on 2023-03-21",
@@ -1827,8 +2153,8 @@
     "days": 369
    }
   },
-  "D5": {
-   "id": "D5",
+  "D9": {
+   "id": "D9",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 1208260 ended 2023-06-16, classified VAI; classification letter 2024-09-10 — 87 days after FDA posted the shortage on 2023-03-21",
@@ -1838,8 +2164,8 @@
     "days": 87
    }
   },
-  "D6": {
-   "id": "D6",
+  "D10": {
+   "id": "D10",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 1228907 ended 2024-01-25, classified VAI; classification letter 2024-04-15 — 310 days after FDA posted the shortage on 2023-03-21",
@@ -1849,38 +2175,8 @@
     "days": 310
    }
   },
-  "D7": {
-   "id": "D7",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 2 by rule: Buy from Civica, Inc.. Not on FDA's shortage list today. Plants: InfoRLife SA.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
-   }
-  },
-  "D8": {
-   "id": "D8",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 3 by rule: Buy from Henry Schein, Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
-   }
-  },
-  "D9": {
-   "id": "D9",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 3 by rule: Buy from Hikma Pharmaceuticals USA Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
-   }
-  },
-  "D10": {
-   "id": "D10",
+  "D11": {
+   "id": "D11",
    "queryId": "derived",
    "row": -1,
    "label": "As of 2026-10-21 the shortage has been on FDA's list for 43 months",
@@ -1889,177 +2185,226 @@
     "posted": "2023-03-21",
     "months": 43
    }
+  },
+  "D12": {
+   "id": "D12",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 21 bags of 6 mg/mL, 50 mL from Corvale Lakeside to Corvale East. Corvale Lakeside has 19 days of 6 mg/mL injection, 50 mL bags on hand and can spare 21 bags while keeping two weeks; Corvale East has 6.2 days and would reach 8.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D13": {
+   "id": "D13",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from Civica, Inc.. Not on FDA's shortage list today. Plants: InfoRLife SA.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D14": {
+   "id": "D14",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Hikma Pharmaceuticals USA Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
   }
  },
  "queries": {
-  "Q-e1c06b": {
-   "id": "Q-e1c06b",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%clindamycin%' OR lower(s.description) LIKE '%clindamycin%' ORDER BY s.hospital, s.item_key",
-   "ms": 2885,
+  "Q-f27d7b": {
+   "id": "Q-f27d7b",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*clindamycin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*clindamycin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3383,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:34:57.610Z",
+   "ranAt": "2026-10-22T11:40:12.736Z",
    "rows": 8
   },
   "Q-b40bcb": {
    "id": "Q-b40bcb",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('231d95a6-5e5f-4a45-a92b-d3d16ef0a7ca', '654477df-5cbb-491a-8aec-651598b76884', 'f7b4e985-719a-4547-b624-94612d520991', '05a75685-0af5-407c-ac57-e380c882b49d') ORDER BY ps.set_id, ps.establishment",
-   "ms": 638,
+   "ms": 434,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:34:58.257Z",
+   "ranAt": "2026-10-22T11:40:13.175Z",
    "rows": 4
   },
-  "Q-aa5427": {
-   "id": "Q-aa5427",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%clindamycin%' ORDER BY status, company_name, package_ndc",
-   "ms": 174,
+  "Q-35858a": {
+   "id": "Q-35858a",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*clindamycin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 112,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:34:58.433Z",
+   "ranAt": "2026-10-22T11:40:13.288Z",
    "rows": 28
   },
-  "Q-f9ac11": {
-   "id": "Q-f9ac11",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%clindamycin%' ORDER BY first_posting",
-   "ms": 212,
+  "Q-2c85cf": {
+   "id": "Q-2c85cf",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*clindamycin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 113,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:34:58.649Z",
+   "ranAt": "2026-10-22T11:40:13.403Z",
    "rows": 7
   },
-  "Q-feadd7": {
-   "id": "Q-feadd7",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%clindamycin%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2070,
+  "Q-0407b9": {
+   "id": "Q-0407b9",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*clindamycin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1257,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:35:00.723Z",
+   "ranAt": "2026-10-22T11:40:14.661Z",
    "rows": 38
   },
   "Q-589f4b": {
    "id": "Q-589f4b",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('1810189', '1000519407', '3002807186', '1416980') ORDER BY fei, end_date",
-   "ms": 465,
+   "ms": 249,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:35:01.192Z",
+   "ranAt": "2026-10-22T11:40:14.912Z",
    "rows": 42
   },
   "Q-7d249e": {
    "id": "Q-7d249e",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('1810189', '1000519407', '3002807186', '1416980') ORDER BY fei, action_date",
-   "ms": 246,
+   "ms": 119,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:35:01.441Z",
+   "ranAt": "2026-10-22T11:40:15.032Z",
    "rows": 2
   },
   "Q-2eec2d": {
    "id": "Q-2eec2d",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('1810189', '1000519407', '3002807186') OR (fei_match <> 'name_and_city' AND firm_key IN ('pharmacia upjohn', 'inforlife for sandoz', 'bryant ranch prepack', 'bausch health companies')) ORDER BY date_published",
-   "ms": 225,
+   "ms": 111,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:35:01.670Z",
+   "ranAt": "2026-10-22T11:40:15.144Z",
    "rows": 0
   },
-  "Q-88c641": {
-   "id": "Q-88c641",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('pharmacia upjohn', 'inforlife for sandoz', 'bryant ranch prepack', 'bausch health companies', 'sandoz', 'bausch health') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%clindamycin%' ORDER BY initiation_date",
-   "ms": 242,
+  "Q-768f2f": {
+   "id": "Q-768f2f",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('pharmacia upjohn', 'inforlife for sandoz', 'bryant ranch prepack', 'bausch health companies', 'sandoz', 'bausch health') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*clindamycin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 130,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:35:01.914Z",
+   "ranAt": "2026-10-22T11:40:15.275Z",
    "rows": 0
   },
   "Q-7ba5bd": {
    "id": "Q-7ba5bd",
    "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('590126') ORDER BY inspection_id, cfr",
-   "ms": 248,
+   "ms": 149,
    "mode": "live",
    "sources": [
     "fda.citations"
    ],
-   "ranAt": "2026-10-22T07:35:02.166Z",
+   "ranAt": "2026-10-22T11:40:15.426Z",
    "rows": 6
   },
   "Q-0600d7": {
    "id": "Q-0600d7",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('00781328809', '71335295301', '16781046206', '00009077526')",
-   "ms": 1145,
+   "ms": 662,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:35:03.321Z",
+   "ranAt": "2026-10-22T11:40:16.093Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-665cc7": {
-   "id": "Q-665cc7",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%clindamycin%'",
-   "ms": 1726,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:35:05.051Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-f955b9": {
+   "id": "Q-f955b9",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*clindamycin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1426,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:40:17.520Z",
    "rows": 1
   }
  },
  "usage": {
   "zetarisQueries": 15,
-  "zetarisMs": 15647,
+  "zetarisMs": 18353,
   "modelCalls": 1,
-  "tokensIn": 4458,
-  "tokensOut": 430,
+  "tokensIn": 5775,
+  "tokensOut": 503,
   "mode": "live"
  },
  "slug": "clindamycin",
@@ -2078,7 +2423,7 @@
     "id": "hospital-item:hospital-item:CG-184",
     "type": "HospitalItem",
     "key": "hospital-item:CG-184",
-    "label": "Corvale General: CLINDAMYCIN",
+    "label": "Corvale General: CLINDAMYCIN 10 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-184"
     },
@@ -2089,7 +2434,7 @@
     "id": "hospital-item:hospital-item:CG-185",
     "type": "HospitalItem",
     "key": "hospital-item:CG-185",
-    "label": "Corvale General: clindamycin phosphate",
+    "label": "Corvale General: clindamycin phosphate 10 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-185"
     },
@@ -2100,7 +2445,7 @@
     "id": "hospital-item:hospital-item:CG-20",
     "type": "HospitalItem",
     "key": "hospital-item:CG-20",
-    "label": "Corvale General: Clindamycin in 5 Percent Dextrose",
+    "label": "Corvale General: Clindamycin in 5 Percent Dextrose 6 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-20"
     },
@@ -2111,7 +2456,7 @@
     "id": "hospital-item:hospital-item:CG-21",
     "type": "HospitalItem",
     "key": "hospital-item:CG-21",
-    "label": "Corvale General: clindamycin phosphate",
+    "label": "Corvale General: clindamycin phosphate 150 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-21"
     },
@@ -2338,7 +2683,7 @@
     },
     "facts": [
      {
-      "id": "fact_349e9bc41db0d18b",
+      "id": "fact_ff7db54603e2c1d0",
       "about": "inspection:fda-inspection:1066512",
       "predicate": "classification",
       "value": "VAI",
@@ -2346,9 +2691,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:35:02.174Z"
+       "at": "2026-10-22T11:40:15.430Z"
       },
-      "assertedAt": "2026-10-22T07:35:02.174Z"
+      "assertedAt": "2026-10-22T11:40:15.430Z"
      }
     ],
     "depth": 4
@@ -2364,7 +2709,7 @@
     },
     "facts": [
      {
-      "id": "fact_527f418734203bd5",
+      "id": "fact_cb647723097f23ef",
       "about": "inspection:fda-inspection:1110509",
       "predicate": "classification",
       "value": "VAI",
@@ -2372,9 +2717,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:35:02.170Z"
+       "at": "2026-10-22T11:40:15.428Z"
       },
-      "assertedAt": "2026-10-22T07:35:02.170Z"
+      "assertedAt": "2026-10-22T11:40:15.428Z"
      }
     ],
     "depth": 4
@@ -2390,7 +2735,7 @@
     },
     "facts": [
      {
-      "id": "fact_5de1206630023f06",
+      "id": "fact_c6f573e09f4317bd",
       "about": "inspection:fda-inspection:1165537",
       "predicate": "classification",
       "value": "VAI",
@@ -2398,9 +2743,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:35:02.171Z"
+       "at": "2026-10-22T11:40:15.428Z"
       },
-      "assertedAt": "2026-10-22T07:35:02.171Z"
+      "assertedAt": "2026-10-22T11:40:15.428Z"
      }
     ],
     "depth": 4
@@ -2416,7 +2761,7 @@
     },
     "facts": [
      {
-      "id": "fact_7260790f23ae8b8b",
+      "id": "fact_534ce3e57d1709a6",
       "about": "inspection:fda-inspection:1208260",
       "predicate": "classification",
       "value": "VAI",
@@ -2424,9 +2769,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:35:02.175Z"
+       "at": "2026-10-22T11:40:15.430Z"
       },
-      "assertedAt": "2026-10-22T07:35:02.175Z"
+      "assertedAt": "2026-10-22T11:40:15.430Z"
      }
     ],
     "depth": 4
@@ -2442,7 +2787,7 @@
     },
     "facts": [
      {
-      "id": "fact_f92086fd94c133bd",
+      "id": "fact_f53b2e9b8c58e7b2",
       "about": "inspection:fda-inspection:1228907",
       "predicate": "classification",
       "value": "VAI",
@@ -2450,9 +2795,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:35:02.171Z"
+       "at": "2026-10-22T11:40:15.428Z"
       },
-      "assertedAt": "2026-10-22T07:35:02.171Z"
+      "assertedAt": "2026-10-22T11:40:15.428Z"
      }
     ],
     "depth": 4
@@ -2468,7 +2813,7 @@
     },
     "facts": [
      {
-      "id": "fact_f263b79a8529c178",
+      "id": "fact_53352557da8d1e7c",
       "about": "inspection:fda-inspection:1326578",
       "predicate": "classification",
       "value": "VAI",
@@ -2476,9 +2821,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:35:02.171Z"
+       "at": "2026-10-22T11:40:15.428Z"
       },
-      "assertedAt": "2026-10-22T07:35:02.171Z"
+      "assertedAt": "2026-10-22T11:40:15.428Z"
      }
     ],
     "depth": 4
@@ -2494,7 +2839,7 @@
     },
     "facts": [
      {
-      "id": "fact_cdd70808d12da628",
+      "id": "fact_6b54ebd8e323371f",
       "about": "inspection:fda-inspection:545950",
       "predicate": "classification",
       "value": "VAI",
@@ -2502,9 +2847,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:35:02.171Z"
+       "at": "2026-10-22T11:40:15.428Z"
       },
-      "assertedAt": "2026-10-22T07:35:02.171Z"
+      "assertedAt": "2026-10-22T11:40:15.428Z"
      }
     ],
     "depth": 4
@@ -2520,7 +2865,7 @@
     },
     "facts": [
      {
-      "id": "fact_30de827aa2959d31",
+      "id": "fact_54470cbc17ae20c2",
       "about": "inspection:fda-inspection:564470",
       "predicate": "classification",
       "value": "VAI",
@@ -2528,9 +2873,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:35:02.172Z"
+       "at": "2026-10-22T11:40:15.429Z"
       },
-      "assertedAt": "2026-10-22T07:35:02.172Z"
+      "assertedAt": "2026-10-22T11:40:15.429Z"
      }
     ],
     "depth": 4
@@ -2546,7 +2891,7 @@
     },
     "facts": [
      {
-      "id": "fact_f6dbc16f2e4257ab",
+      "id": "fact_72cb78835fefa32c",
       "about": "inspection:fda-inspection:590126",
       "predicate": "classification",
       "value": "OAI",
@@ -2554,9 +2899,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:35:02.169Z"
+       "at": "2026-10-22T11:40:15.427Z"
       },
-      "assertedAt": "2026-10-22T07:35:02.169Z"
+      "assertedAt": "2026-10-22T11:40:15.427Z"
      }
     ],
     "depth": 4
@@ -2572,7 +2917,7 @@
     },
     "facts": [
      {
-      "id": "fact_5b38957885ad5c53",
+      "id": "fact_472c7f49efa03b8e",
       "about": "inspection:fda-inspection:682230",
       "predicate": "classification",
       "value": "VAI",
@@ -2580,9 +2925,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:35:02.173Z"
+       "at": "2026-10-22T11:40:15.429Z"
       },
-      "assertedAt": "2026-10-22T07:35:02.173Z"
+      "assertedAt": "2026-10-22T11:40:15.429Z"
      }
     ],
     "depth": 4
@@ -2598,7 +2943,7 @@
     },
     "facts": [
      {
-      "id": "fact_612185f0210c58cf",
+      "id": "fact_212ffcb3e54ff986",
       "about": "inspection:fda-inspection:682974",
       "predicate": "classification",
       "value": "VAI",
@@ -2606,9 +2951,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:35:02.170Z"
+       "at": "2026-10-22T11:40:15.427Z"
       },
-      "assertedAt": "2026-10-22T07:35:02.170Z"
+      "assertedAt": "2026-10-22T11:40:15.427Z"
      }
     ],
     "depth": 4
@@ -2624,7 +2969,7 @@
     },
     "facts": [
      {
-      "id": "fact_75e971de6dc0d71e",
+      "id": "fact_8504096225a18bb2",
       "about": "inspection:fda-inspection:732513",
       "predicate": "classification",
       "value": "VAI",
@@ -2632,9 +2977,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:35:02.170Z"
+       "at": "2026-10-22T11:40:15.427Z"
       },
-      "assertedAt": "2026-10-22T07:35:02.170Z"
+      "assertedAt": "2026-10-22T11:40:15.427Z"
      }
     ],
     "depth": 4
@@ -2650,7 +2995,7 @@
     },
     "facts": [
      {
-      "id": "fact_f69d1e4f376c2209",
+      "id": "fact_31a014a698e752af",
       "about": "inspection:fda-inspection:746375",
       "predicate": "classification",
       "value": "VAI",
@@ -2658,9 +3003,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:35:02.173Z"
+       "at": "2026-10-22T11:40:15.429Z"
       },
-      "assertedAt": "2026-10-22T07:35:02.173Z"
+      "assertedAt": "2026-10-22T11:40:15.429Z"
      }
     ],
     "depth": 4
@@ -2676,7 +3021,7 @@
     },
     "facts": [
      {
-      "id": "fact_01bb2473e53df750",
+      "id": "fact_bfd972df4c4eee12",
       "about": "inspection:fda-inspection:750079",
       "predicate": "classification",
       "value": "VAI",
@@ -2684,9 +3029,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:35:02.172Z"
+       "at": "2026-10-22T11:40:15.428Z"
       },
-      "assertedAt": "2026-10-22T07:35:02.172Z"
+      "assertedAt": "2026-10-22T11:40:15.428Z"
      }
     ],
     "depth": 4
@@ -2702,7 +3047,7 @@
     },
     "facts": [
      {
-      "id": "fact_c91865fe33b933da",
+      "id": "fact_8545c4ce42c6767d",
       "about": "inspection:fda-inspection:796422",
       "predicate": "classification",
       "value": "VAI",
@@ -2710,9 +3055,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:35:02.173Z"
+       "at": "2026-10-22T11:40:15.429Z"
       },
-      "assertedAt": "2026-10-22T07:35:02.173Z"
+      "assertedAt": "2026-10-22T11:40:15.429Z"
      }
     ],
     "depth": 4
@@ -2728,7 +3073,7 @@
     },
     "facts": [
      {
-      "id": "fact_3346d8eac1d13113",
+      "id": "fact_aae16c29b565485c",
       "about": "inspection:fda-inspection:837169",
       "predicate": "classification",
       "value": "VAI",
@@ -2736,9 +3081,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:35:02.174Z"
+       "at": "2026-10-22T11:40:15.429Z"
       },
-      "assertedAt": "2026-10-22T07:35:02.174Z"
+      "assertedAt": "2026-10-22T11:40:15.429Z"
      }
     ],
     "depth": 4
@@ -2754,7 +3099,7 @@
     },
     "facts": [
      {
-      "id": "fact_2faa399d2c9c6947",
+      "id": "fact_3bc9d34cd1308c0c",
       "about": "inspection:fda-inspection:840224",
       "predicate": "classification",
       "value": "VAI",
@@ -2762,9 +3107,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:35:02.170Z"
+       "at": "2026-10-22T11:40:15.428Z"
       },
-      "assertedAt": "2026-10-22T07:35:02.170Z"
+      "assertedAt": "2026-10-22T11:40:15.428Z"
      }
     ],
     "depth": 4
@@ -2780,7 +3125,7 @@
     },
     "facts": [
      {
-      "id": "fact_de391323ef908521",
+      "id": "fact_208660363d8937a5",
       "about": "inspection:fda-inspection:850664",
       "predicate": "classification",
       "value": "VAI",
@@ -2788,9 +3133,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:35:02.172Z"
+       "at": "2026-10-22T11:40:15.428Z"
       },
-      "assertedAt": "2026-10-22T07:35:02.172Z"
+      "assertedAt": "2026-10-22T11:40:15.428Z"
      }
     ],
     "depth": 4
@@ -2806,7 +3151,7 @@
     },
     "facts": [
      {
-      "id": "fact_9e7228b200f7ead1",
+      "id": "fact_ddb5cd3f423f010f",
       "about": "inspection:fda-inspection:887846",
       "predicate": "classification",
       "value": "VAI",
@@ -2814,9 +3159,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:35:02.172Z"
+       "at": "2026-10-22T11:40:15.428Z"
       },
-      "assertedAt": "2026-10-22T07:35:02.172Z"
+      "assertedAt": "2026-10-22T11:40:15.428Z"
      }
     ],
     "depth": 4
@@ -2832,7 +3177,7 @@
     },
     "facts": [
      {
-      "id": "fact_5576f4ce1b4d2fae",
+      "id": "fact_b5019e59e5fb4c10",
       "about": "inspection:fda-inspection:914426",
       "predicate": "classification",
       "value": "VAI",
@@ -2840,9 +3185,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:35:02.172Z"
+       "at": "2026-10-22T11:40:15.428Z"
       },
-      "assertedAt": "2026-10-22T07:35:02.172Z"
+      "assertedAt": "2026-10-22T11:40:15.428Z"
      }
     ],
     "depth": 4
@@ -2858,7 +3203,7 @@
     },
     "facts": [
      {
-      "id": "fact_0ac83a2e92a48b0b",
+      "id": "fact_727a64a1dc017db7",
       "about": "inspection:fda-inspection:933762",
       "predicate": "classification",
       "value": "VAI",
@@ -2866,9 +3211,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:35:02.174Z"
+       "at": "2026-10-22T11:40:15.429Z"
       },
-      "assertedAt": "2026-10-22T07:35:02.174Z"
+      "assertedAt": "2026-10-22T11:40:15.429Z"
      }
     ],
     "depth": 4
@@ -2884,7 +3229,7 @@
     },
     "facts": [
      {
-      "id": "fact_4dbc8aef1bf60e54",
+      "id": "fact_46ee713eae11b1c9",
       "about": "inspection:fda-inspection:995337",
       "predicate": "classification",
       "value": "VAI",
@@ -2892,9 +3237,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:35:02.170Z"
+       "at": "2026-10-22T11:40:15.428Z"
       },
-      "assertedAt": "2026-10-22T07:35:02.170Z"
+      "assertedAt": "2026-10-22T11:40:15.428Z"
      }
     ],
     "depth": 4
@@ -2928,11 +3273,11 @@
     "from": "hospital-item:hospital-item:CG-184",
     "to": "package:ndc-package:16781-462-06",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:34:57.616Z",
+    "validFrom": "2026-10-22T11:40:12.740Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:34:57.616Z"
+     "at": "2026-10-22T11:40:12.740Z"
     }
    },
    {
@@ -2940,11 +3285,11 @@
     "from": "hospital-item:hospital-item:CG-185",
     "to": "package:ndc-package:71335-2953-1",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:34:57.616Z",
+    "validFrom": "2026-10-22T11:40:12.740Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:34:57.616Z"
+     "at": "2026-10-22T11:40:12.740Z"
     }
    },
    {
@@ -2952,11 +3297,11 @@
     "from": "hospital-item:hospital-item:CG-20",
     "to": "package:ndc-package:0781-3288-09",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:34:57.617Z",
+    "validFrom": "2026-10-22T11:40:12.740Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:34:57.617Z"
+     "at": "2026-10-22T11:40:12.740Z"
     }
    },
    {
@@ -2964,11 +3309,11 @@
     "from": "hospital-item:hospital-item:CG-21",
     "to": "package:ndc-package:0009-0775-26",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:34:57.617Z",
+    "validFrom": "2026-10-22T11:40:12.740Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:34:57.617Z"
+     "at": "2026-10-22T11:40:12.740Z"
     }
    },
    {
@@ -2976,11 +3321,11 @@
     "from": "hospital-item:hospital-item:EA-E-000125",
     "to": "package:ndc-package:0781-3288-09",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:34:57.614Z",
+    "validFrom": "2026-10-22T11:40:12.739Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:34:57.614Z"
+     "at": "2026-10-22T11:40:12.739Z"
     }
    },
    {
@@ -2988,11 +3333,11 @@
     "from": "hospital-item:hospital-item:EA-E-000290",
     "to": "package:ndc-package:71335-2953-1",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:34:57.615Z",
+    "validFrom": "2026-10-22T11:40:12.740Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:34:57.615Z"
+     "at": "2026-10-22T11:40:12.740Z"
     }
    },
    {
@@ -3000,11 +3345,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0049",
     "to": "package:ndc-package:0781-3288-09",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:34:57.618Z",
+    "validFrom": "2026-10-22T11:40:12.741Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:34:57.618Z"
+     "at": "2026-10-22T11:40:12.741Z"
     }
    },
    {
@@ -3012,11 +3357,11 @@
     "from": "package:ndc-package:16781-462-06",
     "to": "product:ndc-product:16781-462",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:34:57.616Z",
+    "validFrom": "2026-10-22T11:40:12.740Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:34:57.616Z"
+     "at": "2026-10-22T11:40:12.740Z"
     }
    },
    {
@@ -3024,11 +3369,11 @@
     "from": "package:ndc-package:71335-2953-1",
     "to": "product:ndc-product:71335-2953",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:34:57.615Z",
+    "validFrom": "2026-10-22T11:40:12.740Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:34:57.615Z"
+     "at": "2026-10-22T11:40:12.740Z"
     }
    },
    {
@@ -3036,11 +3381,11 @@
     "from": "package:ndc-package:0781-3288-09",
     "to": "product:ndc-product:0781-3288",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:34:57.614Z",
+    "validFrom": "2026-10-22T11:40:12.739Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:34:57.614Z"
+     "at": "2026-10-22T11:40:12.739Z"
     }
    },
    {
@@ -3048,11 +3393,11 @@
     "from": "package:ndc-package:0009-0775-26",
     "to": "product:ndc-product:0009-0775",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:34:57.617Z",
+    "validFrom": "2026-10-22T11:40:12.740Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:34:57.617Z"
+     "at": "2026-10-22T11:40:12.740Z"
     }
    },
    {
@@ -3060,11 +3405,11 @@
     "from": "product:ndc-product:16781-462",
     "to": "drug:generic:clindamycin in 5 percent dextrose",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:34:57.616Z",
+    "validFrom": "2026-10-22T11:40:12.740Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:34:57.616Z"
+     "at": "2026-10-22T11:40:12.740Z"
     }
    },
    {
@@ -3072,11 +3417,11 @@
     "from": "product:ndc-product:16781-462",
     "to": "labeler:ndc-labeler:16781",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:34:57.616Z",
+    "validFrom": "2026-10-22T11:40:12.740Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:34:57.616Z"
+     "at": "2026-10-22T11:40:12.740Z"
     }
    },
    {
@@ -3084,11 +3429,11 @@
     "from": "product:ndc-product:16781-462",
     "to": "site:fei:3002807186",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:35:02.171Z",
+    "validFrom": "2026-10-22T11:40:15.428Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:35:02.171Z"
+     "at": "2026-10-22T11:40:15.428Z"
     }
    },
    {
@@ -3096,11 +3441,11 @@
     "from": "product:ndc-product:71335-2953",
     "to": "drug:generic:clindamycin in 5 percent dextrose",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:34:57.615Z",
+    "validFrom": "2026-10-22T11:40:12.740Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:34:57.615Z"
+     "at": "2026-10-22T11:40:12.740Z"
     }
    },
    {
@@ -3108,11 +3453,11 @@
     "from": "product:ndc-product:71335-2953",
     "to": "labeler:ndc-labeler:71335",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:34:57.615Z",
+    "validFrom": "2026-10-22T11:40:12.740Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:34:57.615Z"
+     "at": "2026-10-22T11:40:12.740Z"
     }
    },
    {
@@ -3120,11 +3465,11 @@
     "from": "product:ndc-product:71335-2953",
     "to": "site:fei:1000519407",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:35:02.169Z",
+    "validFrom": "2026-10-22T11:40:15.427Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:35:02.169Z"
+     "at": "2026-10-22T11:40:15.427Z"
     }
    },
    {
@@ -3132,11 +3477,11 @@
     "from": "product:ndc-product:0781-3288",
     "to": "drug:generic:clindamycin in 5 percent dextrose",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:34:57.615Z",
+    "validFrom": "2026-10-22T11:40:12.739Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:34:57.615Z"
+     "at": "2026-10-22T11:40:12.739Z"
     }
    },
    {
@@ -3144,11 +3489,11 @@
     "from": "product:ndc-product:0781-3288",
     "to": "labeler:ndc-labeler:0781",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:34:57.615Z",
+    "validFrom": "2026-10-22T11:40:12.739Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:34:57.615Z"
+     "at": "2026-10-22T11:40:12.739Z"
     }
    },
    {
@@ -3156,11 +3501,11 @@
     "from": "product:ndc-product:0009-0775",
     "to": "drug:generic:clindamycin in 5 percent dextrose",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:34:57.617Z",
+    "validFrom": "2026-10-22T11:40:12.740Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:34:57.617Z"
+     "at": "2026-10-22T11:40:12.740Z"
     }
    },
    {
@@ -3168,11 +3513,11 @@
     "from": "product:ndc-product:0009-0775",
     "to": "labeler:ndc-labeler:0009",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:34:57.617Z",
+    "validFrom": "2026-10-22T11:40:12.741Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:34:57.617Z"
+     "at": "2026-10-22T11:40:12.741Z"
     }
    },
    {
@@ -3180,11 +3525,11 @@
     "from": "product:ndc-product:0009-0775",
     "to": "site:fei:1810189",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:35:02.172Z",
+    "validFrom": "2026-10-22T11:40:15.429Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:35:02.172Z"
+     "at": "2026-10-22T11:40:15.429Z"
     }
    },
    {
@@ -3192,11 +3537,11 @@
     "from": "shortage:fda-shortage:clindamycin-2023-03-21",
     "to": "drug:generic:clindamycin in 5 percent dextrose",
     "type": "affects",
-    "validFrom": "2026-10-22T07:35:02.175Z",
+    "validFrom": "2026-10-22T11:40:15.430Z",
     "source": {
      "kind": "fda-shortage-db",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:35:02.175Z"
+     "at": "2026-10-22T11:40:15.430Z"
     }
    },
    {
@@ -3204,11 +3549,11 @@
     "from": "inspection:fda-inspection:545950",
     "to": "site:fei:3002807186",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:35:02.171Z",
+    "validFrom": "2026-10-22T11:40:15.428Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:35:02.171Z"
+     "at": "2026-10-22T11:40:15.428Z"
     }
    },
    {
@@ -3216,11 +3561,11 @@
     "from": "inspection:fda-inspection:750079",
     "to": "site:fei:3002807186",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:35:02.172Z",
+    "validFrom": "2026-10-22T11:40:15.428Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:35:02.172Z"
+     "at": "2026-10-22T11:40:15.428Z"
     }
    },
    {
@@ -3228,11 +3573,11 @@
     "from": "inspection:fda-inspection:850664",
     "to": "site:fei:3002807186",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:35:02.172Z",
+    "validFrom": "2026-10-22T11:40:15.428Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:35:02.172Z"
+     "at": "2026-10-22T11:40:15.428Z"
     }
    },
    {
@@ -3240,11 +3585,11 @@
     "from": "inspection:fda-inspection:887846",
     "to": "site:fei:3002807186",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:35:02.172Z",
+    "validFrom": "2026-10-22T11:40:15.428Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:35:02.172Z"
+     "at": "2026-10-22T11:40:15.428Z"
     }
    },
    {
@@ -3252,11 +3597,11 @@
     "from": "inspection:fda-inspection:914426",
     "to": "site:fei:3002807186",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:35:02.172Z",
+    "validFrom": "2026-10-22T11:40:15.428Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:35:02.172Z"
+     "at": "2026-10-22T11:40:15.428Z"
     }
    },
    {
@@ -3264,11 +3609,11 @@
     "from": "inspection:fda-inspection:590126",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:35:02.169Z",
+    "validFrom": "2026-10-22T11:40:15.427Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:35:02.169Z"
+     "at": "2026-10-22T11:40:15.427Z"
     }
    },
    {
@@ -3276,11 +3621,11 @@
     "from": "inspection:fda-inspection:682974",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:35:02.170Z",
+    "validFrom": "2026-10-22T11:40:15.427Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:35:02.170Z"
+     "at": "2026-10-22T11:40:15.427Z"
     }
    },
    {
@@ -3288,11 +3633,11 @@
     "from": "inspection:fda-inspection:732513",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:35:02.170Z",
+    "validFrom": "2026-10-22T11:40:15.427Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:35:02.170Z"
+     "at": "2026-10-22T11:40:15.427Z"
     }
    },
    {
@@ -3300,11 +3645,11 @@
     "from": "inspection:fda-inspection:840224",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:35:02.170Z",
+    "validFrom": "2026-10-22T11:40:15.427Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:35:02.170Z"
+     "at": "2026-10-22T11:40:15.427Z"
     }
    },
    {
@@ -3312,11 +3657,11 @@
     "from": "inspection:fda-inspection:995337",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:35:02.170Z",
+    "validFrom": "2026-10-22T11:40:15.428Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:35:02.170Z"
+     "at": "2026-10-22T11:40:15.428Z"
     }
    },
    {
@@ -3324,11 +3669,11 @@
     "from": "inspection:fda-inspection:1110509",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:35:02.170Z",
+    "validFrom": "2026-10-22T11:40:15.428Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:35:02.170Z"
+     "at": "2026-10-22T11:40:15.428Z"
     }
    },
    {
@@ -3336,11 +3681,11 @@
     "from": "inspection:fda-inspection:1165537",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:35:02.171Z",
+    "validFrom": "2026-10-22T11:40:15.428Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:35:02.171Z"
+     "at": "2026-10-22T11:40:15.428Z"
     }
    },
    {
@@ -3348,11 +3693,11 @@
     "from": "inspection:fda-inspection:1228907",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:35:02.171Z",
+    "validFrom": "2026-10-22T11:40:15.428Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:35:02.171Z"
+     "at": "2026-10-22T11:40:15.428Z"
     }
    },
    {
@@ -3360,11 +3705,11 @@
     "from": "inspection:fda-inspection:1326578",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:35:02.171Z",
+    "validFrom": "2026-10-22T11:40:15.428Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:35:02.171Z"
+     "at": "2026-10-22T11:40:15.428Z"
     }
    },
    {
@@ -3372,11 +3717,11 @@
     "from": "warning-letter:fda-warning-letter:72525",
     "to": "site:fei:1000519407",
     "type": "issued-to",
-    "validFrom": "2026-10-22T07:35:02.170Z",
+    "validFrom": "2026-10-22T11:40:15.427Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:35:02.170Z"
+     "at": "2026-10-22T11:40:15.427Z"
     }
    },
    {
@@ -3384,11 +3729,11 @@
     "from": "inspection:fda-inspection:564470",
     "to": "site:fei:1810189",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:35:02.172Z",
+    "validFrom": "2026-10-22T11:40:15.429Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:35:02.172Z"
+     "at": "2026-10-22T11:40:15.429Z"
     }
    },
    {
@@ -3396,11 +3741,11 @@
     "from": "inspection:fda-inspection:682230",
     "to": "site:fei:1810189",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:35:02.173Z",
+    "validFrom": "2026-10-22T11:40:15.429Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:35:02.173Z"
+     "at": "2026-10-22T11:40:15.429Z"
     }
    },
    {
@@ -3408,11 +3753,11 @@
     "from": "inspection:fda-inspection:746375",
     "to": "site:fei:1810189",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:35:02.173Z",
+    "validFrom": "2026-10-22T11:40:15.429Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:35:02.173Z"
+     "at": "2026-10-22T11:40:15.429Z"
     }
    },
    {
@@ -3420,11 +3765,11 @@
     "from": "inspection:fda-inspection:796422",
     "to": "site:fei:1810189",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:35:02.173Z",
+    "validFrom": "2026-10-22T11:40:15.429Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:35:02.173Z"
+     "at": "2026-10-22T11:40:15.429Z"
     }
    },
    {
@@ -3432,11 +3777,11 @@
     "from": "inspection:fda-inspection:837169",
     "to": "site:fei:1810189",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:35:02.174Z",
+    "validFrom": "2026-10-22T11:40:15.429Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:35:02.174Z"
+     "at": "2026-10-22T11:40:15.429Z"
     }
    },
    {
@@ -3444,11 +3789,11 @@
     "from": "inspection:fda-inspection:933762",
     "to": "site:fei:1810189",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:35:02.174Z",
+    "validFrom": "2026-10-22T11:40:15.429Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:35:02.174Z"
+     "at": "2026-10-22T11:40:15.429Z"
     }
    },
    {
@@ -3456,11 +3801,11 @@
     "from": "inspection:fda-inspection:1066512",
     "to": "site:fei:1810189",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:35:02.174Z",
+    "validFrom": "2026-10-22T11:40:15.430Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:35:02.174Z"
+     "at": "2026-10-22T11:40:15.430Z"
     }
    },
    {
@@ -3468,11 +3813,11 @@
     "from": "inspection:fda-inspection:1208260",
     "to": "site:fei:1810189",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:35:02.175Z",
+    "validFrom": "2026-10-22T11:40:15.430Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:35:02.175Z"
+     "at": "2026-10-22T11:40:15.430Z"
     }
    }
   ],

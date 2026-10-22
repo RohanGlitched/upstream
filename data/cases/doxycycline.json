@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-6cb490",
+ "id": "case-2026-10-22-4ed1cc",
  "question": "Why is doxycycline hyclate short, and what do we do?",
- "askedAt": "2026-10-22T07:42:29.698Z",
+ "askedAt": "2026-10-22T11:54:00.935Z",
  "asOf": "2026-10-21",
  "molecule": "doxycycline hyclate",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H8Z4XYD32BB9QNWN701WBB",
+  "contractId": "01M5HQBP6GPC1W0ZXGQ0RE4QCT",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-707133"
+    "Q-e0124b"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2944,
+   "ms": 4385,
    "rows": 3,
-   "finding": "3 stock lines across 3 hospitals.",
+   "finding": "3 stock lines across 3 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-7628d2"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 856,
+   "ms": 629,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,15 +51,15 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-f865a1",
-    "Q-2d95f0"
+    "Q-95d391",
+    "Q-359a70"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 412,
-   "rows": 12,
+   "ms": 324,
+   "rows": 11,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
   },
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-9dc2b1"
+    "Q-6a72a4"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1946,
+   "ms": 1390,
    "rows": 508,
    "finding": "55 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-87e7ca",
     "Q-30871b",
     "Q-01e61e",
-    "Q-1054b4"
+    "Q-f82a73"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1057,
+   "ms": 842,
    "rows": 5,
    "finding": "5 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1394,
+   "ms": 1178,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-d3a0f1"
+    "Q-fe4f11"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2012,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 2150,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 1,
+   "ms": 0,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -153,21 +164,27 @@
    "onHand": 479,
    "dailyUse": 16.084,
    "days": 29.8,
-   "unit": "package",
+   "unit": "capsule",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 100, converted to units",
+   "presentation": "doxycycline hyclate|100mg|capsule||capsule",
+   "presentationLabel": "100 mg capsule",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-203",
    "ndc11": "72578005501",
-   "description": "Doxycycline hyclate",
+   "description": "Doxycycline hyclate 100 mg/1",
    "labeler": "Viona Pharmaceuticals Inc",
-   "onHand": 449.75,
+   "onHand": 449,
    "dailyUse": 14.896,
-   "days": 30.2,
+   "days": 30.1,
    "unit": "capsule",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "doxycycline hyclate|100mg|capsule||capsule",
+   "presentationLabel": "100 mg capsule",
    "evidence": "E2"
   },
   {
@@ -181,7 +198,59 @@
    "days": 18.7,
    "unit": "capsule",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "doxycycline hyclate|100mg|capsule||capsule",
+   "presentationLabel": "100 mg capsule",
    "evidence": "E3"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "doxycycline hyclate|100mg|capsule||capsule",
+   "label": "100 mg capsule",
+   "short": "100 mg",
+   "unit": "capsule",
+   "onHand": 978,
+   "dailyUse": 33.653,
+   "days": 29.1,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 479,
+     "dailyUse": 16.084,
+     "days": 29.8,
+     "lines": [
+      "EA-E-000306"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 449,
+     "dailyUse": 14.896,
+     "days": 30.1,
+     "lines": [
+      "CG-203"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 50,
+     "dailyUse": 2.673,
+     "days": 18.7,
+     "lines": [
+      "LS-LS-0132"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -744,15 +813,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from A-S Medication Solutions",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Advanced Rx Pharmacy of Tennessee, LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -798,15 +858,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from American Health Packaging",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Amneal Pharmaceuticals NY LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -834,15 +885,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Asclemed USA, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from AvKARE",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -853,15 +895,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from AvPAK",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Bryant Ranch Prepack",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -924,25 +957,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from DIRECT RX",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Diirect_rx",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Direct_Rx",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -961,24 +976,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Galderma Laboratories, L.P.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Golden State Medical Supply, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from HAWAII REPACK, INC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -1059,69 +1056,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Northwind Health Company, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals,Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from PD-Rx Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Preferred Pharmaceuticals Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Proficient Rx LP",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Quality Care Products, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from REMEDYREPACK INC.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Redpharm Drug",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -1132,15 +1066,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from ST. MARY'S MEDICAL PARK PHARMACY",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Safecor Health, LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -1274,55 +1199,50 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "FDA's shortage list shows two manufacturers discontinuing doxycycline hyclate products; our current label names a plant with VAI inspections but no OAI record",
+  "headline": "Doxycycline hyclate is not on FDA's shortage list as of 2026-10-21; three hospital sites hold 18.7 to 30.1 days on hand",
   "sentences": [
    {
-    "text": "FDA's shortage list records Mylan Pharmaceuticals Inc. discontinuing doxycycline hyclate tablets with an initial posting date of 2026-01-12.",
+    "text": "FDA's drug shortage list does not include doxycycline hyclate as of 2026-10-21.",
     "cites": [
-     "E10"
+     "D4"
     ]
    },
    {
-    "text": "FDA's shortage list also records Teva Pharmaceuticals USA, Inc. discontinuing doxycycline hyclate delayed-release tablets with an initial posting date of 2026-07-30.",
+    "text": "Corvale East holds 479 capsules of the 100 mg presentation at 16.1 per day for 29.8 days on hand.",
     "cites": [
-     "E11"
+     "D1"
     ]
    },
    {
-    "text": "Our product label names Zydus Lifesciences Limited as the manufacturing plant (FEI 3007938603) with operations including manufacture.",
+    "text": "Corvale General holds 449 capsules at 14.9 per day for 30.1 days on hand.",
     "cites": [
-     "E9"
+     "D2"
     ]
    },
    {
-    "text": "FDA inspection records for this plant show multiple VAI classifications, most recently an inspection ending 2023-03-24 classified VAI.",
+    "text": "Corvale Lakeside holds 50 capsules at 2.7 per day for 18.7 days on hand.",
     "cites": [
-     "E8",
-     "E9"
-    ]
-   },
-   {
-    "text": "No FDA inspection record for this plant shows an OAI classification in the provided evidence.",
-    "cites": [
-     "E4",
-     "E5",
-     "E6",
-     "E7",
-     "E8"
-    ]
-   },
-   {
-    "text": "Corvale Lakeside holds 19 days on hand, while Corvale East and Corvale General each hold 30 days on hand.",
-    "cites": [
-     "D1",
-     "D2",
      "D3"
     ]
    },
    {
-    "text": "Check whether the Zydus plant has any recent inspection actions not captured here and confirm A-S Medication Solutions can supply the needed NDC.",
+    "text": "The rule-identified best option is to buy from Advanced Rx Pharmacy of Tennessee, LLC, which is not on FDA's shortage list today and whose label names no plant we could place.",
     "cites": [
-     "E9"
+     "D5"
+    ]
+   },
+   {
+    "text": "Two manufacturers, Mylan Pharmaceuticals Inc. and Teva Pharmaceuticals USA, Inc., have posted discontinuations for doxycycline hyclate tablets on 2026-01-12 and 2026-07-30 respectively.",
+    "cites": [
+     "E10",
+     "E11"
+    ]
+   },
+   {
+    "text": "A label for a Viona Pharmaceuticals Inc. product identifies Zydus Lifesciences Limited (FEI 3007938603) as a registered plant with a VAI inspection on 2023-03-24.",
+    "cites": [
+     "E9",
+     "E8"
     ]
    }
   ],
@@ -1336,45 +1256,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -1389,80 +1330,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:42:19.071Z",
+   "at": "2026-10-22T11:53:50.032Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract WN701WBB scope"
+   "reason": "in contract Q0RE4QCT scope"
   },
   {
-   "at": "2026-10-22T07:42:19.071Z",
+   "at": "2026-10-22T11:53:50.033Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WN701WBB scope"
+   "reason": "in contract Q0RE4QCT scope"
   },
   {
-   "at": "2026-10-22T07:42:22.017Z",
+   "at": "2026-10-22T11:53:54.419Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WN701WBB scope"
+   "reason": "in contract Q0RE4QCT scope"
   },
   {
-   "at": "2026-10-22T07:42:22.873Z",
+   "at": "2026-10-22T11:53:55.047Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WN701WBB scope"
+   "reason": "in contract Q0RE4QCT scope"
   },
   {
-   "at": "2026-10-22T07:42:23.285Z",
+   "at": "2026-10-22T11:53:55.372Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WN701WBB scope"
+   "reason": "in contract Q0RE4QCT scope"
   },
   {
-   "at": "2026-10-22T07:42:25.231Z",
+   "at": "2026-10-22T11:53:56.761Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WN701WBB scope"
+   "reason": "in contract Q0RE4QCT scope"
   },
   {
-   "at": "2026-10-22T07:42:26.290Z",
+   "at": "2026-10-22T11:53:57.606Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WN701WBB scope"
+   "reason": "in contract Q0RE4QCT scope"
   },
   {
-   "at": "2026-10-22T07:42:27.684Z",
+   "at": "2026-10-22T11:53:58.784Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WN701WBB scope"
+   "reason": "in contract Q0RE4QCT scope"
   },
   {
-   "at": "2026-10-22T07:42:29.696Z",
+   "at": "2026-10-22T11:54:00.935Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract WN701WBB scope"
+   "reason": "in contract Q0RE4QCT scope"
   },
   {
-   "at": "2026-10-22T07:42:29.698Z",
+   "at": "2026-10-22T11:54:00.935Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract WN701WBB scope"
+   "reason": "in contract Q0RE4QCT scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-707133",
+   "queryId": "Q-e0124b",
    "row": 0,
    "label": "Corvale East: DOXYCYCLINE HYCLATE 100MG CAP",
    "fields": {
@@ -1473,42 +1414,52 @@
     "description": "DOXYCYCLINE HYCLATE 100MG CAP",
     "on_hand": "479.00",
     "daily_use": "16.084",
-    "unit": "package",
+    "unit": "capsule",
+    "pkg_units": "100.00",
+    "unit_basis": "packages of 100, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Doxycycline hyclate",
     "labeler_name": "Viona Pharmaceuticals Inc",
     "package_ndc": "72578-055-01",
     "spl_set_id": "51d245a3-ef51-474a-bc91-377d5f42dde3",
     "dosage_form": "CAPSULE",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "DOXYCYCLINE HYCLATE 100 mg/1",
+    "unit_content": null,
+    "pkg_unit": "capsule"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-707133",
+   "queryId": "Q-e0124b",
    "row": 1,
-   "label": "Corvale General: Doxycycline hyclate",
+   "label": "Corvale General: Doxycycline hyclate 100 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-203",
     "ndc11": "72578005501",
     "ndc_as_recorded": "72578005501",
-    "description": "Doxycycline hyclate",
-    "on_hand": "449.75",
+    "description": "Doxycycline hyclate 100 mg/1",
+    "on_hand": "449.00",
     "daily_use": "14.896",
     "unit": "capsule",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Doxycycline hyclate",
     "labeler_name": "Viona Pharmaceuticals Inc",
     "package_ndc": "72578-055-01",
     "spl_set_id": "51d245a3-ef51-474a-bc91-377d5f42dde3",
     "dosage_form": "CAPSULE",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "DOXYCYCLINE HYCLATE 100 mg/1",
+    "unit_content": null,
+    "pkg_unit": "capsule"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-707133",
+   "queryId": "Q-e0124b",
    "row": 2,
    "label": "Corvale Lakeside: Doxycycline hyclate 100 mg/1",
    "fields": {
@@ -1520,13 +1471,18 @@
     "on_hand": "50.00",
     "daily_use": "2.673",
     "unit": "capsule",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Doxycycline hyclate",
     "labeler_name": "Viona Pharmaceuticals Inc",
     "package_ndc": "72578-055-01",
     "spl_set_id": "51d245a3-ef51-474a-bc91-377d5f42dde3",
     "dosage_form": "CAPSULE",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "DOXYCYCLINE HYCLATE 100 mg/1",
+    "unit_content": null,
+    "pkg_unit": "capsule"
    }
   },
   "E4": {
@@ -1627,7 +1583,7 @@
   },
   "E10": {
    "id": "E10",
-   "queryId": "Q-f865a1",
+   "queryId": "Q-95d391",
    "row": 0,
    "label": "FDA shortage list: Mylan Pharmaceuticals Inc., a Viatris Company, To Be Discontinued",
    "fields": {
@@ -1642,7 +1598,7 @@
   },
   "E11": {
    "id": "E11",
-   "queryId": "Q-f865a1",
+   "queryId": "Q-95d391",
    "row": 2,
    "label": "FDA shortage list: Teva Pharmaceuticals USA, Inc., To Be Discontinued",
    "fields": {
@@ -1659,197 +1615,259 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 479 units of doxycycline hyclate at 16.1 a day: 30 days on hand",
+   "label": "Corvale East holds 479 capsules of doxycycline hyclate 100 mg at 16.1 a day: 29.8 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "100 mg capsule",
     "on_hand": 479,
     "daily_use": 16.1,
-    "days_on_hand": 30
+    "days_on_hand": 29.8
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 450 units of doxycycline hyclate at 14.9 a day: 30 days on hand",
+   "label": "Corvale General holds 449 capsules of doxycycline hyclate 100 mg at 14.9 a day: 30.1 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 450,
+    "presentation": "100 mg capsule",
+    "on_hand": 449,
     "daily_use": 14.9,
-    "days_on_hand": 30
+    "days_on_hand": 30.1
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 50 units of doxycycline hyclate at 2.7 a day: 19 days on hand",
+   "label": "Corvale Lakeside holds 50 capsules of doxycycline hyclate 100 mg at 2.7 a day: 18.7 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
+    "presentation": "100 mg capsule",
     "on_hand": 50,
     "daily_use": 2.7,
-    "days_on_hand": 19
+    "days_on_hand": 18.7
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "doxycycline hyclate is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Advanced Rx Pharmacy of Tennessee, LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from AiPing Pharmaceutical, Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Ajanta Pharma USA Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-707133": {
-   "id": "Q-707133",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%doxycycline%' OR lower(s.description) LIKE '%doxycycline%' ORDER BY s.hospital, s.item_key",
-   "ms": 2942,
+  "Q-e0124b": {
+   "id": "Q-e0124b",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*doxycycline(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*doxycycline(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 4383,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:42:22.013Z",
+   "ranAt": "2026-10-22T11:53:54.416Z",
    "rows": 3
   },
   "Q-7628d2": {
    "id": "Q-7628d2",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('51d245a3-ef51-474a-bc91-377d5f42dde3') ORDER BY ps.set_id, ps.establishment",
-   "ms": 853,
+   "ms": 627,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:42:22.871Z",
+   "ranAt": "2026-10-22T11:53:55.046Z",
    "rows": 1
   },
-  "Q-f865a1": {
-   "id": "Q-f865a1",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%doxycycline%' ORDER BY status, company_name, package_ndc",
-   "ms": 201,
+  "Q-95d391": {
+   "id": "Q-95d391",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*doxycycline(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 150,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:42:23.074Z",
+   "ranAt": "2026-10-22T11:53:55.198Z",
    "rows": 4
   },
-  "Q-2d95f0": {
-   "id": "Q-2d95f0",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%doxycycline%' ORDER BY first_posting",
-   "ms": 206,
+  "Q-359a70": {
+   "id": "Q-359a70",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*doxycycline(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 171,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:42:23.282Z",
-   "rows": 8
+   "ranAt": "2026-10-22T11:53:55.370Z",
+   "rows": 7
   },
-  "Q-9dc2b1": {
-   "id": "Q-9dc2b1",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%doxycycline%' AND lower(p.dosage_form) LIKE '%capsule%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 1943,
+  "Q-6a72a4": {
+   "id": "Q-6a72a4",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*doxycycline(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%capsule%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1388,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:42:25.228Z",
+   "ranAt": "2026-10-22T11:53:56.759Z",
    "rows": 508
   },
   "Q-87e7ca": {
    "id": "Q-87e7ca",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3007938603') ORDER BY fei, end_date",
-   "ms": 450,
+   "ms": 268,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:42:25.681Z",
+   "ranAt": "2026-10-22T11:53:57.029Z",
    "rows": 5
   },
   "Q-30871b": {
    "id": "Q-30871b",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3007938603') ORDER BY fei, action_date",
-   "ms": 232,
+   "ms": 172,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:42:25.915Z",
+   "ranAt": "2026-10-22T11:53:57.202Z",
    "rows": 0
   },
   "Q-01e61e": {
    "id": "Q-01e61e",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3007938603') OR (fei_match <> 'name_and_city' AND firm_key IN ('zydus lifesciences')) ORDER BY date_published",
-   "ms": 151,
+   "ms": 140,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:42:26.068Z",
+   "ranAt": "2026-10-22T11:53:57.343Z",
    "rows": 0
   },
-  "Q-1054b4": {
-   "id": "Q-1054b4",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('zydus lifesciences', 'viona') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%doxycycline%' ORDER BY initiation_date",
-   "ms": 217,
+  "Q-f82a73": {
+   "id": "Q-f82a73",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('zydus lifesciences', 'viona') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*doxycycline(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 258,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:42:26.286Z",
+   "ranAt": "2026-10-22T11:53:57.601Z",
    "rows": 0
   },
   "Q-389c04": {
    "id": "Q-389c04",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('72578005501')",
-   "ms": 1391,
+   "ms": 1176,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:42:27.681Z",
+   "ranAt": "2026-10-22T11:53:58.783Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-d3a0f1": {
-   "id": "Q-d3a0f1",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%doxycycline%'",
-   "ms": 2010,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:42:29.695Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-fe4f11": {
+   "id": "Q-fe4f11",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*doxycycline(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 2149,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:54:00.933Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 15967,
+  "zetarisMs": 21090,
   "modelCalls": 1,
-  "tokensIn": 1418,
-  "tokensOut": 454,
+  "tokensIn": 1789,
+  "tokensOut": 492,
   "mode": "live"
  },
  "slug": "doxycycline",
@@ -1864,7 +1882,7 @@
     "id": "hospital-item:hospital-item:CG-203",
     "type": "HospitalItem",
     "key": "hospital-item:CG-203",
-    "label": "Corvale General: Doxycycline hyclate",
+    "label": "Corvale General: Doxycycline hyclate 100 mg/1",
     "attrs": {
      "key": "hospital-item:CG-203"
     },
@@ -1959,7 +1977,7 @@
     },
     "facts": [
      {
-      "id": "fact_04001d5bbd5b4202",
+      "id": "fact_2fc084fab2ca22c7",
       "about": "inspection:fda-inspection:1005475",
       "predicate": "classification",
       "value": "VAI",
@@ -1967,9 +1985,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:42:26.289Z"
+       "at": "2026-10-22T11:53:57.605Z"
       },
-      "assertedAt": "2026-10-22T07:42:26.289Z"
+      "assertedAt": "2026-10-22T11:53:57.605Z"
      }
     ],
     "depth": 4
@@ -1985,7 +2003,7 @@
     },
     "facts": [
      {
-      "id": "fact_48f1121860ce6ada",
+      "id": "fact_1246f7cb227a44de",
       "about": "inspection:fda-inspection:1085026",
       "predicate": "classification",
       "value": "VAI",
@@ -1993,9 +2011,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:42:26.289Z"
+       "at": "2026-10-22T11:53:57.605Z"
       },
-      "assertedAt": "2026-10-22T07:42:26.289Z"
+      "assertedAt": "2026-10-22T11:53:57.605Z"
      }
     ],
     "depth": 4
@@ -2011,7 +2029,7 @@
     },
     "facts": [
      {
-      "id": "fact_888c087369c5f17e",
+      "id": "fact_dbb50c6ba74a8da1",
       "about": "inspection:fda-inspection:1204321",
       "predicate": "classification",
       "value": "VAI",
@@ -2019,9 +2037,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:42:26.289Z"
+       "at": "2026-10-22T11:53:57.605Z"
       },
-      "assertedAt": "2026-10-22T07:42:26.289Z"
+      "assertedAt": "2026-10-22T11:53:57.605Z"
      }
     ],
     "depth": 4
@@ -2037,7 +2055,7 @@
     },
     "facts": [
      {
-      "id": "fact_05b86b3f7a56da99",
+      "id": "fact_b81a170f57deaaa1",
       "about": "inspection:fda-inspection:918141",
       "predicate": "classification",
       "value": "VAI",
@@ -2045,9 +2063,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:42:26.289Z"
+       "at": "2026-10-22T11:53:57.603Z"
       },
-      "assertedAt": "2026-10-22T07:42:26.289Z"
+      "assertedAt": "2026-10-22T11:53:57.603Z"
      }
     ],
     "depth": 4
@@ -2063,7 +2081,7 @@
     },
     "facts": [
      {
-      "id": "fact_a9d139733026f098",
+      "id": "fact_a5ddefbd74c025d6",
       "about": "inspection:fda-inspection:958305",
       "predicate": "classification",
       "value": "VAI",
@@ -2071,9 +2089,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:42:26.289Z"
+       "at": "2026-10-22T11:53:57.604Z"
       },
-      "assertedAt": "2026-10-22T07:42:26.289Z"
+      "assertedAt": "2026-10-22T11:53:57.604Z"
      }
     ],
     "depth": 4
@@ -2085,11 +2103,11 @@
     "from": "hospital-item:hospital-item:CG-203",
     "to": "package:ndc-package:72578-055-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:42:22.016Z",
+    "validFrom": "2026-10-22T11:53:54.418Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:42:22.016Z"
+     "at": "2026-10-22T11:53:54.418Z"
     }
    },
    {
@@ -2097,11 +2115,11 @@
     "from": "hospital-item:hospital-item:EA-E-000306",
     "to": "package:ndc-package:72578-055-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:42:22.016Z",
+    "validFrom": "2026-10-22T11:53:54.418Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:42:22.016Z"
+     "at": "2026-10-22T11:53:54.418Z"
     }
    },
    {
@@ -2109,11 +2127,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0132",
     "to": "package:ndc-package:72578-055-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:42:22.017Z",
+    "validFrom": "2026-10-22T11:53:54.418Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:42:22.017Z"
+     "at": "2026-10-22T11:53:54.418Z"
     }
    },
    {
@@ -2121,11 +2139,11 @@
     "from": "package:ndc-package:72578-055-01",
     "to": "product:ndc-product:72578-055",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:42:22.016Z",
+    "validFrom": "2026-10-22T11:53:54.418Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:42:22.016Z"
+     "at": "2026-10-22T11:53:54.418Z"
     }
    },
    {
@@ -2133,11 +2151,11 @@
     "from": "product:ndc-product:72578-055",
     "to": "drug:generic:doxycycline hyclate",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:42:22.016Z",
+    "validFrom": "2026-10-22T11:53:54.418Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:42:22.016Z"
+     "at": "2026-10-22T11:53:54.418Z"
     }
    },
    {
@@ -2145,11 +2163,11 @@
     "from": "product:ndc-product:72578-055",
     "to": "labeler:ndc-labeler:72578",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:42:22.016Z",
+    "validFrom": "2026-10-22T11:53:54.418Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:42:22.016Z"
+     "at": "2026-10-22T11:53:54.418Z"
     }
    },
    {
@@ -2157,11 +2175,11 @@
     "from": "product:ndc-product:72578-055",
     "to": "site:fei:3007938603",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:42:26.288Z",
+    "validFrom": "2026-10-22T11:53:57.603Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:42:26.288Z"
+     "at": "2026-10-22T11:53:57.603Z"
     }
    },
    {
@@ -2169,11 +2187,11 @@
     "from": "inspection:fda-inspection:918141",
     "to": "site:fei:3007938603",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:42:26.288Z",
+    "validFrom": "2026-10-22T11:53:57.603Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:42:26.288Z"
+     "at": "2026-10-22T11:53:57.603Z"
     }
    },
    {
@@ -2181,11 +2199,11 @@
     "from": "inspection:fda-inspection:958305",
     "to": "site:fei:3007938603",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:42:26.289Z",
+    "validFrom": "2026-10-22T11:53:57.603Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:42:26.289Z"
+     "at": "2026-10-22T11:53:57.603Z"
     }
    },
    {
@@ -2193,11 +2211,11 @@
     "from": "inspection:fda-inspection:1005475",
     "to": "site:fei:3007938603",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:42:26.289Z",
+    "validFrom": "2026-10-22T11:53:57.605Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:42:26.289Z"
+     "at": "2026-10-22T11:53:57.605Z"
     }
    },
    {
@@ -2205,11 +2223,11 @@
     "from": "inspection:fda-inspection:1085026",
     "to": "site:fei:3007938603",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:42:26.289Z",
+    "validFrom": "2026-10-22T11:53:57.605Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:42:26.289Z"
+     "at": "2026-10-22T11:53:57.605Z"
     }
    },
    {
@@ -2217,11 +2235,11 @@
     "from": "inspection:fda-inspection:1204321",
     "to": "site:fei:3007938603",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:42:26.289Z",
+    "validFrom": "2026-10-22T11:53:57.605Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:42:26.289Z"
+     "at": "2026-10-22T11:53:57.605Z"
     }
    }
   ],

@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-22b2e2",
+ "id": "case-2026-10-22-6805df",
  "question": "Why is fluconazole short, and what do we do?",
- "askedAt": "2026-10-22T07:46:10.821Z",
+ "askedAt": "2026-10-22T11:59:15.753Z",
  "asOf": "2026-10-21",
  "molecule": "fluconazole",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H95XZ00F4CNGZTXFKC7MZ0",
+  "contractId": "01M5HQNB4KZNFTR7Z0CEE7B6S5",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-fd327c"
+    "Q-8392c2"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2785,
+   "ms": 3543,
    "rows": 2,
-   "finding": "2 stock lines across 2 hospitals.",
+   "finding": "2 stock lines across 2 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-42d93b"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 695,
+   "ms": 473,
    "rows": 2,
    "finding": "2 plant links on 1 labels; 2 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-d77c86",
-    "Q-ac0497"
+    "Q-d2b641",
+    "Q-4d607f"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 425,
+   "ms": 258,
    "rows": 3,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-d52b6c"
+    "Q-7afe36"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2093,
+   "ms": 1383,
    "rows": 376,
    "finding": "36 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-bb303f",
     "Q-e3ad47",
     "Q-580905",
-    "Q-337a82"
+    "Q-0e9ec9"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1065,
+   "ms": 791,
    "rows": 16,
    "finding": "15 inspections (1 OAI at our plants), 1 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,7 +111,7 @@
    "sources": [
     "fda.citations"
    ],
-   "ms": 276,
+   "ms": 350,
    "rows": 11,
    "finding": "11 Form 483 observations recorded.",
    "status": "ok"
@@ -119,9 +126,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1121,
+   "ms": 860,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -129,19 +136,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-3bd017"
+    "Q-ec1a59"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1046,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1703,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -152,7 +163,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 1,
+   "ms": 0,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -168,22 +179,65 @@
    "onHand": 164,
    "dailyUse": 12.837,
    "days": 12.8,
-   "unit": "package",
+   "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 30, converted to units",
+   "presentation": "fluconazole|50mg|tablet||tablet",
+   "presentationLabel": "50 mg tablet",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-219",
    "ndc11": "51407042430",
-   "description": "Fluconazole",
+   "description": "Fluconazole 50 mg/1",
    "labeler": "Golden State Medical Supply, Inc.",
-   "onHand": 289.21,
+   "onHand": 289,
    "dailyUse": 16.408,
    "days": 17.6,
    "unit": "tablet",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "fluconazole|50mg|tablet||tablet",
+   "presentationLabel": "50 mg tablet",
    "evidence": "E2"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "fluconazole|50mg|tablet||tablet",
+   "label": "50 mg tablet",
+   "short": "50 mg",
+   "unit": "tablet",
+   "onHand": 453,
+   "dailyUse": 29.245,
+   "days": 15.5,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 164,
+     "dailyUse": 12.837,
+     "days": 12.8,
+     "lines": [
+      "EA-E-000176"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 289,
+     "dailyUse": 16.408,
+     "days": 17.6,
+     "lines": [
+      "CG-219"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -630,43 +684,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from A-S Medication Solutions",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from ANI Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from ASCLEMED USA INC.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from American Health Packaging",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Asclemed USA, Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -702,24 +720,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Bryant Ranch Prepack",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Cardinal Health 107, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Chartwell RX, LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -730,24 +730,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Coupler LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Direct Rx",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Direct_Rx",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -774,15 +756,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from HAWAII REPACK, INC.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Major Pharmaceuticals",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -801,70 +774,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Northwind Health Company, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals,Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from PD-Rx Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Pharmasource Meds, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Preferred Pharmaceuticals Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Proficient Rx LP",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from REMEDYREPACK INC.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -932,15 +842,6 @@
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
    "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from direct rx",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
   }
  ],
  "timeline": [
@@ -968,58 +869,54 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "FDA's records trace our supply to a plant classified OAI 1074 days before the posting",
+  "headline": "FDA's records trace our supply to a plant classified VAI 1074 days before the shortage posting",
   "sentences": [
    {
-    "text": "FDA's shortage list shows fluconazole has been in shortage since 2022-01-13, and as of 2026-10-21 the shortage has been on the list for 57 months.",
+    "text": "Fluconazole has been on FDA's shortage list since 2022-01-13 and remains listed as of 2026-10-21, a span of 57 months.",
     "cites": [
-     "D7"
+     "D4"
     ]
    },
    {
-    "text": "The label for our product (NDC 51407042430) names Golden State Medical Supply, Inc. as the labeler and relabel/repack plant (FEI 3006458969) and Novitium Pharma LLC as the manufacturing plant (FEI 3012541241).",
-    "cites": [
-     "E10",
-     "E12"
-    ]
-   },
-   {
-    "text": "FDA inspected Novitium Pharma LLC (FEI 3012541241) and classified the inspection VAI on 2019-02-04, with the classification letter dated 2019-04-03 — 1074 days before FDA posted the shortage on 2022-01-13.",
+    "text": "The registered manufacturing plant Novitium Pharma LLC (FEI 3012541241) received a VAI classification on 2019-02-04, which was 1074 days before the shortage posting.",
     "cites": [
      "D3",
-     "E11"
-    ]
-   },
-   {
-    "text": "FDA inspected Golden State Medical Supply, Inc. (FEI 3006458969) multiple times, including an OAI classification on 2011-02-02 and a Warning Letter on 2011-04-26.",
-    "cites": [
-     "E5",
-     "E9"
-    ]
-   },
-   {
-    "text": "The most recent inspections for both plants were classified NAI: Golden State Medical Supply, Inc. on 2025-06-11 and Novitium Pharma LLC on 2024-02-16.",
-    "cites": [
-     "E10",
+     "E11",
      "E12"
     ]
    },
    {
-    "text": "Corvale East has 13 days on hand (164 units at 12.8/day) and Corvale General has 18 days on hand (289 units at 16.4/day).",
+    "text": "The relabeler Golden State Medical Supply, Inc. (FEI 3006458969) has a history including an OAI classification on 2011-02-02 and a Warning Letter on 2011-04-26, though its most recent inspection was NAI on 2025-06-11.",
+    "cites": [
+     "E3",
+     "E5",
+     "E9",
+     "E10"
+    ]
+   },
+   {
+    "text": "Corvale East holds 164 tablets of the 50 mg presentation with 12.8 days on hand, while Corvale General holds 289 tablets with 17.6 days on hand.",
     "cites": [
      "D1",
      "D2"
     ]
    },
    {
-    "text": "The rule-based best option is to buy from A-S Medication Solutions, which is not on FDA's shortage list today, though its label names no plant we could place.",
+    "text": "The rule-based best option is to buy from ANI Pharmaceuticals, Inc., which is not on FDA's shortage list today, though its label names no plant we could place.",
     "cites": [
-     "D4"
+     "D5"
+    ]
+   },
+   {
+    "text": "Additional alternate manufacturers not on the shortage list include Aurobindo Pharma Limited and AvPAK, each also lacking a placeable plant on their labels.",
+    "cites": [
+     "D6",
+     "D7"
     ]
    }
   ],
   "verifier": {
-   "checked": 8,
+   "checked": 7,
    "rejected": [],
    "repaired": 0
   },
@@ -1028,45 +925,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -1081,87 +999,87 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:46:01.312Z",
+   "at": "2026-10-22T11:59:06.388Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract XFKC7MZ0 scope"
+   "reason": "in contract CEE7B6S5 scope"
   },
   {
-   "at": "2026-10-22T07:46:01.312Z",
+   "at": "2026-10-22T11:59:06.388Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XFKC7MZ0 scope"
+   "reason": "in contract CEE7B6S5 scope"
   },
   {
-   "at": "2026-10-22T07:46:04.098Z",
+   "at": "2026-10-22T11:59:09.931Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XFKC7MZ0 scope"
+   "reason": "in contract CEE7B6S5 scope"
   },
   {
-   "at": "2026-10-22T07:46:04.792Z",
+   "at": "2026-10-22T11:59:10.404Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XFKC7MZ0 scope"
+   "reason": "in contract CEE7B6S5 scope"
   },
   {
-   "at": "2026-10-22T07:46:05.217Z",
+   "at": "2026-10-22T11:59:10.662Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XFKC7MZ0 scope"
+   "reason": "in contract CEE7B6S5 scope"
   },
   {
-   "at": "2026-10-22T07:46:07.311Z",
+   "at": "2026-10-22T11:59:12.046Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XFKC7MZ0 scope"
+   "reason": "in contract CEE7B6S5 scope"
   },
   {
-   "at": "2026-10-22T07:46:08.375Z",
+   "at": "2026-10-22T11:59:12.837Z",
    "action": "What FDA wrote at the OAI inspections",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XFKC7MZ0 scope"
+   "reason": "in contract CEE7B6S5 scope"
   },
   {
-   "at": "2026-10-22T07:46:08.653Z",
+   "at": "2026-10-22T11:59:13.189Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XFKC7MZ0 scope"
+   "reason": "in contract CEE7B6S5 scope"
   },
   {
-   "at": "2026-10-22T07:46:09.774Z",
+   "at": "2026-10-22T11:59:14.050Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XFKC7MZ0 scope"
+   "reason": "in contract CEE7B6S5 scope"
   },
   {
-   "at": "2026-10-22T07:46:10.820Z",
+   "at": "2026-10-22T11:59:15.752Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract XFKC7MZ0 scope"
+   "reason": "in contract CEE7B6S5 scope"
   },
   {
-   "at": "2026-10-22T07:46:10.822Z",
+   "at": "2026-10-22T11:59:15.754Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract XFKC7MZ0 scope"
+   "reason": "in contract CEE7B6S5 scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-fd327c",
+   "queryId": "Q-8392c2",
    "row": 0,
    "label": "Corvale East: FLUCONAZOLE 50MG TAB",
    "fields": {
@@ -1172,37 +1090,47 @@
     "description": "FLUCONAZOLE 50MG TAB",
     "on_hand": "164.00",
     "daily_use": "12.837",
-    "unit": "package",
+    "unit": "tablet",
+    "pkg_units": "30.00",
+    "unit_basis": "packages of 30, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Fluconazole",
     "labeler_name": "Golden State Medical Supply, Inc.",
     "package_ndc": "51407-424-30",
     "spl_set_id": "c2c7242d-d172-4733-e053-2995a90acb2e",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "FLUCONAZOLE 50 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-fd327c",
+   "queryId": "Q-8392c2",
    "row": 1,
-   "label": "Corvale General: Fluconazole",
+   "label": "Corvale General: Fluconazole 50 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-219",
     "ndc11": "51407042430",
     "ndc_as_recorded": "51407042430",
-    "description": "Fluconazole",
-    "on_hand": "289.21",
+    "description": "Fluconazole 50 mg/1",
+    "on_hand": "289.00",
     "daily_use": "16.408",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Fluconazole",
     "labeler_name": "Golden State Medical Supply, Inc.",
     "package_ndc": "51407-424-30",
     "spl_set_id": "c2c7242d-d172-4733-e053-2995a90acb2e",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "FLUCONAZOLE 50 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E3": {
@@ -1364,24 +1292,26 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 164 units of fluconazole at 12.8 a day: 13 days on hand",
+   "label": "Corvale East holds 164 tablets of fluconazole 50 mg at 12.8 a day: 12.8 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "50 mg tablet",
     "on_hand": 164,
     "daily_use": 12.8,
-    "days_on_hand": 13
+    "days_on_hand": 12.8
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 289 units of fluconazole at 16.4 a day: 18 days on hand",
+   "label": "Corvale General holds 289 tablets of fluconazole 50 mg at 16.4 a day: 17.6 days on hand",
    "fields": {
     "hospital": "Corvale General",
+    "presentation": "50 mg tablet",
     "on_hand": 289,
     "daily_use": 16.4,
-    "days_on_hand": 18
+    "days_on_hand": 17.6
    }
   },
   "D3": {
@@ -1399,10 +1329,11 @@
    "id": "D4",
    "queryId": "derived",
    "row": -1,
-   "label": "Option ranked 3 by rule: Buy from A-S Medication Solutions. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "label": "As of 2026-10-21 the shortage has been on FDA's list for 57 months",
    "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
+    "as_of": "2026-10-21",
+    "posted": "2022-01-13",
+    "months": 57
    }
   },
   "D5": {
@@ -1419,7 +1350,7 @@
    "id": "D6",
    "queryId": "derived",
    "row": -1,
-   "label": "Option ranked 3 by rule: Buy from ASCLEMED USA INC.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "label": "Option ranked 3 by rule: Buy from Aurobindo Pharma Limited. Not on FDA's shortage list today. Its label names no plant we could place.",
    "fields": {
     "kind": "alternate_manufacturer",
     "needs": "buyer"
@@ -1429,183 +1360,201 @@
    "id": "D7",
    "queryId": "derived",
    "row": -1,
-   "label": "As of 2026-10-21 the shortage has been on FDA's list for 57 months",
+   "label": "Option ranked 3 by rule: Buy from AvPAK. Not on FDA's shortage list today. Its label names no plant we could place.",
    "fields": {
-    "as_of": "2026-10-21",
-    "posted": "2022-01-13",
-    "months": 57
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-fd327c": {
-   "id": "Q-fd327c",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%fluconazole%' OR lower(s.description) LIKE '%fluconazole%' ORDER BY s.hospital, s.item_key",
-   "ms": 2783,
+  "Q-8392c2": {
+   "id": "Q-8392c2",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*fluconazole(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*fluconazole(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3541,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:46:04.095Z",
+   "ranAt": "2026-10-22T11:59:09.929Z",
    "rows": 2
   },
   "Q-42d93b": {
    "id": "Q-42d93b",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('c2c7242d-d172-4733-e053-2995a90acb2e') ORDER BY ps.set_id, ps.establishment",
-   "ms": 692,
+   "ms": 471,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:46:04.789Z",
+   "ranAt": "2026-10-22T11:59:10.403Z",
    "rows": 2
   },
-  "Q-d77c86": {
-   "id": "Q-d77c86",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%fluconazole%' ORDER BY status, company_name, package_ndc",
-   "ms": 218,
+  "Q-d2b641": {
+   "id": "Q-d2b641",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*fluconazole(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 126,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:46:05.010Z",
+   "ranAt": "2026-10-22T11:59:10.530Z",
    "rows": 0
   },
-  "Q-ac0497": {
-   "id": "Q-ac0497",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%fluconazole%' ORDER BY first_posting",
-   "ms": 203,
+  "Q-4d607f": {
+   "id": "Q-4d607f",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*fluconazole(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 131,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:46:05.215Z",
+   "ranAt": "2026-10-22T11:59:10.661Z",
    "rows": 3
   },
-  "Q-d52b6c": {
-   "id": "Q-d52b6c",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%fluconazole%' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2089,
+  "Q-7afe36": {
+   "id": "Q-7afe36",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*fluconazole(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1382,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:46:07.306Z",
+   "ranAt": "2026-10-22T11:59:12.044Z",
    "rows": 376
   },
   "Q-bb303f": {
    "id": "Q-bb303f",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3006458969', '3012541241') ORDER BY fei, end_date",
-   "ms": 535,
+   "ms": 280,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:46:07.845Z",
+   "ranAt": "2026-10-22T11:59:12.326Z",
    "rows": 15
   },
   "Q-e3ad47": {
    "id": "Q-e3ad47",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3006458969', '3012541241') ORDER BY fei, action_date",
-   "ms": 180,
+   "ms": 150,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:46:08.027Z",
+   "ranAt": "2026-10-22T11:59:12.477Z",
    "rows": 1
   },
   "Q-580905": {
    "id": "Q-580905",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3006458969', '3012541241') OR (fei_match <> 'name_and_city' AND firm_key IN ('golden state medical supply', 'novitium')) ORDER BY date_published",
-   "ms": 152,
+   "ms": 135,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:46:08.181Z",
+   "ranAt": "2026-10-22T11:59:12.614Z",
    "rows": 0
   },
-  "Q-337a82": {
-   "id": "Q-337a82",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('golden state medical supply', 'novitium') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%fluconazole%' ORDER BY initiation_date",
-   "ms": 191,
+  "Q-0e9ec9": {
+   "id": "Q-0e9ec9",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('golden state medical supply', 'novitium') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*fluconazole(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 220,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:46:08.373Z",
+   "ranAt": "2026-10-22T11:59:12.835Z",
    "rows": 0
   },
   "Q-fdaf2c": {
    "id": "Q-fdaf2c",
    "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('707152') ORDER BY inspection_id, cfr",
-   "ms": 274,
+   "ms": 349,
    "mode": "live",
    "sources": [
     "fda.citations"
    ],
-   "ranAt": "2026-10-22T07:46:08.650Z",
+   "ranAt": "2026-10-22T11:59:13.186Z",
    "rows": 11
   },
   "Q-366c39": {
    "id": "Q-366c39",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('51407042430')",
-   "ms": 1119,
+   "ms": 859,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:46:09.772Z",
+   "ranAt": "2026-10-22T11:59:14.048Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-3bd017": {
-   "id": "Q-3bd017",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%fluconazole%'",
-   "ms": 1044,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:46:10.819Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-ec1a59": {
+   "id": "Q-ec1a59",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*fluconazole(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1701,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:59:15.751Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 15,
-  "zetarisMs": 14851,
+  "zetarisMs": 19553,
   "modelCalls": 1,
-  "tokensIn": 1723,
-  "tokensOut": 612,
+  "tokensIn": 1878,
+  "tokensOut": 492,
   "mode": "live"
  },
  "slug": "fluconazole",
@@ -1619,7 +1568,7 @@
     "id": "hospital-item:hospital-item:CG-219",
     "type": "HospitalItem",
     "key": "hospital-item:CG-219",
-    "label": "Corvale General: Fluconazole",
+    "label": "Corvale General: Fluconazole 50 mg/1",
     "attrs": {
      "key": "hospital-item:CG-219"
     },
@@ -1714,7 +1663,7 @@
     },
     "facts": [
      {
-      "id": "fact_0b3e1f1d73498c21",
+      "id": "fact_5b0891a978ebe48b",
       "about": "inspection:fda-inspection:1080904",
       "predicate": "classification",
       "value": "VAI",
@@ -1722,9 +1671,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:46:08.652Z"
+       "at": "2026-10-22T11:59:13.188Z"
       },
-      "assertedAt": "2026-10-22T07:46:08.652Z"
+      "assertedAt": "2026-10-22T11:59:13.188Z"
      }
     ],
     "depth": 4
@@ -1740,7 +1689,7 @@
     },
     "facts": [
      {
-      "id": "fact_a63079933ce7efba",
+      "id": "fact_895ca350d71c7cef",
       "about": "inspection:fda-inspection:702173",
       "predicate": "classification",
       "value": "VAI",
@@ -1748,9 +1697,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:46:08.651Z"
+       "at": "2026-10-22T11:59:13.188Z"
       },
-      "assertedAt": "2026-10-22T07:46:08.651Z"
+      "assertedAt": "2026-10-22T11:59:13.188Z"
      }
     ],
     "depth": 4
@@ -1766,7 +1715,7 @@
     },
     "facts": [
      {
-      "id": "fact_fcc3ba7b562aaf0c",
+      "id": "fact_48c6e3b7cc49d568",
       "about": "inspection:fda-inspection:707152",
       "predicate": "classification",
       "value": "OAI",
@@ -1774,9 +1723,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:46:08.651Z"
+       "at": "2026-10-22T11:59:13.188Z"
       },
-      "assertedAt": "2026-10-22T07:46:08.651Z"
+      "assertedAt": "2026-10-22T11:59:13.188Z"
      }
     ],
     "depth": 4
@@ -1792,7 +1741,7 @@
     },
     "facts": [
      {
-      "id": "fact_8e75fbf66921a54e",
+      "id": "fact_82a350de6f967903",
       "about": "inspection:fda-inspection:738845",
       "predicate": "classification",
       "value": "VAI",
@@ -1800,9 +1749,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:46:08.651Z"
+       "at": "2026-10-22T11:59:13.188Z"
       },
-      "assertedAt": "2026-10-22T07:46:08.651Z"
+      "assertedAt": "2026-10-22T11:59:13.188Z"
      }
     ],
     "depth": 4
@@ -1818,7 +1767,7 @@
     },
     "facts": [
      {
-      "id": "fact_396acadab00f7980",
+      "id": "fact_b5bacd50f135537b",
       "about": "inspection:fda-inspection:792725",
       "predicate": "classification",
       "value": "VAI",
@@ -1826,9 +1775,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:46:08.652Z"
+       "at": "2026-10-22T11:59:13.188Z"
       },
-      "assertedAt": "2026-10-22T07:46:08.652Z"
+      "assertedAt": "2026-10-22T11:59:13.188Z"
      }
     ],
     "depth": 4
@@ -1844,7 +1793,7 @@
     },
     "facts": [
      {
-      "id": "fact_2305eabfe30763f8",
+      "id": "fact_7ed86e97784a5897",
       "about": "inspection:fda-inspection:831909",
       "predicate": "classification",
       "value": "VAI",
@@ -1852,9 +1801,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:46:08.652Z"
+       "at": "2026-10-22T11:59:13.188Z"
       },
-      "assertedAt": "2026-10-22T07:46:08.652Z"
+      "assertedAt": "2026-10-22T11:59:13.188Z"
      }
     ],
     "depth": 4
@@ -1877,11 +1826,11 @@
     "from": "hospital-item:hospital-item:CG-219",
     "to": "package:ndc-package:51407-424-30",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:46:04.097Z",
+    "validFrom": "2026-10-22T11:59:09.931Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:46:04.097Z"
+     "at": "2026-10-22T11:59:09.931Z"
     }
    },
    {
@@ -1889,11 +1838,11 @@
     "from": "hospital-item:hospital-item:EA-E-000176",
     "to": "package:ndc-package:51407-424-30",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:46:04.097Z",
+    "validFrom": "2026-10-22T11:59:09.931Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:46:04.097Z"
+     "at": "2026-10-22T11:59:09.931Z"
     }
    },
    {
@@ -1901,11 +1850,11 @@
     "from": "package:ndc-package:51407-424-30",
     "to": "product:ndc-product:51407-424",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:46:04.097Z",
+    "validFrom": "2026-10-22T11:59:09.931Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:46:04.097Z"
+     "at": "2026-10-22T11:59:09.931Z"
     }
    },
    {
@@ -1913,11 +1862,11 @@
     "from": "product:ndc-product:51407-424",
     "to": "drug:generic:fluconazole",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:46:04.097Z",
+    "validFrom": "2026-10-22T11:59:09.931Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:46:04.097Z"
+     "at": "2026-10-22T11:59:09.931Z"
     }
    },
    {
@@ -1925,11 +1874,11 @@
     "from": "product:ndc-product:51407-424",
     "to": "labeler:ndc-labeler:51407",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:46:04.097Z",
+    "validFrom": "2026-10-22T11:59:09.931Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:46:04.097Z"
+     "at": "2026-10-22T11:59:09.931Z"
     }
    },
    {
@@ -1937,11 +1886,11 @@
     "from": "product:ndc-product:51407-424",
     "to": "site:fei:3006458969",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:46:08.651Z",
+    "validFrom": "2026-10-22T11:59:13.187Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:46:08.651Z"
+     "at": "2026-10-22T11:59:13.187Z"
     }
    },
    {
@@ -1949,11 +1898,11 @@
     "from": "product:ndc-product:51407-424",
     "to": "site:fei:3012541241",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:46:08.652Z",
+    "validFrom": "2026-10-22T11:59:13.188Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:46:08.652Z"
+     "at": "2026-10-22T11:59:13.188Z"
     }
    },
    {
@@ -1961,11 +1910,11 @@
     "from": "inspection:fda-inspection:702173",
     "to": "site:fei:3006458969",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:46:08.651Z",
+    "validFrom": "2026-10-22T11:59:13.188Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:46:08.651Z"
+     "at": "2026-10-22T11:59:13.188Z"
     }
    },
    {
@@ -1973,11 +1922,11 @@
     "from": "inspection:fda-inspection:707152",
     "to": "site:fei:3006458969",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:46:08.651Z",
+    "validFrom": "2026-10-22T11:59:13.188Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:46:08.651Z"
+     "at": "2026-10-22T11:59:13.188Z"
     }
    },
    {
@@ -1985,11 +1934,11 @@
     "from": "inspection:fda-inspection:738845",
     "to": "site:fei:3006458969",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:46:08.651Z",
+    "validFrom": "2026-10-22T11:59:13.188Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:46:08.651Z"
+     "at": "2026-10-22T11:59:13.188Z"
     }
    },
    {
@@ -1997,11 +1946,11 @@
     "from": "inspection:fda-inspection:792725",
     "to": "site:fei:3006458969",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:46:08.652Z",
+    "validFrom": "2026-10-22T11:59:13.188Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:46:08.652Z"
+     "at": "2026-10-22T11:59:13.188Z"
     }
    },
    {
@@ -2009,11 +1958,11 @@
     "from": "inspection:fda-inspection:831909",
     "to": "site:fei:3006458969",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:46:08.652Z",
+    "validFrom": "2026-10-22T11:59:13.188Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:46:08.652Z"
+     "at": "2026-10-22T11:59:13.188Z"
     }
    },
    {
@@ -2021,11 +1970,11 @@
     "from": "warning-letter:fda-warning-letter:170632",
     "to": "site:fei:3006458969",
     "type": "issued-to",
-    "validFrom": "2026-10-22T07:46:08.651Z",
+    "validFrom": "2026-10-22T11:59:13.188Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:46:08.651Z"
+     "at": "2026-10-22T11:59:13.188Z"
     }
    },
    {
@@ -2033,11 +1982,11 @@
     "from": "inspection:fda-inspection:1080904",
     "to": "site:fei:3012541241",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:46:08.652Z",
+    "validFrom": "2026-10-22T11:59:13.188Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:46:08.652Z"
+     "at": "2026-10-22T11:59:13.188Z"
     }
    }
   ],

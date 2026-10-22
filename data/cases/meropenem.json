@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-8c4699",
+ "id": "case-2026-10-22-fcc115",
  "question": "Why is meropenem short, and what do we do?",
- "askedAt": "2026-10-22T08:00:06.888Z",
+ "askedAt": "2026-10-22T12:18:27.209Z",
  "asOf": "2026-10-21",
  "molecule": "meropenem",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H9ZCVVCH1XTSZHNZHJ1XF0",
+  "contractId": "01M5HRRGFCRFRP8FQ7ARQ3G5YS",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-025aed"
+    "Q-a72171"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2713,
+   "ms": 3551,
    "rows": 3,
-   "finding": "3 stock lines across 3 hospitals.",
+   "finding": "3 stock lines across 3 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-fe6499"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 694,
+   "ms": 459,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-fdcc41",
-    "Q-a3d9d7"
+    "Q-d3de4f",
+    "Q-37f8be"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 363,
+   "ms": 216,
    "rows": 0,
    "finding": "Not on FDA's current shortage list.",
    "status": "empty"
@@ -63,14 +68,16 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-d00afe"
+    "Q-3c0552"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2035,
-   "rows": 60,
-   "finding": "19 labelers make it in this form.",
+   "ms": 1210,
+   "rows": 59,
+   "finding": "18 labelers make it in this form.",
    "status": "ok"
   },
   {
@@ -81,15 +88,15 @@
     "Q-3e058f",
     "Q-204a96",
     "Q-7c5b07",
-    "Q-d1d970"
+    "Q-8beaff"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1738,
+   "ms": 609,
    "rows": 25,
    "finding": "24 inspections (0 OAI at our plants), 1 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1404,
+   "ms": 672,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-6ee876"
+    "Q-3a946d"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2159,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1756,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 2,
+   "ms": 1,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -153,21 +164,27 @@
    "onHand": 337,
    "dailyUse": 15.096,
    "days": 22.3,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "meropenem|1g/30ml|injection|30ml|vial",
+   "presentationLabel": "1 g/30 mL injection, 30 mL vial",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-266",
    "ndc11": "51810050302",
-   "description": "Meropenem",
+   "description": "Meropenem 1 g/30mL",
    "labeler": "Qilu Antibiotics Pharmaceutical Co., Ltd.",
-   "onHand": 425.41,
+   "onHand": 425,
    "dailyUse": 15.235,
    "days": 27.9,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "meropenem|1g/30ml|injection|30ml|vial",
+   "presentationLabel": "1 g/30 mL injection, 30 mL vial",
    "evidence": "E2"
   },
   {
@@ -181,7 +198,59 @@
    "days": 11.2,
    "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "meropenem|1g/30ml|injection|30ml|vial",
+   "presentationLabel": "1 g/30 mL injection, 30 mL vial",
    "evidence": "E3"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "meropenem|1g/30ml|injection|30ml|vial",
+   "label": "1 g/30 mL injection, 30 mL vial",
+   "short": "1 g/30 mL, 30 mL",
+   "unit": "vial",
+   "onHand": 791,
+   "dailyUse": 32.921,
+   "days": 24,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 337,
+     "dailyUse": 15.096,
+     "days": 22.3,
+     "lines": [
+      "EA-E-000187"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 425,
+     "dailyUse": 15.235,
+     "days": 27.9,
+     "lines": [
+      "CG-266"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 29,
+     "dailyUse": 2.59,
+     "days": 11.2,
+     "lines": [
+      "LS-LS-0085"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -384,14 +453,6 @@
    "inOurStock": false
   },
   {
-   "labeler": "Melinta Therapeutics, LLC",
-   "ndc11": "70842012006",
-   "dosageForm": "INJECTION, POWDER, FOR SOLUTION",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
    "labeler": "Mylan Institutional LLC",
    "ndc11": "72078008106",
    "dosageForm": "INJECTION",
@@ -576,15 +637,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Melinta Therapeutics, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Mylan Institutional LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -660,49 +712,49 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "Meropenem supply traces to Qilu Antibiotics Pharmaceutical Co., Ltd., last inspected VAI 2026-07-16; Corvale Lakeside has 11 days on hand",
+  "headline": "Meropenem is not on FDA's shortage list as of 2026-10-21; Corvale Lakeside has 11.2 days on hand",
   "sentences": [
    {
-    "text": "The product label identifies Qilu Antibiotics Pharmaceutical Co., Ltd. as the manufacturer for meropenem NDC 51810050302.",
+    "text": "FDA's drug shortage list does not include meropenem as of 2026-10-21.",
     "cites": [
-     "E7"
+     "D4"
     ]
    },
    {
-    "text": "FDA records show the plant was inspected on 2026-07-16 and classified VAI, with the classification known on 2026-10-05.",
+    "text": "Corvale East holds 337 vials of meropenem 1 g/30 mL at 15.1 vials per day, providing 22.3 days on hand.",
     "cites": [
-     "E6"
+     "D1"
     ]
    },
    {
-    "text": "Earlier FDA inspections of the same facility in 2015-09-22 and 2023-05-30 were also classified VAI.",
+    "text": "Corvale General holds 425 vials at 15.2 vials per day, providing 27.9 days on hand.",
     "cites": [
-     "E4",
-     "E5"
+     "D2"
     ]
    },
    {
-    "text": "Corvale Lakeside holds 29 units at 2.6 units per day, providing 11 days on hand.",
+    "text": "Corvale Lakeside holds 29 vials at 2.6 vials per day, providing 11.2 days on hand.",
     "cites": [
      "D3"
     ]
    },
    {
-    "text": "Corvale East holds 337 units at 15.1 units per day for 22 days on hand, and Corvale General holds 425 units at 15.2 units per day for 28 days on hand.",
+    "text": "The rule-based best option is to buy from Gland Pharma Limited, whose plant GLAND PHARMA LIMITED was last inspected VAI on 2023-06-27.",
     "cites": [
-     "D1",
-     "D2"
+     "D5"
+    ]
+   },
+   {
+    "text": "Alternative manufacturers include WG Critical Care, LLC (plant HQ SPCLT PHARMA) and ARMAS PHARMACEUTICALS INC (plant BROOKS STERISCIENCE LIMITED, last inspected VAI 2024-11-12).",
+    "cites": [
+     "D6",
+     "D7"
     ]
    }
   ],
   "verifier": {
    "checked": 7,
-   "rejected": [
-    {
-     "text": "The recommended option is to buy from Gland Pharma Limited, which is not on FDA's shortage list today and whose plant was last inspected VAI 2023-06-27.",
-     "reason": "cites nothing"
-    }
-   ],
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -710,45 +762,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -763,80 +836,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:59:55.773Z",
+   "at": "2026-10-22T12:18:18.733Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract NZHJ1XF0 scope"
+   "reason": "in contract ARQ3G5YS scope"
   },
   {
-   "at": "2026-10-22T07:59:55.773Z",
+   "at": "2026-10-22T12:18:18.733Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract NZHJ1XF0 scope"
+   "reason": "in contract ARQ3G5YS scope"
   },
   {
-   "at": "2026-10-22T07:59:58.488Z",
+   "at": "2026-10-22T12:18:22.285Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract NZHJ1XF0 scope"
+   "reason": "in contract ARQ3G5YS scope"
   },
   {
-   "at": "2026-10-22T07:59:59.182Z",
+   "at": "2026-10-22T12:18:22.744Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract NZHJ1XF0 scope"
+   "reason": "in contract ARQ3G5YS scope"
   },
   {
-   "at": "2026-10-22T07:59:59.546Z",
+   "at": "2026-10-22T12:18:22.960Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract NZHJ1XF0 scope"
+   "reason": "in contract ARQ3G5YS scope"
   },
   {
-   "at": "2026-10-22T08:00:01.581Z",
+   "at": "2026-10-22T12:18:24.170Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract NZHJ1XF0 scope"
+   "reason": "in contract ARQ3G5YS scope"
   },
   {
-   "at": "2026-10-22T08:00:03.321Z",
+   "at": "2026-10-22T12:18:24.780Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract NZHJ1XF0 scope"
+   "reason": "in contract ARQ3G5YS scope"
   },
   {
-   "at": "2026-10-22T08:00:04.724Z",
+   "at": "2026-10-22T12:18:25.452Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract NZHJ1XF0 scope"
+   "reason": "in contract ARQ3G5YS scope"
   },
   {
-   "at": "2026-10-22T08:00:06.885Z",
+   "at": "2026-10-22T12:18:27.208Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract NZHJ1XF0 scope"
+   "reason": "in contract ARQ3G5YS scope"
   },
   {
-   "at": "2026-10-22T08:00:06.890Z",
+   "at": "2026-10-22T12:18:27.209Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract NZHJ1XF0 scope"
+   "reason": "in contract ARQ3G5YS scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-025aed",
+   "queryId": "Q-a72171",
    "row": 0,
    "label": "Corvale East: MEROPENEM 1G/30ML 30ML SDV",
    "fields": {
@@ -847,42 +920,52 @@
     "description": "MEROPENEM 1G/30ML 30ML SDV",
     "on_hand": "337.00",
     "daily_use": "15.096",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Meropenem",
     "labeler_name": "Qilu Antibiotics Pharmaceutical Co., Ltd.",
     "package_ndc": "51810-503-02",
     "spl_set_id": "1f9591ed-3a6c-422e-b1be-7b3e4fe5bf3c",
     "dosage_form": "INJECTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "MEROPENEM 1 g/30mL",
+    "unit_content": "30 mL",
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-025aed",
+   "queryId": "Q-a72171",
    "row": 1,
-   "label": "Corvale General: Meropenem",
+   "label": "Corvale General: Meropenem 1 g/30mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-266",
     "ndc11": "51810050302",
     "ndc_as_recorded": "51810050302",
-    "description": "Meropenem",
-    "on_hand": "425.41",
+    "description": "Meropenem 1 g/30mL",
+    "on_hand": "425.00",
     "daily_use": "15.235",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Meropenem",
     "labeler_name": "Qilu Antibiotics Pharmaceutical Co., Ltd.",
     "package_ndc": "51810-503-02",
     "spl_set_id": "1f9591ed-3a6c-422e-b1be-7b3e4fe5bf3c",
     "dosage_form": "INJECTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "MEROPENEM 1 g/30mL",
+    "unit_content": "30 mL",
+    "pkg_unit": "vial"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-025aed",
+   "queryId": "Q-a72171",
    "row": 2,
    "label": "Corvale Lakeside: Meropenem 1 g/30mL 30 mL vial",
    "fields": {
@@ -894,13 +977,18 @@
     "on_hand": "29.00",
     "daily_use": "2.590",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Meropenem",
     "labeler_name": "Qilu Antibiotics Pharmaceutical Co., Ltd.",
     "package_ndc": "51810-503-02",
     "spl_set_id": "1f9591ed-3a6c-422e-b1be-7b3e4fe5bf3c",
     "dosage_form": "INJECTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "MEROPENEM 1 g/30mL",
+    "unit_content": "30 mL",
+    "pkg_unit": "vial"
    }
   },
   "E4": {
@@ -971,197 +1059,259 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 337 units of meropenem at 15.1 a day: 22 days on hand",
+   "label": "Corvale East holds 337 vials of meropenem 1 g/30 mL, 30 mL at 15.1 a day: 22.3 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "1 g/30 mL injection, 30 mL vial",
     "on_hand": 337,
     "daily_use": 15.1,
-    "days_on_hand": 22
+    "days_on_hand": 22.3
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 425 units of meropenem at 15.2 a day: 28 days on hand",
+   "label": "Corvale General holds 425 vials of meropenem 1 g/30 mL, 30 mL at 15.2 a day: 27.9 days on hand",
    "fields": {
     "hospital": "Corvale General",
+    "presentation": "1 g/30 mL injection, 30 mL vial",
     "on_hand": 425,
     "daily_use": 15.2,
-    "days_on_hand": 28
+    "days_on_hand": 27.9
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 29 units of meropenem at 2.6 a day: 11 days on hand",
+   "label": "Corvale Lakeside holds 29 vials of meropenem 1 g/30 mL, 30 mL at 2.6 a day: 11.2 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
+    "presentation": "1 g/30 mL injection, 30 mL vial",
     "on_hand": 29,
     "daily_use": 2.6,
-    "days_on_hand": 11
+    "days_on_hand": 11.2
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "meropenem is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from Gland Pharma Limited. Not on FDA's shortage list today. Plants: GLAND PHARMA LIMITED (last inspection VAI 2023-06-27).",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from WG Critical Care, LLC. Not on FDA's shortage list today. Plants: HQ SPCLT PHARMA.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from ARMAS PHARMACEUTICALS INC. Not on FDA's shortage list today. Plants: BROOKS STERISCIENCE LIMITED (last inspection VAI 2024-11-12).",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-025aed": {
-   "id": "Q-025aed",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%meropenem%' OR lower(s.description) LIKE '%meropenem%' ORDER BY s.hospital, s.item_key",
-   "ms": 2709,
+  "Q-a72171": {
+   "id": "Q-a72171",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*meropenem(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*meropenem(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3550,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:59:58.483Z",
+   "ranAt": "2026-10-22T12:18:22.283Z",
    "rows": 3
   },
   "Q-fe6499": {
    "id": "Q-fe6499",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('1f9591ed-3a6c-422e-b1be-7b3e4fe5bf3c') ORDER BY ps.set_id, ps.establishment",
-   "ms": 690,
+   "ms": 458,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:59:59.179Z",
+   "ranAt": "2026-10-22T12:18:22.743Z",
    "rows": 1
   },
-  "Q-fdcc41": {
-   "id": "Q-fdcc41",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%meropenem%' ORDER BY status, company_name, package_ndc",
-   "ms": 187,
+  "Q-d3de4f": {
+   "id": "Q-d3de4f",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*meropenem(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 104,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:59:59.369Z",
+   "ranAt": "2026-10-22T12:18:22.848Z",
    "rows": 0
   },
-  "Q-a3d9d7": {
-   "id": "Q-a3d9d7",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%meropenem%' ORDER BY first_posting",
-   "ms": 168,
+  "Q-37f8be": {
+   "id": "Q-37f8be",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*meropenem(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 110,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:59:59.542Z",
+   "ranAt": "2026-10-22T12:18:22.959Z",
    "rows": 0
   },
-  "Q-d00afe": {
-   "id": "Q-d00afe",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%meropenem%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2031,
+  "Q-3c0552": {
+   "id": "Q-3c0552",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*meropenem(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1209,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:00:01.577Z",
-   "rows": 60
+   "ranAt": "2026-10-22T12:18:24.169Z",
+   "rows": 59
   },
   "Q-3e058f": {
    "id": "Q-3e058f",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3009831352', '3018899465', '3006028606', '3002807274', '3009864167') ORDER BY fei, end_date",
-   "ms": 574,
+   "ms": 247,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T08:00:02.155Z",
+   "ranAt": "2026-10-22T12:18:24.417Z",
    "rows": 24
   },
   "Q-204a96": {
    "id": "Q-204a96",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3009831352', '3018899465', '3006028606', '3002807274', '3009864167') ORDER BY fei, action_date",
-   "ms": 634,
+   "ms": 121,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T08:00:02.792Z",
+   "ranAt": "2026-10-22T12:18:24.539Z",
    "rows": 1
   },
   "Q-7c5b07": {
    "id": "Q-7c5b07",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3009831352') OR (fei_match <> 'name_and_city' AND firm_key IN ('qilu antibiotics')) ORDER BY date_published",
-   "ms": 208,
+   "ms": 114,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T08:00:03.004Z",
+   "ranAt": "2026-10-22T12:18:24.654Z",
    "rows": 0
   },
-  "Q-d1d970": {
-   "id": "Q-d1d970",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('qilu antibiotics') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%meropenem%' ORDER BY initiation_date",
-   "ms": 308,
+  "Q-8beaff": {
+   "id": "Q-8beaff",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('qilu antibiotics') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*meropenem(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 123,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T08:00:03.315Z",
+   "ranAt": "2026-10-22T12:18:24.778Z",
    "rows": 0
   },
   "Q-e98e54": {
    "id": "Q-e98e54",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('51810050302')",
-   "ms": 1400,
+   "ms": 671,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:00:04.721Z",
+   "ranAt": "2026-10-22T12:18:25.451Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-6ee876": {
-   "id": "Q-6ee876",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%meropenem%'",
-   "ms": 2154,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:00:06.878Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-3a946d": {
+   "id": "Q-3a946d",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*meropenem(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1754,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:18:27.206Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 16434,
+  "zetarisMs": 18669,
   "modelCalls": 1,
-  "tokensIn": 968,
-  "tokensOut": 423,
+  "tokensIn": 1431,
+  "tokensOut": 413,
   "mode": "live"
  },
  "slug": "meropenem",
@@ -1176,7 +1326,7 @@
     "id": "hospital-item:hospital-item:CG-266",
     "type": "HospitalItem",
     "key": "hospital-item:CG-266",
-    "label": "Corvale General: Meropenem",
+    "label": "Corvale General: Meropenem 1 g/30mL",
     "attrs": {
      "key": "hospital-item:CG-266"
     },
@@ -1271,7 +1421,7 @@
     },
     "facts": [
      {
-      "id": "fact_e42fd5591107f503",
+      "id": "fact_262ea208d44c2483",
       "about": "inspection:fda-inspection:1210065",
       "predicate": "classification",
       "value": "VAI",
@@ -1279,9 +1429,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:00:03.319Z"
+       "at": "2026-10-22T12:18:24.780Z"
       },
-      "assertedAt": "2026-10-22T08:00:03.319Z"
+      "assertedAt": "2026-10-22T12:18:24.780Z"
      }
     ],
     "depth": 4
@@ -1297,7 +1447,7 @@
     },
     "facts": [
      {
-      "id": "fact_18186de96f3ab19f",
+      "id": "fact_513f5874b244a43c",
       "about": "inspection:fda-inspection:1333262",
       "predicate": "classification",
       "value": "VAI",
@@ -1305,9 +1455,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:00:03.319Z"
+       "at": "2026-10-22T12:18:24.780Z"
       },
-      "assertedAt": "2026-10-22T08:00:03.319Z"
+      "assertedAt": "2026-10-22T12:18:24.780Z"
      }
     ],
     "depth": 4
@@ -1323,7 +1473,7 @@
     },
     "facts": [
      {
-      "id": "fact_ba75123d656f41e9",
+      "id": "fact_c1d26e4428c837d5",
       "about": "inspection:fda-inspection:945452",
       "predicate": "classification",
       "value": "VAI",
@@ -1331,9 +1481,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:00:03.319Z"
+       "at": "2026-10-22T12:18:24.780Z"
       },
-      "assertedAt": "2026-10-22T08:00:03.319Z"
+      "assertedAt": "2026-10-22T12:18:24.780Z"
      }
     ],
     "depth": 4
@@ -1345,11 +1495,11 @@
     "from": "hospital-item:hospital-item:CG-266",
     "to": "package:ndc-package:51810-503-02",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:59:58.487Z",
+    "validFrom": "2026-10-22T12:18:22.285Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:59:58.487Z"
+     "at": "2026-10-22T12:18:22.285Z"
     }
    },
    {
@@ -1357,11 +1507,11 @@
     "from": "hospital-item:hospital-item:EA-E-000187",
     "to": "package:ndc-package:51810-503-02",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:59:58.487Z",
+    "validFrom": "2026-10-22T12:18:22.285Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:59:58.487Z"
+     "at": "2026-10-22T12:18:22.285Z"
     }
    },
    {
@@ -1369,11 +1519,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0085",
     "to": "package:ndc-package:51810-503-02",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:59:58.488Z",
+    "validFrom": "2026-10-22T12:18:22.285Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:59:58.488Z"
+     "at": "2026-10-22T12:18:22.285Z"
     }
    },
    {
@@ -1381,11 +1531,11 @@
     "from": "package:ndc-package:51810-503-02",
     "to": "product:ndc-product:51810-503",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:59:58.487Z",
+    "validFrom": "2026-10-22T12:18:22.285Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:59:58.487Z"
+     "at": "2026-10-22T12:18:22.285Z"
     }
    },
    {
@@ -1393,11 +1543,11 @@
     "from": "product:ndc-product:51810-503",
     "to": "drug:generic:meropenem",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:59:58.487Z",
+    "validFrom": "2026-10-22T12:18:22.285Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:59:58.487Z"
+     "at": "2026-10-22T12:18:22.285Z"
     }
    },
    {
@@ -1405,11 +1555,11 @@
     "from": "product:ndc-product:51810-503",
     "to": "labeler:ndc-labeler:51810",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:59:58.487Z",
+    "validFrom": "2026-10-22T12:18:22.285Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:59:58.487Z"
+     "at": "2026-10-22T12:18:22.285Z"
     }
    },
    {
@@ -1417,11 +1567,11 @@
     "from": "product:ndc-product:51810-503",
     "to": "site:fei:3009831352",
     "type": "made-at",
-    "validFrom": "2026-10-22T08:00:03.318Z",
+    "validFrom": "2026-10-22T12:18:24.780Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:00:03.318Z"
+     "at": "2026-10-22T12:18:24.780Z"
     }
    },
    {
@@ -1429,11 +1579,11 @@
     "from": "inspection:fda-inspection:945452",
     "to": "site:fei:3009831352",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:00:03.319Z",
+    "validFrom": "2026-10-22T12:18:24.780Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:00:03.319Z"
+     "at": "2026-10-22T12:18:24.780Z"
     }
    },
    {
@@ -1441,11 +1591,11 @@
     "from": "inspection:fda-inspection:1210065",
     "to": "site:fei:3009831352",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:00:03.319Z",
+    "validFrom": "2026-10-22T12:18:24.780Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:00:03.319Z"
+     "at": "2026-10-22T12:18:24.780Z"
     }
    },
    {
@@ -1453,11 +1603,11 @@
     "from": "inspection:fda-inspection:1333262",
     "to": "site:fei:3009831352",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:00:03.319Z",
+    "validFrom": "2026-10-22T12:18:24.780Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:00:03.319Z"
+     "at": "2026-10-22T12:18:24.780Z"
     }
    }
   ],

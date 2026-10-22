@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-1b2d38",
+ "id": "case-2026-10-22-82ee50",
  "question": "Why is succinylcholine chloride short, and what do we do?",
- "askedAt": "2026-10-22T09:02:54.733Z",
+ "askedAt": "2026-10-22T12:44:18.870Z",
  "asOf": "2026-10-21",
  "molecule": "succinylcholine chloride",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5HDJDVZ669F6V1KFEYD1077",
+  "contractId": "01M5HT7W3B0W37ABYQAPQK5DZT",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-c3fec6"
+    "Q-b83f97"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2755,
+   "ms": 3115,
    "rows": 2,
-   "finding": "2 stock lines across 2 hospitals.",
+   "finding": "2 stock lines across 2 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-a851d8"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 864,
+   "ms": 398,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-8715ce",
-    "Q-ea5bab"
+    "Q-156cbe",
+    "Q-32b4ea"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 438,
+   "ms": 228,
    "rows": 2,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-562436"
+    "Q-764e1c"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1846,
+   "ms": 1092,
    "rows": 43,
    "finding": "28 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-edc1ef",
     "Q-abd57f",
     "Q-12ef83",
-    "Q-383dd7"
+    "Q-c98ef7"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1150,
+   "ms": 854,
    "rows": 8,
    "finding": "7 inspections (2 OAI at our plants), 1 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,7 +111,7 @@
    "sources": [
     "fda.citations"
    ],
-   "ms": 312,
+   "ms": 172,
    "rows": 20,
    "finding": "20 Form 483 observations recorded.",
    "status": "ok"
@@ -119,9 +126,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1135,
+   "ms": 830,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -129,19 +136,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-9a7d5c"
+    "Q-56d938"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1111,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1450,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -152,7 +163,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 1,
+   "ms": 0,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -168,22 +179,65 @@
    "onHand": 75,
    "dailyUse": 3.659,
    "days": 20.5,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 25, converted to units",
+   "presentation": "succinylcholine chloride|20mg/ml|injection|10ml|vial",
+   "presentationLabel": "20 mg/mL injection, 10 mL vial",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-340",
    "ndc11": "55150031525",
-   "description": "succinylcholine chloride",
+   "description": "succinylcholine chloride 20 mg/mL",
    "labeler": "Eugia US LLC",
-   "onHand": 106.13,
+   "onHand": 106,
    "dailyUse": 4.064,
    "days": 26.1,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "succinylcholine chloride|20mg/ml|injection|10ml|vial",
+   "presentationLabel": "20 mg/mL injection, 10 mL vial",
    "evidence": "E2"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "succinylcholine chloride|20mg/ml|injection|10ml|vial",
+   "label": "20 mg/mL injection, 10 mL vial",
+   "short": "20 mg/mL, 10 mL",
+   "unit": "vial",
+   "onHand": 181,
+   "dailyUse": 7.723,
+   "days": 23.4,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 75,
+     "dailyUse": 3.659,
+     "days": 20.5,
+     "lines": [
+      "EA-E-000196"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 106,
+     "dailyUse": 4.064,
+     "days": 26.1,
+     "lines": [
+      "CG-340"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -375,7 +429,7 @@
    "ndc11": "65219027405",
    "dosageForm": "INJECTION, SOLUTION",
    "plants": [],
-   "onShortageList": false,
+   "onShortageList": true,
    "inOurStock": false
   },
   {
@@ -383,7 +437,7 @@
    "ndc11": "63323094310",
    "dosageForm": "INJECTION, SOLUTION",
    "plants": [],
-   "onShortageList": false,
+   "onShortageList": true,
    "inOurStock": false
   },
   {
@@ -597,24 +651,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Fresenius Kabi USA LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Fresenius Kabi USA, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Gland Pharma Limited",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -625,15 +661,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from HF Acquisition Co LLC, DBA HealthFirst",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Henry Schein, Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -661,15 +688,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Indoco Remedies Limited",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Lifestar Pharma LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -724,15 +742,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from ProPharma Distribution",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from REMEDYREPACK INC.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -843,54 +852,51 @@
   }
  ],
  "explanation": {
-  "state": "confirmed",
-  "headline": "FDA's records trace this shortage to a plant on our own labels",
+  "state": "check",
+  "headline": "Succinylcholine chloride is not on FDA's shortage list; Fresenius Kabi USA, LLC posted a discontinuation on 2026-07-23 and a registered plant for Eugia Pharma Specialities Limited was classified OAI on 2026-02-06",
   "sentences": [
    {
-    "text": "The label for our succinylcholine chloride names Eugia Pharma Specialities Limited as the manufacturing plant.",
+    "text": "FDA's drug shortage list does not include succinylcholine chloride as of 2026-10-21.",
     "cites": [
-     "E12"
+     "D3"
     ]
    },
    {
-    "text": "FDA inspection 1301166 at that plant ended on 2026-02-06 and was classified OAI.",
-    "cites": [
-     "E10"
-    ]
-   },
-   {
-    "text": "A Warning Letter was issued to the same plant on 2024-08-15 following an earlier OAI inspection.",
-    "cites": [
-     "E11",
-     "E8"
-    ]
-   },
-   {
-    "text": "Fresenius Kabi USA, LLC has discontinued manufacture of succinylcholine chloride, with an initial posting date of 2026-07-23.",
+    "text": "Fresenius Kabi USA, LLC posted a discontinuation of succinylcholine chloride injection on 2026-07-23.",
     "cites": [
      "E13"
     ]
    },
    {
-    "text": "Corvale East has 20 days on hand and Corvale General has 26 days on hand at current usage rates.",
+    "text": "A registered plant for Eugia Pharma Specialities Limited (FEI 3008461619) was classified OAI after an inspection ending 2026-02-06.",
+    "cites": [
+     "E12",
+     "E10"
+    ]
+   },
+   {
+    "text": "The same plant received a Warning Letter on 2024-08-15.",
+    "cites": [
+     "E11"
+    ]
+   },
+   {
+    "text": "Corvale East holds 75 vials (20.5 days on hand) and Corvale General holds 106 vials (26.1 days on hand) of the 20 mg/mL, 10 mL presentation.",
     "cites": [
      "D1",
      "D2"
+    ]
+   },
+   {
+    "text": "The rule‑based best option is to buy from BE Pharmaceuticals Inc., which is not on FDA's shortage list today and whose label names no plant we could place.",
+    "cites": [
+     "D4"
     ]
    }
   ],
   "verifier": {
    "checked": 7,
-   "rejected": [
-    {
-     "text": "The OAI classification was known to FDA on 2026-09-21, which is 257 days before the shortage posting date of 2026-07-23.",
-     "reason": "number 257 is not in the cited evidence"
-    },
-    {
-     "text": "FDA's records trace our supply to a plant classified OAI 257 days before the posting",
-     "reason": "headline: number 257 is not in the cited evidence"
-    }
-   ],
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -898,45 +904,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -951,87 +978,87 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T09:02:45.119Z",
+   "at": "2026-10-22T12:44:10.731Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract FEYD1077 scope"
+   "reason": "in contract APQK5DZT scope"
   },
   {
-   "at": "2026-10-22T09:02:45.119Z",
+   "at": "2026-10-22T12:44:10.731Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FEYD1077 scope"
+   "reason": "in contract APQK5DZT scope"
   },
   {
-   "at": "2026-10-22T09:02:47.874Z",
+   "at": "2026-10-22T12:44:13.846Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FEYD1077 scope"
+   "reason": "in contract APQK5DZT scope"
   },
   {
-   "at": "2026-10-22T09:02:48.739Z",
+   "at": "2026-10-22T12:44:14.244Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FEYD1077 scope"
+   "reason": "in contract APQK5DZT scope"
   },
   {
-   "at": "2026-10-22T09:02:49.177Z",
+   "at": "2026-10-22T12:44:14.473Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FEYD1077 scope"
+   "reason": "in contract APQK5DZT scope"
   },
   {
-   "at": "2026-10-22T09:02:51.023Z",
+   "at": "2026-10-22T12:44:15.565Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FEYD1077 scope"
+   "reason": "in contract APQK5DZT scope"
   },
   {
-   "at": "2026-10-22T09:02:52.172Z",
+   "at": "2026-10-22T12:44:16.418Z",
    "action": "What FDA wrote at the OAI inspections",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FEYD1077 scope"
+   "reason": "in contract APQK5DZT scope"
   },
   {
-   "at": "2026-10-22T09:02:52.486Z",
+   "at": "2026-10-22T12:44:16.590Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FEYD1077 scope"
+   "reason": "in contract APQK5DZT scope"
   },
   {
-   "at": "2026-10-22T09:02:53.621Z",
+   "at": "2026-10-22T12:44:17.420Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FEYD1077 scope"
+   "reason": "in contract APQK5DZT scope"
   },
   {
-   "at": "2026-10-22T09:02:54.732Z",
+   "at": "2026-10-22T12:44:18.870Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract FEYD1077 scope"
+   "reason": "in contract APQK5DZT scope"
   },
   {
-   "at": "2026-10-22T09:02:54.733Z",
+   "at": "2026-10-22T12:44:18.870Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract FEYD1077 scope"
+   "reason": "in contract APQK5DZT scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-c3fec6",
+   "queryId": "Q-b83f97",
    "row": 0,
    "label": "Corvale East: SUCCINYLCHOLINE CHLORIDE 20MG/ML 10ML MDV",
    "fields": {
@@ -1042,37 +1069,47 @@
     "description": "SUCCINYLCHOLINE CHLORIDE 20MG/ML 10ML MDV",
     "on_hand": "75.00",
     "daily_use": "3.659",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "25.00",
+    "unit_basis": "packages of 25, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "succinylcholine chloride",
     "labeler_name": "Eugia US LLC",
     "package_ndc": "55150-315-25",
     "spl_set_id": "1b3f3c63-0500-4c0a-8ac2-3d525ccf4537",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "SUCCINYLCHOLINE CHLORIDE 20 mg/mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-c3fec6",
+   "queryId": "Q-b83f97",
    "row": 1,
-   "label": "Corvale General: succinylcholine chloride",
+   "label": "Corvale General: succinylcholine chloride 20 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-340",
     "ndc11": "55150031525",
     "ndc_as_recorded": "55150031525",
-    "description": "succinylcholine chloride",
-    "on_hand": "106.13",
+    "description": "succinylcholine chloride 20 mg/mL",
+    "on_hand": "106.00",
     "daily_use": "4.064",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "succinylcholine chloride",
     "labeler_name": "Eugia US LLC",
     "package_ndc": "55150-315-25",
     "spl_set_id": "1b3f3c63-0500-4c0a-8ac2-3d525ccf4537",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "SUCCINYLCHOLINE CHLORIDE 20 mg/mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E3": {
@@ -1229,7 +1266,7 @@
   },
   "E13": {
    "id": "E13",
-   "queryId": "Q-8715ce",
+   "queryId": "Q-156cbe",
    "row": 0,
    "label": "FDA shortage list: Fresenius Kabi USA, LLC, To Be Discontinued",
    "fields": {
@@ -1246,196 +1283,257 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 75 units of succinylcholine chloride at 3.7 a day: 20 days on hand",
+   "label": "Corvale East holds 75 vials of succinylcholine chloride 20 mg/mL, 10 mL at 3.7 a day: 20.5 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "20 mg/mL injection, 10 mL vial",
     "on_hand": 75,
     "daily_use": 3.7,
-    "days_on_hand": 20
+    "days_on_hand": 20.5
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 106 units of succinylcholine chloride at 4.1 a day: 26 days on hand",
+   "label": "Corvale General holds 106 vials of succinylcholine chloride 20 mg/mL, 10 mL at 4.1 a day: 26.1 days on hand",
    "fields": {
     "hospital": "Corvale General",
+    "presentation": "20 mg/mL injection, 10 mL vial",
     "on_hand": 106,
     "daily_use": 4.1,
-    "days_on_hand": 26
+    "days_on_hand": 26.1
+   }
+  },
+  "D3": {
+   "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "succinylcholine chloride is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from BE Pharmaceuticals Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Baxter Healthcare Corporation. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Camber Pharmaceuticals, Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-c3fec6": {
-   "id": "Q-c3fec6",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%succinylcholine%' OR lower(s.description) LIKE '%succinylcholine%' ORDER BY s.hospital, s.item_key",
-   "ms": 2752,
+  "Q-b83f97": {
+   "id": "Q-b83f97",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*succinylcholine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*succinylcholine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3113,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T09:02:47.872Z",
+   "ranAt": "2026-10-22T12:44:13.845Z",
    "rows": 2
   },
   "Q-a851d8": {
    "id": "Q-a851d8",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('1b3f3c63-0500-4c0a-8ac2-3d525ccf4537') ORDER BY ps.set_id, ps.establishment",
-   "ms": 863,
+   "ms": 397,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T09:02:48.737Z",
+   "ranAt": "2026-10-22T12:44:14.243Z",
    "rows": 1
   },
-  "Q-8715ce": {
-   "id": "Q-8715ce",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%succinylcholine%' ORDER BY status, company_name, package_ndc",
-   "ms": 225,
+  "Q-156cbe": {
+   "id": "Q-156cbe",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*succinylcholine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 119,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T09:02:48.963Z",
+   "ranAt": "2026-10-22T12:44:14.364Z",
    "rows": 1
   },
-  "Q-ea5bab": {
-   "id": "Q-ea5bab",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%succinylcholine%' ORDER BY first_posting",
-   "ms": 210,
+  "Q-32b4ea": {
+   "id": "Q-32b4ea",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*succinylcholine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 106,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T09:02:49.175Z",
+   "ranAt": "2026-10-22T12:44:14.471Z",
    "rows": 1
   },
-  "Q-562436": {
-   "id": "Q-562436",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%succinylcholine%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 1844,
+  "Q-764e1c": {
+   "id": "Q-764e1c",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*succinylcholine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1091,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T09:02:51.021Z",
+   "ranAt": "2026-10-22T12:44:15.563Z",
    "rows": 43
   },
   "Q-edc1ef": {
    "id": "Q-edc1ef",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3008461619') ORDER BY fei, end_date",
-   "ms": 443,
+   "ms": 364,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T09:02:51.466Z",
+   "ranAt": "2026-10-22T12:44:15.929Z",
    "rows": 7
   },
   "Q-abd57f": {
    "id": "Q-abd57f",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3008461619') ORDER BY fei, action_date",
-   "ms": 258,
+   "ms": 199,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T09:02:51.725Z",
+   "ranAt": "2026-10-22T12:44:16.129Z",
    "rows": 1
   },
   "Q-12ef83": {
    "id": "Q-12ef83",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3008461619') OR (fei_match <> 'name_and_city' AND firm_key IN ('eugia specialities')) ORDER BY date_published",
-   "ms": 212,
+   "ms": 121,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T09:02:51.938Z",
+   "ranAt": "2026-10-22T12:44:16.251Z",
    "rows": 0
   },
-  "Q-383dd7": {
-   "id": "Q-383dd7",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('eugia specialities', 'eugia') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%succinylcholine%' ORDER BY initiation_date",
-   "ms": 232,
+  "Q-c98ef7": {
+   "id": "Q-c98ef7",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('eugia specialities', 'eugia') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*succinylcholine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 165,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T09:02:52.171Z",
+   "ranAt": "2026-10-22T12:44:16.417Z",
    "rows": 0
   },
   "Q-a1dfda": {
    "id": "Q-a1dfda",
    "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('1228546', '1301166') ORDER BY inspection_id, cfr",
-   "ms": 310,
+   "ms": 170,
    "mode": "live",
    "sources": [
     "fda.citations"
    ],
-   "ranAt": "2026-10-22T09:02:52.482Z",
+   "ranAt": "2026-10-22T12:44:16.589Z",
    "rows": 20
   },
   "Q-c07f27": {
    "id": "Q-c07f27",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('55150031525')",
-   "ms": 1133,
+   "ms": 828,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T09:02:53.619Z",
+   "ranAt": "2026-10-22T12:44:17.418Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2522,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T09:00:21.184Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 2080,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T09:00:23.265Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 2458,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T09:00:25.725Z",
-   "rows": 2
-  },
-  "Q-9a7d5c": {
-   "id": "Q-9a7d5c",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%succinylcholine%'",
-   "ms": 1109,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T09:02:54.730Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-56d938": {
+   "id": "Q-56d938",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*succinylcholine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1449,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:44:18.869Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 15,
-  "zetarisMs": 16651,
+  "zetarisMs": 18330,
   "modelCalls": 1,
-  "tokensIn": 1461,
-  "tokensOut": 375,
+  "tokensIn": 1831,
+  "tokensOut": 437,
   "mode": "live"
  },
  "slug": "succinylcholine",
@@ -1449,7 +1547,7 @@
     "id": "hospital-item:hospital-item:CG-340",
     "type": "HospitalItem",
     "key": "hospital-item:CG-340",
-    "label": "Corvale General: succinylcholine chloride",
+    "label": "Corvale General: succinylcholine chloride 20 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-340"
     },
@@ -1533,7 +1631,7 @@
     },
     "facts": [
      {
-      "id": "fact_c09563581e95f05e",
+      "id": "fact_744fcd47534b5e9e",
       "about": "inspection:fda-inspection:1041554",
       "predicate": "classification",
       "value": "VAI",
@@ -1541,9 +1639,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:02:52.484Z"
+       "at": "2026-10-22T12:44:16.590Z"
       },
-      "assertedAt": "2026-10-22T09:02:52.484Z"
+      "assertedAt": "2026-10-22T12:44:16.590Z"
      }
     ],
     "depth": 4
@@ -1559,7 +1657,7 @@
     },
     "facts": [
      {
-      "id": "fact_6d02818aba80f4b7",
+      "id": "fact_37f897fa021c60ef",
       "about": "inspection:fda-inspection:1074573",
       "predicate": "classification",
       "value": "VAI",
@@ -1567,9 +1665,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:02:52.485Z"
+       "at": "2026-10-22T12:44:16.590Z"
       },
-      "assertedAt": "2026-10-22T09:02:52.485Z"
+      "assertedAt": "2026-10-22T12:44:16.590Z"
      }
     ],
     "depth": 4
@@ -1585,7 +1683,7 @@
     },
     "facts": [
      {
-      "id": "fact_0f145aa355ebf4e0",
+      "id": "fact_d68e8f74a444da93",
       "about": "inspection:fda-inspection:1228546",
       "predicate": "classification",
       "value": "OAI",
@@ -1593,9 +1691,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:02:52.485Z"
+       "at": "2026-10-22T12:44:16.590Z"
       },
-      "assertedAt": "2026-10-22T09:02:52.485Z"
+      "assertedAt": "2026-10-22T12:44:16.590Z"
      }
     ],
     "depth": 4
@@ -1611,7 +1709,7 @@
     },
     "facts": [
      {
-      "id": "fact_ab1853ddb8cee138",
+      "id": "fact_13a6aee41f46c3b4",
       "about": "inspection:fda-inspection:1301166",
       "predicate": "classification",
       "value": "OAI",
@@ -1619,9 +1717,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:02:52.485Z"
+       "at": "2026-10-22T12:44:16.590Z"
       },
-      "assertedAt": "2026-10-22T09:02:52.485Z"
+      "assertedAt": "2026-10-22T12:44:16.590Z"
      }
     ],
     "depth": 4
@@ -1637,7 +1735,7 @@
     },
     "facts": [
      {
-      "id": "fact_67c4821b29fd0eb4",
+      "id": "fact_c47f3c83327af12d",
       "about": "inspection:fda-inspection:901293",
       "predicate": "classification",
       "value": "VAI",
@@ -1645,9 +1743,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:02:52.484Z"
+       "at": "2026-10-22T12:44:16.590Z"
       },
-      "assertedAt": "2026-10-22T09:02:52.484Z"
+      "assertedAt": "2026-10-22T12:44:16.590Z"
      }
     ],
     "depth": 4
@@ -1663,7 +1761,7 @@
     },
     "facts": [
      {
-      "id": "fact_044cc9f100eb8784",
+      "id": "fact_7d41668987de8655",
       "about": "inspection:fda-inspection:989530",
       "predicate": "classification",
       "value": "VAI",
@@ -1671,9 +1769,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:02:52.484Z"
+       "at": "2026-10-22T12:44:16.590Z"
       },
-      "assertedAt": "2026-10-22T09:02:52.484Z"
+      "assertedAt": "2026-10-22T12:44:16.590Z"
      }
     ],
     "depth": 4
@@ -1696,11 +1794,11 @@
     "from": "hospital-item:hospital-item:CG-340",
     "to": "package:ndc-package:55150-315-25",
     "type": "stocks",
-    "validFrom": "2026-10-22T09:02:47.874Z",
+    "validFrom": "2026-10-22T12:44:13.846Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:02:47.874Z"
+     "at": "2026-10-22T12:44:13.846Z"
     }
    },
    {
@@ -1708,11 +1806,11 @@
     "from": "hospital-item:hospital-item:EA-E-000196",
     "to": "package:ndc-package:55150-315-25",
     "type": "stocks",
-    "validFrom": "2026-10-22T09:02:47.874Z",
+    "validFrom": "2026-10-22T12:44:13.846Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:02:47.874Z"
+     "at": "2026-10-22T12:44:13.846Z"
     }
    },
    {
@@ -1720,11 +1818,11 @@
     "from": "package:ndc-package:55150-315-25",
     "to": "product:ndc-product:55150-315",
     "type": "package-of",
-    "validFrom": "2026-10-22T09:02:47.874Z",
+    "validFrom": "2026-10-22T12:44:13.846Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:02:47.874Z"
+     "at": "2026-10-22T12:44:13.846Z"
     }
    },
    {
@@ -1732,11 +1830,11 @@
     "from": "product:ndc-product:55150-315",
     "to": "drug:generic:succinylcholine chloride",
     "type": "of-drug",
-    "validFrom": "2026-10-22T09:02:47.874Z",
+    "validFrom": "2026-10-22T12:44:13.846Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:02:47.874Z"
+     "at": "2026-10-22T12:44:13.846Z"
     }
    },
    {
@@ -1744,11 +1842,11 @@
     "from": "product:ndc-product:55150-315",
     "to": "labeler:ndc-labeler:55150",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T09:02:47.874Z",
+    "validFrom": "2026-10-22T12:44:13.846Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:02:47.874Z"
+     "at": "2026-10-22T12:44:13.846Z"
     }
    },
    {
@@ -1756,11 +1854,11 @@
     "from": "product:ndc-product:55150-315",
     "to": "site:fei:3008461619",
     "type": "made-at",
-    "validFrom": "2026-10-22T09:02:52.484Z",
+    "validFrom": "2026-10-22T12:44:16.590Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:02:52.484Z"
+     "at": "2026-10-22T12:44:16.590Z"
     }
    },
    {
@@ -1768,11 +1866,11 @@
     "from": "inspection:fda-inspection:901293",
     "to": "site:fei:3008461619",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:02:52.484Z",
+    "validFrom": "2026-10-22T12:44:16.590Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:02:52.484Z"
+     "at": "2026-10-22T12:44:16.590Z"
     }
    },
    {
@@ -1780,11 +1878,11 @@
     "from": "inspection:fda-inspection:989530",
     "to": "site:fei:3008461619",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:02:52.484Z",
+    "validFrom": "2026-10-22T12:44:16.590Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:02:52.484Z"
+     "at": "2026-10-22T12:44:16.590Z"
     }
    },
    {
@@ -1792,11 +1890,11 @@
     "from": "inspection:fda-inspection:1041554",
     "to": "site:fei:3008461619",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:02:52.484Z",
+    "validFrom": "2026-10-22T12:44:16.590Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:02:52.484Z"
+     "at": "2026-10-22T12:44:16.590Z"
     }
    },
    {
@@ -1804,11 +1902,11 @@
     "from": "inspection:fda-inspection:1074573",
     "to": "site:fei:3008461619",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:02:52.484Z",
+    "validFrom": "2026-10-22T12:44:16.590Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:02:52.484Z"
+     "at": "2026-10-22T12:44:16.590Z"
     }
    },
    {
@@ -1816,11 +1914,11 @@
     "from": "inspection:fda-inspection:1228546",
     "to": "site:fei:3008461619",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:02:52.485Z",
+    "validFrom": "2026-10-22T12:44:16.590Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:02:52.485Z"
+     "at": "2026-10-22T12:44:16.590Z"
     }
    },
    {
@@ -1828,11 +1926,11 @@
     "from": "inspection:fda-inspection:1301166",
     "to": "site:fei:3008461619",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:02:52.485Z",
+    "validFrom": "2026-10-22T12:44:16.590Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:02:52.485Z"
+     "at": "2026-10-22T12:44:16.590Z"
     }
    },
    {
@@ -1840,11 +1938,11 @@
     "from": "warning-letter:fda-warning-letter:681905",
     "to": "site:fei:3008461619",
     "type": "issued-to",
-    "validFrom": "2026-10-22T09:02:52.485Z",
+    "validFrom": "2026-10-22T12:44:16.590Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:02:52.485Z"
+     "at": "2026-10-22T12:44:16.590Z"
     }
    }
   ],

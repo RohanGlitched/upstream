@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-ce2398",
+ "id": "case-2026-10-22-89e566",
  "question": "Why is acyclovir short, and what do we do?",
- "askedAt": "2026-10-22T07:23:33.697Z",
+ "askedAt": "2026-10-22T11:26:11.644Z",
  "asOf": "2026-10-21",
  "molecule": "acyclovir sodium",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H7WJDW15Y54W2ZDNKRJ991",
+  "contractId": "01M5HNRRWE09KGXA7N771HVR9D",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-69fca0"
+    "Q-12bf7a"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2001,
-   "rows": 5,
-   "finding": "5 stock lines across 3 hospitals.",
+   "ms": 3414,
+   "rows": 4,
+   "finding": "4 stock lines across 3 hospitals, 2 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -31,14 +35,15 @@
    "title": "Where our supply is made",
    "purpose": "Follow each product's label to the plants it names, and place each plant in FDA's registration file.",
    "queryIds": [
-    "Q-11c94f"
+    "Q-cbc2f9"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 629,
-   "rows": 3,
-   "finding": "3 plant links on 3 labels; 3 placed in FDA's registration file.",
+   "ms": 579,
+   "rows": 2,
+   "finding": "2 plant links on 2 labels; 2 placed in FDA's registration file.",
    "status": "ok"
   },
   {
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-208bfe",
-    "Q-31c3b9"
+    "Q-c5db12",
+    "Q-d5edf0"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 379,
+   "ms": 279,
    "rows": 2,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-73ec2a"
+    "Q-9b715d"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1470,
+   "ms": 1666,
    "rows": 18,
    "finding": "8 labelers make it in this form.",
    "status": "ok"
@@ -78,20 +85,20 @@
    "title": "What FDA found at those plants",
    "purpose": "Read every FDA drug inspection, warning letter, import alert and recall for these plants.",
    "queryIds": [
-    "Q-fcb3ea",
-    "Q-e09742",
-    "Q-ebfeba",
-    "Q-724dfa"
+    "Q-459d32",
+    "Q-c01a01",
+    "Q-0d1991",
+    "Q-c26d3d"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 883,
-   "rows": 23,
-   "finding": "20 inspections (3 OAI at our plants), 2 compliance actions, 0 import-alert listings, 1 recalls.",
+   "ms": 1043,
+   "rows": 17,
+   "finding": "14 inspections (2 OAI at our plants), 2 compliance actions, 0 import-alert listings, 1 recalls.",
    "status": "ok"
   },
   {
@@ -99,14 +106,14 @@
    "title": "What FDA wrote at the OAI inspections",
    "purpose": "Read the Form 483 observations recorded at those inspections.",
    "queryIds": [
-    "Q-a4be8d"
+    "Q-a1dfda"
    ],
    "sources": [
     "fda.citations"
    ],
-   "ms": 178,
-   "rows": 22,
-   "finding": "22 Form 483 observations recorded.",
+   "ms": 245,
+   "rows": 20,
+   "finding": "20 Form 483 observations recorded.",
    "status": "ok"
   },
   {
@@ -114,14 +121,14 @@
    "title": "What our P&T committee already approved",
    "purpose": "Read Corvale General's approved interchanges for these items.",
    "queryIds": [
-    "Q-67ac07"
+    "Q-9c8f13"
    ],
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 785,
+   "ms": 747,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -129,19 +136,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-181d07"
+    "Q-360f39"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1345,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 2046,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -152,7 +163,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 1,
+   "ms": 2,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -168,48 +179,44 @@
    "onHand": 502,
    "dailyUse": 13.024,
    "days": 38.5,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "acyclovir sodium|500mg/10ml|injection|10ml|vial",
+   "presentationLabel": "500 mg/10 mL injection, 10 mL vial",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-132",
    "ndc11": "50090325009",
-   "description": "acyclovir",
+   "description": "acyclovir 400 mg/1",
    "labeler": "A-S Medication Solutions",
-   "onHand": 211.41,
+   "onHand": 211,
    "dailyUse": 15.464,
-   "days": 13.7,
+   "days": 13.6,
    "unit": "tablet",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "acyclovir|400mg|tablet||tablet",
+   "presentationLabel": "400 mg tablet",
    "evidence": "E2"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-133",
    "ndc11": "55150015411",
-   "description": "Acyclovir Sodium",
+   "description": "Acyclovir Sodium 500 mg/10mL",
    "labeler": "AuroMedics Pharma LLC",
-   "onHand": 339.38,
+   "onHand": 339,
    "dailyUse": 15.444,
    "days": 22,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "acyclovir sodium|500mg/10ml|injection|10ml|vial",
+   "presentationLabel": "500 mg/10 mL injection, 10 mL vial",
    "evidence": "E3"
-  },
-  {
-   "hospital": "Corvale General",
-   "itemKey": "CG-348",
-   "ndc11": "51655070304",
-   "description": "Valacyclovir Hydrochloride",
-   "labeler": "Northwind Health Company, LLC",
-   "onHand": 256.22,
-   "dailyUse": 15.624,
-   "days": 16.4,
-   "unit": "tablet",
-   "ndcMatch": "11-digit as recorded",
-   "evidence": "E4"
   },
   {
    "hospital": "Corvale Lakeside",
@@ -222,7 +229,82 @@
    "days": 24.8,
    "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
-   "evidence": "E5"
+   "unitBasis": "units of use, as exported",
+   "presentation": "acyclovir sodium|500mg/10ml|injection|10ml|vial",
+   "presentationLabel": "500 mg/10 mL injection, 10 mL vial",
+   "evidence": "E4"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "acyclovir|400mg|tablet||tablet",
+   "label": "400 mg tablet",
+   "short": "400 mg",
+   "unit": "tablet",
+   "onHand": 211,
+   "dailyUse": 15.464,
+   "days": 13.6,
+   "hospitals": [
+    {
+     "hospital": "Corvale General",
+     "onHand": 211,
+     "dailyUse": 15.464,
+     "days": 13.6,
+     "lines": [
+      "CG-132"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "acyclovir sodium|500mg/10ml|injection|10ml|vial",
+   "label": "500 mg/10 mL injection, 10 mL vial",
+   "short": "500 mg/10 mL, 10 mL",
+   "unit": "vial",
+   "onHand": 942,
+   "dailyUse": 32.545,
+   "days": 28.9,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 502,
+     "dailyUse": 13.024,
+     "days": 38.5,
+     "lines": [
+      "EA-E-000192"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 339,
+     "dailyUse": 15.444,
+     "days": 22,
+     "lines": [
+      "CG-133"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 101,
+     "dailyUse": 4.077,
+     "days": 24.8,
+     "lines": [
+      "LS-LS-0088"
+     ],
+     "evidence": [
+      "E4"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -257,7 +339,7 @@
        "fei": "3008461619",
        "firm": "Eugia Pharma Specialities Limited",
        "text": "FDA inspection 901293 ended 2014-09-26, classified VAI; classification letter 2015-03-16",
-       "evidence": "E6"
+       "evidence": "E5"
       },
       {
        "kind": "inspection_vai",
@@ -267,7 +349,7 @@
        "fei": "3008461619",
        "firm": "Eugia Pharma Specialities Limited",
        "text": "FDA inspection 989530 ended 2016-09-16, classified VAI; classification letter 2017-03-17",
-       "evidence": "E7"
+       "evidence": "E6"
       },
       {
        "kind": "inspection_vai",
@@ -277,7 +359,7 @@
        "fei": "3008461619",
        "firm": "Eugia Pharma Specialities Limited",
        "text": "FDA inspection 1041554 ended 2018-02-20, classified VAI; classification letter 2018-05-21",
-       "evidence": "E8"
+       "evidence": "E7"
       },
       {
        "kind": "inspection_vai",
@@ -287,7 +369,7 @@
        "fei": "3008461619",
        "firm": "Eugia Pharma Specialities Limited",
        "text": "FDA inspection 1074573 ended 2018-12-14, classified VAI",
-       "evidence": "E9"
+       "evidence": "E8"
       },
       {
        "kind": "inspection_oai",
@@ -297,7 +379,7 @@
        "fei": "3008461619",
        "firm": "Eugia Pharma Specialities Limited",
        "text": "FDA inspection 1228546 ended 2024-02-02, classified OAI; Form 483: Absence of Written Procedures; Changes to Procedures Not Reviewed, Approved; Procedures for sterile drug products (9 observations)",
-       "evidence": "E11"
+       "evidence": "E10"
       },
       {
        "kind": "warning_letter",
@@ -307,7 +389,7 @@
        "fei": "3008461619",
        "firm": "Eugia Pharma Specialities Limited",
        "text": "Warning Letter issued 2024-08-15 (case 681905)",
-       "evidence": "E14"
+       "evidence": "E13"
       },
       {
        "kind": "inspection_oai",
@@ -317,11 +399,11 @@
        "fei": "3008461619",
        "firm": "Eugia Pharma Specialities Limited",
        "text": "FDA inspection 1301166 ended 2026-02-06, classified OAI; classification letter 2026-09-21; Form 483: Procedures for sterile drug products; Validation lacking for sterile drug products; Following/documenting laboratory controls (11 observations)",
-       "evidence": "E13"
+       "evidence": "E12"
       }
      ],
      "evidence": [
-      "E15"
+      "E14"
      ]
     }
    ],
@@ -358,7 +440,7 @@
        "fei": "1450743",
        "firm": "A-S Medication Solutions LLC",
        "text": "FDA inspection 628529 ended 2009-10-22, classified VAI",
-       "evidence": "E16"
+       "evidence": "E15"
       },
       {
        "kind": "inspection_vai",
@@ -368,7 +450,7 @@
        "fei": "1450743",
        "firm": "A-S Medication Solutions LLC",
        "text": "FDA inspection 770191 ended 2012-03-02, classified VAI",
-       "evidence": "E17"
+       "evidence": "E16"
       },
       {
        "kind": "inspection_vai",
@@ -378,7 +460,7 @@
        "fei": "1450743",
        "firm": "A-S Medication Solutions LLC",
        "text": "FDA inspection 834331 ended 2013-05-29, classified VAI",
-       "evidence": "E18"
+       "evidence": "E17"
       },
       {
        "kind": "warning_letter",
@@ -388,7 +470,7 @@
        "fei": "1450743",
        "firm": "A-S Medication Solutions LLC",
        "text": "Warning Letter issued 2017-06-05 (case 522197)",
-       "evidence": "E21"
+       "evidence": "E20"
       },
       {
        "kind": "inspection_vai",
@@ -398,7 +480,7 @@
        "fei": "1450743",
        "firm": "A-S Medication Solutions LLC",
        "text": "FDA inspection 1054512 ended 2018-06-05, classified VAI; classification letter 2018-06-28",
-       "evidence": "E19"
+       "evidence": "E18"
       },
       {
        "kind": "inspection_vai",
@@ -408,86 +490,15 @@
        "fei": "1450743",
        "firm": "A-S Medication Solutions LLC",
        "text": "FDA inspection 1331612 ended 2026-08-12, classified VAI; classification letter 2026-10-14",
-       "evidence": "E20"
+       "evidence": "E19"
       }
      ],
      "evidence": [
-      "E22"
+      "E21"
      ]
     }
    ],
    "evidence": "E2"
-  },
-  {
-   "ndc11": "51655070304",
-   "packageNdc": "51655-703-04",
-   "labeler": "Northwind Health Company, LLC",
-   "generic": "Valacyclovir Hydrochloride",
-   "setId": "f98aea50-e4d9-c0cc-e053-6294a90a811c",
-   "plants": [
-    {
-     "key": "036986393",
-     "name": "Northwind Health Company, LLC",
-     "duns": "036986393",
-     "fei": "1831143",
-     "country": "USA",
-     "address": "4838 Fletcher Ave, Suite 1000, Indianapolis, Indiana (IN) 46203, United States (USA)",
-     "operations": "REPACK",
-     "linkSource": "spl_establishment",
-     "linkQuality": "registered plant",
-     "health": "watch",
-     "lastClassification": {
-      "classification": "VAI",
-      "endDate": "2025-09-26"
-     },
-     "signals": [
-      {
-       "kind": "inspection_vai",
-       "date": "2015-09-14",
-       "knownDate": "2015-12-13",
-       "knownBasis": "end_plus_90_estimate",
-       "fei": "1831143",
-       "firm": "Northwind Pharmaceuticals LLC",
-       "text": "FDA inspection 944649 ended 2015-09-14, classified VAI",
-       "evidence": "E23"
-      },
-      {
-       "kind": "inspection_oai",
-       "date": "2015-12-09",
-       "knownDate": "2016-03-08",
-       "knownBasis": "end_plus_90_estimate",
-       "fei": "1831143",
-       "firm": "Northwind Pharmaceuticals LLC",
-       "text": "FDA inspection 952157 ended 2015-12-09, classified OAI; Form 483: Penicillin processing area not  kept separate; Cleaning / Sanitizing / Maintenance",
-       "evidence": "E25"
-      },
-      {
-       "kind": "inspection_vai",
-       "date": "2018-11-16",
-       "knownDate": "2018-12-10",
-       "knownBasis": "fmd145_letter",
-       "fei": "1831143",
-       "firm": "Northwind Pharmaceuticals LLC",
-       "text": "FDA inspection 1073148 ended 2018-11-16, classified VAI; classification letter 2018-12-10",
-       "evidence": "E26"
-      },
-      {
-       "kind": "inspection_vai",
-       "date": "2025-09-26",
-       "knownDate": "2025-12-04",
-       "knownBasis": "fmd145_letter",
-       "fei": "1831143",
-       "firm": "Northwind Pharmaceuticals LLC",
-       "text": "FDA inspection 1256379 ended 2025-09-26, classified VAI; classification letter 2025-12-04",
-       "evidence": "E27"
-      }
-     ],
-     "evidence": [
-      "E28"
-     ]
-    }
-   ],
-   "evidence": "E4"
   }
  ],
  "shortage": {
@@ -643,126 +654,98 @@
    "kind": "inspection_vai",
    "label": "FDA inspection 628529 ended 2009-10-22, classified VAI",
    "daysBeforePosting": null,
-   "evidence": "E16"
+   "evidence": "E15"
   },
   {
    "date": "2012-03-02",
    "kind": "inspection_vai",
    "label": "FDA inspection 770191 ended 2012-03-02, classified VAI",
    "daysBeforePosting": null,
-   "evidence": "E17"
+   "evidence": "E16"
   },
   {
    "date": "2013-05-29",
    "kind": "inspection_vai",
    "label": "FDA inspection 834331 ended 2013-05-29, classified VAI",
    "daysBeforePosting": null,
-   "evidence": "E18"
+   "evidence": "E17"
   },
   {
    "date": "2014-09-26",
    "kind": "inspection_vai",
    "label": "FDA inspection 901293 ended 2014-09-26, classified VAI; classification letter 2015-03-16",
    "daysBeforePosting": null,
-   "evidence": "E6"
-  },
-  {
-   "date": "2015-09-14",
-   "kind": "inspection_vai",
-   "label": "FDA inspection 944649 ended 2015-09-14, classified VAI",
-   "daysBeforePosting": null,
-   "evidence": "E23"
-  },
-  {
-   "date": "2015-12-09",
-   "kind": "inspection_oai",
-   "label": "FDA inspection 952157 ended 2015-12-09, classified OAI; Form 483: Penicillin processing area not  kept separate; Cleaning / Sanitizing / Maintenance",
-   "daysBeforePosting": null,
-   "evidence": "E25"
+   "evidence": "E5"
   },
   {
    "date": "2016-09-16",
    "kind": "inspection_vai",
    "label": "FDA inspection 989530 ended 2016-09-16, classified VAI; classification letter 2017-03-17",
    "daysBeforePosting": null,
-   "evidence": "E7"
+   "evidence": "E6"
   },
   {
    "date": "2017-06-05",
    "kind": "warning_letter",
    "label": "Warning Letter issued 2017-06-05 (case 522197)",
    "daysBeforePosting": null,
-   "evidence": "E21"
+   "evidence": "E20"
   },
   {
    "date": "2018-02-20",
    "kind": "inspection_vai",
    "label": "FDA inspection 1041554 ended 2018-02-20, classified VAI; classification letter 2018-05-21",
    "daysBeforePosting": null,
-   "evidence": "E8"
+   "evidence": "E7"
   },
   {
    "date": "2018-06-05",
    "kind": "inspection_vai",
    "label": "FDA inspection 1054512 ended 2018-06-05, classified VAI; classification letter 2018-06-28",
    "daysBeforePosting": null,
-   "evidence": "E19"
-  },
-  {
-   "date": "2018-11-16",
-   "kind": "inspection_vai",
-   "label": "FDA inspection 1073148 ended 2018-11-16, classified VAI; classification letter 2018-12-10",
-   "daysBeforePosting": null,
-   "evidence": "E26"
+   "evidence": "E18"
   },
   {
    "date": "2018-12-14",
    "kind": "inspection_vai",
    "label": "FDA inspection 1074573 ended 2018-12-14, classified VAI",
    "daysBeforePosting": null,
-   "evidence": "E9"
+   "evidence": "E8"
   },
   {
    "date": "2022-09-26",
    "kind": "recall",
    "label": "Class II recall D-0013-2023 by AuroMedics Pharma LLC started 2022-09-26: Presence of Particulate Matter: Customer complaint for a dark red, brown and black particulate floating inside vial.",
    "daysBeforePosting": null,
-   "evidence": "E29"
+   "evidence": "E22"
   },
   {
    "date": "2024-02-02",
    "kind": "inspection_oai",
    "label": "FDA inspection 1228546 ended 2024-02-02, classified OAI; Form 483: Absence of Written Procedures; Changes to Procedures Not Reviewed, Approved; Procedures for sterile drug products (9 observations)",
    "daysBeforePosting": null,
-   "evidence": "E11"
+   "evidence": "E10"
   },
   {
    "date": "2024-08-15",
    "kind": "warning_letter",
    "label": "Warning Letter issued 2024-08-15 (case 681905)",
    "daysBeforePosting": null,
-   "evidence": "E14"
-  },
-  {
-   "date": "2025-09-26",
-   "kind": "inspection_vai",
-   "label": "FDA inspection 1256379 ended 2025-09-26, classified VAI; classification letter 2025-12-04",
-   "daysBeforePosting": null,
-   "evidence": "E27"
+   "evidence": "E13"
   },
   {
    "date": "2026-02-06",
    "kind": "inspection_oai",
    "label": "FDA inspection 1301166 ended 2026-02-06, classified OAI; classification letter 2026-09-21; Form 483: Procedures for sterile drug products; Validation lacking for sterile drug products; Following/documenting laboratory controls (11 observations)",
    "daysBeforePosting": null,
-   "evidence": "E13"
+   "evidence": "E12"
   },
   {
    "date": "2026-08-12",
    "kind": "inspection_vai",
    "label": "FDA inspection 1331612 ended 2026-08-12, classified VAI; classification letter 2026-10-14",
    "daysBeforePosting": null,
-   "evidence": "E20"
+   "evidence": "E19"
   },
   {
    "date": "2026-10-21",
@@ -773,55 +756,56 @@
   }
  ],
  "explanation": {
-  "state": "confirmed",
-  "headline": "FDA's records trace this shortage to a plant on our own labels",
+  "state": "check",
+  "headline": "Acyclovir sodium is not on FDA's shortage list as of 2026-10-21; on-hand supply ranges from 13.6 to 38.5 days across sites",
   "sentences": [
    {
-    "text": "The label for our acyclovir sodium product names Aurobindo Pharma Limited as the manufacturing plant, which was classified OAI on 2026-02-06.",
+    "text": "FDA's drug shortage list does not include acyclovir sodium as of 2026-10-21.",
     "cites": [
-     "E15"
+     "D5"
     ]
    },
    {
-    "text": "The same facility, operating as Eugia Pharma Specialities Limited, received a Warning Letter on 2024-08-15 and another OAI classification on 2024-02-02.",
+    "text": "Corvale General holds 211 tablets of the 400 mg presentation at 15.5 per day, giving 13.6 days on hand.",
     "cites": [
-     "E11",
-     "E14"
+     "D1"
     ]
    },
    {
-    "text": "A recall by AuroMedics Pharma LLC for particulate matter in acyclovir sodium injection was initiated on 2022-09-26 and completed.",
+    "text": "Corvale East holds 502 vials of the 500 mg/10 mL injection at 13 per day, giving 38.5 days on hand.",
     "cites": [
-     "E29"
+     "D2"
     ]
    },
    {
-    "text": "Corvale East has 39 days of supply on hand, Corvale General has 17 days, and Corvale Lakeside has 25 days.",
+    "text": "Corvale General also holds 339 vials of the 500 mg/10 mL injection at 15.4 per day, giving 22 days on hand.",
     "cites": [
-     "D1",
-     "D2",
      "D3"
     ]
    },
    {
-    "text": "The best option by rule is to buy from Eugia US LLC, which is not on FDA's shortage list today and its label names no plant we could place.",
+    "text": "Corvale Lakeside holds 101 vials of the 500 mg/10 mL injection at 4.1 per day, giving 24.8 days on hand.",
     "cites": [
-     "E15"
+     "D4"
+    ]
+   },
+   {
+    "text": "The rule-ranked alternate manufacturer is Eugia US LLC, which is not on FDA's shortage list today and its label names no plant we could place.",
+    "cites": [
+     "D6"
+    ]
+   },
+   {
+    "text": "Check whether current purchase orders align with the lowest on-hand site (13.6 days) and confirm Eugia US LLC availability before placing new orders.",
+    "cites": [
+     "D1",
+     "D6"
     ]
    }
   ],
   "verifier": {
-   "checked": 7,
-   "rejected": [
-    {
-     "text": "That OAI classification occurred 257 days before the posting date of 2026-10-21.",
-     "reason": "date 2026-10-21 is not in the cited evidence"
-    },
-    {
-     "text": "FDA's records trace our supply to a plant classified OAI 257 days before the posting",
-     "reason": "headline: number 257 is not in the cited evidence"
-    }
-   ],
+   "checked": 8,
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -829,45 +813,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -882,87 +887,87 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:23:26.013Z",
+   "at": "2026-10-22T11:26:01.615Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract DNKRJ991 scope"
+   "reason": "in contract 771HVR9D scope"
   },
   {
-   "at": "2026-10-22T07:23:26.013Z",
+   "at": "2026-10-22T11:26:01.615Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract DNKRJ991 scope"
+   "reason": "in contract 771HVR9D scope"
   },
   {
-   "at": "2026-10-22T07:23:28.017Z",
+   "at": "2026-10-22T11:26:05.030Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract DNKRJ991 scope"
+   "reason": "in contract 771HVR9D scope"
   },
   {
-   "at": "2026-10-22T07:23:28.647Z",
+   "at": "2026-10-22T11:26:05.609Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract DNKRJ991 scope"
+   "reason": "in contract 771HVR9D scope"
   },
   {
-   "at": "2026-10-22T07:23:29.026Z",
+   "at": "2026-10-22T11:26:05.889Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract DNKRJ991 scope"
+   "reason": "in contract 771HVR9D scope"
   },
   {
-   "at": "2026-10-22T07:23:30.497Z",
+   "at": "2026-10-22T11:26:07.555Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract DNKRJ991 scope"
+   "reason": "in contract 771HVR9D scope"
   },
   {
-   "at": "2026-10-22T07:23:31.380Z",
+   "at": "2026-10-22T11:26:08.599Z",
    "action": "What FDA wrote at the OAI inspections",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract DNKRJ991 scope"
+   "reason": "in contract 771HVR9D scope"
   },
   {
-   "at": "2026-10-22T07:23:31.566Z",
+   "at": "2026-10-22T11:26:08.849Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract DNKRJ991 scope"
+   "reason": "in contract 771HVR9D scope"
   },
   {
-   "at": "2026-10-22T07:23:32.351Z",
+   "at": "2026-10-22T11:26:09.596Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract DNKRJ991 scope"
+   "reason": "in contract 771HVR9D scope"
   },
   {
-   "at": "2026-10-22T07:23:33.696Z",
+   "at": "2026-10-22T11:26:11.642Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract DNKRJ991 scope"
+   "reason": "in contract 771HVR9D scope"
   },
   {
-   "at": "2026-10-22T07:23:33.697Z",
+   "at": "2026-10-22T11:26:11.644Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract DNKRJ991 scope"
+   "reason": "in contract 771HVR9D scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-69fca0",
+   "queryId": "Q-12bf7a",
    "row": 0,
    "label": "Corvale East: ACYCLOVIR SODIUM 500MG0ML 10ML SDV",
    "fields": {
@@ -973,89 +978,81 @@
     "description": "ACYCLOVIR SODIUM 500MG0ML 10ML SDV",
     "on_hand": "502.00",
     "daily_use": "13.024",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Acyclovir Sodium",
     "labeler_name": "AuroMedics Pharma LLC",
     "package_ndc": "55150-154-11",
     "spl_set_id": "d3ab226c-677d-4cb7-85cb-1c2e5012f40d",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "ACYCLOVIR SODIUM 500 mg/10mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-69fca0",
+   "queryId": "Q-12bf7a",
    "row": 1,
-   "label": "Corvale General: acyclovir",
+   "label": "Corvale General: acyclovir 400 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-132",
     "ndc11": "50090325009",
     "ndc_as_recorded": "50090325009",
-    "description": "acyclovir",
-    "on_hand": "211.41",
+    "description": "acyclovir 400 mg/1",
+    "on_hand": "211.00",
     "daily_use": "15.464",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "acyclovir",
     "labeler_name": "A-S Medication Solutions",
     "package_ndc": "50090-3250-9",
     "spl_set_id": "c40a57b9-4cf1-4a69-abf3-eb99a7fcda00",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "ACYCLOVIR 400 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-69fca0",
+   "queryId": "Q-12bf7a",
    "row": 2,
-   "label": "Corvale General: Acyclovir Sodium",
+   "label": "Corvale General: Acyclovir Sodium 500 mg/10mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-133",
     "ndc11": "55150015411",
     "ndc_as_recorded": "55150015411",
-    "description": "Acyclovir Sodium",
-    "on_hand": "339.38",
+    "description": "Acyclovir Sodium 500 mg/10mL",
+    "on_hand": "339.00",
     "daily_use": "15.444",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Acyclovir Sodium",
     "labeler_name": "AuroMedics Pharma LLC",
     "package_ndc": "55150-154-11",
     "spl_set_id": "d3ab226c-677d-4cb7-85cb-1c2e5012f40d",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "ACYCLOVIR SODIUM 500 mg/10mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-69fca0",
+   "queryId": "Q-12bf7a",
    "row": 3,
-   "label": "Corvale General: Valacyclovir Hydrochloride",
-   "fields": {
-    "hospital": "Corvale General",
-    "item_key": "CG-348",
-    "ndc11": "51655070304",
-    "ndc_as_recorded": "51655070304",
-    "description": "Valacyclovir Hydrochloride",
-    "on_hand": "256.22",
-    "daily_use": "15.624",
-    "unit": "tablet",
-    "ndc_match": "11-digit as recorded",
-    "generic_name": "Valacyclovir Hydrochloride",
-    "labeler_name": "Northwind Health Company, LLC",
-    "package_ndc": "51655-703-04",
-    "spl_set_id": "f98aea50-e4d9-c0cc-e053-6294a90a811c",
-    "dosage_form": "TABLET, FILM COATED",
-    "route": "ORAL"
-   }
-  },
-  "E5": {
-   "id": "E5",
-   "queryId": "Q-69fca0",
-   "row": 4,
    "label": "Corvale Lakeside: Acyclovir Sodium 500 mg/10mL 10 mL vial",
    "fields": {
     "hospital": "Corvale Lakeside",
@@ -1066,19 +1063,24 @@
     "on_hand": "101.00",
     "daily_use": "4.077",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Acyclovir Sodium",
     "labeler_name": "AuroMedics Pharma LLC",
     "package_ndc": "55150-154-11",
     "spl_set_id": "d3ab226c-677d-4cb7-85cb-1c2e5012f40d",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "ACYCLOVIR SODIUM 500 mg/10mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
-  "E6": {
-   "id": "E6",
-   "queryId": "Q-fcb3ea",
-   "row": 14,
+  "E5": {
+   "id": "E5",
+   "queryId": "Q-459d32",
+   "row": 8,
    "label": "FDA inspection 901293 (VAI)",
    "fields": {
     "inspection_id": "901293",
@@ -1091,10 +1093,10 @@
     "known_date_basis": "fmd145_letter"
    }
   },
-  "E7": {
-   "id": "E7",
-   "queryId": "Q-fcb3ea",
-   "row": 15,
+  "E6": {
+   "id": "E6",
+   "queryId": "Q-459d32",
+   "row": 9,
    "label": "FDA inspection 989530 (VAI)",
    "fields": {
     "inspection_id": "989530",
@@ -1107,10 +1109,10 @@
     "known_date_basis": "fmd145_letter"
    }
   },
-  "E8": {
-   "id": "E8",
-   "queryId": "Q-fcb3ea",
-   "row": 16,
+  "E7": {
+   "id": "E7",
+   "queryId": "Q-459d32",
+   "row": 10,
    "label": "FDA inspection 1041554 (VAI)",
    "fields": {
     "inspection_id": "1041554",
@@ -1123,10 +1125,10 @@
     "known_date_basis": "fmd145_letter"
    }
   },
-  "E9": {
-   "id": "E9",
-   "queryId": "Q-fcb3ea",
-   "row": 17,
+  "E8": {
+   "id": "E8",
+   "queryId": "Q-459d32",
+   "row": 11,
    "label": "FDA inspection 1074573 (VAI)",
    "fields": {
     "inspection_id": "1074573",
@@ -1139,9 +1141,9 @@
     "known_date_basis": "end_plus_90_estimate"
    }
   },
-  "E10": {
-   "id": "E10",
-   "queryId": "Q-a4be8d",
+  "E9": {
+   "id": "E9",
+   "queryId": "Q-a1dfda",
    "row": 0,
    "label": "Form 483 at inspection 1228546: Absence of Written Procedures",
    "fields": {
@@ -1152,10 +1154,10 @@
     "short_description": "Absence of Written Procedures"
    }
   },
-  "E11": {
-   "id": "E11",
-   "queryId": "Q-fcb3ea",
-   "row": 18,
+  "E10": {
+   "id": "E10",
+   "queryId": "Q-459d32",
+   "row": 12,
    "label": "FDA inspection 1228546 (OAI); Form 483: Absence of Written Procedures; Changes to Procedures Not Reviewed, Approved; Procedures for sterile drug products (9 observations)",
    "fields": {
     "inspection_id": "1228546",
@@ -1168,9 +1170,9 @@
     "known_date_basis": "end_plus_90_estimate"
    }
   },
-  "E12": {
-   "id": "E12",
-   "queryId": "Q-a4be8d",
+  "E11": {
+   "id": "E11",
+   "queryId": "Q-a1dfda",
    "row": 9,
    "label": "Form 483 at inspection 1301166: Procedures for sterile drug products",
    "fields": {
@@ -1181,10 +1183,10 @@
     "short_description": "Procedures for sterile drug products"
    }
   },
-  "E13": {
-   "id": "E13",
-   "queryId": "Q-fcb3ea",
-   "row": 19,
+  "E12": {
+   "id": "E12",
+   "queryId": "Q-459d32",
+   "row": 13,
    "label": "FDA inspection 1301166 (OAI); Form 483: Procedures for sterile drug products; Validation lacking for sterile drug products; Following/documenting laboratory controls (11 observations)",
    "fields": {
     "inspection_id": "1301166",
@@ -1197,9 +1199,9 @@
     "known_date_basis": "fmd145_letter"
    }
   },
-  "E14": {
-   "id": "E14",
-   "queryId": "Q-e09742",
+  "E13": {
+   "id": "E13",
+   "queryId": "Q-c01a01",
    "row": 1,
    "label": "Warning Letter 2024-08-15",
    "fields": {
@@ -1211,9 +1213,9 @@
     "case_id": "681905"
    }
   },
-  "E15": {
-   "id": "E15",
-   "queryId": "Q-11c94f",
+  "E14": {
+   "id": "E14",
+   "queryId": "Q-cbc2f9",
    "row": 1,
    "label": "Label d3ab226c names Aurobindo Pharma Limited",
    "fields": {
@@ -1227,9 +1229,9 @@
     "last_inspection": "OAI 2026-02-06"
    }
   },
-  "E16": {
-   "id": "E16",
-   "queryId": "Q-fcb3ea",
+  "E15": {
+   "id": "E15",
+   "queryId": "Q-459d32",
    "row": 0,
    "label": "FDA inspection 628529 (VAI)",
    "fields": {
@@ -1243,9 +1245,9 @@
     "known_date_basis": "end_plus_90_estimate"
    }
   },
-  "E17": {
-   "id": "E17",
-   "queryId": "Q-fcb3ea",
+  "E16": {
+   "id": "E16",
+   "queryId": "Q-459d32",
    "row": 2,
    "label": "FDA inspection 770191 (VAI)",
    "fields": {
@@ -1259,9 +1261,9 @@
     "known_date_basis": "end_plus_90_estimate"
    }
   },
-  "E18": {
-   "id": "E18",
-   "queryId": "Q-fcb3ea",
+  "E17": {
+   "id": "E17",
+   "queryId": "Q-459d32",
    "row": 3,
    "label": "FDA inspection 834331 (VAI)",
    "fields": {
@@ -1275,9 +1277,9 @@
     "known_date_basis": "end_plus_90_estimate"
    }
   },
-  "E19": {
-   "id": "E19",
-   "queryId": "Q-fcb3ea",
+  "E18": {
+   "id": "E18",
+   "queryId": "Q-459d32",
    "row": 4,
    "label": "FDA inspection 1054512 (VAI)",
    "fields": {
@@ -1291,9 +1293,9 @@
     "known_date_basis": "fmd145_letter"
    }
   },
-  "E20": {
-   "id": "E20",
-   "queryId": "Q-fcb3ea",
+  "E19": {
+   "id": "E19",
+   "queryId": "Q-459d32",
    "row": 6,
    "label": "FDA inspection 1331612 (VAI)",
    "fields": {
@@ -1307,9 +1309,9 @@
     "known_date_basis": "fmd145_letter"
    }
   },
-  "E21": {
-   "id": "E21",
-   "queryId": "Q-e09742",
+  "E20": {
+   "id": "E20",
+   "queryId": "Q-c01a01",
    "row": 0,
    "label": "Warning Letter 2017-06-05",
    "fields": {
@@ -1321,9 +1323,9 @@
     "case_id": "522197"
    }
   },
-  "E22": {
-   "id": "E22",
-   "queryId": "Q-11c94f",
+  "E21": {
+   "id": "E21",
+   "queryId": "Q-cbc2f9",
    "row": 0,
    "label": "Label c40a57b9 names A-S Medication Solutions",
    "fields": {
@@ -1337,102 +1339,9 @@
     "last_inspection": "VAI 2026-08-12"
    }
   },
-  "E23": {
-   "id": "E23",
-   "queryId": "Q-fcb3ea",
-   "row": 8,
-   "label": "FDA inspection 944649 (VAI)",
-   "fields": {
-    "inspection_id": "944649",
-    "fei": "1831143",
-    "legal_name": "Northwind Pharmaceuticals LLC",
-    "country": "United States",
-    "end_date": "2015-09-14",
-    "classification": "VAI",
-    "known_date": "2015-12-13",
-    "known_date_basis": "end_plus_90_estimate"
-   }
-  },
-  "E24": {
-   "id": "E24",
-   "queryId": "Q-a4be8d",
-   "row": 20,
-   "label": "Form 483 at inspection 952157: Penicillin processing area not  kept separate",
-   "fields": {
-    "inspection_id": "952157",
-    "fei": "1831143",
-    "end_date": "2015-12-09",
-    "cfr": "21 CFR 211.42(d)",
-    "short_description": "Penicillin processing area not  kept separate"
-   }
-  },
-  "E25": {
-   "id": "E25",
-   "queryId": "Q-fcb3ea",
-   "row": 9,
-   "label": "FDA inspection 952157 (OAI); Form 483: Penicillin processing area not  kept separate; Cleaning / Sanitizing / Maintenance",
-   "fields": {
-    "inspection_id": "952157",
-    "fei": "1831143",
-    "legal_name": "Northwind Pharmaceuticals LLC",
-    "country": "United States",
-    "end_date": "2015-12-09",
-    "classification": "OAI",
-    "known_date": "2016-03-08",
-    "known_date_basis": "end_plus_90_estimate"
-   }
-  },
-  "E26": {
-   "id": "E26",
-   "queryId": "Q-fcb3ea",
-   "row": 11,
-   "label": "FDA inspection 1073148 (VAI)",
-   "fields": {
-    "inspection_id": "1073148",
-    "fei": "1831143",
-    "legal_name": "Northwind Pharmaceuticals LLC",
-    "country": "United States",
-    "end_date": "2018-11-16",
-    "classification": "VAI",
-    "known_date": "2018-12-10",
-    "known_date_basis": "fmd145_letter"
-   }
-  },
-  "E27": {
-   "id": "E27",
-   "queryId": "Q-fcb3ea",
-   "row": 12,
-   "label": "FDA inspection 1256379 (VAI)",
-   "fields": {
-    "inspection_id": "1256379",
-    "fei": "1831143",
-    "legal_name": "Northwind Pharmaceuticals LLC",
-    "country": "United States",
-    "end_date": "2025-09-26",
-    "classification": "VAI",
-    "known_date": "2025-12-04",
-    "known_date_basis": "fmd145_letter"
-   }
-  },
-  "E28": {
-   "id": "E28",
-   "queryId": "Q-11c94f",
-   "row": 2,
-   "label": "Label f98aea50 names Northwind Health Company, LLC",
-   "fields": {
-    "product_labeler": "Northwind Health Company, LLC",
-    "ndc11": "51655070304",
-    "plant": "Northwind Health Company, LLC",
-    "fei": "1831143",
-    "country": "USA",
-    "operations": "REPACK",
-    "link": "registered plant",
-    "last_inspection": "VAI 2025-09-26"
-   }
-  },
-  "E29": {
-   "id": "E29",
-   "queryId": "Q-724dfa",
+  "E22": {
+   "id": "E22",
+   "queryId": "Q-c26d3d",
    "row": 0,
    "label": "Recall D-0013-2023",
    "fields": {
@@ -1452,208 +1361,283 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 502 units of acyclovir sodium at 13 a day: 39 days on hand",
+   "label": "Corvale General holds 211 tablets of acyclovir sodium 400 mg at 15.5 a day: 13.6 days on hand",
    "fields": {
-    "hospital": "Corvale East",
-    "on_hand": 502,
-    "daily_use": 13,
-    "days_on_hand": 39
+    "hospital": "Corvale General",
+    "presentation": "400 mg tablet",
+    "on_hand": 211,
+    "daily_use": 15.5,
+    "days_on_hand": 13.6
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 807 units of acyclovir sodium at 46.5 a day: 17 days on hand",
+   "label": "Corvale East holds 502 vials of acyclovir sodium 500 mg/10 mL, 10 mL at 13 a day: 38.5 days on hand",
    "fields": {
-    "hospital": "Corvale General",
-    "on_hand": 807,
-    "daily_use": 46.5,
-    "days_on_hand": 17
+    "hospital": "Corvale East",
+    "presentation": "500 mg/10 mL injection, 10 mL vial",
+    "on_hand": 502,
+    "daily_use": 13,
+    "days_on_hand": 38.5
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 101 units of acyclovir sodium at 4.1 a day: 25 days on hand",
+   "label": "Corvale General holds 339 vials of acyclovir sodium 500 mg/10 mL, 10 mL at 15.4 a day: 22 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "500 mg/10 mL injection, 10 mL vial",
+    "on_hand": 339,
+    "daily_use": 15.4,
+    "days_on_hand": 22
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale Lakeside holds 101 vials of acyclovir sodium 500 mg/10 mL, 10 mL at 4.1 a day: 24.8 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
+    "presentation": "500 mg/10 mL injection, 10 mL vial",
     "on_hand": 101,
     "daily_use": 4.1,
-    "days_on_hand": 25
+    "days_on_hand": 24.8
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "acyclovir sodium is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Eugia US LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Fresenius Kabi USA, LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D8": {
+   "id": "D8",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Hikma Pharmaceuticals USA Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-69fca0": {
-   "id": "Q-69fca0",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%acyclovir%' OR lower(s.description) LIKE '%acyclovir%' ORDER BY s.hospital, s.item_key",
-   "ms": 2000,
+  "Q-12bf7a": {
+   "id": "Q-12bf7a",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*acyclovir(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*acyclovir(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3413,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:23:28.012Z",
-   "rows": 5
+   "ranAt": "2026-10-22T11:26:05.028Z",
+   "rows": 4
   },
-  "Q-11c94f": {
-   "id": "Q-11c94f",
-   "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('d3ab226c-677d-4cb7-85cb-1c2e5012f40d', 'c40a57b9-4cf1-4a69-abf3-eb99a7fcda00', 'f98aea50-e4d9-c0cc-e053-6294a90a811c') ORDER BY ps.set_id, ps.establishment",
-   "ms": 627,
+  "Q-cbc2f9": {
+   "id": "Q-cbc2f9",
+   "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('d3ab226c-677d-4cb7-85cb-1c2e5012f40d', 'c40a57b9-4cf1-4a69-abf3-eb99a7fcda00') ORDER BY ps.set_id, ps.establishment",
+   "ms": 577,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:23:28.644Z",
-   "rows": 3
+   "ranAt": "2026-10-22T11:26:05.608Z",
+   "rows": 2
   },
-  "Q-208bfe": {
-   "id": "Q-208bfe",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%acyclovir%' ORDER BY status, company_name, package_ndc",
-   "ms": 208,
+  "Q-c5db12": {
+   "id": "Q-c5db12",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*acyclovir(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 149,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:23:28.855Z",
+   "ranAt": "2026-10-22T11:26:05.758Z",
    "rows": 0
   },
-  "Q-31c3b9": {
-   "id": "Q-31c3b9",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%acyclovir%' ORDER BY first_posting",
-   "ms": 169,
+  "Q-d5edf0": {
+   "id": "Q-d5edf0",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*acyclovir(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 128,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:23:29.025Z",
+   "ranAt": "2026-10-22T11:26:05.887Z",
    "rows": 2
   },
-  "Q-73ec2a": {
-   "id": "Q-73ec2a",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%acyclovir%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 1469,
+  "Q-9b715d": {
+   "id": "Q-9b715d",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*acyclovir(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1665,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:23:30.496Z",
+   "ranAt": "2026-10-22T11:26:07.553Z",
    "rows": 18
   },
-  "Q-fcb3ea": {
-   "id": "Q-fcb3ea",
-   "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('1450743', '3008461619', '1831143') ORDER BY fei, end_date",
-   "ms": 365,
+  "Q-459d32": {
+   "id": "Q-459d32",
+   "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('1450743', '3008461619') ORDER BY fei, end_date",
+   "ms": 366,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:23:30.862Z",
-   "rows": 20
+   "ranAt": "2026-10-22T11:26:07.922Z",
+   "rows": 14
   },
-  "Q-e09742": {
-   "id": "Q-e09742",
-   "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('1450743', '3008461619', '1831143') ORDER BY fei, action_date",
-   "ms": 158,
+  "Q-c01a01": {
+   "id": "Q-c01a01",
+   "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('1450743', '3008461619') ORDER BY fei, action_date",
+   "ms": 249,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:23:31.021Z",
+   "ranAt": "2026-10-22T11:26:08.172Z",
    "rows": 2
   },
-  "Q-ebfeba": {
-   "id": "Q-ebfeba",
-   "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('1450743', '3008461619', '1831143') OR (fei_match <> 'name_and_city' AND firm_key IN ('a s medication solutions', 'aurobindo', 'eugia specialities', 'northwind health')) ORDER BY date_published",
-   "ms": 147,
+  "Q-0d1991": {
+   "id": "Q-0d1991",
+   "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('1450743', '3008461619') OR (fei_match <> 'name_and_city' AND firm_key IN ('a s medication solutions', 'aurobindo', 'eugia specialities')) ORDER BY date_published",
+   "ms": 216,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:23:31.169Z",
+   "ranAt": "2026-10-22T11:26:08.390Z",
    "rows": 0
   },
-  "Q-724dfa": {
-   "id": "Q-724dfa",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('a s medication solutions', 'aurobindo', 'eugia specialities', 'northwind health', 'auromedics') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%acyclovir%' ORDER BY initiation_date",
-   "ms": 208,
+  "Q-c26d3d": {
+   "id": "Q-c26d3d",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('a s medication solutions', 'aurobindo', 'eugia specialities', 'auromedics') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*acyclovir(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 206,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:23:31.379Z",
+   "ranAt": "2026-10-22T11:26:08.597Z",
    "rows": 1
   },
-  "Q-a4be8d": {
-   "id": "Q-a4be8d",
-   "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('952157', '1228546', '1301166') ORDER BY inspection_id, cfr",
-   "ms": 177,
+  "Q-a1dfda": {
+   "id": "Q-a1dfda",
+   "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('1228546', '1301166') ORDER BY inspection_id, cfr",
+   "ms": 242,
    "mode": "live",
    "sources": [
     "fda.citations"
    ],
-   "ranAt": "2026-10-22T07:23:31.557Z",
-   "rows": 22
+   "ranAt": "2026-10-22T11:26:08.840Z",
+   "rows": 20
   },
-  "Q-67ac07": {
-   "id": "Q-67ac07",
-   "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('55150015411', '50090325009', '51655070304')",
-   "ms": 784,
+  "Q-9c8f13": {
+   "id": "Q-9c8f13",
+   "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('55150015411', '50090325009')",
+   "ms": 745,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:23:32.350Z",
+   "ranAt": "2026-10-22T11:26:09.595Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-181d07": {
-   "id": "Q-181d07",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%acyclovir%'",
-   "ms": 1343,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:23:33.694Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-360f39": {
+   "id": "Q-360f39",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*acyclovir(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 2044,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:26:11.640Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 15,
-  "zetarisMs": 13026,
+  "zetarisMs": 20208,
   "modelCalls": 1,
-  "tokensIn": 2797,
-  "tokensOut": 401,
+  "tokensIn": 2771,
+  "tokensOut": 465,
   "mode": "live"
  },
  "slug": "acyclovir",
@@ -1661,7 +1645,6 @@
   "roots": [
    "hospital-item:hospital-item:CG-132",
    "hospital-item:hospital-item:CG-133",
-   "hospital-item:hospital-item:CG-348",
    "hospital-item:hospital-item:EA-E-000192",
    "hospital-item:hospital-item:LS-LS-0088"
   ],
@@ -1670,7 +1653,7 @@
     "id": "hospital-item:hospital-item:CG-132",
     "type": "HospitalItem",
     "key": "hospital-item:CG-132",
-    "label": "Corvale General: acyclovir",
+    "label": "Corvale General: acyclovir 400 mg/1",
     "attrs": {
      "key": "hospital-item:CG-132"
     },
@@ -1681,20 +1664,9 @@
     "id": "hospital-item:hospital-item:CG-133",
     "type": "HospitalItem",
     "key": "hospital-item:CG-133",
-    "label": "Corvale General: Acyclovir Sodium",
+    "label": "Corvale General: Acyclovir Sodium 500 mg/10mL",
     "attrs": {
      "key": "hospital-item:CG-133"
-    },
-    "facts": [],
-    "depth": 0
-   },
-   {
-    "id": "hospital-item:hospital-item:CG-348",
-    "type": "HospitalItem",
-    "key": "hospital-item:CG-348",
-    "label": "Corvale General: Valacyclovir Hydrochloride",
-    "attrs": {
-     "key": "hospital-item:CG-348"
     },
     "facts": [],
     "depth": 0
@@ -1733,17 +1705,6 @@
     "depth": 1
    },
    {
-    "id": "package:ndc-package:51655-703-04",
-    "type": "Package",
-    "key": "ndc-package:51655-703-04",
-    "label": "ndc-package:51655-703-04",
-    "attrs": {
-     "key": "ndc-package:51655-703-04"
-    },
-    "facts": [],
-    "depth": 1
-   },
-   {
     "id": "package:ndc-package:55150-154-11",
     "type": "Package",
     "key": "ndc-package:55150-154-11",
@@ -1761,17 +1722,6 @@
     "label": "acyclovir",
     "attrs": {
      "key": "ndc-product:50090-3250"
-    },
-    "facts": [],
-    "depth": 2
-   },
-   {
-    "id": "product:ndc-product:51655-703",
-    "type": "Product",
-    "key": "ndc-product:51655-703",
-    "label": "Valacyclovir Hydrochloride",
-    "attrs": {
-     "key": "ndc-product:51655-703"
     },
     "facts": [],
     "depth": 2
@@ -1810,17 +1760,6 @@
     "depth": 3
    },
    {
-    "id": "labeler:ndc-labeler:51655",
-    "type": "Labeler",
-    "key": "ndc-labeler:51655",
-    "label": "Northwind Health Company, LLC",
-    "attrs": {
-     "key": "ndc-labeler:51655"
-    },
-    "facts": [],
-    "depth": 3
-   },
-   {
     "id": "labeler:ndc-labeler:55150",
     "type": "Labeler",
     "key": "ndc-labeler:55150",
@@ -1838,17 +1777,6 @@
     "label": "A-S Medication Solutions",
     "attrs": {
      "key": "fei:1450743"
-    },
-    "facts": [],
-    "depth": 3
-   },
-   {
-    "id": "site:fei:1831143",
-    "type": "Site",
-    "key": "fei:1831143",
-    "label": "Northwind Health Company, LLC",
-    "attrs": {
-     "key": "fei:1831143"
     },
     "facts": [],
     "depth": 3
@@ -1875,7 +1803,7 @@
     },
     "facts": [
      {
-      "id": "fact_b29ef2a2a76792c2",
+      "id": "fact_ba5c542a0bc16337",
       "about": "inspection:fda-inspection:1041554",
       "predicate": "classification",
       "value": "VAI",
@@ -1883,9 +1811,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:23:31.560Z"
+       "at": "2026-10-22T11:26:08.846Z"
       },
-      "assertedAt": "2026-10-22T07:23:31.560Z"
+      "assertedAt": "2026-10-22T11:26:08.846Z"
      }
     ],
     "depth": 4
@@ -1901,7 +1829,7 @@
     },
     "facts": [
      {
-      "id": "fact_52c5d8e77c5d310b",
+      "id": "fact_6f19d9fcc982a4b2",
       "about": "inspection:fda-inspection:1054512",
       "predicate": "classification",
       "value": "VAI",
@@ -1909,35 +1837,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:23:31.562Z"
+       "at": "2026-10-22T11:26:08.849Z"
       },
-      "assertedAt": "2026-10-22T07:23:31.562Z"
-     }
-    ],
-    "depth": 4
-   },
-   {
-    "id": "inspection:fda-inspection:1073148",
-    "type": "Inspection",
-    "key": "fda-inspection:1073148",
-    "label": "fda-inspection:1073148",
-    "attrs": {
-     "key": "fda-inspection:1073148",
-     "classification": "VAI"
-    },
-    "facts": [
-     {
-      "id": "fact_c3cd895df0330c41",
-      "about": "inspection:fda-inspection:1073148",
-      "predicate": "classification",
-      "value": "VAI",
-      "confidence": 0.5,
-      "source": {
-       "kind": "fda-inspection",
-       "by": "upstream-investigator",
-       "at": "2026-10-22T07:23:31.563Z"
-      },
-      "assertedAt": "2026-10-22T07:23:31.563Z"
+      "assertedAt": "2026-10-22T11:26:08.849Z"
      }
     ],
     "depth": 4
@@ -1953,7 +1855,7 @@
     },
     "facts": [
      {
-      "id": "fact_7c7981e9b8721c1d",
+      "id": "fact_c90ff7a98c103ddd",
       "about": "inspection:fda-inspection:1074573",
       "predicate": "classification",
       "value": "VAI",
@@ -1961,9 +1863,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:23:31.560Z"
+       "at": "2026-10-22T11:26:08.846Z"
       },
-      "assertedAt": "2026-10-22T07:23:31.560Z"
+      "assertedAt": "2026-10-22T11:26:08.846Z"
      }
     ],
     "depth": 4
@@ -1979,7 +1881,7 @@
     },
     "facts": [
      {
-      "id": "fact_def1a0db4884626e",
+      "id": "fact_6f7f1ce7c53217a1",
       "about": "inspection:fda-inspection:1228546",
       "predicate": "classification",
       "value": "OAI",
@@ -1987,35 +1889,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:23:31.561Z"
+       "at": "2026-10-22T11:26:08.846Z"
       },
-      "assertedAt": "2026-10-22T07:23:31.561Z"
-     }
-    ],
-    "depth": 4
-   },
-   {
-    "id": "inspection:fda-inspection:1256379",
-    "type": "Inspection",
-    "key": "fda-inspection:1256379",
-    "label": "fda-inspection:1256379",
-    "attrs": {
-     "key": "fda-inspection:1256379",
-     "classification": "VAI"
-    },
-    "facts": [
-     {
-      "id": "fact_0cd2200c256579b1",
-      "about": "inspection:fda-inspection:1256379",
-      "predicate": "classification",
-      "value": "VAI",
-      "confidence": 0.5,
-      "source": {
-       "kind": "fda-inspection",
-       "by": "upstream-investigator",
-       "at": "2026-10-22T07:23:31.564Z"
-      },
-      "assertedAt": "2026-10-22T07:23:31.564Z"
+      "assertedAt": "2026-10-22T11:26:08.846Z"
      }
     ],
     "depth": 4
@@ -2031,7 +1907,7 @@
     },
     "facts": [
      {
-      "id": "fact_070bb478a5b31f1f",
+      "id": "fact_ab9b28b042615e40",
       "about": "inspection:fda-inspection:1301166",
       "predicate": "classification",
       "value": "OAI",
@@ -2039,9 +1915,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:23:31.561Z"
+       "at": "2026-10-22T11:26:08.847Z"
       },
-      "assertedAt": "2026-10-22T07:23:31.561Z"
+      "assertedAt": "2026-10-22T11:26:08.847Z"
      }
     ],
     "depth": 4
@@ -2057,7 +1933,7 @@
     },
     "facts": [
      {
-      "id": "fact_ca9beccc54962968",
+      "id": "fact_b22ecb90bb17c48f",
       "about": "inspection:fda-inspection:1331612",
       "predicate": "classification",
       "value": "VAI",
@@ -2065,9 +1941,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:23:31.563Z"
+       "at": "2026-10-22T11:26:08.849Z"
       },
-      "assertedAt": "2026-10-22T07:23:31.563Z"
+      "assertedAt": "2026-10-22T11:26:08.849Z"
      }
     ],
     "depth": 4
@@ -2083,7 +1959,7 @@
     },
     "facts": [
      {
-      "id": "fact_c37a38b3017c51b3",
+      "id": "fact_50dee3fe8ac162eb",
       "about": "inspection:fda-inspection:628529",
       "predicate": "classification",
       "value": "VAI",
@@ -2091,9 +1967,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:23:31.562Z"
+       "at": "2026-10-22T11:26:08.847Z"
       },
-      "assertedAt": "2026-10-22T07:23:31.562Z"
+      "assertedAt": "2026-10-22T11:26:08.847Z"
      }
     ],
     "depth": 4
@@ -2109,7 +1985,7 @@
     },
     "facts": [
      {
-      "id": "fact_42404550c1e88805",
+      "id": "fact_afb22af8d8bccf8c",
       "about": "inspection:fda-inspection:770191",
       "predicate": "classification",
       "value": "VAI",
@@ -2117,9 +1993,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:23:31.562Z"
+       "at": "2026-10-22T11:26:08.847Z"
       },
-      "assertedAt": "2026-10-22T07:23:31.562Z"
+      "assertedAt": "2026-10-22T11:26:08.847Z"
      }
     ],
     "depth": 4
@@ -2135,7 +2011,7 @@
     },
     "facts": [
      {
-      "id": "fact_e10a52acde12bbb2",
+      "id": "fact_4fca6b858aec879f",
       "about": "inspection:fda-inspection:834331",
       "predicate": "classification",
       "value": "VAI",
@@ -2143,9 +2019,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:23:31.562Z"
+       "at": "2026-10-22T11:26:08.847Z"
       },
-      "assertedAt": "2026-10-22T07:23:31.562Z"
+      "assertedAt": "2026-10-22T11:26:08.847Z"
      }
     ],
     "depth": 4
@@ -2161,7 +2037,7 @@
     },
     "facts": [
      {
-      "id": "fact_fe9e9f374989a8f3",
+      "id": "fact_673c857634a45f38",
       "about": "inspection:fda-inspection:901293",
       "predicate": "classification",
       "value": "VAI",
@@ -2169,61 +2045,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:23:31.559Z"
+       "at": "2026-10-22T11:26:08.844Z"
       },
-      "assertedAt": "2026-10-22T07:23:31.559Z"
-     }
-    ],
-    "depth": 4
-   },
-   {
-    "id": "inspection:fda-inspection:944649",
-    "type": "Inspection",
-    "key": "fda-inspection:944649",
-    "label": "fda-inspection:944649",
-    "attrs": {
-     "key": "fda-inspection:944649",
-     "classification": "VAI"
-    },
-    "facts": [
-     {
-      "id": "fact_e9837453f5273dc3",
-      "about": "inspection:fda-inspection:944649",
-      "predicate": "classification",
-      "value": "VAI",
-      "confidence": 0.5,
-      "source": {
-       "kind": "fda-inspection",
-       "by": "upstream-investigator",
-       "at": "2026-10-22T07:23:31.563Z"
-      },
-      "assertedAt": "2026-10-22T07:23:31.563Z"
-     }
-    ],
-    "depth": 4
-   },
-   {
-    "id": "inspection:fda-inspection:952157",
-    "type": "Inspection",
-    "key": "fda-inspection:952157",
-    "label": "fda-inspection:952157",
-    "attrs": {
-     "key": "fda-inspection:952157",
-     "classification": "OAI"
-    },
-    "facts": [
-     {
-      "id": "fact_ded47484bb07c9ed",
-      "about": "inspection:fda-inspection:952157",
-      "predicate": "classification",
-      "value": "OAI",
-      "confidence": 0.5,
-      "source": {
-       "kind": "fda-inspection",
-       "by": "upstream-investigator",
-       "at": "2026-10-22T07:23:31.563Z"
-      },
-      "assertedAt": "2026-10-22T07:23:31.563Z"
+      "assertedAt": "2026-10-22T11:26:08.844Z"
      }
     ],
     "depth": 4
@@ -2239,7 +2063,7 @@
     },
     "facts": [
      {
-      "id": "fact_79e8c9cc3c635f2f",
+      "id": "fact_7a5caf6db578b0b1",
       "about": "inspection:fda-inspection:989530",
       "predicate": "classification",
       "value": "VAI",
@@ -2247,9 +2071,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:23:31.560Z"
+       "at": "2026-10-22T11:26:08.846Z"
       },
-      "assertedAt": "2026-10-22T07:23:31.560Z"
+      "assertedAt": "2026-10-22T11:26:08.846Z"
      }
     ],
     "depth": 4
@@ -2283,11 +2107,11 @@
     "from": "hospital-item:hospital-item:CG-132",
     "to": "package:ndc-package:50090-3250-9",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:23:28.015Z",
+    "validFrom": "2026-10-22T11:26:05.030Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:28.015Z"
+     "at": "2026-10-22T11:26:05.030Z"
     }
    },
    {
@@ -2295,23 +2119,11 @@
     "from": "hospital-item:hospital-item:CG-133",
     "to": "package:ndc-package:55150-154-11",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:23:28.015Z",
+    "validFrom": "2026-10-22T11:26:05.030Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:28.015Z"
-    }
-   },
-   {
-    "id": "rel_3f509130529500f2",
-    "from": "hospital-item:hospital-item:CG-348",
-    "to": "package:ndc-package:51655-703-04",
-    "type": "stocks",
-    "validFrom": "2026-10-22T07:23:28.016Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:28.016Z"
+     "at": "2026-10-22T11:26:05.030Z"
     }
    },
    {
@@ -2319,11 +2131,11 @@
     "from": "hospital-item:hospital-item:EA-E-000192",
     "to": "package:ndc-package:55150-154-11",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:23:28.014Z",
+    "validFrom": "2026-10-22T11:26:05.029Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:28.014Z"
+     "at": "2026-10-22T11:26:05.029Z"
     }
    },
    {
@@ -2331,11 +2143,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0088",
     "to": "package:ndc-package:55150-154-11",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:23:28.016Z",
+    "validFrom": "2026-10-22T11:26:05.030Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:28.016Z"
+     "at": "2026-10-22T11:26:05.030Z"
     }
    },
    {
@@ -2343,11 +2155,11 @@
     "from": "package:ndc-package:50090-3250-9",
     "to": "product:ndc-product:50090-3250",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:23:28.015Z",
+    "validFrom": "2026-10-22T11:26:05.030Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:28.015Z"
+     "at": "2026-10-22T11:26:05.030Z"
     }
    },
    {
@@ -2355,23 +2167,11 @@
     "from": "package:ndc-package:55150-154-11",
     "to": "product:ndc-product:55150-154",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:23:28.014Z",
+    "validFrom": "2026-10-22T11:26:05.029Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:28.014Z"
-    }
-   },
-   {
-    "id": "rel_7e67c6401d578a0d",
-    "from": "package:ndc-package:51655-703-04",
-    "to": "product:ndc-product:51655-703",
-    "type": "package-of",
-    "validFrom": "2026-10-22T07:23:28.016Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:28.016Z"
+     "at": "2026-10-22T11:26:05.029Z"
     }
    },
    {
@@ -2379,11 +2179,11 @@
     "from": "product:ndc-product:50090-3250",
     "to": "drug:generic:acyclovir sodium",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:23:28.015Z",
+    "validFrom": "2026-10-22T11:26:05.030Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:28.015Z"
+     "at": "2026-10-22T11:26:05.030Z"
     }
    },
    {
@@ -2391,11 +2191,11 @@
     "from": "product:ndc-product:50090-3250",
     "to": "labeler:ndc-labeler:50090",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:23:28.015Z",
+    "validFrom": "2026-10-22T11:26:05.030Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:28.015Z"
+     "at": "2026-10-22T11:26:05.030Z"
     }
    },
    {
@@ -2403,11 +2203,11 @@
     "from": "product:ndc-product:50090-3250",
     "to": "site:fei:1450743",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:23:31.561Z",
+    "validFrom": "2026-10-22T11:26:08.847Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:31.561Z"
+     "at": "2026-10-22T11:26:08.847Z"
     }
    },
    {
@@ -2415,11 +2215,11 @@
     "from": "product:ndc-product:55150-154",
     "to": "drug:generic:acyclovir sodium",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:23:28.014Z",
+    "validFrom": "2026-10-22T11:26:05.029Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:28.014Z"
+     "at": "2026-10-22T11:26:05.029Z"
     }
    },
    {
@@ -2427,11 +2227,11 @@
     "from": "product:ndc-product:55150-154",
     "to": "labeler:ndc-labeler:55150",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:23:28.014Z",
+    "validFrom": "2026-10-22T11:26:05.029Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:28.014Z"
+     "at": "2026-10-22T11:26:05.029Z"
     }
    },
    {
@@ -2439,47 +2239,11 @@
     "from": "product:ndc-product:55150-154",
     "to": "site:fei:3008461619",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:23:31.559Z",
+    "validFrom": "2026-10-22T11:26:08.844Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:31.559Z"
-    }
-   },
-   {
-    "id": "rel_fdf990a966714970",
-    "from": "product:ndc-product:51655-703",
-    "to": "drug:generic:acyclovir sodium",
-    "type": "of-drug",
-    "validFrom": "2026-10-22T07:23:28.016Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:28.016Z"
-    }
-   },
-   {
-    "id": "rel_8facb5e56192f983",
-    "from": "product:ndc-product:51655-703",
-    "to": "labeler:ndc-labeler:51655",
-    "type": "labeled-by",
-    "validFrom": "2026-10-22T07:23:28.016Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:28.016Z"
-    }
-   },
-   {
-    "id": "rel_c922e4f91daa45bc",
-    "from": "product:ndc-product:51655-703",
-    "to": "site:fei:1831143",
-    "type": "made-at",
-    "validFrom": "2026-10-22T07:23:31.563Z",
-    "source": {
-     "kind": "dailymed-spl",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:31.563Z"
+     "at": "2026-10-22T11:26:08.844Z"
     }
    },
    {
@@ -2487,11 +2251,11 @@
     "from": "inspection:fda-inspection:628529",
     "to": "site:fei:1450743",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:23:31.562Z",
+    "validFrom": "2026-10-22T11:26:08.847Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:31.562Z"
+     "at": "2026-10-22T11:26:08.847Z"
     }
    },
    {
@@ -2499,11 +2263,11 @@
     "from": "inspection:fda-inspection:770191",
     "to": "site:fei:1450743",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:23:31.562Z",
+    "validFrom": "2026-10-22T11:26:08.847Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:31.562Z"
+     "at": "2026-10-22T11:26:08.847Z"
     }
    },
    {
@@ -2511,11 +2275,11 @@
     "from": "inspection:fda-inspection:834331",
     "to": "site:fei:1450743",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:23:31.562Z",
+    "validFrom": "2026-10-22T11:26:08.847Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:31.562Z"
+     "at": "2026-10-22T11:26:08.847Z"
     }
    },
    {
@@ -2523,11 +2287,11 @@
     "from": "inspection:fda-inspection:1054512",
     "to": "site:fei:1450743",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:23:31.562Z",
+    "validFrom": "2026-10-22T11:26:08.848Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:31.562Z"
+     "at": "2026-10-22T11:26:08.848Z"
     }
    },
    {
@@ -2535,11 +2299,11 @@
     "from": "inspection:fda-inspection:1331612",
     "to": "site:fei:1450743",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:23:31.563Z",
+    "validFrom": "2026-10-22T11:26:08.849Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:31.563Z"
+     "at": "2026-10-22T11:26:08.849Z"
     }
    },
    {
@@ -2547,11 +2311,11 @@
     "from": "warning-letter:fda-warning-letter:522197",
     "to": "site:fei:1450743",
     "type": "issued-to",
-    "validFrom": "2026-10-22T07:23:31.562Z",
+    "validFrom": "2026-10-22T11:26:08.848Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:31.562Z"
+     "at": "2026-10-22T11:26:08.848Z"
     }
    },
    {
@@ -2559,11 +2323,11 @@
     "from": "inspection:fda-inspection:901293",
     "to": "site:fei:3008461619",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:23:31.559Z",
+    "validFrom": "2026-10-22T11:26:08.844Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:31.559Z"
+     "at": "2026-10-22T11:26:08.844Z"
     }
    },
    {
@@ -2571,11 +2335,11 @@
     "from": "inspection:fda-inspection:989530",
     "to": "site:fei:3008461619",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:23:31.559Z",
+    "validFrom": "2026-10-22T11:26:08.845Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:31.559Z"
+     "at": "2026-10-22T11:26:08.845Z"
     }
    },
    {
@@ -2583,11 +2347,11 @@
     "from": "inspection:fda-inspection:1041554",
     "to": "site:fei:3008461619",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:23:31.560Z",
+    "validFrom": "2026-10-22T11:26:08.846Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:31.560Z"
+     "at": "2026-10-22T11:26:08.846Z"
     }
    },
    {
@@ -2595,11 +2359,11 @@
     "from": "inspection:fda-inspection:1074573",
     "to": "site:fei:3008461619",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:23:31.560Z",
+    "validFrom": "2026-10-22T11:26:08.846Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:31.560Z"
+     "at": "2026-10-22T11:26:08.846Z"
     }
    },
    {
@@ -2607,11 +2371,11 @@
     "from": "inspection:fda-inspection:1228546",
     "to": "site:fei:3008461619",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:23:31.561Z",
+    "validFrom": "2026-10-22T11:26:08.846Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:31.561Z"
+     "at": "2026-10-22T11:26:08.846Z"
     }
    },
    {
@@ -2619,11 +2383,11 @@
     "from": "inspection:fda-inspection:1301166",
     "to": "site:fei:3008461619",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:23:31.561Z",
+    "validFrom": "2026-10-22T11:26:08.846Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:31.561Z"
+     "at": "2026-10-22T11:26:08.846Z"
     }
    },
    {
@@ -2631,70 +2395,22 @@
     "from": "warning-letter:fda-warning-letter:681905",
     "to": "site:fei:3008461619",
     "type": "issued-to",
-    "validFrom": "2026-10-22T07:23:31.561Z",
+    "validFrom": "2026-10-22T11:26:08.846Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:31.561Z"
-    }
-   },
-   {
-    "id": "rel_12eeca6678093e1e",
-    "from": "inspection:fda-inspection:944649",
-    "to": "site:fei:1831143",
-    "type": "inspected",
-    "validFrom": "2026-10-22T07:23:31.563Z",
-    "source": {
-     "kind": "fda-inspection",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:31.563Z"
-    }
-   },
-   {
-    "id": "rel_587efda38d9dcaf3",
-    "from": "inspection:fda-inspection:952157",
-    "to": "site:fei:1831143",
-    "type": "inspected",
-    "validFrom": "2026-10-22T07:23:31.563Z",
-    "source": {
-     "kind": "fda-inspection",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:31.563Z"
-    }
-   },
-   {
-    "id": "rel_eb3c37885eb5fc1c",
-    "from": "inspection:fda-inspection:1073148",
-    "to": "site:fei:1831143",
-    "type": "inspected",
-    "validFrom": "2026-10-22T07:23:31.563Z",
-    "source": {
-     "kind": "fda-inspection",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:31.563Z"
-    }
-   },
-   {
-    "id": "rel_279c7357cb18ef93",
-    "from": "inspection:fda-inspection:1256379",
-    "to": "site:fei:1831143",
-    "type": "inspected",
-    "validFrom": "2026-10-22T07:23:31.564Z",
-    "source": {
-     "kind": "fda-inspection",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T07:23:31.564Z"
+     "at": "2026-10-22T11:26:08.846Z"
     }
    }
   ],
   "counts": {
-   "HospitalItem": 5,
-   "Package": 3,
-   "Product": 3,
+   "HospitalItem": 4,
+   "Package": 2,
+   "Product": 2,
    "Drug": 1,
-   "Labeler": 3,
-   "Site": 3,
-   "Inspection": 15,
+   "Labeler": 2,
+   "Site": 2,
+   "Inspection": 11,
    "WarningLetter": 2
   }
  }

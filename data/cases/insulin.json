@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-357bf4",
+ "id": "case-2026-10-22-130446",
  "question": "Why is insulin human short, and what do we do?",
- "askedAt": "2026-10-22T07:53:55.531Z",
+ "askedAt": "2026-10-22T12:08:56.648Z",
  "asOf": "2026-10-21",
  "molecule": "insulin glulisine",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H9M1KW260F73WTZMP9AHST",
+  "contractId": "01M5HR71C3P9KYJCKYFE55M4AM",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-f46b88"
+    "Q-8898c5"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3372,
+   "ms": 4581,
    "rows": 15,
-   "finding": "15 stock lines across 3 hospitals.",
+   "finding": "15 stock lines across 3 hospitals, 6 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-4720de"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 870,
+   "ms": 789,
    "rows": 6,
    "finding": "6 plant links on 5 labels; 5 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-a72e3d",
-    "Q-bfc949"
+    "Q-4505d2",
+    "Q-998f02"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 439,
+   "ms": 290,
    "rows": 18,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-15869b"
+    "Q-704d48"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2583,
+   "ms": 1312,
    "rows": 141,
    "finding": "13 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-b560f1",
     "Q-41011d",
     "Q-382a0d",
-    "Q-b33d41"
+    "Q-f2fb1f"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1200,
+   "ms": 828,
    "rows": 54,
    "finding": "38 inspections (3 OAI at our plants), 3 compliance actions, 1 import-alert listings, 12 recalls.",
    "status": "ok"
@@ -104,7 +111,7 @@
    "sources": [
     "fda.citations"
    ],
-   "ms": 296,
+   "ms": 209,
    "rows": 9,
    "finding": "9 Form 483 observations recorded.",
    "status": "ok"
@@ -119,9 +126,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1365,
+   "ms": 768,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -129,19 +136,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-7bdc2e"
+    "Q-4229ac"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1570,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1652,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -168,8 +179,11 @@
    "onHand": 268,
    "dailyUse": 10.089,
    "days": 26.6,
-   "unit": "package",
+   "unit": "syringe",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 5, converted to units",
+   "presentation": "insulin glulisine||injection|3ml|syringe",
+   "presentationLabel": "injection, 3 mL syringe",
    "evidence": "E1"
   },
   {
@@ -181,8 +195,11 @@
    "onHand": 268,
    "dailyUse": 9.99,
    "days": 26.8,
-   "unit": "package",
+   "unit": "each",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 12, converted to units",
+   "presentation": "insulin human||injection|100ml|each",
+   "presentationLabel": "injection, 100 mL each",
    "evidence": "E2"
   },
   {
@@ -194,8 +211,11 @@
    "onHand": 94,
    "dailyUse": 12.621,
    "days": 7.4,
-   "unit": "package",
+   "unit": "syringe",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 3, converted to units",
+   "presentation": "insulin glargine||injection|1.5ml|syringe",
+   "presentationLabel": "injection, 1.5 mL syringe",
    "evidence": "E3"
   },
   {
@@ -207,8 +227,11 @@
    "onHand": 216,
    "dailyUse": 10.891,
    "days": 19.8,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "insulin detemir||injection|10ml|vial",
+   "presentationLabel": "injection, 10 mL vial",
    "evidence": "E4"
   },
   {
@@ -220,86 +243,107 @@
    "onHand": 82,
    "dailyUse": 12.296,
    "days": 6.7,
-   "unit": "package",
+   "unit": "syringe",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 5, converted to units",
+   "presentation": "insulin lispro|100u/ml|injection|3ml|syringe",
+   "presentationLabel": "100 U/mL injection, 3 mL syringe",
    "evidence": "E5"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-242",
    "ndc11": "00169220125",
-   "description": "insulin aspart",
+   "description": "insulin aspart 100 units/mL",
    "labeler": "Novo Nordisk Pharmaceutical Industries, LP",
-   "onHand": 175.72,
+   "onHand": 175,
    "dailyUse": 11.675,
-   "days": 15.1,
+   "days": 15,
    "unit": "syringe",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "insulin aspart||injection|3ml|syringe",
+   "presentationLabel": "injection, 3 mL syringe",
    "evidence": "E6"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-243",
    "ndc11": "50090127600",
-   "description": "insulin detemir",
+   "description": "insulin detemir 100 units/mL",
    "labeler": "A-S Medication Solutions",
-   "onHand": 264.72,
+   "onHand": 264,
    "dailyUse": 12.181,
    "days": 21.7,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "insulin detemir||injection|10ml|vial",
+   "presentationLabel": "injection, 10 mL vial",
    "evidence": "E7"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-244",
    "ndc11": "00955390003",
-   "description": "insulin glargine",
+   "description": "insulin glargine 300 units/mL",
    "labeler": "Sanofi-Aventis U.S. LLC",
-   "onHand": 172.62,
+   "onHand": 172,
    "dailyUse": 12.17,
-   "days": 14.2,
+   "days": 14.1,
    "unit": "syringe",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "insulin glargine||injection|1.5ml|syringe",
+   "presentationLabel": "injection, 1.5 mL syringe",
    "evidence": "E8"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-245",
    "ndc11": "00088250205",
-   "description": "insulin glulisine",
+   "description": "insulin glulisine 100 units/mL",
    "labeler": "sanofi-aventis U.S. LLC",
-   "onHand": 277.17,
+   "onHand": 277,
    "dailyUse": 12.063,
    "days": 23,
    "unit": "syringe",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "insulin glulisine||injection|3ml|syringe",
+   "presentationLabel": "injection, 3 mL syringe",
    "evidence": "E9"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-246",
    "ndc11": "00338012612",
-   "description": "insulin human",
+   "description": "insulin human 1 units/mL",
    "labeler": "Baxter Healthcare Corporation",
-   "onHand": 338.4,
+   "onHand": 338,
    "dailyUse": 12.198,
    "days": 27.7,
    "unit": "each",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "insulin human||injection|100ml|each",
+   "presentationLabel": "injection, 100 mL each",
    "evidence": "E10"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-247",
    "ndc11": "70518427500",
-   "description": "insulin lispro",
+   "description": "insulin lispro 100 U/mL",
    "labeler": "REMEDYREPACK INC.",
-   "onHand": 268.02,
+   "onHand": 268,
    "dailyUse": 12.575,
    "days": 21.3,
    "unit": "syringe",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "insulin lispro|100u/ml|injection|3ml|syringe",
+   "presentationLabel": "100 U/mL injection, 3 mL syringe",
    "evidence": "E11"
   },
   {
@@ -313,6 +357,9 @@
    "days": 25.6,
    "unit": "syringe",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "insulin glulisine||injection|3ml|syringe",
+   "presentationLabel": "injection, 3 mL syringe",
    "evidence": "E12"
   },
   {
@@ -326,6 +373,9 @@
    "days": 5.3,
    "unit": "syringe",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "insulin aspart||injection|3ml|syringe",
+   "presentationLabel": "injection, 3 mL syringe",
    "evidence": "E13"
   },
   {
@@ -338,7 +388,10 @@
    "dailyUse": 3.06,
    "days": 16.7,
    "unit": "each",
-   "ndcMatch": "repaired: leading zero restored",
+   "ndcMatch": "repaired: undashed, only the 4-4-2 reading is in FDA",
+   "unitBasis": "units of use, as exported",
+   "presentation": "insulin human||injection|100ml|each",
+   "presentationLabel": "injection, 100 mL each",
    "evidence": "E14"
   },
   {
@@ -352,7 +405,258 @@
    "days": 26.5,
    "unit": "syringe",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "insulin glargine||injection|1.5ml|syringe",
+   "presentationLabel": "injection, 1.5 mL syringe",
    "evidence": "E15"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "insulin aspart||injection|3ml|syringe",
+   "label": "injection, 3 mL syringe",
+   "short": "3 mL",
+   "unit": "syringe",
+   "onHand": 194,
+   "dailyUse": 15.272,
+   "days": 12.7,
+   "hospitals": [
+    {
+     "hospital": "Corvale General",
+     "onHand": 175,
+     "dailyUse": 11.675,
+     "days": 15,
+     "lines": [
+      "CG-242"
+     ],
+     "evidence": [
+      "E6"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 19,
+     "dailyUse": 3.597,
+     "days": 5.3,
+     "lines": [
+      "LS-LS-0018"
+     ],
+     "evidence": [
+      "E13"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "insulin lispro|100u/ml|injection|3ml|syringe",
+   "label": "100 U/mL injection, 3 mL syringe",
+   "short": "100 U/mL, 3 mL",
+   "unit": "syringe",
+   "onHand": 350,
+   "dailyUse": 24.871,
+   "days": 14.1,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 82,
+     "dailyUse": 12.296,
+     "days": 6.7,
+     "lines": [
+      "EA-E-000268"
+     ],
+     "evidence": [
+      "E5"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 268,
+     "dailyUse": 12.575,
+     "days": 21.3,
+     "lines": [
+      "CG-247"
+     ],
+     "evidence": [
+      "E11"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "insulin glargine||injection|1.5ml|syringe",
+   "label": "injection, 1.5 mL syringe",
+   "short": "1.5 mL",
+   "unit": "syringe",
+   "onHand": 336,
+   "dailyUse": 27.428,
+   "days": 12.3,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 94,
+     "dailyUse": 12.621,
+     "days": 7.4,
+     "lines": [
+      "EA-E-000130"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 172,
+     "dailyUse": 12.17,
+     "days": 14.1,
+     "lines": [
+      "CG-244"
+     ],
+     "evidence": [
+      "E8"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 70,
+     "dailyUse": 2.637,
+     "days": 26.5,
+     "lines": [
+      "LS-LS-0052"
+     ],
+     "evidence": [
+      "E15"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "insulin human||injection|100ml|each",
+   "label": "injection, 100 mL each",
+   "short": "100 mL",
+   "unit": "each",
+   "onHand": 657,
+   "dailyUse": 25.248,
+   "days": 26,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 268,
+     "dailyUse": 9.99,
+     "days": 26.8,
+     "lines": [
+      "EA-E-000061"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 338,
+     "dailyUse": 12.198,
+     "days": 27.7,
+     "lines": [
+      "CG-246"
+     ],
+     "evidence": [
+      "E10"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 51,
+     "dailyUse": 3.06,
+     "days": 16.7,
+     "lines": [
+      "LS-LS-0027"
+     ],
+     "evidence": [
+      "E14"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "insulin detemir||injection|10ml|vial",
+   "label": "injection, 10 mL vial",
+   "short": "10 mL",
+   "unit": "vial",
+   "onHand": 480,
+   "dailyUse": 23.072,
+   "days": 20.8,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 216,
+     "dailyUse": 10.891,
+     "days": 19.8,
+     "lines": [
+      "EA-E-000164"
+     ],
+     "evidence": [
+      "E4"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 264,
+     "dailyUse": 12.181,
+     "days": 21.7,
+     "lines": [
+      "CG-243"
+     ],
+     "evidence": [
+      "E7"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "insulin glulisine||injection|3ml|syringe",
+   "label": "injection, 3 mL syringe",
+   "short": "3 mL",
+   "unit": "syringe",
+   "onHand": 605,
+   "dailyUse": 24.492,
+   "days": 24.7,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 268,
+     "dailyUse": 10.089,
+     "days": 26.6,
+     "lines": [
+      "EA-E-000012"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 277,
+     "dailyUse": 12.063,
+     "days": 23,
+     "lines": [
+      "CG-245"
+     ],
+     "evidence": [
+      "E9"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 60,
+     "dailyUse": 2.34,
+     "days": 25.6,
+     "lines": [
+      "LS-LS-0004"
+     ],
+     "evidence": [
+      "E12"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -948,7 +1252,7 @@
      "last": null
     }
    ],
-   "onShortageList": false,
+   "onShortageList": true,
    "inOurStock": false
   },
   {
@@ -1057,13 +1361,96 @@
  ],
  "options": [
   {
-   "kind": "alternate_manufacturer",
-   "rank": 2,
-   "title": "Buy from Eli Lilly and Company",
-   "detail": "Not on FDA's shortage list today. Plants: Eli Lilly and Company Indianapolis.",
-   "why": "Same product, no clinical change, plant record clear.",
-   "needs": "buyer",
-   "evidence": []
+   "kind": "transfer",
+   "rank": 1,
+   "title": "Transfer 11 syringes of 3 mL from Corvale General to Corvale Lakeside",
+   "detail": "Corvale General has 15 days of injection, 3 mL syringes on hand and can spare 11 syringes while keeping two weeks; Corvale Lakeside has 5.3 days and would reach 8.",
+   "why": "Same presentation, no clinical change, no new supplier.",
+   "needs": "pharmacy director (transfer request)",
+   "evidence": [
+    "E6",
+    "E13"
+   ],
+   "transfer": {
+    "qty": 11,
+    "unit": "syringe",
+    "presentation": "injection, 3 mL syringe",
+    "from": "Corvale General",
+    "to": "Corvale Lakeside",
+    "fromDays": 15,
+    "toDays": 5.3,
+    "fromAfter": 14,
+    "toAfter": 8
+   }
+  },
+  {
+   "kind": "transfer",
+   "rank": 1,
+   "title": "Transfer 91 syringes of 100 U/mL, 3 mL from Corvale General to Corvale East",
+   "detail": "Corvale General has 21 days of 100 U/mL injection, 3 mL syringes on hand and can spare 91 syringes while keeping two weeks; Corvale East has 6.7 days and would reach 14.",
+   "why": "Same presentation, no clinical change, no new supplier.",
+   "needs": "pharmacy director (transfer request)",
+   "evidence": [
+    "E11",
+    "E5"
+   ],
+   "transfer": {
+    "qty": 91,
+    "unit": "syringe",
+    "presentation": "100 U/mL injection, 3 mL syringe",
+    "from": "Corvale General",
+    "to": "Corvale East",
+    "fromDays": 21.3,
+    "toDays": 6.7,
+    "fromAfter": 14,
+    "toAfter": 14
+   }
+  },
+  {
+   "kind": "transfer",
+   "rank": 1,
+   "title": "Transfer 33 syringes of 1.5 mL from Corvale Lakeside to Corvale East",
+   "detail": "Corvale Lakeside has 27 days of injection, 1.5 mL syringes on hand and can spare 33 syringes while keeping two weeks; Corvale East has 7.4 days and would reach 10.",
+   "why": "Same presentation, no clinical change, no new supplier.",
+   "needs": "pharmacy director (transfer request)",
+   "evidence": [
+    "E15",
+    "E3"
+   ],
+   "transfer": {
+    "qty": 33,
+    "unit": "syringe",
+    "presentation": "injection, 1.5 mL syringe",
+    "from": "Corvale Lakeside",
+    "to": "Corvale East",
+    "fromDays": 26.5,
+    "toDays": 7.4,
+    "fromAfter": 14,
+    "toAfter": 10
+   }
+  },
+  {
+   "kind": "transfer",
+   "rank": 1,
+   "title": "Transfer 1 syringe of 1.5 mL from Corvale General to Corvale East",
+   "detail": "Corvale General has 14 days of injection, 1.5 mL syringes on hand and can spare 1 syringe while keeping two weeks; Corvale East has 7.4 days and would reach 8.",
+   "why": "Same presentation, no clinical change, no new supplier.",
+   "needs": "pharmacy director (transfer request)",
+   "evidence": [
+    "E8",
+    "E3"
+   ],
+   "transfer": {
+    "qty": 1,
+    "unit": "syringe",
+    "presentation": "injection, 1.5 mL syringe",
+    "from": "Corvale General",
+    "to": "Corvale East",
+    "fromDays": 14.1,
+    "toDays": 7.4,
+    "fromAfter": 14,
+    "toAfter": 8
+   }
   },
   {
    "kind": "alternate_manufacturer",
@@ -1319,46 +1706,61 @@
   }
  ],
  "explanation": {
-  "state": "confirmed",
-  "headline": "FDA's records trace our supply to plants with OAI classifications and a Warning Letter within the past year",
+  "state": "check",
+  "headline": "Insulin glulisine is not on FDA's shortage list as of 2026-10-21; FDA records show a registered plant for Baxter Healthcare Corporation classified OAI on 2026-04-02 and a Warning Letter on 2026-09-29",
   "sentences": [
    {
-    "text": "The Baxter Healthcare Corporation plant that manufactures insulin glulisine for our Baxter-labeled product received an OAI classification on 2026-04-02 and a Warning Letter on 2026-09-29.",
+    "text": "FDA's drug shortage list does not include insulin glulisine as of 2026-10-21.",
     "cites": [
-     "E32",
+     "D16"
+    ]
+   },
+   {
+    "text": "A registered plant for Baxter Healthcare Corporation (FEI 1416980) was classified OAI after an inspection that ended 2026-04-02.",
+    "cites": [
+     "E35",
+     "E32"
+    ]
+   },
+   {
+    "text": "FDA issued a Warning Letter to Baxter Healthcare Corporation on 2026-09-29 for the same plant.",
+    "cites": [
      "E33"
     ]
    },
    {
-    "text": "The Sanofi-Aventis Deutschland GmbH plant that manufactures insulin glulisine for our Sanofi-labeled product received an OAI classification on 2010-09-16 and a Warning Letter on 2011-02-08.",
+    "text": "Sanofi-Aventis Deutschland GmbH (FEI 3003195501) has a registered plant with a most recent VAI inspection ending 2022-03-25 and a prior OAI inspection ending 2010-09-16.",
     "cites": [
-     "E17",
-     "E24"
+     "E25",
+     "E23",
+     "E17"
     ]
    },
    {
-    "text": "Corvale East has 17 days of insulin glulisine on hand, Corvale General has 21 days, and Corvale Lakeside has 17 days.",
+    "text": "Genzyme Corporation (FEI 3009389940) is a registered plant with a NAI inspection ending 2016-08-18.",
     "cites": [
-     "D1",
+     "E37",
+     "E36"
+    ]
+   },
+   {
+    "text": "A-S Medication Solutions (FEI 1450743) is a registered plant with a VAI inspection ending 2026-08-12.",
+    "cites": [
+     "E44",
+     "E42"
+    ]
+   },
+   {
+    "text": "Corvale Lakeside holds 19 syringes of insulin glulisine 3 mL at 3.6 per day for 5.3 days on hand; Corvale General holds 175 syringes at 11.7 per day for 15 days on hand and can spare 11 syringes while keeping two weeks, raising Lakeside to 8 days.",
+    "cites": [
      "D2",
-     "D3"
-    ]
-   },
-   {
-    "text": "Eli Lilly and Company's Indianapolis plant is not on FDA's shortage list for insulin glulisine as of today.",
-    "cites": [
-     "E58"
-    ]
-   },
-   {
-    "text": "The best option by rule is to buy from Eli Lilly and Company.",
-    "cites": [
-     "E58"
+     "D1",
+     "D17"
     ]
    }
   ],
   "verifier": {
-   "checked": 6,
+   "checked": 8,
    "rejected": [],
    "repaired": 0
   },
@@ -1367,45 +1769,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -1420,87 +1843,87 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:53:43.805Z",
+   "at": "2026-10-22T12:08:46.212Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract ZMP9AHST scope"
+   "reason": "in contract FE55M4AM scope"
   },
   {
-   "at": "2026-10-22T07:53:43.806Z",
+   "at": "2026-10-22T12:08:46.212Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract ZMP9AHST scope"
+   "reason": "in contract FE55M4AM scope"
   },
   {
-   "at": "2026-10-22T07:53:47.190Z",
+   "at": "2026-10-22T12:08:50.796Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract ZMP9AHST scope"
+   "reason": "in contract FE55M4AM scope"
   },
   {
-   "at": "2026-10-22T07:53:48.061Z",
+   "at": "2026-10-22T12:08:51.585Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract ZMP9AHST scope"
+   "reason": "in contract FE55M4AM scope"
   },
   {
-   "at": "2026-10-22T07:53:48.499Z",
+   "at": "2026-10-22T12:08:51.875Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract ZMP9AHST scope"
+   "reason": "in contract FE55M4AM scope"
   },
   {
-   "at": "2026-10-22T07:53:51.083Z",
+   "at": "2026-10-22T12:08:53.187Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract ZMP9AHST scope"
+   "reason": "in contract FE55M4AM scope"
   },
   {
-   "at": "2026-10-22T07:53:52.283Z",
+   "at": "2026-10-22T12:08:54.015Z",
    "action": "What FDA wrote at the OAI inspections",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract ZMP9AHST scope"
+   "reason": "in contract FE55M4AM scope"
   },
   {
-   "at": "2026-10-22T07:53:52.595Z",
+   "at": "2026-10-22T12:08:54.229Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract ZMP9AHST scope"
+   "reason": "in contract FE55M4AM scope"
   },
   {
-   "at": "2026-10-22T07:53:53.959Z",
+   "at": "2026-10-22T12:08:54.995Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract ZMP9AHST scope"
+   "reason": "in contract FE55M4AM scope"
   },
   {
-   "at": "2026-10-22T07:53:55.530Z",
+   "at": "2026-10-22T12:08:56.647Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract ZMP9AHST scope"
+   "reason": "in contract FE55M4AM scope"
   },
   {
-   "at": "2026-10-22T07:53:55.532Z",
+   "at": "2026-10-22T12:08:56.648Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract ZMP9AHST scope"
+   "reason": "in contract FE55M4AM scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-f46b88",
+   "queryId": "Q-8898c5",
    "row": 0,
    "label": "Corvale East: INSULIN GLULISINE 100UNITS/ML 3ML SYR",
    "fields": {
@@ -1511,19 +1934,24 @@
     "description": "INSULIN GLULISINE 100UNITS/ML 3ML SYR",
     "on_hand": "268.00",
     "daily_use": "10.089",
-    "unit": "package",
+    "unit": "syringe",
+    "pkg_units": "5.00",
+    "unit_basis": "packages of 5, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "insulin glulisine",
     "labeler_name": "sanofi-aventis U.S. LLC",
     "package_ndc": "0088-2502-05",
     "spl_set_id": "e7af6a7a-8046-4fb4-9979-4ec4230b23aa",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "SUBCUTANEOUS"
+    "route": "SUBCUTANEOUS",
+    "strength": "INSULIN GLULISINE 100 [iU]/mL",
+    "unit_content": "3 mL",
+    "pkg_unit": "syringe"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-f46b88",
+   "queryId": "Q-8898c5",
    "row": 1,
    "label": "Corvale East: INSULIN HUMAN 1UNITS/ML",
    "fields": {
@@ -1534,19 +1962,24 @@
     "description": "INSULIN HUMAN 1UNITS/ML",
     "on_hand": "268.00",
     "daily_use": "9.990",
-    "unit": "package",
+    "unit": "each",
+    "pkg_units": "12.00",
+    "unit_basis": "packages of 12, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "insulin human",
     "labeler_name": "Baxter Healthcare Corporation",
     "package_ndc": "0338-0126-12",
     "spl_set_id": "afca6e80-a802-49fb-a978-5fe28a173001",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "INSULIN HUMAN 1 [iU]/mL",
+    "unit_content": "100 mL",
+    "pkg_unit": "container"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-f46b88",
+   "queryId": "Q-8898c5",
    "row": 2,
    "label": "Corvale East: INSULIN GLARGINE 300UNITS/ML 1.5ML SYR",
    "fields": {
@@ -1557,19 +1990,24 @@
     "description": "INSULIN GLARGINE 300UNITS/ML 1.5ML SYR",
     "on_hand": "94.00",
     "daily_use": "12.621",
-    "unit": "package",
+    "unit": "syringe",
+    "pkg_units": "3.00",
+    "unit_basis": "packages of 3, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "insulin glargine",
     "labeler_name": "Sanofi-Aventis U.S. LLC",
     "package_ndc": "0955-3900-03",
     "spl_set_id": "99ea856d-9562-443a-9422-1006a3cff2f4",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "SUBCUTANEOUS"
+    "route": "SUBCUTANEOUS",
+    "strength": "INSULIN GLARGINE 300 [iU]/mL",
+    "unit_content": "1.5 mL",
+    "pkg_unit": "syringe"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-f46b88",
+   "queryId": "Q-8898c5",
    "row": 3,
    "label": "Corvale East: INSULIN DETEMIR 100UNITS/ML 10ML SDV",
    "fields": {
@@ -1580,19 +2018,24 @@
     "description": "INSULIN DETEMIR 100UNITS/ML 10ML SDV",
     "on_hand": "216.00",
     "daily_use": "10.891",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "insulin detemir",
     "labeler_name": "A-S Medication Solutions",
     "package_ndc": "50090-1276-0",
     "spl_set_id": "82192527-99aa-4b53-8ce9-9173668d309c",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "SUBCUTANEOUS"
+    "route": "SUBCUTANEOUS",
+    "strength": "INSULIN DETEMIR 100 [iU]/mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E5": {
    "id": "E5",
-   "queryId": "Q-f46b88",
+   "queryId": "Q-8898c5",
    "row": 4,
    "label": "Corvale East: INSULIN LISPRO 100U/ML 3ML SYR",
    "fields": {
@@ -1603,157 +2046,192 @@
     "description": "INSULIN LISPRO 100U/ML 3ML SYR",
     "on_hand": "82.00",
     "daily_use": "12.296",
-    "unit": "package",
+    "unit": "syringe",
+    "pkg_units": "5.00",
+    "unit_basis": "packages of 5, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "insulin lispro",
     "labeler_name": "REMEDYREPACK INC.",
     "package_ndc": "70518-4275-0",
     "spl_set_id": "12ec9e3f-e2ac-43a1-b334-8b6538cf2bb0",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "SUBCUTANEOUS"
+    "route": "SUBCUTANEOUS",
+    "strength": "INSULIN LISPRO 100 U/mL",
+    "unit_content": "3 mL",
+    "pkg_unit": "syringe"
    }
   },
   "E6": {
    "id": "E6",
-   "queryId": "Q-f46b88",
+   "queryId": "Q-8898c5",
    "row": 5,
-   "label": "Corvale General: insulin aspart",
+   "label": "Corvale General: insulin aspart 100 units/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-242",
     "ndc11": "00169220125",
     "ndc_as_recorded": "00169220125",
-    "description": "insulin aspart",
-    "on_hand": "175.72",
+    "description": "insulin aspart 100 units/mL",
+    "on_hand": "175.00",
     "daily_use": "11.675",
     "unit": "syringe",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "insulin aspart",
     "labeler_name": "Novo Nordisk Pharmaceutical Industries, LP",
     "package_ndc": "0169-2201-25",
     "spl_set_id": null,
     "dosage_form": "INJECTION, SUSPENSION",
-    "route": "SUBCUTANEOUS"
+    "route": "SUBCUTANEOUS",
+    "strength": "INSULIN ASPART 100 [iU]/mL",
+    "unit_content": "3 mL",
+    "pkg_unit": "syringe"
    }
   },
   "E7": {
    "id": "E7",
-   "queryId": "Q-f46b88",
+   "queryId": "Q-8898c5",
    "row": 6,
-   "label": "Corvale General: insulin detemir",
+   "label": "Corvale General: insulin detemir 100 units/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-243",
     "ndc11": "50090127600",
     "ndc_as_recorded": "50090127600",
-    "description": "insulin detemir",
-    "on_hand": "264.72",
+    "description": "insulin detemir 100 units/mL",
+    "on_hand": "264.00",
     "daily_use": "12.181",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "insulin detemir",
     "labeler_name": "A-S Medication Solutions",
     "package_ndc": "50090-1276-0",
     "spl_set_id": "82192527-99aa-4b53-8ce9-9173668d309c",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "SUBCUTANEOUS"
+    "route": "SUBCUTANEOUS",
+    "strength": "INSULIN DETEMIR 100 [iU]/mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E8": {
    "id": "E8",
-   "queryId": "Q-f46b88",
+   "queryId": "Q-8898c5",
    "row": 7,
-   "label": "Corvale General: insulin glargine",
+   "label": "Corvale General: insulin glargine 300 units/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-244",
     "ndc11": "00955390003",
     "ndc_as_recorded": "00955390003",
-    "description": "insulin glargine",
-    "on_hand": "172.62",
+    "description": "insulin glargine 300 units/mL",
+    "on_hand": "172.00",
     "daily_use": "12.170",
     "unit": "syringe",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "insulin glargine",
     "labeler_name": "Sanofi-Aventis U.S. LLC",
     "package_ndc": "0955-3900-03",
     "spl_set_id": "99ea856d-9562-443a-9422-1006a3cff2f4",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "SUBCUTANEOUS"
+    "route": "SUBCUTANEOUS",
+    "strength": "INSULIN GLARGINE 300 [iU]/mL",
+    "unit_content": "1.5 mL",
+    "pkg_unit": "syringe"
    }
   },
   "E9": {
    "id": "E9",
-   "queryId": "Q-f46b88",
+   "queryId": "Q-8898c5",
    "row": 8,
-   "label": "Corvale General: insulin glulisine",
+   "label": "Corvale General: insulin glulisine 100 units/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-245",
     "ndc11": "00088250205",
     "ndc_as_recorded": "00088250205",
-    "description": "insulin glulisine",
-    "on_hand": "277.17",
+    "description": "insulin glulisine 100 units/mL",
+    "on_hand": "277.00",
     "daily_use": "12.063",
     "unit": "syringe",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "insulin glulisine",
     "labeler_name": "sanofi-aventis U.S. LLC",
     "package_ndc": "0088-2502-05",
     "spl_set_id": "e7af6a7a-8046-4fb4-9979-4ec4230b23aa",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "SUBCUTANEOUS"
+    "route": "SUBCUTANEOUS",
+    "strength": "INSULIN GLULISINE 100 [iU]/mL",
+    "unit_content": "3 mL",
+    "pkg_unit": "syringe"
    }
   },
   "E10": {
    "id": "E10",
-   "queryId": "Q-f46b88",
+   "queryId": "Q-8898c5",
    "row": 9,
-   "label": "Corvale General: insulin human",
+   "label": "Corvale General: insulin human 1 units/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-246",
     "ndc11": "00338012612",
     "ndc_as_recorded": "00338012612",
-    "description": "insulin human",
-    "on_hand": "338.40",
+    "description": "insulin human 1 units/mL",
+    "on_hand": "338.00",
     "daily_use": "12.198",
     "unit": "each",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "insulin human",
     "labeler_name": "Baxter Healthcare Corporation",
     "package_ndc": "0338-0126-12",
     "spl_set_id": "afca6e80-a802-49fb-a978-5fe28a173001",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "INSULIN HUMAN 1 [iU]/mL",
+    "unit_content": "100 mL",
+    "pkg_unit": "container"
    }
   },
   "E11": {
    "id": "E11",
-   "queryId": "Q-f46b88",
+   "queryId": "Q-8898c5",
    "row": 10,
-   "label": "Corvale General: insulin lispro",
+   "label": "Corvale General: insulin lispro 100 U/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-247",
     "ndc11": "70518427500",
     "ndc_as_recorded": "70518427500",
-    "description": "insulin lispro",
-    "on_hand": "268.02",
+    "description": "insulin lispro 100 U/mL",
+    "on_hand": "268.00",
     "daily_use": "12.575",
     "unit": "syringe",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "insulin lispro",
     "labeler_name": "REMEDYREPACK INC.",
     "package_ndc": "70518-4275-0",
     "spl_set_id": "12ec9e3f-e2ac-43a1-b334-8b6538cf2bb0",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "SUBCUTANEOUS"
+    "route": "SUBCUTANEOUS",
+    "strength": "INSULIN LISPRO 100 U/mL",
+    "unit_content": "3 mL",
+    "pkg_unit": "syringe"
    }
   },
   "E12": {
    "id": "E12",
-   "queryId": "Q-f46b88",
+   "queryId": "Q-8898c5",
    "row": 11,
    "label": "Corvale Lakeside: insulin glulisine 100 units/mL 3 mL syringe",
    "fields": {
@@ -1765,18 +2243,23 @@
     "on_hand": "60.00",
     "daily_use": "2.340",
     "unit": "syringe",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "insulin glulisine",
     "labeler_name": "sanofi-aventis U.S. LLC",
     "package_ndc": "0088-2502-05",
     "spl_set_id": "e7af6a7a-8046-4fb4-9979-4ec4230b23aa",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "SUBCUTANEOUS"
+    "route": "SUBCUTANEOUS",
+    "strength": "INSULIN GLULISINE 100 [iU]/mL",
+    "unit_content": "3 mL",
+    "pkg_unit": "syringe"
    }
   },
   "E13": {
    "id": "E13",
-   "queryId": "Q-f46b88",
+   "queryId": "Q-8898c5",
    "row": 12,
    "label": "Corvale Lakeside: insulin aspart 100 units/mL 3 mL syringe",
    "fields": {
@@ -1788,18 +2271,23 @@
     "on_hand": "19.00",
     "daily_use": "3.597",
     "unit": "syringe",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "insulin aspart",
     "labeler_name": "Novo Nordisk Pharmaceutical Industries, LP",
     "package_ndc": "0169-2201-25",
     "spl_set_id": null,
     "dosage_form": "INJECTION, SUSPENSION",
-    "route": "SUBCUTANEOUS"
+    "route": "SUBCUTANEOUS",
+    "strength": "INSULIN ASPART 100 [iU]/mL",
+    "unit_content": "3 mL",
+    "pkg_unit": "syringe"
    }
   },
   "E14": {
    "id": "E14",
-   "queryId": "Q-f46b88",
+   "queryId": "Q-8898c5",
    "row": 13,
    "label": "Corvale Lakeside: insulin human 1 units/mL",
    "fields": {
@@ -1811,18 +2299,23 @@
     "on_hand": "51.00",
     "daily_use": "3.060",
     "unit": "each",
-    "ndc_match": "repaired: leading zero restored",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
+    "ndc_match": "repaired: undashed, only the 4-4-2 reading is in FDA",
     "generic_name": "insulin human",
     "labeler_name": "Baxter Healthcare Corporation",
     "package_ndc": "0338-0126-12",
     "spl_set_id": "afca6e80-a802-49fb-a978-5fe28a173001",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "INSULIN HUMAN 1 [iU]/mL",
+    "unit_content": "100 mL",
+    "pkg_unit": "container"
    }
   },
   "E15": {
    "id": "E15",
-   "queryId": "Q-f46b88",
+   "queryId": "Q-8898c5",
    "row": 14,
    "label": "Corvale Lakeside: insulin glargine 300 units/mL 1 mL syringe",
    "fields": {
@@ -1834,13 +2327,18 @@
     "on_hand": "70.00",
     "daily_use": "2.637",
     "unit": "syringe",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "insulin glargine",
     "labeler_name": "Sanofi-Aventis U.S. LLC",
     "package_ndc": "0955-3900-03",
     "spl_set_id": "99ea856d-9562-443a-9422-1006a3cff2f4",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "SUBCUTANEOUS"
+    "route": "SUBCUTANEOUS",
+    "strength": "INSULIN GLARGINE 300 [iU]/mL",
+    "unit_content": "1.5 mL",
+    "pkg_unit": "syringe"
    }
   },
   "E16": {
@@ -2316,7 +2814,7 @@
   },
   "E46": {
    "id": "E46",
-   "queryId": "Q-b33d41",
+   "queryId": "Q-f2fb1f",
    "row": 0,
    "label": "Recall D-0620-2021",
    "fields": {
@@ -2334,7 +2832,7 @@
   },
   "E47": {
    "id": "E47",
-   "queryId": "Q-b33d41",
+   "queryId": "Q-f2fb1f",
    "row": 1,
    "label": "Recall D-0619-2021",
    "fields": {
@@ -2352,7 +2850,7 @@
   },
   "E48": {
    "id": "E48",
-   "queryId": "Q-b33d41",
+   "queryId": "Q-f2fb1f",
    "row": 2,
    "label": "Recall D-0621-2021",
    "fields": {
@@ -2370,7 +2868,7 @@
   },
   "E49": {
    "id": "E49",
-   "queryId": "Q-b33d41",
+   "queryId": "Q-f2fb1f",
    "row": 3,
    "label": "Recall D-0623-2021",
    "fields": {
@@ -2388,7 +2886,7 @@
   },
   "E50": {
    "id": "E50",
-   "queryId": "Q-b33d41",
+   "queryId": "Q-f2fb1f",
    "row": 4,
    "label": "Recall D-0613-2021",
    "fields": {
@@ -2406,7 +2904,7 @@
   },
   "E51": {
    "id": "E51",
-   "queryId": "Q-b33d41",
+   "queryId": "Q-f2fb1f",
    "row": 5,
    "label": "Recall D-0611-2021",
    "fields": {
@@ -2424,7 +2922,7 @@
   },
   "E52": {
    "id": "E52",
-   "queryId": "Q-b33d41",
+   "queryId": "Q-f2fb1f",
    "row": 6,
    "label": "Recall D-0612-2021",
    "fields": {
@@ -2442,7 +2940,7 @@
   },
   "E53": {
    "id": "E53",
-   "queryId": "Q-b33d41",
+   "queryId": "Q-f2fb1f",
    "row": 7,
    "label": "Recall D-0615-2021",
    "fields": {
@@ -2460,7 +2958,7 @@
   },
   "E54": {
    "id": "E54",
-   "queryId": "Q-b33d41",
+   "queryId": "Q-f2fb1f",
    "row": 8,
    "label": "Recall D-0614-2021",
    "fields": {
@@ -2478,7 +2976,7 @@
   },
   "E55": {
    "id": "E55",
-   "queryId": "Q-b33d41",
+   "queryId": "Q-f2fb1f",
    "row": 9,
    "label": "Recall D-0616-2021",
    "fields": {
@@ -2496,7 +2994,7 @@
   },
   "E56": {
    "id": "E56",
-   "queryId": "Q-b33d41",
+   "queryId": "Q-f2fb1f",
    "row": 10,
    "label": "Recall D-0575-2023",
    "fields": {
@@ -2514,7 +3012,7 @@
   },
   "E57": {
    "id": "E57",
-   "queryId": "Q-b33d41",
+   "queryId": "Q-f2fb1f",
    "row": 11,
    "label": "Recall D-0806-2026",
    "fields": {
@@ -2532,7 +3030,7 @@
   },
   "E58": {
    "id": "E58",
-   "queryId": "Q-a72e3d",
+   "queryId": "Q-4505d2",
    "row": 0,
    "label": "FDA shortage list: Eli Lilly and Co., To Be Discontinued",
    "fields": {
@@ -2549,208 +3047,426 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 928 units of insulin glulisine at 55.9 a day: 17 days on hand",
+   "label": "Corvale General holds 175 syringes of insulin glulisine 3 mL at 11.7 a day: 15 days on hand",
    "fields": {
-    "hospital": "Corvale East",
-    "on_hand": 928,
-    "daily_use": 55.9,
-    "days_on_hand": 17
+    "hospital": "Corvale General",
+    "presentation": "injection, 3 mL syringe",
+    "on_hand": 175,
+    "daily_use": 11.7,
+    "days_on_hand": 15
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 1497 units of insulin glulisine at 72.9 a day: 21 days on hand",
+   "label": "Corvale Lakeside holds 19 syringes of insulin glulisine 3 mL at 3.6 a day: 5.3 days on hand",
    "fields": {
-    "hospital": "Corvale General",
-    "on_hand": 1497,
-    "daily_use": 72.9,
-    "days_on_hand": 21
+    "hospital": "Corvale Lakeside",
+    "presentation": "injection, 3 mL syringe",
+    "on_hand": 19,
+    "daily_use": 3.6,
+    "days_on_hand": 5.3
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 200 units of insulin glulisine at 11.6 a day: 17 days on hand",
+   "label": "Corvale East holds 82 syringes of insulin glulisine 100 U/mL, 3 mL at 12.3 a day: 6.7 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "100 U/mL injection, 3 mL syringe",
+    "on_hand": 82,
+    "daily_use": 12.3,
+    "days_on_hand": 6.7
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 268 syringes of insulin glulisine 100 U/mL, 3 mL at 12.6 a day: 21.3 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "100 U/mL injection, 3 mL syringe",
+    "on_hand": 268,
+    "daily_use": 12.6,
+    "days_on_hand": 21.3
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale East holds 94 syringes of insulin glulisine 1.5 mL at 12.6 a day: 7.4 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "injection, 1.5 mL syringe",
+    "on_hand": 94,
+    "daily_use": 12.6,
+    "days_on_hand": 7.4
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 172 syringes of insulin glulisine 1.5 mL at 12.2 a day: 14.1 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "injection, 1.5 mL syringe",
+    "on_hand": 172,
+    "daily_use": 12.2,
+    "days_on_hand": 14.1
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale Lakeside holds 70 syringes of insulin glulisine 1.5 mL at 2.6 a day: 26.5 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
-    "on_hand": 200,
-    "daily_use": 11.6,
-    "days_on_hand": 17
+    "presentation": "injection, 1.5 mL syringe",
+    "on_hand": 70,
+    "daily_use": 2.6,
+    "days_on_hand": 26.5
+   }
+  },
+  "D8": {
+   "id": "D8",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale East holds 268 eachs of insulin glulisine 100 mL at 10 a day: 26.8 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "injection, 100 mL each",
+    "on_hand": 268,
+    "daily_use": 10,
+    "days_on_hand": 26.8
+   }
+  },
+  "D9": {
+   "id": "D9",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 338 eachs of insulin glulisine 100 mL at 12.2 a day: 27.7 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "injection, 100 mL each",
+    "on_hand": 338,
+    "daily_use": 12.2,
+    "days_on_hand": 27.7
+   }
+  },
+  "D10": {
+   "id": "D10",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale Lakeside holds 51 eachs of insulin glulisine 100 mL at 3.1 a day: 16.7 days on hand",
+   "fields": {
+    "hospital": "Corvale Lakeside",
+    "presentation": "injection, 100 mL each",
+    "on_hand": 51,
+    "daily_use": 3.1,
+    "days_on_hand": 16.7
+   }
+  },
+  "D11": {
+   "id": "D11",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale East holds 216 vials of insulin glulisine 10 mL at 10.9 a day: 19.8 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "injection, 10 mL vial",
+    "on_hand": 216,
+    "daily_use": 10.9,
+    "days_on_hand": 19.8
+   }
+  },
+  "D12": {
+   "id": "D12",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 264 vials of insulin glulisine 10 mL at 12.2 a day: 21.7 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "injection, 10 mL vial",
+    "on_hand": 264,
+    "daily_use": 12.2,
+    "days_on_hand": 21.7
+   }
+  },
+  "D13": {
+   "id": "D13",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale East holds 268 syringes of insulin glulisine 3 mL at 10.1 a day: 26.6 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "injection, 3 mL syringe",
+    "on_hand": 268,
+    "daily_use": 10.1,
+    "days_on_hand": 26.6
+   }
+  },
+  "D14": {
+   "id": "D14",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 277 syringes of insulin glulisine 3 mL at 12.1 a day: 23 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "injection, 3 mL syringe",
+    "on_hand": 277,
+    "daily_use": 12.1,
+    "days_on_hand": 23
+   }
+  },
+  "D15": {
+   "id": "D15",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale Lakeside holds 60 syringes of insulin glulisine 3 mL at 2.3 a day: 25.6 days on hand",
+   "fields": {
+    "hospital": "Corvale Lakeside",
+    "presentation": "injection, 3 mL syringe",
+    "on_hand": 60,
+    "daily_use": 2.3,
+    "days_on_hand": 25.6
+   }
+  },
+  "D16": {
+   "id": "D16",
+   "queryId": "derived",
+   "row": -1,
+   "label": "insulin glulisine is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D17": {
+   "id": "D17",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 11 syringes of 3 mL from Corvale General to Corvale Lakeside. Corvale General has 15 days of injection, 3 mL syringes on hand and can spare 11 syringes while keeping two weeks; Corvale Lakeside has 5.3 days and would reach 8.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D18": {
+   "id": "D18",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 91 syringes of 100 U/mL, 3 mL from Corvale General to Corvale East. Corvale General has 21 days of 100 U/mL injection, 3 mL syringes on hand and can spare 91 syringes while keeping two weeks; Corvale East has 6.7 days and would reach 14.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D19": {
+   "id": "D19",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 33 syringes of 1.5 mL from Corvale Lakeside to Corvale East. Corvale Lakeside has 27 days of injection, 1.5 mL syringes on hand and can spare 33 syringes while keeping two weeks; Corvale East has 7.4 days and would reach 10.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
    }
   }
  },
  "queries": {
-  "Q-f46b88": {
-   "id": "Q-f46b88",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%insulin%' OR lower(s.description) LIKE '%insulin%' ORDER BY s.hospital, s.item_key",
-   "ms": 3367,
+  "Q-8898c5": {
+   "id": "Q-8898c5",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*insulin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*insulin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 4580,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:53:47.173Z",
+   "ranAt": "2026-10-22T12:08:50.792Z",
    "rows": 15
   },
   "Q-4720de": {
    "id": "Q-4720de",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('e7af6a7a-8046-4fb4-9979-4ec4230b23aa', 'afca6e80-a802-49fb-a978-5fe28a173001', '99ea856d-9562-443a-9422-1006a3cff2f4', '82192527-99aa-4b53-8ce9-9173668d309c', '12ec9e3f-e2ac-43a1-b334-8b6538cf2bb0') ORDER BY ps.set_id, ps.establishment",
-   "ms": 866,
+   "ms": 786,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:53:48.057Z",
+   "ranAt": "2026-10-22T12:08:51.583Z",
    "rows": 6
   },
-  "Q-a72e3d": {
-   "id": "Q-a72e3d",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%insulin%' ORDER BY status, company_name, package_ndc",
-   "ms": 205,
+  "Q-4505d2": {
+   "id": "Q-4505d2",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*insulin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 145,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:53:48.266Z",
+   "ranAt": "2026-10-22T12:08:51.730Z",
    "rows": 7
   },
-  "Q-bfc949": {
-   "id": "Q-bfc949",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%insulin%' ORDER BY first_posting",
-   "ms": 227,
+  "Q-998f02": {
+   "id": "Q-998f02",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*insulin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 140,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:53:48.496Z",
+   "ranAt": "2026-10-22T12:08:51.874Z",
    "rows": 11
   },
-  "Q-15869b": {
-   "id": "Q-15869b",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%insulin%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2580,
+  "Q-704d48": {
+   "id": "Q-704d48",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*insulin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1309,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:53:51.079Z",
+   "ranAt": "2026-10-22T12:08:53.184Z",
    "rows": 141
   },
   "Q-b560f1": {
    "id": "Q-b560f1",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('1450743', '3009389940', '3003195501', '1416980') ORDER BY fei, end_date",
-   "ms": 500,
+   "ms": 330,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:53:51.583Z",
+   "ranAt": "2026-10-22T12:08:53.517Z",
    "rows": 38
   },
   "Q-41011d": {
    "id": "Q-41011d",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('1450743', '3009389940', '3003195501', '1416980') ORDER BY fei, action_date",
-   "ms": 247,
+   "ms": 169,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:53:51.834Z",
+   "ranAt": "2026-10-22T12:08:53.687Z",
    "rows": 3
   },
   "Q-382a0d": {
    "id": "Q-382a0d",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('1450743', '3009389940', '3003195501', '1416980') OR (fei_match <> 'name_and_city' AND firm_key IN ('sanofi aventis', 'a s medication solutions', 'genzyme', 'sanofi aventis deutschland', 'baxter')) ORDER BY date_published",
-   "ms": 205,
+   "ms": 144,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:53:52.043Z",
+   "ranAt": "2026-10-22T12:08:53.832Z",
    "rows": 1
   },
-  "Q-b33d41": {
-   "id": "Q-b33d41",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('sanofi aventis', 'a s medication solutions', 'genzyme', 'sanofi aventis deutschland', 'baxter', 'sanofi aventis u s', 'remedyrepack', 'novo nordisk') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%insulin%' ORDER BY initiation_date",
-   "ms": 232,
+  "Q-f2fb1f": {
+   "id": "Q-f2fb1f",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('sanofi aventis', 'a s medication solutions', 'genzyme', 'sanofi aventis deutschland', 'baxter', 'sanofi aventis u s', 'remedyrepack', 'novo nordisk') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*insulin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 179,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:53:52.279Z",
+   "ranAt": "2026-10-22T12:08:54.013Z",
    "rows": 12
   },
   "Q-fbbc61": {
    "id": "Q-fbbc61",
    "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('1243362', '1311078', '704478') ORDER BY inspection_id, cfr",
-   "ms": 293,
+   "ms": 207,
    "mode": "live",
    "sources": [
     "fda.citations"
    ],
-   "ranAt": "2026-10-22T07:53:52.576Z",
+   "ranAt": "2026-10-22T12:08:54.222Z",
    "rows": 9
   },
   "Q-d6921c": {
    "id": "Q-d6921c",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('00088250205', '00338012612', '00955390003', '50090127600', '70518427500', '00169220125')",
-   "ms": 1360,
+   "ms": 765,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:53:53.956Z",
+   "ranAt": "2026-10-22T12:08:54.994Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-7bdc2e": {
-   "id": "Q-7bdc2e",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%insulin%'",
-   "ms": 1567,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:53:55.526Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-4229ac": {
+   "id": "Q-4229ac",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*insulin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1651,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:08:56.646Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 15,
-  "zetarisMs": 17020,
+  "zetarisMs": 20613,
   "modelCalls": 1,
-  "tokensIn": 4114,
-  "tokensOut": 349,
+  "tokensIn": 7605,
+  "tokensOut": 598,
   "mode": "live"
  },
  "slug": "insulin",
@@ -2777,7 +3493,7 @@
     "id": "hospital-item:hospital-item:CG-242",
     "type": "HospitalItem",
     "key": "hospital-item:CG-242",
-    "label": "Corvale General: insulin aspart",
+    "label": "Corvale General: insulin aspart 100 units/mL",
     "attrs": {
      "key": "hospital-item:CG-242"
     },
@@ -2788,7 +3504,7 @@
     "id": "hospital-item:hospital-item:CG-243",
     "type": "HospitalItem",
     "key": "hospital-item:CG-243",
-    "label": "Corvale General: insulin detemir",
+    "label": "Corvale General: insulin detemir 100 units/mL",
     "attrs": {
      "key": "hospital-item:CG-243"
     },
@@ -2799,7 +3515,7 @@
     "id": "hospital-item:hospital-item:CG-244",
     "type": "HospitalItem",
     "key": "hospital-item:CG-244",
-    "label": "Corvale General: insulin glargine",
+    "label": "Corvale General: insulin glargine 300 units/mL",
     "attrs": {
      "key": "hospital-item:CG-244"
     },
@@ -2810,7 +3526,7 @@
     "id": "hospital-item:hospital-item:CG-245",
     "type": "HospitalItem",
     "key": "hospital-item:CG-245",
-    "label": "Corvale General: insulin glulisine",
+    "label": "Corvale General: insulin glulisine 100 units/mL",
     "attrs": {
      "key": "hospital-item:CG-245"
     },
@@ -2821,7 +3537,7 @@
     "id": "hospital-item:hospital-item:CG-246",
     "type": "HospitalItem",
     "key": "hospital-item:CG-246",
-    "label": "Corvale General: insulin human",
+    "label": "Corvale General: insulin human 1 units/mL",
     "attrs": {
      "key": "hospital-item:CG-246"
     },
@@ -2832,7 +3548,7 @@
     "id": "hospital-item:hospital-item:CG-247",
     "type": "HospitalItem",
     "key": "hospital-item:CG-247",
-    "label": "Corvale General: insulin lispro",
+    "label": "Corvale General: insulin lispro 100 U/mL",
     "attrs": {
      "key": "hospital-item:CG-247"
     },
@@ -3202,7 +3918,7 @@
     },
     "facts": [
      {
-      "id": "fact_6e076c78e523e90e",
+      "id": "fact_14caf13c99f62d45",
       "about": "inspection:fda-inspection:1006001",
       "predicate": "classification",
       "value": "VAI",
@@ -3210,13 +3926,13 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:53:52.583Z"
+       "at": "2026-10-22T12:08:54.225Z"
       },
-      "assertedAt": "2026-10-22T07:53:52.583Z",
-      "supersededBy": "fact_ef30b4525b7d672e"
+      "assertedAt": "2026-10-22T12:08:54.225Z",
+      "supersededBy": "fact_3dec8d504eb2533c"
      },
      {
-      "id": "fact_ef30b4525b7d672e",
+      "id": "fact_3dec8d504eb2533c",
       "about": "inspection:fda-inspection:1006001",
       "predicate": "classification",
       "value": "VAI",
@@ -3224,9 +3940,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:53:52.588Z"
+       "at": "2026-10-22T12:08:54.226Z"
       },
-      "assertedAt": "2026-10-22T07:53:52.588Z"
+      "assertedAt": "2026-10-22T12:08:54.226Z"
      }
     ],
     "depth": 4
@@ -3242,7 +3958,7 @@
     },
     "facts": [
      {
-      "id": "fact_67eba4c429ea0bbd",
+      "id": "fact_285fc8ce70da9b58",
       "about": "inspection:fda-inspection:1054512",
       "predicate": "classification",
       "value": "VAI",
@@ -3250,9 +3966,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:53:52.593Z"
+       "at": "2026-10-22T12:08:54.227Z"
       },
-      "assertedAt": "2026-10-22T07:53:52.593Z"
+      "assertedAt": "2026-10-22T12:08:54.227Z"
      }
     ],
     "depth": 4
@@ -3268,7 +3984,7 @@
     },
     "facts": [
      {
-      "id": "fact_cc9d387693d7da5e",
+      "id": "fact_db217a6c9aaa8bcd",
       "about": "inspection:fda-inspection:1094836",
       "predicate": "classification",
       "value": "VAI",
@@ -3276,13 +3992,13 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:53:52.583Z"
+       "at": "2026-10-22T12:08:54.225Z"
       },
-      "assertedAt": "2026-10-22T07:53:52.583Z",
-      "supersededBy": "fact_733db93c45c38dcf"
+      "assertedAt": "2026-10-22T12:08:54.225Z",
+      "supersededBy": "fact_1afa98696df6f7b5"
      },
      {
-      "id": "fact_733db93c45c38dcf",
+      "id": "fact_1afa98696df6f7b5",
       "about": "inspection:fda-inspection:1094836",
       "predicate": "classification",
       "value": "VAI",
@@ -3290,9 +4006,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:53:52.588Z"
+       "at": "2026-10-22T12:08:54.226Z"
       },
-      "assertedAt": "2026-10-22T07:53:52.588Z"
+      "assertedAt": "2026-10-22T12:08:54.226Z"
      }
     ],
     "depth": 4
@@ -3308,7 +4024,7 @@
     },
     "facts": [
      {
-      "id": "fact_492803a8b62e6136",
+      "id": "fact_46a54572949136ed",
       "about": "inspection:fda-inspection:1215824",
       "predicate": "classification",
       "value": "VAI",
@@ -3316,13 +4032,13 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:53:52.583Z"
+       "at": "2026-10-22T12:08:54.225Z"
       },
-      "assertedAt": "2026-10-22T07:53:52.583Z",
-      "supersededBy": "fact_c63a16c581c71e29"
+      "assertedAt": "2026-10-22T12:08:54.225Z",
+      "supersededBy": "fact_b9d3966f60618b92"
      },
      {
-      "id": "fact_c63a16c581c71e29",
+      "id": "fact_b9d3966f60618b92",
       "about": "inspection:fda-inspection:1215824",
       "predicate": "classification",
       "value": "VAI",
@@ -3330,9 +4046,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:53:52.589Z"
+       "at": "2026-10-22T12:08:54.226Z"
       },
-      "assertedAt": "2026-10-22T07:53:52.589Z"
+      "assertedAt": "2026-10-22T12:08:54.226Z"
      }
     ],
     "depth": 4
@@ -3348,7 +4064,7 @@
     },
     "facts": [
      {
-      "id": "fact_ff969cc829f8fde0",
+      "id": "fact_5b1f950fc75d9ca6",
       "about": "inspection:fda-inspection:1243362",
       "predicate": "classification",
       "value": "OAI",
@@ -3356,9 +4072,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:53:52.585Z"
+       "at": "2026-10-22T12:08:54.225Z"
       },
-      "assertedAt": "2026-10-22T07:53:52.585Z"
+      "assertedAt": "2026-10-22T12:08:54.225Z"
      }
     ],
     "depth": 4
@@ -3374,7 +4090,7 @@
     },
     "facts": [
      {
-      "id": "fact_824c5826894617e9",
+      "id": "fact_ef3b3777807188dc",
       "about": "inspection:fda-inspection:1311078",
       "predicate": "classification",
       "value": "OAI",
@@ -3382,9 +4098,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:53:52.586Z"
+       "at": "2026-10-22T12:08:54.225Z"
       },
-      "assertedAt": "2026-10-22T07:53:52.586Z"
+      "assertedAt": "2026-10-22T12:08:54.225Z"
      }
     ],
     "depth": 4
@@ -3400,7 +4116,7 @@
     },
     "facts": [
      {
-      "id": "fact_b51630d50187079d",
+      "id": "fact_98e8988938956329",
       "about": "inspection:fda-inspection:1331612",
       "predicate": "classification",
       "value": "VAI",
@@ -3408,9 +4124,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:53:52.593Z"
+       "at": "2026-10-22T12:08:54.227Z"
       },
-      "assertedAt": "2026-10-22T07:53:52.593Z"
+      "assertedAt": "2026-10-22T12:08:54.227Z"
      }
     ],
     "depth": 4
@@ -3426,7 +4142,7 @@
     },
     "facts": [
      {
-      "id": "fact_b7bb80c98b86ba14",
+      "id": "fact_797047d32e4291ba",
       "about": "inspection:fda-inspection:548328",
       "predicate": "classification",
       "value": "VAI",
@@ -3434,13 +4150,13 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:53:52.581Z"
+       "at": "2026-10-22T12:08:54.224Z"
       },
-      "assertedAt": "2026-10-22T07:53:52.581Z",
-      "supersededBy": "fact_c1f17d5bd9ce89f3"
+      "assertedAt": "2026-10-22T12:08:54.224Z",
+      "supersededBy": "fact_2a0294871bb4ad47"
      },
      {
-      "id": "fact_c1f17d5bd9ce89f3",
+      "id": "fact_2a0294871bb4ad47",
       "about": "inspection:fda-inspection:548328",
       "predicate": "classification",
       "value": "VAI",
@@ -3448,9 +4164,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:53:52.587Z"
+       "at": "2026-10-22T12:08:54.226Z"
       },
-      "assertedAt": "2026-10-22T07:53:52.587Z"
+      "assertedAt": "2026-10-22T12:08:54.226Z"
      }
     ],
     "depth": 4
@@ -3466,7 +4182,7 @@
     },
     "facts": [
      {
-      "id": "fact_f9b004b2fd332373",
+      "id": "fact_723cc1f967365b8e",
       "about": "inspection:fda-inspection:613155",
       "predicate": "classification",
       "value": "VAI",
@@ -3474,9 +4190,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:53:52.584Z"
+       "at": "2026-10-22T12:08:54.225Z"
       },
-      "assertedAt": "2026-10-22T07:53:52.584Z"
+      "assertedAt": "2026-10-22T12:08:54.225Z"
      }
     ],
     "depth": 4
@@ -3492,7 +4208,7 @@
     },
     "facts": [
      {
-      "id": "fact_2c9b042a83ce6e16",
+      "id": "fact_ff3b21eea44610e9",
       "about": "inspection:fda-inspection:628529",
       "predicate": "classification",
       "value": "VAI",
@@ -3500,9 +4216,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:53:52.589Z"
+       "at": "2026-10-22T12:08:54.226Z"
       },
-      "assertedAt": "2026-10-22T07:53:52.589Z"
+      "assertedAt": "2026-10-22T12:08:54.226Z"
      }
     ],
     "depth": 4
@@ -3518,7 +4234,7 @@
     },
     "facts": [
      {
-      "id": "fact_345c07625e0dd704",
+      "id": "fact_844b1ec9088bcbef",
       "about": "inspection:fda-inspection:704478",
       "predicate": "classification",
       "value": "OAI",
@@ -3526,13 +4242,13 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:53:52.581Z"
+       "at": "2026-10-22T12:08:54.224Z"
       },
-      "assertedAt": "2026-10-22T07:53:52.581Z",
-      "supersededBy": "fact_df7f9721f2f474f8"
+      "assertedAt": "2026-10-22T12:08:54.224Z",
+      "supersededBy": "fact_87d3c6d00e61effd"
      },
      {
-      "id": "fact_df7f9721f2f474f8",
+      "id": "fact_87d3c6d00e61effd",
       "about": "inspection:fda-inspection:704478",
       "predicate": "classification",
       "value": "OAI",
@@ -3540,9 +4256,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:53:52.587Z"
+       "at": "2026-10-22T12:08:54.226Z"
       },
-      "assertedAt": "2026-10-22T07:53:52.587Z"
+      "assertedAt": "2026-10-22T12:08:54.226Z"
      }
     ],
     "depth": 4
@@ -3558,7 +4274,7 @@
     },
     "facts": [
      {
-      "id": "fact_ee72cdf3d90ae988",
+      "id": "fact_7d1ceef422537c2f",
       "about": "inspection:fda-inspection:707318",
       "predicate": "classification",
       "value": "VAI",
@@ -3566,9 +4282,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:53:52.584Z"
+       "at": "2026-10-22T12:08:54.225Z"
       },
-      "assertedAt": "2026-10-22T07:53:52.584Z"
+      "assertedAt": "2026-10-22T12:08:54.225Z"
      }
     ],
     "depth": 4
@@ -3584,7 +4300,7 @@
     },
     "facts": [
      {
-      "id": "fact_a94eb06b00d43e5e",
+      "id": "fact_c2571518e365f717",
       "about": "inspection:fda-inspection:739615",
       "predicate": "classification",
       "value": "VAI",
@@ -3592,13 +4308,13 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:53:52.582Z"
+       "at": "2026-10-22T12:08:54.224Z"
       },
-      "assertedAt": "2026-10-22T07:53:52.582Z",
-      "supersededBy": "fact_019240e2dbe0a30b"
+      "assertedAt": "2026-10-22T12:08:54.224Z",
+      "supersededBy": "fact_f319525e82c9e30e"
      },
      {
-      "id": "fact_019240e2dbe0a30b",
+      "id": "fact_f319525e82c9e30e",
       "about": "inspection:fda-inspection:739615",
       "predicate": "classification",
       "value": "VAI",
@@ -3606,9 +4322,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:53:52.588Z"
+       "at": "2026-10-22T12:08:54.226Z"
       },
-      "assertedAt": "2026-10-22T07:53:52.588Z"
+      "assertedAt": "2026-10-22T12:08:54.226Z"
      }
     ],
     "depth": 4
@@ -3624,7 +4340,7 @@
     },
     "facts": [
      {
-      "id": "fact_c120d828522cb45b",
+      "id": "fact_7f7e95a709e82514",
       "about": "inspection:fda-inspection:770191",
       "predicate": "classification",
       "value": "VAI",
@@ -3632,9 +4348,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:53:52.590Z"
+       "at": "2026-10-22T12:08:54.226Z"
       },
-      "assertedAt": "2026-10-22T07:53:52.590Z"
+      "assertedAt": "2026-10-22T12:08:54.226Z"
      }
     ],
     "depth": 4
@@ -3650,7 +4366,7 @@
     },
     "facts": [
      {
-      "id": "fact_12a3426f2a191364",
+      "id": "fact_b0caa99aa62db437",
       "about": "inspection:fda-inspection:784215",
       "predicate": "classification",
       "value": "VAI",
@@ -3658,9 +4374,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:53:52.585Z"
+       "at": "2026-10-22T12:08:54.225Z"
       },
-      "assertedAt": "2026-10-22T07:53:52.585Z"
+      "assertedAt": "2026-10-22T12:08:54.225Z"
      }
     ],
     "depth": 4
@@ -3676,7 +4392,7 @@
     },
     "facts": [
      {
-      "id": "fact_28b0fa26ed78c9c6",
+      "id": "fact_7776ec4adcb0bb5d",
       "about": "inspection:fda-inspection:834331",
       "predicate": "classification",
       "value": "VAI",
@@ -3684,9 +4400,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:53:52.592Z"
+       "at": "2026-10-22T12:08:54.226Z"
       },
-      "assertedAt": "2026-10-22T07:53:52.592Z"
+      "assertedAt": "2026-10-22T12:08:54.226Z"
      }
     ],
     "depth": 4
@@ -3702,7 +4418,7 @@
     },
     "facts": [
      {
-      "id": "fact_627ad8b82382468b",
+      "id": "fact_89c0dc689ea5ccc9",
       "about": "inspection:fda-inspection:841970",
       "predicate": "classification",
       "value": "VAI",
@@ -3710,13 +4426,13 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:53:52.582Z"
+       "at": "2026-10-22T12:08:54.225Z"
       },
-      "assertedAt": "2026-10-22T07:53:52.582Z",
-      "supersededBy": "fact_9b670438e3a6829f"
+      "assertedAt": "2026-10-22T12:08:54.225Z",
+      "supersededBy": "fact_18c692da5948d570"
      },
      {
-      "id": "fact_9b670438e3a6829f",
+      "id": "fact_18c692da5948d570",
       "about": "inspection:fda-inspection:841970",
       "predicate": "classification",
       "value": "VAI",
@@ -3724,9 +4440,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:53:52.588Z"
+       "at": "2026-10-22T12:08:54.226Z"
       },
-      "assertedAt": "2026-10-22T07:53:52.588Z"
+      "assertedAt": "2026-10-22T12:08:54.226Z"
      }
     ],
     "depth": 4
@@ -3742,7 +4458,7 @@
     },
     "facts": [
      {
-      "id": "fact_372f38dd586f197f",
+      "id": "fact_d15dbacd33e39b7c",
       "about": "inspection:fda-inspection:933399",
       "predicate": "classification",
       "value": "VAI",
@@ -3750,13 +4466,13 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:53:52.582Z"
+       "at": "2026-10-22T12:08:54.225Z"
       },
-      "assertedAt": "2026-10-22T07:53:52.582Z",
-      "supersededBy": "fact_b64e72807152636e"
+      "assertedAt": "2026-10-22T12:08:54.225Z",
+      "supersededBy": "fact_0a9602e61e6d85e9"
      },
      {
-      "id": "fact_b64e72807152636e",
+      "id": "fact_0a9602e61e6d85e9",
       "about": "inspection:fda-inspection:933399",
       "predicate": "classification",
       "value": "VAI",
@@ -3764,9 +4480,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:53:52.588Z"
+       "at": "2026-10-22T12:08:54.226Z"
       },
-      "assertedAt": "2026-10-22T07:53:52.588Z"
+      "assertedAt": "2026-10-22T12:08:54.226Z"
      }
     ],
     "depth": 4
@@ -3782,7 +4498,7 @@
     },
     "facts": [
      {
-      "id": "fact_70c47351984735cb",
+      "id": "fact_eb1db5f2cf0dc425",
       "about": "inspection:fda-inspection:948181",
       "predicate": "classification",
       "value": "VAI",
@@ -3790,9 +4506,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:53:52.585Z"
+       "at": "2026-10-22T12:08:54.225Z"
       },
-      "assertedAt": "2026-10-22T07:53:52.585Z"
+      "assertedAt": "2026-10-22T12:08:54.225Z"
      }
     ],
     "depth": 4
@@ -3808,7 +4524,7 @@
     },
     "facts": [
      {
-      "id": "fact_e201d077704a8816",
+      "id": "fact_cbc4934e48dcc38d",
       "about": "inspection:fda-inspection:985381",
       "predicate": "classification",
       "value": "VAI",
@@ -3816,9 +4532,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:53:52.586Z"
+       "at": "2026-10-22T12:08:54.226Z"
       },
-      "assertedAt": "2026-10-22T07:53:52.586Z"
+      "assertedAt": "2026-10-22T12:08:54.226Z"
      }
     ],
     "depth": 4
@@ -3863,11 +4579,11 @@
     "from": "hospital-item:hospital-item:CG-242",
     "to": "package:ndc-package:0169-2201-25",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:53:47.182Z",
+    "validFrom": "2026-10-22T12:08:50.795Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:47.182Z"
+     "at": "2026-10-22T12:08:50.795Z"
     }
    },
    {
@@ -3875,11 +4591,11 @@
     "from": "hospital-item:hospital-item:CG-243",
     "to": "package:ndc-package:50090-1276-0",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:53:47.183Z",
+    "validFrom": "2026-10-22T12:08:50.795Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:47.183Z"
+     "at": "2026-10-22T12:08:50.795Z"
     }
    },
    {
@@ -3887,11 +4603,11 @@
     "from": "hospital-item:hospital-item:CG-244",
     "to": "package:ndc-package:0955-3900-03",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:53:47.184Z",
+    "validFrom": "2026-10-22T12:08:50.795Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:47.184Z"
+     "at": "2026-10-22T12:08:50.795Z"
     }
    },
    {
@@ -3899,11 +4615,11 @@
     "from": "hospital-item:hospital-item:CG-245",
     "to": "package:ndc-package:0088-2502-05",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:53:47.184Z",
+    "validFrom": "2026-10-22T12:08:50.795Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:47.184Z"
+     "at": "2026-10-22T12:08:50.795Z"
     }
    },
    {
@@ -3911,11 +4627,11 @@
     "from": "hospital-item:hospital-item:CG-246",
     "to": "package:ndc-package:0338-0126-12",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:53:47.185Z",
+    "validFrom": "2026-10-22T12:08:50.795Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:47.185Z"
+     "at": "2026-10-22T12:08:50.795Z"
     }
    },
    {
@@ -3923,11 +4639,11 @@
     "from": "hospital-item:hospital-item:CG-247",
     "to": "package:ndc-package:70518-4275-0",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:53:47.185Z",
+    "validFrom": "2026-10-22T12:08:50.796Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:47.185Z"
+     "at": "2026-10-22T12:08:50.796Z"
     }
    },
    {
@@ -3935,11 +4651,11 @@
     "from": "hospital-item:hospital-item:EA-E-000012",
     "to": "package:ndc-package:0088-2502-05",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:53:47.177Z",
+    "validFrom": "2026-10-22T12:08:50.794Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:47.177Z"
+     "at": "2026-10-22T12:08:50.794Z"
     }
    },
    {
@@ -3947,11 +4663,11 @@
     "from": "hospital-item:hospital-item:EA-E-000061",
     "to": "package:ndc-package:0338-0126-12",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:53:47.178Z",
+    "validFrom": "2026-10-22T12:08:50.794Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:47.178Z"
+     "at": "2026-10-22T12:08:50.794Z"
     }
    },
    {
@@ -3959,11 +4675,11 @@
     "from": "hospital-item:hospital-item:EA-E-000130",
     "to": "package:ndc-package:0955-3900-03",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:53:47.179Z",
+    "validFrom": "2026-10-22T12:08:50.794Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:47.179Z"
+     "at": "2026-10-22T12:08:50.794Z"
     }
    },
    {
@@ -3971,11 +4687,11 @@
     "from": "hospital-item:hospital-item:EA-E-000164",
     "to": "package:ndc-package:50090-1276-0",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:53:47.180Z",
+    "validFrom": "2026-10-22T12:08:50.794Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:47.180Z"
+     "at": "2026-10-22T12:08:50.794Z"
     }
    },
    {
@@ -3983,11 +4699,11 @@
     "from": "hospital-item:hospital-item:EA-E-000268",
     "to": "package:ndc-package:70518-4275-0",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:53:47.181Z",
+    "validFrom": "2026-10-22T12:08:50.794Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:47.181Z"
+     "at": "2026-10-22T12:08:50.794Z"
     }
    },
    {
@@ -3995,11 +4711,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0004",
     "to": "package:ndc-package:0088-2502-05",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:53:47.186Z",
+    "validFrom": "2026-10-22T12:08:50.796Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:47.186Z"
+     "at": "2026-10-22T12:08:50.796Z"
     }
    },
    {
@@ -4007,11 +4723,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0018",
     "to": "package:ndc-package:0169-2201-25",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:53:47.186Z",
+    "validFrom": "2026-10-22T12:08:50.796Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:47.186Z"
+     "at": "2026-10-22T12:08:50.796Z"
     }
    },
    {
@@ -4019,11 +4735,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0027",
     "to": "package:ndc-package:0338-0126-12",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:53:47.187Z",
+    "validFrom": "2026-10-22T12:08:50.796Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:47.187Z"
+     "at": "2026-10-22T12:08:50.796Z"
     }
    },
    {
@@ -4031,11 +4747,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0052",
     "to": "package:ndc-package:0955-3900-03",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:53:47.189Z",
+    "validFrom": "2026-10-22T12:08:50.796Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:47.189Z"
+     "at": "2026-10-22T12:08:50.796Z"
     }
    },
    {
@@ -4043,11 +4759,11 @@
     "from": "package:ndc-package:0169-2201-25",
     "to": "product:ndc-product:0169-2201",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:53:47.182Z",
+    "validFrom": "2026-10-22T12:08:50.795Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:47.182Z"
+     "at": "2026-10-22T12:08:50.795Z"
     }
    },
    {
@@ -4055,11 +4771,11 @@
     "from": "package:ndc-package:50090-1276-0",
     "to": "product:ndc-product:50090-1276",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:53:47.180Z",
+    "validFrom": "2026-10-22T12:08:50.794Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:47.180Z"
+     "at": "2026-10-22T12:08:50.794Z"
     }
    },
    {
@@ -4067,11 +4783,11 @@
     "from": "package:ndc-package:0955-3900-03",
     "to": "product:ndc-product:0955-3900",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:53:47.179Z",
+    "validFrom": "2026-10-22T12:08:50.794Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:47.179Z"
+     "at": "2026-10-22T12:08:50.794Z"
     }
    },
    {
@@ -4079,11 +4795,11 @@
     "from": "package:ndc-package:0088-2502-05",
     "to": "product:ndc-product:0088-2502",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:53:47.177Z",
+    "validFrom": "2026-10-22T12:08:50.794Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:47.177Z"
+     "at": "2026-10-22T12:08:50.794Z"
     }
    },
    {
@@ -4091,11 +4807,11 @@
     "from": "package:ndc-package:0338-0126-12",
     "to": "product:ndc-product:0338-0126",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:53:47.178Z",
+    "validFrom": "2026-10-22T12:08:50.794Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:47.178Z"
+     "at": "2026-10-22T12:08:50.794Z"
     }
    },
    {
@@ -4103,11 +4819,11 @@
     "from": "package:ndc-package:70518-4275-0",
     "to": "product:ndc-product:70518-4275",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:53:47.181Z",
+    "validFrom": "2026-10-22T12:08:50.794Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:47.181Z"
+     "at": "2026-10-22T12:08:50.794Z"
     }
    },
    {
@@ -4115,11 +4831,11 @@
     "from": "product:ndc-product:0169-2201",
     "to": "drug:generic:insulin glulisine",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:53:47.182Z",
+    "validFrom": "2026-10-22T12:08:50.795Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:47.182Z"
+     "at": "2026-10-22T12:08:50.795Z"
     }
    },
    {
@@ -4127,11 +4843,11 @@
     "from": "product:ndc-product:0169-2201",
     "to": "labeler:ndc-labeler:0169",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:53:47.183Z",
+    "validFrom": "2026-10-22T12:08:50.795Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:47.183Z"
+     "at": "2026-10-22T12:08:50.795Z"
     }
    },
    {
@@ -4139,11 +4855,11 @@
     "from": "product:ndc-product:50090-1276",
     "to": "drug:generic:insulin glulisine",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:53:47.180Z",
+    "validFrom": "2026-10-22T12:08:50.794Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:47.180Z"
+     "at": "2026-10-22T12:08:50.794Z"
     }
    },
    {
@@ -4151,11 +4867,11 @@
     "from": "product:ndc-product:50090-1276",
     "to": "labeler:ndc-labeler:50090",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:53:47.181Z",
+    "validFrom": "2026-10-22T12:08:50.794Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:47.181Z"
+     "at": "2026-10-22T12:08:50.794Z"
     }
    },
    {
@@ -4163,11 +4879,11 @@
     "from": "product:ndc-product:50090-1276",
     "to": "site:fei:1450743",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:53:52.589Z",
+    "validFrom": "2026-10-22T12:08:54.226Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:52.589Z"
+     "at": "2026-10-22T12:08:54.226Z"
     }
    },
    {
@@ -4175,11 +4891,11 @@
     "from": "product:ndc-product:0955-3900",
     "to": "drug:generic:insulin glulisine",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:53:47.180Z",
+    "validFrom": "2026-10-22T12:08:50.794Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:47.180Z"
+     "at": "2026-10-22T12:08:50.794Z"
     }
    },
    {
@@ -4187,11 +4903,11 @@
     "from": "product:ndc-product:0955-3900",
     "to": "labeler:ndc-labeler:0955",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:53:47.180Z",
+    "validFrom": "2026-10-22T12:08:50.794Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:47.180Z"
+     "at": "2026-10-22T12:08:50.794Z"
     }
    },
    {
@@ -4199,11 +4915,11 @@
     "from": "product:ndc-product:0955-3900",
     "to": "site:fei:3009389940",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:53:52.586Z",
+    "validFrom": "2026-10-22T12:08:54.225Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:52.586Z"
+     "at": "2026-10-22T12:08:54.225Z"
     }
    },
    {
@@ -4211,11 +4927,11 @@
     "from": "product:ndc-product:0955-3900",
     "to": "site:fei:3003195501",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:53:52.587Z",
+    "validFrom": "2026-10-22T12:08:54.226Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:52.587Z"
+     "at": "2026-10-22T12:08:54.226Z"
     }
    },
    {
@@ -4223,11 +4939,11 @@
     "from": "product:ndc-product:0088-2502",
     "to": "drug:generic:insulin glulisine",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:53:47.178Z",
+    "validFrom": "2026-10-22T12:08:50.794Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:47.178Z"
+     "at": "2026-10-22T12:08:50.794Z"
     }
    },
    {
@@ -4235,11 +4951,11 @@
     "from": "product:ndc-product:0088-2502",
     "to": "labeler:ndc-labeler:0088",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:53:47.178Z",
+    "validFrom": "2026-10-22T12:08:50.794Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:47.178Z"
+     "at": "2026-10-22T12:08:50.794Z"
     }
    },
    {
@@ -4247,11 +4963,11 @@
     "from": "product:ndc-product:0088-2502",
     "to": "site:fei:3003195501",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:53:52.581Z",
+    "validFrom": "2026-10-22T12:08:54.224Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:52.581Z"
+     "at": "2026-10-22T12:08:54.224Z"
     }
    },
    {
@@ -4259,11 +4975,11 @@
     "from": "product:ndc-product:0338-0126",
     "to": "drug:generic:insulin glulisine",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:53:47.179Z",
+    "validFrom": "2026-10-22T12:08:50.794Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:47.179Z"
+     "at": "2026-10-22T12:08:50.794Z"
     }
    },
    {
@@ -4271,11 +4987,11 @@
     "from": "product:ndc-product:0338-0126",
     "to": "labeler:ndc-labeler:0338",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:53:47.179Z",
+    "validFrom": "2026-10-22T12:08:50.794Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:47.179Z"
+     "at": "2026-10-22T12:08:50.794Z"
     }
    },
    {
@@ -4283,11 +4999,11 @@
     "from": "product:ndc-product:0338-0126",
     "to": "site:fei:1416980",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:53:52.584Z",
+    "validFrom": "2026-10-22T12:08:54.225Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:52.584Z"
+     "at": "2026-10-22T12:08:54.225Z"
     }
    },
    {
@@ -4295,11 +5011,11 @@
     "from": "product:ndc-product:70518-4275",
     "to": "drug:generic:insulin glulisine",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:53:47.182Z",
+    "validFrom": "2026-10-22T12:08:50.794Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:47.182Z"
+     "at": "2026-10-22T12:08:50.794Z"
     }
    },
    {
@@ -4307,11 +5023,11 @@
     "from": "product:ndc-product:70518-4275",
     "to": "labeler:ndc-labeler:70518",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:53:47.182Z",
+    "validFrom": "2026-10-22T12:08:50.794Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:47.182Z"
+     "at": "2026-10-22T12:08:50.794Z"
     }
    },
    {
@@ -4319,11 +5035,11 @@
     "from": "inspection:fda-inspection:628529",
     "to": "site:fei:1450743",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:53:52.589Z",
+    "validFrom": "2026-10-22T12:08:54.226Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:52.589Z"
+     "at": "2026-10-22T12:08:54.226Z"
     }
    },
    {
@@ -4331,11 +5047,11 @@
     "from": "inspection:fda-inspection:770191",
     "to": "site:fei:1450743",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:53:52.590Z",
+    "validFrom": "2026-10-22T12:08:54.226Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:52.590Z"
+     "at": "2026-10-22T12:08:54.226Z"
     }
    },
    {
@@ -4343,11 +5059,11 @@
     "from": "inspection:fda-inspection:834331",
     "to": "site:fei:1450743",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:53:52.592Z",
+    "validFrom": "2026-10-22T12:08:54.226Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:52.592Z"
+     "at": "2026-10-22T12:08:54.226Z"
     }
    },
    {
@@ -4355,11 +5071,11 @@
     "from": "inspection:fda-inspection:1054512",
     "to": "site:fei:1450743",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:53:52.592Z",
+    "validFrom": "2026-10-22T12:08:54.227Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:52.592Z"
+     "at": "2026-10-22T12:08:54.227Z"
     }
    },
    {
@@ -4367,11 +5083,11 @@
     "from": "inspection:fda-inspection:1331612",
     "to": "site:fei:1450743",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:53:52.593Z",
+    "validFrom": "2026-10-22T12:08:54.227Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:52.593Z"
+     "at": "2026-10-22T12:08:54.227Z"
     }
    },
    {
@@ -4379,11 +5095,11 @@
     "from": "warning-letter:fda-warning-letter:522197",
     "to": "site:fei:1450743",
     "type": "issued-to",
-    "validFrom": "2026-10-22T07:53:52.592Z",
+    "validFrom": "2026-10-22T12:08:54.227Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:52.592Z"
+     "at": "2026-10-22T12:08:54.227Z"
     }
    },
    {
@@ -4391,11 +5107,11 @@
     "from": "inspection:fda-inspection:985381",
     "to": "site:fei:3009389940",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:53:52.586Z",
+    "validFrom": "2026-10-22T12:08:54.226Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:52.586Z"
+     "at": "2026-10-22T12:08:54.226Z"
     }
    },
    {
@@ -4403,11 +5119,11 @@
     "from": "inspection:fda-inspection:548328",
     "to": "site:fei:3003195501",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:53:52.581Z",
+    "validFrom": "2026-10-22T12:08:54.224Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:52.581Z"
+     "at": "2026-10-22T12:08:54.224Z"
     }
    },
    {
@@ -4415,11 +5131,11 @@
     "from": "inspection:fda-inspection:704478",
     "to": "site:fei:3003195501",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:53:52.581Z",
+    "validFrom": "2026-10-22T12:08:54.224Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:52.581Z"
+     "at": "2026-10-22T12:08:54.224Z"
     }
    },
    {
@@ -4427,11 +5143,11 @@
     "from": "inspection:fda-inspection:739615",
     "to": "site:fei:3003195501",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:53:52.582Z",
+    "validFrom": "2026-10-22T12:08:54.224Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:52.582Z"
+     "at": "2026-10-22T12:08:54.224Z"
     }
    },
    {
@@ -4439,11 +5155,11 @@
     "from": "inspection:fda-inspection:841970",
     "to": "site:fei:3003195501",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:53:52.582Z",
+    "validFrom": "2026-10-22T12:08:54.225Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:52.582Z"
+     "at": "2026-10-22T12:08:54.225Z"
     }
    },
    {
@@ -4451,11 +5167,11 @@
     "from": "inspection:fda-inspection:933399",
     "to": "site:fei:3003195501",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:53:52.582Z",
+    "validFrom": "2026-10-22T12:08:54.225Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:52.582Z"
+     "at": "2026-10-22T12:08:54.225Z"
     }
    },
    {
@@ -4463,11 +5179,11 @@
     "from": "inspection:fda-inspection:1006001",
     "to": "site:fei:3003195501",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:53:52.583Z",
+    "validFrom": "2026-10-22T12:08:54.225Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:52.583Z"
+     "at": "2026-10-22T12:08:54.225Z"
     }
    },
    {
@@ -4475,11 +5191,11 @@
     "from": "inspection:fda-inspection:1094836",
     "to": "site:fei:3003195501",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:53:52.583Z",
+    "validFrom": "2026-10-22T12:08:54.225Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:52.583Z"
+     "at": "2026-10-22T12:08:54.225Z"
     }
    },
    {
@@ -4487,11 +5203,11 @@
     "from": "inspection:fda-inspection:1215824",
     "to": "site:fei:3003195501",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:53:52.583Z",
+    "validFrom": "2026-10-22T12:08:54.225Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:52.583Z"
+     "at": "2026-10-22T12:08:54.225Z"
     }
    },
    {
@@ -4499,11 +5215,11 @@
     "from": "warning-letter:fda-warning-letter:161496",
     "to": "site:fei:3003195501",
     "type": "issued-to",
-    "validFrom": "2026-10-22T07:53:52.582Z",
+    "validFrom": "2026-10-22T12:08:54.224Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:52.582Z"
+     "at": "2026-10-22T12:08:54.224Z"
     }
    },
    {
@@ -4511,11 +5227,11 @@
     "from": "inspection:fda-inspection:613155",
     "to": "site:fei:1416980",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:53:52.584Z",
+    "validFrom": "2026-10-22T12:08:54.225Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:52.584Z"
+     "at": "2026-10-22T12:08:54.225Z"
     }
    },
    {
@@ -4523,11 +5239,11 @@
     "from": "inspection:fda-inspection:707318",
     "to": "site:fei:1416980",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:53:52.584Z",
+    "validFrom": "2026-10-22T12:08:54.225Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:52.584Z"
+     "at": "2026-10-22T12:08:54.225Z"
     }
    },
    {
@@ -4535,11 +5251,11 @@
     "from": "inspection:fda-inspection:784215",
     "to": "site:fei:1416980",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:53:52.584Z",
+    "validFrom": "2026-10-22T12:08:54.225Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:52.584Z"
+     "at": "2026-10-22T12:08:54.225Z"
     }
    },
    {
@@ -4547,11 +5263,11 @@
     "from": "inspection:fda-inspection:948181",
     "to": "site:fei:1416980",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:53:52.585Z",
+    "validFrom": "2026-10-22T12:08:54.225Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:52.585Z"
+     "at": "2026-10-22T12:08:54.225Z"
     }
    },
    {
@@ -4559,11 +5275,11 @@
     "from": "inspection:fda-inspection:1243362",
     "to": "site:fei:1416980",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:53:52.585Z",
+    "validFrom": "2026-10-22T12:08:54.225Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:52.585Z"
+     "at": "2026-10-22T12:08:54.225Z"
     }
    },
    {
@@ -4571,11 +5287,11 @@
     "from": "inspection:fda-inspection:1311078",
     "to": "site:fei:1416980",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:53:52.586Z",
+    "validFrom": "2026-10-22T12:08:54.225Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:52.586Z"
+     "at": "2026-10-22T12:08:54.225Z"
     }
    },
    {
@@ -4583,11 +5299,11 @@
     "from": "warning-letter:fda-warning-letter:733231",
     "to": "site:fei:1416980",
     "type": "issued-to",
-    "validFrom": "2026-10-22T07:53:52.586Z",
+    "validFrom": "2026-10-22T12:08:54.225Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:52.586Z"
+     "at": "2026-10-22T12:08:54.225Z"
     }
    }
   ],

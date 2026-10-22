@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-26662c",
+ "id": "case-2026-10-22-4b72ea",
  "question": "Why is lamotrigine short, and what do we do?",
- "askedAt": "2026-10-22T07:56:14.830Z",
+ "askedAt": "2026-10-22T12:12:41.110Z",
  "asOf": "2026-10-21",
  "molecule": "lamotrigine",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H9R6PTHP6TWWYW1BGSA1CQ",
+  "contractId": "01M5HRDVM2W3AV3FMYSJNSNN59",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-254ad8"
+    "Q-84a156"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 4153,
+   "ms": 4739,
    "rows": 2,
-   "finding": "2 stock lines across 2 hospitals.",
+   "finding": "2 stock lines across 2 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-0a5c81"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1377,
+   "ms": 742,
    "rows": 2,
    "finding": "2 plant links on 1 labels; 2 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-7cbdc5",
-    "Q-9e4153"
+    "Q-02a005",
+    "Q-d86333"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 635,
+   "ms": 420,
    "rows": 7,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-e07884"
+    "Q-c92d1d"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2893,
+   "ms": 1841,
    "rows": 636,
    "finding": "51 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-aac2c2",
     "Q-3b9bee",
     "Q-01c075",
-    "Q-830443"
+    "Q-405909"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1726,
+   "ms": 1351,
    "rows": 9,
    "finding": "9 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1942,
+   "ms": 768,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-8cd8d1"
+    "Q-b8a8a6"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2007,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1547,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -153,22 +164,65 @@
    "onHand": 106,
    "dailyUse": 5.846,
    "days": 18.1,
-   "unit": "package",
+   "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 500, converted to units",
+   "presentation": "lamotrigine|150mg|tablet||tablet",
+   "presentationLabel": "150 mg tablet",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-254",
    "ndc11": "62332003971",
-   "description": "Lamotrigine",
+   "description": "Lamotrigine 150 mg/1",
    "labeler": "Alembic Pharmaceuticals Inc.",
-   "onHand": 218.06,
+   "onHand": 218,
    "dailyUse": 7.727,
    "days": 28.2,
    "unit": "tablet",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "lamotrigine|150mg|tablet||tablet",
+   "presentationLabel": "150 mg tablet",
    "evidence": "E2"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "lamotrigine|150mg|tablet||tablet",
+   "label": "150 mg tablet",
+   "short": "150 mg",
+   "unit": "tablet",
+   "onHand": 324,
+   "dailyUse": 13.573,
+   "days": 23.9,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 106,
+     "dailyUse": 5.846,
+     "days": 18.1,
+     "lines": [
+      "EA-E-000205"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 218,
+     "dailyUse": 7.727,
+     "days": 28.2,
+     "lines": [
+      "CG-254"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -618,7 +672,7 @@
    "ndc11": "10370020711",
    "dosageForm": "TABLET, FILM COATED, EXTENDED RELEASE",
    "plants": [],
-   "onShortageList": false,
+   "onShortageList": true,
    "inOurStock": false
   },
   {
@@ -730,15 +784,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from A-S Medication Solutions",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Actavis Pharma, Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -784,15 +829,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from American Health Packaging",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Amneal Pharmaceuticals LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -820,15 +856,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Asclemed USA, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Aurobindo Pharma Limited",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -847,15 +874,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Bryant Ranch Prepack",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Camber Pharmaceuticals Inc",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -865,43 +883,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Cardinal Health 107, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Coupler LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from DIRECT RX",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Direct_Rx",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Direct_rx",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -938,15 +920,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Glenmark Pharmaceuticals Inc., USA",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Golden State Medical Supply, Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -1009,33 +982,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Northwind Health Company, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals,Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from OWP Pharmaceuticals, Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -1045,61 +991,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from PD-Rx Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Par Health USA, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Preferred Pharmaceuticals Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Preferred Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Proficient Rx LP",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Quallent Pharmaceuticals Health LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from REMEDYREPACK INC.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -1231,50 +1123,50 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "FDA shortage list shows Par Health, Inc. lamotrigine ER discontinued as of 2026-04-29; our current label names Alembic plants with VAI history, not the discontinued product",
+  "headline": "Lamotrigine is not on FDA's shortage list as of 2026-10-21; Corvale East has 18.1 days on hand and Corvale General has 28.2 days on hand",
   "sentences": [
    {
-    "text": "FDA's shortage list records Par Health, Inc. lamotrigine extended-release tablets as discontinued with an initial posting date of 2026-04-29.",
+    "text": "FDA's drug shortage list shows lamotrigine is not listed as of 2026-10-21.",
     "cites": [
-     "E11"
+     "D3"
     ]
    },
    {
-    "text": "Our supply at Corvale East shows 106 units on hand at 5.8 units per day, providing 18 days of inventory.",
+    "text": "Corvale East holds 106 tablets of the 150 mg presentation with 5.8 tablets used per day, giving 18.1 days on hand.",
     "cites": [
      "D1"
     ]
    },
    {
-    "text": "Corvale General holds 218 units at 7.7 units per day, providing 28 days of inventory.",
+    "text": "Corvale General holds 218 tablets of the same presentation with 7.7 tablets used per day, giving 28.2 days on hand.",
     "cites": [
      "D2"
     ]
    },
    {
-    "text": "The product label we hold (NDC 62332003971) names Alembic Pharmaceuticals Limited as the manufacturer, with a plant last inspected and classified NAI on 2024-07-26.",
+    "text": "The rule‑based check notes there are FDA actions or weak links but no action before a posting at a registered plant, so the buyer should verify current supply commitments.",
     "cites": [
-     "E8"
+     "D3",
+     "D4"
     ]
    },
    {
-    "text": "A second Alembic plant (Formulation Division-IV, FEI 3016088083) on the same label was last inspected and classified VAI on 2024-11-22.",
+    "text": "The top ranked alternate manufacturer is Actavis Pharma, Inc., which is not on FDA's shortage list today.",
     "cites": [
-     "E10",
-     "E9"
+     "D4"
     ]
    },
    {
-    "text": "The discontinued Par Health product (NDC 49884-561-11) differs from our current Alembic-sourced NDC, so the FDA posting does not directly explain our current supply status.",
+    "text": "Additional alternate manufacturers include Advagen Pharma Limited and Advanced Rx Pharmacy of Tennessee, LLC, also not on the shortage list.",
     "cites": [
-     "E11",
-     "E8"
+     "D5",
+     "D6"
     ]
    },
    {
-    "text": "Per protocol, verify whether the A-S Medication Solutions offering matches our NDC 62332003971 and confirm its manufacturing site, as its label names no plant we could place.",
+    "text": "Par Health, Inc. has a discontinuation posting for lamotrigine extended‑release tablets dated 2026-04-29, but this does not affect the immediate‑release product in use.",
     "cites": [
-     "E8"
+     "E11"
     ]
    }
   ],
@@ -1288,45 +1180,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -1341,80 +1254,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:56:00.091Z",
+   "at": "2026-10-22T12:12:29.699Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract 1BGSA1CQ scope"
+   "reason": "in contract SJNSNN59 scope"
   },
   {
-   "at": "2026-10-22T07:56:00.091Z",
+   "at": "2026-10-22T12:12:29.699Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 1BGSA1CQ scope"
+   "reason": "in contract SJNSNN59 scope"
   },
   {
-   "at": "2026-10-22T07:56:04.245Z",
+   "at": "2026-10-22T12:12:34.439Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 1BGSA1CQ scope"
+   "reason": "in contract SJNSNN59 scope"
   },
   {
-   "at": "2026-10-22T07:56:05.622Z",
+   "at": "2026-10-22T12:12:35.181Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 1BGSA1CQ scope"
+   "reason": "in contract SJNSNN59 scope"
   },
   {
-   "at": "2026-10-22T07:56:06.256Z",
+   "at": "2026-10-22T12:12:35.601Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 1BGSA1CQ scope"
+   "reason": "in contract SJNSNN59 scope"
   },
   {
-   "at": "2026-10-22T07:56:09.150Z",
+   "at": "2026-10-22T12:12:37.442Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 1BGSA1CQ scope"
+   "reason": "in contract SJNSNN59 scope"
   },
   {
-   "at": "2026-10-22T07:56:10.879Z",
+   "at": "2026-10-22T12:12:38.794Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 1BGSA1CQ scope"
+   "reason": "in contract SJNSNN59 scope"
   },
   {
-   "at": "2026-10-22T07:56:12.821Z",
+   "at": "2026-10-22T12:12:39.562Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 1BGSA1CQ scope"
+   "reason": "in contract SJNSNN59 scope"
   },
   {
-   "at": "2026-10-22T07:56:14.829Z",
+   "at": "2026-10-22T12:12:41.109Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract 1BGSA1CQ scope"
+   "reason": "in contract SJNSNN59 scope"
   },
   {
-   "at": "2026-10-22T07:56:14.831Z",
+   "at": "2026-10-22T12:12:41.110Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract 1BGSA1CQ scope"
+   "reason": "in contract SJNSNN59 scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-254ad8",
+   "queryId": "Q-84a156",
    "row": 0,
    "label": "Corvale East: LAMOTRIGINE 150MG TAB",
    "fields": {
@@ -1425,37 +1338,47 @@
     "description": "LAMOTRIGINE 150MG TAB",
     "on_hand": "106.00",
     "daily_use": "5.846",
-    "unit": "package",
+    "unit": "tablet",
+    "pkg_units": "500.00",
+    "unit_basis": "packages of 500, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Lamotrigine",
     "labeler_name": "Alembic Pharmaceuticals Inc.",
     "package_ndc": "62332-039-71",
     "spl_set_id": "60958229-5b5f-49e2-97f4-a8722138f7ce",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "LAMOTRIGINE 150 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-254ad8",
+   "queryId": "Q-84a156",
    "row": 1,
-   "label": "Corvale General: Lamotrigine",
+   "label": "Corvale General: Lamotrigine 150 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-254",
     "ndc11": "62332003971",
     "ndc_as_recorded": "62332003971",
-    "description": "Lamotrigine",
-    "on_hand": "218.06",
+    "description": "Lamotrigine 150 mg/1",
+    "on_hand": "218.00",
     "daily_use": "7.727",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Lamotrigine",
     "labeler_name": "Alembic Pharmaceuticals Inc.",
     "package_ndc": "62332-039-71",
     "spl_set_id": "60958229-5b5f-49e2-97f4-a8722138f7ce",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "LAMOTRIGINE 150 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E3": {
@@ -1588,7 +1511,7 @@
   },
   "E11": {
    "id": "E11",
-   "queryId": "Q-7cbdc5",
+   "queryId": "Q-02a005",
    "row": 0,
    "label": "FDA shortage list: Par Health, Inc., To Be Discontinued",
    "fields": {
@@ -1605,185 +1528,246 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 106 units of lamotrigine at 5.8 a day: 18 days on hand",
+   "label": "Corvale East holds 106 tablets of lamotrigine 150 mg at 5.8 a day: 18.1 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "150 mg tablet",
     "on_hand": 106,
     "daily_use": 5.8,
-    "days_on_hand": 18
+    "days_on_hand": 18.1
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 218 units of lamotrigine at 7.7 a day: 28 days on hand",
+   "label": "Corvale General holds 218 tablets of lamotrigine 150 mg at 7.7 a day: 28.2 days on hand",
    "fields": {
     "hospital": "Corvale General",
+    "presentation": "150 mg tablet",
     "on_hand": 218,
     "daily_use": 7.7,
-    "days_on_hand": 28
+    "days_on_hand": 28.2
+   }
+  },
+  "D3": {
+   "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "lamotrigine is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Actavis Pharma, Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Advagen Pharma Limited. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Advanced Rx Pharmacy of Tennessee, LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-254ad8": {
-   "id": "Q-254ad8",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%lamotrigine%' OR lower(s.description) LIKE '%lamotrigine%' ORDER BY s.hospital, s.item_key",
-   "ms": 4152,
+  "Q-84a156": {
+   "id": "Q-84a156",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*lamotrigine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*lamotrigine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 4737,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:56:04.242Z",
+   "ranAt": "2026-10-22T12:12:34.436Z",
    "rows": 2
   },
   "Q-0a5c81": {
    "id": "Q-0a5c81",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('60958229-5b5f-49e2-97f4-a8722138f7ce') ORDER BY ps.set_id, ps.establishment",
-   "ms": 1374,
+   "ms": 740,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:56:05.618Z",
+   "ranAt": "2026-10-22T12:12:35.179Z",
    "rows": 2
   },
-  "Q-7cbdc5": {
-   "id": "Q-7cbdc5",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%lamotrigine%' ORDER BY status, company_name, package_ndc",
-   "ms": 346,
+  "Q-02a005": {
+   "id": "Q-02a005",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*lamotrigine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 200,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:56:05.968Z",
+   "ranAt": "2026-10-22T12:12:35.381Z",
    "rows": 6
   },
-  "Q-9e4153": {
-   "id": "Q-9e4153",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%lamotrigine%' ORDER BY first_posting",
-   "ms": 283,
+  "Q-d86333": {
+   "id": "Q-d86333",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*lamotrigine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 216,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:56:06.254Z",
+   "ranAt": "2026-10-22T12:12:35.599Z",
    "rows": 1
   },
-  "Q-e07884": {
-   "id": "Q-e07884",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%lamotrigine%' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2888,
+  "Q-c92d1d": {
+   "id": "Q-c92d1d",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*lamotrigine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1836,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:56:09.144Z",
+   "ranAt": "2026-10-22T12:12:37.438Z",
    "rows": 636
   },
   "Q-aac2c2": {
    "id": "Q-aac2c2",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3004956904', '3016088083') ORDER BY fei, end_date",
-   "ms": 728,
+   "ms": 520,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:56:09.878Z",
+   "ranAt": "2026-10-22T12:12:37.962Z",
    "rows": 9
   },
   "Q-3b9bee": {
    "id": "Q-3b9bee",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3004956904', '3016088083') ORDER BY fei, action_date",
-   "ms": 363,
+   "ms": 217,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:56:10.242Z",
+   "ranAt": "2026-10-22T12:12:38.182Z",
    "rows": 0
   },
   "Q-01c075": {
    "id": "Q-01c075",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3004956904', '3016088083') OR (fei_match <> 'name_and_city' AND firm_key IN ('alembic')) ORDER BY date_published",
-   "ms": 279,
+   "ms": 307,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:56:10.523Z",
+   "ranAt": "2026-10-22T12:12:38.491Z",
    "rows": 0
   },
-  "Q-830443": {
-   "id": "Q-830443",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('alembic') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%lamotrigine%' ORDER BY initiation_date",
-   "ms": 349,
+  "Q-405909": {
+   "id": "Q-405909",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('alembic') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*lamotrigine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 297,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:56:10.874Z",
+   "ranAt": "2026-10-22T12:12:38.791Z",
    "rows": 0
   },
   "Q-2656a9": {
    "id": "Q-2656a9",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('62332003971')",
-   "ms": 1939,
+   "ms": 767,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:56:12.818Z",
+   "ranAt": "2026-10-22T12:12:39.561Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-8cd8d1": {
-   "id": "Q-8cd8d1",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%lamotrigine%'",
-   "ms": 2004,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:56:14.825Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-b8a8a6": {
+   "id": "Q-b8a8a6",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*lamotrigine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1543,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:12:41.106Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 20076,
+  "zetarisMs": 21588,
   "modelCalls": 1,
-  "tokensIn": 1413,
-  "tokensOut": 512,
+  "tokensIn": 1761,
+  "tokensOut": 446,
   "mode": "live"
  },
  "slug": "lamotrigine",
@@ -1797,7 +1781,7 @@
     "id": "hospital-item:hospital-item:CG-254",
     "type": "HospitalItem",
     "key": "hospital-item:CG-254",
-    "label": "Corvale General: Lamotrigine",
+    "label": "Corvale General: Lamotrigine 150 mg/1",
     "attrs": {
      "key": "hospital-item:CG-254"
     },
@@ -1892,7 +1876,7 @@
     },
     "facts": [
      {
-      "id": "fact_eca0d50d7886ef3f",
+      "id": "fact_f1a87269965e3ee2",
       "about": "inspection:fda-inspection:1048097",
       "predicate": "classification",
       "value": "VAI",
@@ -1900,9 +1884,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:56:10.877Z"
+       "at": "2026-10-22T12:12:38.793Z"
       },
-      "assertedAt": "2026-10-22T07:56:10.877Z"
+      "assertedAt": "2026-10-22T12:12:38.793Z"
      }
     ],
     "depth": 4
@@ -1918,7 +1902,7 @@
     },
     "facts": [
      {
-      "id": "fact_46b0cc773f78e1c9",
+      "id": "fact_7c32defce39cba86",
       "about": "inspection:fda-inspection:1123365",
       "predicate": "classification",
       "value": "VAI",
@@ -1926,9 +1910,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:56:10.878Z"
+       "at": "2026-10-22T12:12:38.793Z"
       },
-      "assertedAt": "2026-10-22T07:56:10.878Z"
+      "assertedAt": "2026-10-22T12:12:38.793Z"
      }
     ],
     "depth": 4
@@ -1944,7 +1928,7 @@
     },
     "facts": [
      {
-      "id": "fact_acbdad07f1abcca8",
+      "id": "fact_403119517b4fcaee",
       "about": "inspection:fda-inspection:1254771",
       "predicate": "classification",
       "value": "VAI",
@@ -1952,9 +1936,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:56:10.878Z"
+       "at": "2026-10-22T12:12:38.793Z"
       },
-      "assertedAt": "2026-10-22T07:56:10.878Z"
+      "assertedAt": "2026-10-22T12:12:38.793Z"
      }
     ],
     "depth": 4
@@ -1970,7 +1954,7 @@
     },
     "facts": [
      {
-      "id": "fact_2ec7d00911bb3aa4",
+      "id": "fact_b424b2d756c50c58",
       "about": "inspection:fda-inspection:672515",
       "predicate": "classification",
       "value": "VAI",
@@ -1978,9 +1962,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:56:10.877Z"
+       "at": "2026-10-22T12:12:38.793Z"
       },
-      "assertedAt": "2026-10-22T07:56:10.877Z"
+      "assertedAt": "2026-10-22T12:12:38.793Z"
      }
     ],
     "depth": 4
@@ -1996,7 +1980,7 @@
     },
     "facts": [
      {
-      "id": "fact_ce0250ee199bb4d8",
+      "id": "fact_5914aa428969b6a0",
       "about": "inspection:fda-inspection:797144",
       "predicate": "classification",
       "value": "VAI",
@@ -2004,9 +1988,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:56:10.877Z"
+       "at": "2026-10-22T12:12:38.793Z"
       },
-      "assertedAt": "2026-10-22T07:56:10.877Z"
+      "assertedAt": "2026-10-22T12:12:38.793Z"
      }
     ],
     "depth": 4
@@ -2022,7 +2006,7 @@
     },
     "facts": [
      {
-      "id": "fact_a59425dfcd8df58b",
+      "id": "fact_3ba00937b7d68eb2",
       "about": "inspection:fda-inspection:967744",
       "predicate": "classification",
       "value": "VAI",
@@ -2030,9 +2014,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:56:10.877Z"
+       "at": "2026-10-22T12:12:38.793Z"
       },
-      "assertedAt": "2026-10-22T07:56:10.877Z"
+      "assertedAt": "2026-10-22T12:12:38.793Z"
      }
     ],
     "depth": 4
@@ -2044,11 +2028,11 @@
     "from": "hospital-item:hospital-item:CG-254",
     "to": "package:ndc-package:62332-039-71",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:56:04.244Z",
+    "validFrom": "2026-10-22T12:12:34.439Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:04.244Z"
+     "at": "2026-10-22T12:12:34.439Z"
     }
    },
    {
@@ -2056,11 +2040,11 @@
     "from": "hospital-item:hospital-item:EA-E-000205",
     "to": "package:ndc-package:62332-039-71",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:56:04.244Z",
+    "validFrom": "2026-10-22T12:12:34.439Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:04.244Z"
+     "at": "2026-10-22T12:12:34.439Z"
     }
    },
    {
@@ -2068,11 +2052,11 @@
     "from": "package:ndc-package:62332-039-71",
     "to": "product:ndc-product:62332-039",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:56:04.244Z",
+    "validFrom": "2026-10-22T12:12:34.439Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:04.244Z"
+     "at": "2026-10-22T12:12:34.439Z"
     }
    },
    {
@@ -2080,11 +2064,11 @@
     "from": "product:ndc-product:62332-039",
     "to": "drug:generic:lamotrigine",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:56:04.244Z",
+    "validFrom": "2026-10-22T12:12:34.439Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:04.244Z"
+     "at": "2026-10-22T12:12:34.439Z"
     }
    },
    {
@@ -2092,11 +2076,11 @@
     "from": "product:ndc-product:62332-039",
     "to": "labeler:ndc-labeler:62332",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:56:04.244Z",
+    "validFrom": "2026-10-22T12:12:34.439Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:04.244Z"
+     "at": "2026-10-22T12:12:34.439Z"
     }
    },
    {
@@ -2104,11 +2088,11 @@
     "from": "product:ndc-product:62332-039",
     "to": "site:fei:3004956904",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:56:10.876Z",
+    "validFrom": "2026-10-22T12:12:38.793Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:10.876Z"
+     "at": "2026-10-22T12:12:38.793Z"
     }
    },
    {
@@ -2116,11 +2100,11 @@
     "from": "product:ndc-product:62332-039",
     "to": "site:fei:3016088083",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:56:10.878Z",
+    "validFrom": "2026-10-22T12:12:38.793Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:10.878Z"
+     "at": "2026-10-22T12:12:38.793Z"
     }
    },
    {
@@ -2128,11 +2112,11 @@
     "from": "inspection:fda-inspection:672515",
     "to": "site:fei:3004956904",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:56:10.877Z",
+    "validFrom": "2026-10-22T12:12:38.793Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:10.877Z"
+     "at": "2026-10-22T12:12:38.793Z"
     }
    },
    {
@@ -2140,11 +2124,11 @@
     "from": "inspection:fda-inspection:797144",
     "to": "site:fei:3004956904",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:56:10.877Z",
+    "validFrom": "2026-10-22T12:12:38.793Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:10.877Z"
+     "at": "2026-10-22T12:12:38.793Z"
     }
    },
    {
@@ -2152,11 +2136,11 @@
     "from": "inspection:fda-inspection:967744",
     "to": "site:fei:3004956904",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:56:10.877Z",
+    "validFrom": "2026-10-22T12:12:38.793Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:10.877Z"
+     "at": "2026-10-22T12:12:38.793Z"
     }
    },
    {
@@ -2164,11 +2148,11 @@
     "from": "inspection:fda-inspection:1048097",
     "to": "site:fei:3004956904",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:56:10.877Z",
+    "validFrom": "2026-10-22T12:12:38.793Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:10.877Z"
+     "at": "2026-10-22T12:12:38.793Z"
     }
    },
    {
@@ -2176,11 +2160,11 @@
     "from": "inspection:fda-inspection:1123365",
     "to": "site:fei:3004956904",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:56:10.877Z",
+    "validFrom": "2026-10-22T12:12:38.793Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:10.877Z"
+     "at": "2026-10-22T12:12:38.793Z"
     }
    },
    {
@@ -2188,11 +2172,11 @@
     "from": "inspection:fda-inspection:1254771",
     "to": "site:fei:3016088083",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:56:10.878Z",
+    "validFrom": "2026-10-22T12:12:38.793Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:10.878Z"
+     "at": "2026-10-22T12:12:38.793Z"
     }
    }
   ],

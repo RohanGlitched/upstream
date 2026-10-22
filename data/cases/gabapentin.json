@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-d432da",
+ "id": "case-2026-10-22-6f6d1e",
  "question": "Why is gabapentin short, and what do we do?",
- "askedAt": "2026-10-22T07:48:37.478Z",
+ "askedAt": "2026-10-22T12:02:19.935Z",
  "asOf": "2026-10-21",
  "molecule": "gabapentin",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H9AC9FCVF41JBNVTKE4AQ6",
+  "contractId": "01M5HQTYGCCMTH1ZGCBR5CGZH7",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-431927"
+    "Q-7b4559"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3380,
+   "ms": 4019,
    "rows": 3,
-   "finding": "3 stock lines across 3 hospitals.",
+   "finding": "3 stock lines across 3 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-20dc50"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 879,
+   "ms": 580,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-3f53c5",
-    "Q-64d8b9"
+    "Q-ae9798",
+    "Q-3a286e"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 465,
+   "ms": 303,
    "rows": 0,
    "finding": "Not on FDA's current shortage list.",
    "status": "empty"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-9e497e"
+    "Q-b9c06f"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1930,
+   "ms": 1526,
    "rows": 1228,
    "finding": "68 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-ecac8d",
     "Q-0185c5",
     "Q-8f0c62",
-    "Q-48238c"
+    "Q-af431d"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1032,
+   "ms": 853,
    "rows": 23,
    "finding": "22 inspections (0 OAI at our plants), 1 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,7 +111,7 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
    "ms": 1008,
    "rows": 0,
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-5488a9"
+    "Q-1dbfa9"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1722,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1580,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -151,23 +162,29 @@
    "description": "GABAPENTIN 100MG CAP",
    "labeler": "STALLION LABORATORIES PRIVATE LIMITED",
    "onHand": 115,
-   "dailyUse": 16.094,
+   "dailyUse": 16.093,
    "days": 7.1,
-   "unit": "package",
+   "unit": "capsule",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 500, converted to units",
+   "presentation": "gabapentin|100mg|capsule||capsule",
+   "presentationLabel": "100 mg capsule",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-227",
    "ndc11": "72737000503",
-   "description": "GABAPENTIN",
+   "description": "GABAPENTIN 100 mg/1",
    "labeler": "STALLION LABORATORIES PRIVATE LIMITED",
-   "onHand": 244.69,
+   "onHand": 244,
    "dailyUse": 18.975,
    "days": 12.9,
    "unit": "capsule",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "gabapentin|100mg|capsule||capsule",
+   "presentationLabel": "100 mg capsule",
    "evidence": "E2"
   },
   {
@@ -181,7 +198,59 @@
    "days": 18,
    "unit": "capsule",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "gabapentin|100mg|capsule||capsule",
+   "presentationLabel": "100 mg capsule",
    "evidence": "E3"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "gabapentin|100mg|capsule||capsule",
+   "label": "100 mg capsule",
+   "short": "100 mg",
+   "unit": "capsule",
+   "onHand": 441,
+   "dailyUse": 39.631,
+   "days": 11.1,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 115,
+     "dailyUse": 16.093,
+     "days": 7.1,
+     "lines": [
+      "EA-E-000308"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 244,
+     "dailyUse": 18.975,
+     "days": 12.9,
+     "lines": [
+      "CG-227"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 82,
+     "dailyUse": 4.563,
+     "days": 18,
+     "lines": [
+      "LS-LS-0134"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -825,32 +894,25 @@
   {
    "kind": "transfer",
    "rank": 1,
-   "title": "Transfer 18 from Corvale Lakeside to Corvale East",
-   "detail": "Corvale Lakeside has 18 days on hand and can spare 18 while keeping two weeks; Corvale East has 7.1 days and would reach 8.",
-   "why": "Same product, no clinical change, no new supplier.",
+   "title": "Transfer 18 capsules of 100 mg from Corvale Lakeside to Corvale East",
+   "detail": "Corvale Lakeside has 18 days of 100 mg capsules on hand and can spare 18 capsules while keeping two weeks; Corvale East has 7.1 days and would reach 8.",
+   "why": "Same presentation, no clinical change, no new supplier.",
    "needs": "pharmacy director (transfer request)",
    "evidence": [
     "E3",
     "E1"
-   ]
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 2,
-   "title": "Buy from Asclemed USA, Inc.",
-   "detail": "Not on FDA's shortage list today. Plants: ASCLEMED USA INC. DBA ENOVACHEM (last inspection NAI 2025-03-05).",
-   "why": "Same product, no clinical change, plant record clear.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 2,
-   "title": "Buy from Proficient Rx LP",
-   "detail": "Not on FDA's shortage list today. Plants: Proficient Rx LP (last inspection VAI 2022-12-08).",
-   "why": "Same product, no clinical change, plant record clear.",
-   "needs": "buyer",
-   "evidence": []
+   ],
+   "transfer": {
+    "qty": 18,
+    "unit": "capsule",
+    "presentation": "100 mg capsule",
+    "from": "Corvale Lakeside",
+    "to": "Corvale East",
+    "fromDays": 18,
+    "toDays": 7.1,
+    "fromAfter": 14,
+    "toAfter": 8
+   }
   },
   {
    "kind": "alternate_manufacturer",
@@ -864,25 +926,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from A-S Medication Solutions",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from ADVANCED RX OF TENNESSEE, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from ASCLEMED USA INC.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -918,15 +962,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from American Health Packaging",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Amici Pharma, Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -946,15 +981,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Amneal Pharmaceuticals of New York LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Aphena Pharma Solutions - Tennessee, LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -999,25 +1025,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Bryant Ranch Prepack",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Camber Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Cardinal Health 107, LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -1062,24 +1070,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from DIRECT RX",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Direct_Rx",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Epic Pharma, LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -1099,15 +1089,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Granules Pharmaceuticals Inc",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from HAWAII REPACK, INC.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -1197,42 +1178,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Northwind Health Company, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals,Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from PD-Rx Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Plants: PD-Rx Pharmaceuticals, Inc. (last inspection VAI 2026-08-20).",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from PHOENIX RX LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -1252,42 +1197,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Parke-Davis Div of Pfizer Inc",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Preferred Pharmaceuticals Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Preferred Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Quality Care Products, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from REMEDYREPACK INC.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -1456,45 +1365,44 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "FDA's records trace our gabapentin supply to a plant classified VAI on 2024-07-12",
+  "headline": "Gabapentin is not on FDA's shortage list as of 2026-10-21; Corvale East has 7.1 days on hand and Corvale Lakeside has 18 days on hand",
   "sentences": [
    {
-    "text": "Corvale East holds 115 units of gabapentin at 16.1 per day, giving 7 days on hand.",
+    "text": "FDA's records show gabapentin is not on the drug shortage list as of 2026-10-21.",
+    "cites": [
+     "D4"
+    ]
+   },
+   {
+    "text": "Corvale East holds 115 capsules of gabapentin 100 mg at 16.1 per day, giving 7.1 days on hand.",
     "cites": [
      "D1"
     ]
    },
    {
-    "text": "Corvale Lakeside holds 82 units at 4.6 per day, giving 18 days on hand.",
+    "text": "Corvale Lakeside holds 82 capsules of gabapentin 100 mg at 4.6 per day, giving 18 days on hand.",
     "cites": [
      "D3"
     ]
    },
    {
-    "text": "Both sites use the same NDC 72737000503 labeled by Stallion Laboratories Private Limited.",
+    "text": "Both sites' supply is labeled by STALLION LABORATORIES PRIVATE LIMITED (NDC 72737000503).",
     "cites": [
      "E1",
      "E3"
     ]
    },
    {
-    "text": "The label links to plant FEI 3013353854, which FDA inspected and classified VAI on 2024-07-12.",
+    "text": "The plant for this label is STALLION LABORATORIES PRIVATE LIMITED (FEI 3013353854) in India, last inspected 2024-07-12 with a VAI classification.",
     "cites": [
      "E5",
      "E4"
     ]
    },
    {
-    "text": "The inspection classification was known to FDA on 2024-09-28 per an FMD-145 letter.",
+    "text": "The top-ranked option by rule is to transfer 18 capsules of 100 mg from Corvale Lakeside to Corvale East, which would raise Corvale East to about 8 days on hand while Corvale Lakeside retains two weeks of supply.",
     "cites": [
-     "E4"
-    ]
-   },
-   {
-    "text": "Check whether the VAI classification has led to any shipping holds or allocation limits from this manufacturer.",
-    "cites": [
-     "E4",
-     "E5"
+     "D5"
     ]
    }
   ],
@@ -1508,125 +1416,146 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [],
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:48:27.056Z",
+   "at": "2026-10-22T12:02:10.061Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract VTKE4AQ6 scope"
+   "reason": "in contract BR5CGZH7 scope"
   },
   {
-   "at": "2026-10-22T07:48:27.056Z",
+   "at": "2026-10-22T12:02:10.061Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract VTKE4AQ6 scope"
+   "reason": "in contract BR5CGZH7 scope"
   },
   {
-   "at": "2026-10-22T07:48:30.438Z",
+   "at": "2026-10-22T12:02:14.081Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract VTKE4AQ6 scope"
+   "reason": "in contract BR5CGZH7 scope"
   },
   {
-   "at": "2026-10-22T07:48:31.318Z",
+   "at": "2026-10-22T12:02:14.662Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract VTKE4AQ6 scope"
+   "reason": "in contract BR5CGZH7 scope"
   },
   {
-   "at": "2026-10-22T07:48:31.782Z",
+   "at": "2026-10-22T12:02:14.965Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract VTKE4AQ6 scope"
+   "reason": "in contract BR5CGZH7 scope"
   },
   {
-   "at": "2026-10-22T07:48:33.713Z",
+   "at": "2026-10-22T12:02:16.492Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract VTKE4AQ6 scope"
+   "reason": "in contract BR5CGZH7 scope"
   },
   {
-   "at": "2026-10-22T07:48:34.747Z",
+   "at": "2026-10-22T12:02:17.346Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract VTKE4AQ6 scope"
+   "reason": "in contract BR5CGZH7 scope"
   },
   {
-   "at": "2026-10-22T07:48:35.756Z",
+   "at": "2026-10-22T12:02:18.354Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract VTKE4AQ6 scope"
+   "reason": "in contract BR5CGZH7 scope"
   },
   {
-   "at": "2026-10-22T07:48:37.477Z",
+   "at": "2026-10-22T12:02:19.934Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract VTKE4AQ6 scope"
+   "reason": "in contract BR5CGZH7 scope"
   },
   {
-   "at": "2026-10-22T07:48:37.481Z",
+   "at": "2026-10-22T12:02:19.935Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract VTKE4AQ6 scope"
+   "reason": "in contract BR5CGZH7 scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-431927",
+   "queryId": "Q-7b4559",
    "row": 0,
    "label": "Corvale East: GABAPENTIN 100MG CAP",
    "fields": {
@@ -1636,43 +1565,53 @@
     "ndc_as_recorded": "72737-005-03",
     "description": "GABAPENTIN 100MG CAP",
     "on_hand": "115.00",
-    "daily_use": "16.094",
-    "unit": "package",
+    "daily_use": "16.093",
+    "unit": "capsule",
+    "pkg_units": "500.00",
+    "unit_basis": "packages of 500, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "GABAPENTIN",
     "labeler_name": "STALLION LABORATORIES PRIVATE LIMITED",
     "package_ndc": "72737-005-03",
     "spl_set_id": "b26fd0c6-6aab-4957-8a32-cc7adb9b5fc9",
     "dosage_form": "CAPSULE",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "GABAPENTIN 100 mg/1",
+    "unit_content": null,
+    "pkg_unit": "capsule"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-431927",
+   "queryId": "Q-7b4559",
    "row": 1,
-   "label": "Corvale General: GABAPENTIN",
+   "label": "Corvale General: GABAPENTIN 100 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-227",
     "ndc11": "72737000503",
     "ndc_as_recorded": "72737000503",
-    "description": "GABAPENTIN",
-    "on_hand": "244.69",
+    "description": "GABAPENTIN 100 mg/1",
+    "on_hand": "244.00",
     "daily_use": "18.975",
     "unit": "capsule",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "GABAPENTIN",
     "labeler_name": "STALLION LABORATORIES PRIVATE LIMITED",
     "package_ndc": "72737-005-03",
     "spl_set_id": "b26fd0c6-6aab-4957-8a32-cc7adb9b5fc9",
     "dosage_form": "CAPSULE",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "GABAPENTIN 100 mg/1",
+    "unit_content": null,
+    "pkg_unit": "capsule"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-431927",
+   "queryId": "Q-7b4559",
    "row": 2,
    "label": "Corvale Lakeside: GABAPENTIN 100 mg/1",
    "fields": {
@@ -1684,13 +1623,18 @@
     "on_hand": "82.00",
     "daily_use": "4.563",
     "unit": "capsule",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "GABAPENTIN",
     "labeler_name": "STALLION LABORATORIES PRIVATE LIMITED",
     "package_ndc": "72737-005-03",
     "spl_set_id": "b26fd0c6-6aab-4957-8a32-cc7adb9b5fc9",
     "dosage_form": "CAPSULE",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "GABAPENTIN 100 mg/1",
+    "unit_content": null,
+    "pkg_unit": "capsule"
    }
   },
   "E4": {
@@ -1729,197 +1673,259 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 115 units of gabapentin at 16.1 a day: 7 days on hand",
+   "label": "Corvale East holds 115 capsules of gabapentin 100 mg at 16.1 a day: 7.1 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "100 mg capsule",
     "on_hand": 115,
     "daily_use": 16.1,
-    "days_on_hand": 7
+    "days_on_hand": 7.1
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 245 units of gabapentin at 19 a day: 13 days on hand",
+   "label": "Corvale General holds 244 capsules of gabapentin 100 mg at 19 a day: 12.9 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 245,
+    "presentation": "100 mg capsule",
+    "on_hand": 244,
     "daily_use": 19,
-    "days_on_hand": 13
+    "days_on_hand": 12.9
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 82 units of gabapentin at 4.6 a day: 18 days on hand",
+   "label": "Corvale Lakeside holds 82 capsules of gabapentin 100 mg at 4.6 a day: 18 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
+    "presentation": "100 mg capsule",
     "on_hand": 82,
     "daily_use": 4.6,
     "days_on_hand": 18
    }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "gabapentin is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 18 capsules of 100 mg from Corvale Lakeside to Corvale East. Corvale Lakeside has 18 days of 100 mg capsules on hand and can spare 18 capsules while keeping two weeks; Corvale East has 7.1 days and would reach 8.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from Westminster Pharmaceuticals, LLC. Not on FDA's shortage list today. Plants: CSPC Ouyi Pharmaceutical Co., Ltd. (last inspection VAI 2024-09-05).",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from ADVANCED RX OF TENNESSEE, LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
   }
  },
  "queries": {
-  "Q-431927": {
-   "id": "Q-431927",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%gabapentin%' OR lower(s.description) LIKE '%gabapentin%' ORDER BY s.hospital, s.item_key",
-   "ms": 3376,
+  "Q-7b4559": {
+   "id": "Q-7b4559",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*gabapentin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*gabapentin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 4018,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:48:30.432Z",
+   "ranAt": "2026-10-22T12:02:14.079Z",
    "rows": 3
   },
   "Q-20dc50": {
    "id": "Q-20dc50",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('b26fd0c6-6aab-4957-8a32-cc7adb9b5fc9') ORDER BY ps.set_id, ps.establishment",
-   "ms": 876,
+   "ms": 579,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:48:31.314Z",
+   "ranAt": "2026-10-22T12:02:14.660Z",
    "rows": 1
   },
-  "Q-3f53c5": {
-   "id": "Q-3f53c5",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%gabapentin%' ORDER BY status, company_name, package_ndc",
-   "ms": 240,
+  "Q-ae9798": {
+   "id": "Q-ae9798",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*gabapentin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 133,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:48:31.557Z",
+   "ranAt": "2026-10-22T12:02:14.795Z",
    "rows": 0
   },
-  "Q-64d8b9": {
-   "id": "Q-64d8b9",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%gabapentin%' ORDER BY first_posting",
-   "ms": 218,
+  "Q-3a286e": {
+   "id": "Q-3a286e",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*gabapentin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 168,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:48:31.779Z",
+   "ranAt": "2026-10-22T12:02:14.964Z",
    "rows": 0
   },
-  "Q-9e497e": {
-   "id": "Q-9e497e",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%gabapentin%' AND lower(p.dosage_form) LIKE '%capsule%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 1919,
+  "Q-b9c06f": {
+   "id": "Q-b9c06f",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*gabapentin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%capsule%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1524,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:48:33.702Z",
+   "ranAt": "2026-10-22T12:02:16.489Z",
    "rows": 1228
   },
   "Q-ecac8d": {
    "id": "Q-ecac8d",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3013353854', '3001452204', '1641825', '3011557028', '2000021110') ORDER BY fei, end_date",
-   "ms": 494,
+   "ms": 322,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:48:34.207Z",
+   "ranAt": "2026-10-22T12:02:16.814Z",
    "rows": 22
   },
   "Q-0185c5": {
    "id": "Q-0185c5",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3013353854', '3001452204', '1641825', '3011557028', '2000021110') ORDER BY fei, action_date",
-   "ms": 196,
+   "ms": 164,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:48:34.406Z",
+   "ranAt": "2026-10-22T12:02:16.980Z",
    "rows": 1
   },
   "Q-8f0c62": {
    "id": "Q-8f0c62",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3013353854') OR (fei_match <> 'name_and_city' AND firm_key IN ('stallion')) ORDER BY date_published",
-   "ms": 148,
+   "ms": 134,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:48:34.556Z",
+   "ranAt": "2026-10-22T12:02:17.116Z",
    "rows": 0
   },
-  "Q-48238c": {
-   "id": "Q-48238c",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('stallion') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%gabapentin%' ORDER BY initiation_date",
-   "ms": 180,
+  "Q-af431d": {
+   "id": "Q-af431d",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('stallion') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*gabapentin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 225,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:48:34.740Z",
+   "ranAt": "2026-10-22T12:02:17.343Z",
    "rows": 0
   },
   "Q-ae129a": {
    "id": "Q-ae129a",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('72737000503')",
-   "ms": 1004,
+   "ms": 1007,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:48:35.751Z",
+   "ranAt": "2026-10-22T12:02:18.353Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-5488a9": {
-   "id": "Q-5488a9",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%gabapentin%'",
-   "ms": 1717,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:48:37.473Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-1dbfa9": {
+   "id": "Q-1dbfa9",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*gabapentin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1579,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:02:19.933Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 15739,
+  "zetarisMs": 20061,
   "modelCalls": 1,
-  "tokensIn": 1208,
-  "tokensOut": 344,
+  "tokensIn": 1735,
+  "tokensOut": 442,
   "mode": "live"
  },
  "slug": "gabapentin",
@@ -1934,7 +1940,7 @@
     "id": "hospital-item:hospital-item:CG-227",
     "type": "HospitalItem",
     "key": "hospital-item:CG-227",
-    "label": "Corvale General: GABAPENTIN",
+    "label": "Corvale General: GABAPENTIN 100 mg/1",
     "attrs": {
      "key": "hospital-item:CG-227"
     },
@@ -2029,7 +2035,7 @@
     },
     "facts": [
      {
-      "id": "fact_38274c9ee94e8efb",
+      "id": "fact_0be8c37e707673c1",
       "about": "inspection:fda-inspection:1247705",
       "predicate": "classification",
       "value": "VAI",
@@ -2037,9 +2043,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:48:34.744Z"
+       "at": "2026-10-22T12:02:17.345Z"
       },
-      "assertedAt": "2026-10-22T07:48:34.744Z"
+      "assertedAt": "2026-10-22T12:02:17.345Z"
      }
     ],
     "depth": 4
@@ -2051,11 +2057,11 @@
     "from": "hospital-item:hospital-item:CG-227",
     "to": "package:ndc-package:72737-005-03",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:48:30.437Z",
+    "validFrom": "2026-10-22T12:02:14.080Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:48:30.437Z"
+     "at": "2026-10-22T12:02:14.080Z"
     }
    },
    {
@@ -2063,11 +2069,11 @@
     "from": "hospital-item:hospital-item:EA-E-000308",
     "to": "package:ndc-package:72737-005-03",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:48:30.436Z",
+    "validFrom": "2026-10-22T12:02:14.080Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:48:30.436Z"
+     "at": "2026-10-22T12:02:14.080Z"
     }
    },
    {
@@ -2075,11 +2081,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0134",
     "to": "package:ndc-package:72737-005-03",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:48:30.438Z",
+    "validFrom": "2026-10-22T12:02:14.081Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:48:30.438Z"
+     "at": "2026-10-22T12:02:14.081Z"
     }
    },
    {
@@ -2087,11 +2093,11 @@
     "from": "package:ndc-package:72737-005-03",
     "to": "product:ndc-product:72737-005",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:48:30.437Z",
+    "validFrom": "2026-10-22T12:02:14.080Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:48:30.437Z"
+     "at": "2026-10-22T12:02:14.080Z"
     }
    },
    {
@@ -2099,11 +2105,11 @@
     "from": "product:ndc-product:72737-005",
     "to": "drug:generic:gabapentin",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:48:30.437Z",
+    "validFrom": "2026-10-22T12:02:14.080Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:48:30.437Z"
+     "at": "2026-10-22T12:02:14.080Z"
     }
    },
    {
@@ -2111,11 +2117,11 @@
     "from": "product:ndc-product:72737-005",
     "to": "labeler:ndc-labeler:72737",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:48:30.437Z",
+    "validFrom": "2026-10-22T12:02:14.080Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:48:30.437Z"
+     "at": "2026-10-22T12:02:14.080Z"
     }
    },
    {
@@ -2123,11 +2129,11 @@
     "from": "product:ndc-product:72737-005",
     "to": "site:fei:3013353854",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:48:34.744Z",
+    "validFrom": "2026-10-22T12:02:17.345Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:48:34.744Z"
+     "at": "2026-10-22T12:02:17.345Z"
     }
    },
    {
@@ -2135,11 +2141,11 @@
     "from": "inspection:fda-inspection:1247705",
     "to": "site:fei:3013353854",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:48:34.744Z",
+    "validFrom": "2026-10-22T12:02:17.345Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:48:34.744Z"
+     "at": "2026-10-22T12:02:17.345Z"
     }
    }
   ],

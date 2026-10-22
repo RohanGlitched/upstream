@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-621e0b",
+ "id": "case-2026-10-22-6bfb3f",
  "question": "Why is ephedrine sulfate short, and what do we do?",
- "askedAt": "2026-10-22T07:43:47.551Z",
+ "askedAt": "2026-10-22T11:55:30.519Z",
  "asOf": "2026-10-21",
  "molecule": "ephedrine sulfate",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H91JF19MTAMQSQPY0CVCV8",
+  "contractId": "01M5HQEGRJRSVK3KZT895CZ212",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-bf722d"
+    "Q-85a86d"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2882,
+   "ms": 3254,
    "rows": 2,
-   "finding": "2 stock lines across 2 hospitals.",
+   "finding": "2 stock lines across 2 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-14a54c"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 737,
+   "ms": 425,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,29 +51,31 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-8ee514",
-    "Q-249b74"
+    "Q-5cf567",
+    "Q-25c6d4"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 351,
-   "rows": 2,
+   "ms": 270,
+   "rows": 0,
    "finding": "Not on FDA's current shortage list.",
-   "status": "ok"
+   "status": "empty"
   },
   {
    "key": "market",
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-0cb59b"
+    "Q-680dc4"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1948,
+   "ms": 1185,
    "rows": 40,
    "finding": "24 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-fc1297",
     "Q-095097",
     "Q-cd2cd6",
-    "Q-8829c9"
+    "Q-36b431"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1002,
+   "ms": 649,
    "rows": 36,
    "finding": "33 inspections (0 OAI at our plants), 3 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1048,
+   "ms": 740,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-4371c6"
+    "Q-614b65"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1115,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1224,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 1,
+   "ms": 0,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -153,22 +164,65 @@
    "onHand": 33,
    "dailyUse": 5.031,
    "days": 6.6,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "ephedrine sulfate|5mg/ml|injection|10ml|vial",
+   "presentationLabel": "5 mg/mL injection, 10 mL vial",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-207",
    "ndc11": "68083061010",
-   "description": "Ephedrine Sulfate",
+   "description": "Ephedrine Sulfate 5 mg/mL",
    "labeler": "Gland Pharma Limited",
-   "onHand": 111.23,
+   "onHand": 111,
    "dailyUse": 5.983,
    "days": 18.6,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "ephedrine sulfate|5mg/ml|injection|10ml|vial",
+   "presentationLabel": "5 mg/mL injection, 10 mL vial",
    "evidence": "E2"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "ephedrine sulfate|5mg/ml|injection|10ml|vial",
+   "label": "5 mg/mL injection, 10 mL vial",
+   "short": "5 mg/mL, 10 mL",
+   "unit": "vial",
+   "onHand": 144,
+   "dailyUse": 11.014,
+   "days": 13.1,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 33,
+     "dailyUse": 5.031,
+     "days": 6.6,
+     "lines": [
+      "EA-E-000249"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 111,
+     "dailyUse": 5.983,
+     "days": 18.6,
+     "lines": [
+      "CG-207"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -526,14 +580,25 @@
   {
    "kind": "transfer",
    "rank": 1,
-   "title": "Transfer 27 from Corvale General to Corvale East",
-   "detail": "Corvale General has 19 days on hand and can spare 27 while keeping two weeks; Corvale East has 6.6 days and would reach 12.",
-   "why": "Same product, no clinical change, no new supplier.",
+   "title": "Transfer 27 vials of 5 mg/mL, 10 mL from Corvale General to Corvale East",
+   "detail": "Corvale General has 19 days of 5 mg/mL injection, 10 mL vials on hand and can spare 27 vials while keeping two weeks; Corvale East has 6.6 days and would reach 12.",
+   "why": "Same presentation, no clinical change, no new supplier.",
    "needs": "pharmacy director (transfer request)",
    "evidence": [
     "E2",
     "E1"
-   ]
+   ],
+   "transfer": {
+    "qty": 27,
+    "unit": "vial",
+    "presentation": "5 mg/mL injection, 10 mL vial",
+    "from": "Corvale General",
+    "to": "Corvale East",
+    "fromDays": 18.6,
+    "toDays": 6.6,
+    "fromAfter": 14,
+    "toAfter": 12
+   }
   },
   {
    "kind": "alternate_manufacturer",
@@ -655,15 +720,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Lifestar Pharma LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Medical Purchasing Solutions, LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -710,15 +766,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from ProPharma Distribution",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from REMEDYREPACK INC.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -796,58 +843,55 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "FDA's records show the ephedrine sulfate supply is manufactured by Gland Pharma Limited at a plant with a history of VAI inspections, most recently 2024-07-25",
+  "headline": "Ephedrine sulfate is not on FDA's shortage list as of 2026-10-21; supply traces to a registered plant with VAI inspections through 2024-07-25",
   "sentences": [
    {
-    "text": "The product label identifies Gland Pharma Limited as the manufacturer for NDC 68083061010 at FEI 3002647489.",
+    "text": "FDA's drug shortage list does not include ephedrine sulfate as of 2026-10-21.",
+    "cites": [
+     "D3"
+    ]
+   },
+   {
+    "text": "The product used at both Corvale sites carries NDC 68083061010 and is labeled by Gland Pharma Limited.",
+    "cites": [
+     "E1",
+     "E2"
+    ]
+   },
+   {
+    "text": "The registered manufacturing plant for this NDC is Gland Pharma Limited (FEI 3002647489) in India.",
     "cites": [
      "E9"
     ]
    },
    {
-    "text": "FDA inspection records for this facility show a series of Voluntary Action Indicated (VAI) classifications from 2012 through 2024.",
-    "cites": [
-     "E3",
-     "E4",
-     "E5",
-     "E6",
-     "E7",
-     "E8"
-    ]
-   },
-   {
-    "text": "The most recent inspection ended 2024-07-25 and was classified VAI, with the classification known to FDA on 2025-01-15.",
+    "text": "FDA inspection records for that plant show a series of VAI classifications, most recently an inspection ending 2024-07-25 with classification VAI known to FDA on 2025-01-15.",
     "cites": [
      "E8"
     ]
    },
    {
-    "text": "Corvale East holds 33 units with 5.0 daily use, giving 7 days on hand, while Corvale General holds 111 units with 6.0 daily use, giving 19 days on hand.",
+    "text": "Corvale East holds 33 vials of the 5 mg/mL 10 mL presentation, providing 6.6 days of supply at current use.",
     "cites": [
-     "D1",
+     "D1"
+    ]
+   },
+   {
+    "text": "Corvale General holds 111 vials of the same presentation, providing 18.6 days of supply.",
+    "cites": [
      "D2"
     ]
    },
    {
-    "text": "Because the inspection history shows repeated VAI outcomes but no Official Action Indicated classification, the link between regulatory status and current availability is weak; verify whether the manufacturer has reported any production delays or allocation limits.",
+    "text": "The recommended action is to transfer 27 vials from Corvale General to Corvale East, which would raise East's coverage to about 12 days while General retains roughly two weeks of supply.",
     "cites": [
-     "E3",
-     "E4",
-     "E5",
-     "E6",
-     "E7",
-     "E8"
+     "D4"
     ]
    }
   ],
   "verifier": {
-   "checked": 7,
-   "rejected": [
-    {
-     "text": "Transferring 27 units from Corvale General to Corvale East would leave the sender with roughly two weeks of supply and bring the receiver to about 12 days.",
-     "reason": "number 27 is not in the cited evidence"
-    }
-   ],
+   "checked": 8,
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -855,45 +899,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -908,80 +973,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:43:38.465Z",
+   "at": "2026-10-22T11:55:22.770Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract PY0CVCV8 scope"
+   "reason": "in contract 895CZ212 scope"
   },
   {
-   "at": "2026-10-22T07:43:38.465Z",
+   "at": "2026-10-22T11:55:22.770Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract PY0CVCV8 scope"
+   "reason": "in contract 895CZ212 scope"
   },
   {
-   "at": "2026-10-22T07:43:41.348Z",
+   "at": "2026-10-22T11:55:26.024Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract PY0CVCV8 scope"
+   "reason": "in contract 895CZ212 scope"
   },
   {
-   "at": "2026-10-22T07:43:42.084Z",
+   "at": "2026-10-22T11:55:26.449Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract PY0CVCV8 scope"
+   "reason": "in contract 895CZ212 scope"
   },
   {
-   "at": "2026-10-22T07:43:42.435Z",
+   "at": "2026-10-22T11:55:26.719Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract PY0CVCV8 scope"
+   "reason": "in contract 895CZ212 scope"
   },
   {
-   "at": "2026-10-22T07:43:44.384Z",
+   "at": "2026-10-22T11:55:27.904Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract PY0CVCV8 scope"
+   "reason": "in contract 895CZ212 scope"
   },
   {
-   "at": "2026-10-22T07:43:45.387Z",
+   "at": "2026-10-22T11:55:28.554Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract PY0CVCV8 scope"
+   "reason": "in contract 895CZ212 scope"
   },
   {
-   "at": "2026-10-22T07:43:46.435Z",
+   "at": "2026-10-22T11:55:29.294Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract PY0CVCV8 scope"
+   "reason": "in contract 895CZ212 scope"
   },
   {
-   "at": "2026-10-22T07:43:47.550Z",
+   "at": "2026-10-22T11:55:30.519Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract PY0CVCV8 scope"
+   "reason": "in contract 895CZ212 scope"
   },
   {
-   "at": "2026-10-22T07:43:47.552Z",
+   "at": "2026-10-22T11:55:30.519Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract PY0CVCV8 scope"
+   "reason": "in contract 895CZ212 scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-bf722d",
+   "queryId": "Q-85a86d",
    "row": 0,
    "label": "Corvale East: EPHEDRINE SULFATE 5MG/ML 10ML SDV",
    "fields": {
@@ -992,37 +1057,47 @@
     "description": "EPHEDRINE SULFATE 5MG/ML 10ML SDV",
     "on_hand": "33.00",
     "daily_use": "5.031",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Ephedrine Sulfate",
     "labeler_name": "Gland Pharma Limited",
     "package_ndc": "68083-610-10",
     "spl_set_id": "523ec357-7fdb-482d-85f1-acb3b25eb764",
     "dosage_form": "INJECTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "EPHEDRINE SULFATE 5 mg/mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-bf722d",
+   "queryId": "Q-85a86d",
    "row": 1,
-   "label": "Corvale General: Ephedrine Sulfate",
+   "label": "Corvale General: Ephedrine Sulfate 5 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-207",
     "ndc11": "68083061010",
     "ndc_as_recorded": "68083061010",
-    "description": "Ephedrine Sulfate",
-    "on_hand": "111.23",
+    "description": "Ephedrine Sulfate 5 mg/mL",
+    "on_hand": "111.00",
     "daily_use": "5.983",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Ephedrine Sulfate",
     "labeler_name": "Gland Pharma Limited",
     "package_ndc": "68083-610-10",
     "spl_set_id": "523ec357-7fdb-482d-85f1-acb3b25eb764",
     "dosage_form": "INJECTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "EPHEDRINE SULFATE 5 mg/mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E3": {
@@ -1141,185 +1216,246 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 33 units of ephedrine sulfate at 5 a day: 7 days on hand",
+   "label": "Corvale East holds 33 vials of ephedrine sulfate 5 mg/mL, 10 mL at 5 a day: 6.6 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "5 mg/mL injection, 10 mL vial",
     "on_hand": 33,
     "daily_use": 5,
-    "days_on_hand": 7
+    "days_on_hand": 6.6
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 111 units of ephedrine sulfate at 6 a day: 19 days on hand",
+   "label": "Corvale General holds 111 vials of ephedrine sulfate 5 mg/mL, 10 mL at 6 a day: 18.6 days on hand",
    "fields": {
     "hospital": "Corvale General",
+    "presentation": "5 mg/mL injection, 10 mL vial",
     "on_hand": 111,
     "daily_use": 6,
-    "days_on_hand": 19
+    "days_on_hand": 18.6
+   }
+  },
+  "D3": {
+   "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "ephedrine sulfate is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 27 vials of 5 mg/mL, 10 mL from Corvale General to Corvale East. Corvale General has 19 days of 5 mg/mL injection, 10 mL vials on hand and can spare 27 vials while keeping two weeks; Corvale East has 6.6 days and would reach 12.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from Fresenius Kabi USA, LLC. Not on FDA's shortage list today. Plants: Fresenius Kabi Austria (last inspection VAI 2024-03-21).",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from NorthStar RxLLC. Not on FDA's shortage list today. Plants: Maiva Pharma Private Limited (last inspection VAI 2022-10-29).",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-bf722d": {
-   "id": "Q-bf722d",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%ephedrine%' OR lower(s.description) LIKE '%ephedrine%' ORDER BY s.hospital, s.item_key",
-   "ms": 2880,
+  "Q-85a86d": {
+   "id": "Q-85a86d",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*ephedrine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*ephedrine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3252,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:43:41.345Z",
+   "ranAt": "2026-10-22T11:55:26.023Z",
    "rows": 2
   },
   "Q-14a54c": {
    "id": "Q-14a54c",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('523ec357-7fdb-482d-85f1-acb3b25eb764') ORDER BY ps.set_id, ps.establishment",
-   "ms": 735,
+   "ms": 423,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:43:42.082Z",
+   "ranAt": "2026-10-22T11:55:26.448Z",
    "rows": 1
   },
-  "Q-8ee514": {
-   "id": "Q-8ee514",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%ephedrine%' ORDER BY status, company_name, package_ndc",
-   "ms": 154,
+  "Q-5cf567": {
+   "id": "Q-5cf567",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*ephedrine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 134,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:43:42.238Z",
+   "ranAt": "2026-10-22T11:55:26.583Z",
    "rows": 0
   },
-  "Q-249b74": {
-   "id": "Q-249b74",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%ephedrine%' ORDER BY first_posting",
-   "ms": 194,
+  "Q-25c6d4": {
+   "id": "Q-25c6d4",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*ephedrine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 134,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:43:42.433Z",
-   "rows": 2
+   "ranAt": "2026-10-22T11:55:26.718Z",
+   "rows": 0
   },
-  "Q-0cb59b": {
-   "id": "Q-0cb59b",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%ephedrine%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 1945,
+  "Q-680dc4": {
+   "id": "Q-680dc4",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*ephedrine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1183,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:43:44.380Z",
+   "ranAt": "2026-10-22T11:55:27.903Z",
    "rows": 40
   },
   "Q-fc1297": {
    "id": "Q-fc1297",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3002647489', '3004610460', '3003708554', '3005191225', '3014362214') ORDER BY fei, end_date",
-   "ms": 471,
+   "ms": 257,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:43:44.855Z",
+   "ranAt": "2026-10-22T11:55:28.160Z",
    "rows": 33
   },
   "Q-095097": {
    "id": "Q-095097",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3002647489', '3004610460', '3003708554', '3005191225', '3014362214') ORDER BY fei, action_date",
-   "ms": 172,
+   "ms": 121,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:43:45.029Z",
+   "ranAt": "2026-10-22T11:55:28.283Z",
    "rows": 3
   },
   "Q-cd2cd6": {
    "id": "Q-cd2cd6",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3002647489') OR (fei_match <> 'name_and_city' AND firm_key IN ('gland')) ORDER BY date_published",
-   "ms": 150,
+   "ms": 95,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:43:45.180Z",
+   "ranAt": "2026-10-22T11:55:28.379Z",
    "rows": 0
   },
-  "Q-8829c9": {
-   "id": "Q-8829c9",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('gland') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%ephedrine%' ORDER BY initiation_date",
-   "ms": 203,
+  "Q-36b431": {
+   "id": "Q-36b431",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('gland') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*ephedrine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 172,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:43:45.385Z",
+   "ranAt": "2026-10-22T11:55:28.552Z",
    "rows": 0
   },
   "Q-cd892b": {
    "id": "Q-cd892b",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('68083061010')",
-   "ms": 1046,
+   "ms": 738,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:43:46.433Z",
+   "ranAt": "2026-10-22T11:55:29.292Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-4371c6": {
-   "id": "Q-4371c6",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%ephedrine%'",
-   "ms": 1113,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:43:47.548Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-614b65": {
+   "id": "Q-614b65",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*ephedrine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1223,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:55:30.517Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 14434,
+  "zetarisMs": 17940,
   "modelCalls": 1,
-  "tokensIn": 1631,
-  "tokensOut": 473,
+  "tokensIn": 2238,
+  "tokensOut": 452,
   "mode": "live"
  },
  "slug": "ephedrine",
@@ -1333,7 +1469,7 @@
     "id": "hospital-item:hospital-item:CG-207",
     "type": "HospitalItem",
     "key": "hospital-item:CG-207",
-    "label": "Corvale General: Ephedrine Sulfate",
+    "label": "Corvale General: Ephedrine Sulfate 5 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-207"
     },
@@ -1417,7 +1553,7 @@
     },
     "facts": [
      {
-      "id": "fact_9c76be07040b8e80",
+      "id": "fact_3b318b0116a1c137",
       "about": "inspection:fda-inspection:1002974",
       "predicate": "classification",
       "value": "VAI",
@@ -1425,9 +1561,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:43:45.386Z"
+       "at": "2026-10-22T11:55:28.554Z"
       },
-      "assertedAt": "2026-10-22T07:43:45.386Z"
+      "assertedAt": "2026-10-22T11:55:28.554Z"
      }
     ],
     "depth": 4
@@ -1443,7 +1579,7 @@
     },
     "facts": [
      {
-      "id": "fact_a7a9631ab90506b9",
+      "id": "fact_562de0d6fb3f3439",
       "about": "inspection:fda-inspection:1090548",
       "predicate": "classification",
       "value": "VAI",
@@ -1451,9 +1587,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:43:45.386Z"
+       "at": "2026-10-22T11:55:28.554Z"
       },
-      "assertedAt": "2026-10-22T07:43:45.386Z"
+      "assertedAt": "2026-10-22T11:55:28.554Z"
      }
     ],
     "depth": 4
@@ -1469,7 +1605,7 @@
     },
     "facts": [
      {
-      "id": "fact_c130e0553961d2c2",
+      "id": "fact_88ccfc476adcdc25",
       "about": "inspection:fda-inspection:1210381",
       "predicate": "classification",
       "value": "VAI",
@@ -1477,9 +1613,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:43:45.387Z"
+       "at": "2026-10-22T11:55:28.554Z"
       },
-      "assertedAt": "2026-10-22T07:43:45.387Z"
+      "assertedAt": "2026-10-22T11:55:28.554Z"
      }
     ],
     "depth": 4
@@ -1495,7 +1631,7 @@
     },
     "facts": [
      {
-      "id": "fact_791a006999634a61",
+      "id": "fact_4ef27b3c67e34ad3",
       "about": "inspection:fda-inspection:1244548",
       "predicate": "classification",
       "value": "VAI",
@@ -1503,9 +1639,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:43:45.387Z"
+       "at": "2026-10-22T11:55:28.554Z"
       },
-      "assertedAt": "2026-10-22T07:43:45.387Z"
+      "assertedAt": "2026-10-22T11:55:28.554Z"
      }
     ],
     "depth": 4
@@ -1521,7 +1657,7 @@
     },
     "facts": [
      {
-      "id": "fact_08d34df8b0683d51",
+      "id": "fact_688c028826a53bf4",
       "about": "inspection:fda-inspection:800507",
       "predicate": "classification",
       "value": "VAI",
@@ -1529,9 +1665,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:43:45.386Z"
+       "at": "2026-10-22T11:55:28.553Z"
       },
-      "assertedAt": "2026-10-22T07:43:45.386Z"
+      "assertedAt": "2026-10-22T11:55:28.553Z"
      }
     ],
     "depth": 4
@@ -1547,7 +1683,7 @@
     },
     "facts": [
      {
-      "id": "fact_862363e0ef8cd517",
+      "id": "fact_87379305d642b885",
       "about": "inspection:fda-inspection:921536",
       "predicate": "classification",
       "value": "VAI",
@@ -1555,9 +1691,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:43:45.386Z"
+       "at": "2026-10-22T11:55:28.554Z"
       },
-      "assertedAt": "2026-10-22T07:43:45.386Z"
+      "assertedAt": "2026-10-22T11:55:28.554Z"
      }
     ],
     "depth": 4
@@ -1569,11 +1705,11 @@
     "from": "hospital-item:hospital-item:CG-207",
     "to": "package:ndc-package:68083-610-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:43:41.347Z",
+    "validFrom": "2026-10-22T11:55:26.024Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:43:41.347Z"
+     "at": "2026-10-22T11:55:26.024Z"
     }
    },
    {
@@ -1581,11 +1717,11 @@
     "from": "hospital-item:hospital-item:EA-E-000249",
     "to": "package:ndc-package:68083-610-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:43:41.347Z",
+    "validFrom": "2026-10-22T11:55:26.024Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:43:41.347Z"
+     "at": "2026-10-22T11:55:26.024Z"
     }
    },
    {
@@ -1593,11 +1729,11 @@
     "from": "package:ndc-package:68083-610-10",
     "to": "product:ndc-product:68083-610",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:43:41.347Z",
+    "validFrom": "2026-10-22T11:55:26.024Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:43:41.347Z"
+     "at": "2026-10-22T11:55:26.024Z"
     }
    },
    {
@@ -1605,11 +1741,11 @@
     "from": "product:ndc-product:68083-610",
     "to": "drug:generic:ephedrine sulfate",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:43:41.347Z",
+    "validFrom": "2026-10-22T11:55:26.024Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:43:41.347Z"
+     "at": "2026-10-22T11:55:26.024Z"
     }
    },
    {
@@ -1617,11 +1753,11 @@
     "from": "product:ndc-product:68083-610",
     "to": "labeler:ndc-labeler:68083",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:43:41.347Z",
+    "validFrom": "2026-10-22T11:55:26.024Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:43:41.347Z"
+     "at": "2026-10-22T11:55:26.024Z"
     }
    },
    {
@@ -1629,11 +1765,11 @@
     "from": "product:ndc-product:68083-610",
     "to": "site:fei:3002647489",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:43:45.386Z",
+    "validFrom": "2026-10-22T11:55:28.553Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:43:45.386Z"
+     "at": "2026-10-22T11:55:28.553Z"
     }
    },
    {
@@ -1641,11 +1777,11 @@
     "from": "inspection:fda-inspection:800507",
     "to": "site:fei:3002647489",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:43:45.386Z",
+    "validFrom": "2026-10-22T11:55:28.553Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:43:45.386Z"
+     "at": "2026-10-22T11:55:28.553Z"
     }
    },
    {
@@ -1653,11 +1789,11 @@
     "from": "inspection:fda-inspection:921536",
     "to": "site:fei:3002647489",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:43:45.386Z",
+    "validFrom": "2026-10-22T11:55:28.554Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:43:45.386Z"
+     "at": "2026-10-22T11:55:28.554Z"
     }
    },
    {
@@ -1665,11 +1801,11 @@
     "from": "inspection:fda-inspection:1002974",
     "to": "site:fei:3002647489",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:43:45.386Z",
+    "validFrom": "2026-10-22T11:55:28.554Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:43:45.386Z"
+     "at": "2026-10-22T11:55:28.554Z"
     }
    },
    {
@@ -1677,11 +1813,11 @@
     "from": "inspection:fda-inspection:1090548",
     "to": "site:fei:3002647489",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:43:45.386Z",
+    "validFrom": "2026-10-22T11:55:28.554Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:43:45.386Z"
+     "at": "2026-10-22T11:55:28.554Z"
     }
    },
    {
@@ -1689,11 +1825,11 @@
     "from": "inspection:fda-inspection:1210381",
     "to": "site:fei:3002647489",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:43:45.387Z",
+    "validFrom": "2026-10-22T11:55:28.554Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:43:45.387Z"
+     "at": "2026-10-22T11:55:28.554Z"
     }
    },
    {
@@ -1701,11 +1837,11 @@
     "from": "inspection:fda-inspection:1244548",
     "to": "site:fei:3002647489",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:43:45.387Z",
+    "validFrom": "2026-10-22T11:55:28.554Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:43:45.387Z"
+     "at": "2026-10-22T11:55:28.554Z"
     }
    }
   ],

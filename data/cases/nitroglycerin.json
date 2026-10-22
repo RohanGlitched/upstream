@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-c52cb4",
+ "id": "case-2026-10-22-13d16d",
  "question": "Why is nitroglycerin short, and what do we do?",
- "askedAt": "2026-10-22T08:07:09.027Z",
+ "askedAt": "2026-10-22T12:25:34.590Z",
  "asOf": "2026-10-21",
  "molecule": "nitroglycerin",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5HAC7DXG9C4CYCPP49SZYWM",
+  "contractId": "01M5HS5JJMM2QA1QYMCJQBB85T",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-36973c"
+    "Q-6b659a"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 4580,
+   "ms": 3217,
    "rows": 3,
-   "finding": "3 stock lines across 3 hospitals.",
+   "finding": "3 stock lines across 3 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-2a2b4d"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1021,
+   "ms": 414,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-56c320",
-    "Q-0912ab"
+    "Q-3f5df0",
+    "Q-e016f5"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 596,
+   "ms": 244,
    "rows": 4,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-edd8c3"
+    "Q-94c30c"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1999,
+   "ms": 1137,
    "rows": 82,
    "finding": "24 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-8cc3ad",
     "Q-3ed322",
     "Q-ab4efb",
-    "Q-f199dd"
+    "Q-c9749d"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1238,
+   "ms": 679,
    "rows": 8,
    "finding": "7 inspections (0 OAI at our plants), 1 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1433,
+   "ms": 603,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-98e4be"
+    "Q-05c878"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1962,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1425,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 3,
+   "ms": 1,
    "rows": 2,
    "finding": "2 past decisions recalled.",
    "status": "ok"
@@ -153,21 +164,27 @@
    "onHand": 74,
    "dailyUse": 13.203,
    "days": 5.6,
-   "unit": "package",
+   "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 4, converted to units",
+   "presentation": "nitroglycerin|0.4mg|tablet||tablet",
+   "presentationLabel": "0.4 mg tablet",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-288",
    "ndc11": "50090326600",
-   "description": "Nitroglycerin",
+   "description": "Nitroglycerin 0.4 mg/1",
    "labeler": "A-S Medication Solutions",
-   "onHand": 198.42,
+   "onHand": 198,
    "dailyUse": 14.181,
    "days": 14,
    "unit": "tablet",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "nitroglycerin|0.4mg|tablet||tablet",
+   "presentationLabel": "0.4 mg tablet",
    "evidence": "E2"
   },
   {
@@ -181,7 +198,59 @@
    "days": 6.3,
    "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "nitroglycerin|0.4mg|tablet||tablet",
+   "presentationLabel": "0.4 mg tablet",
    "evidence": "E3"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "nitroglycerin|0.4mg|tablet||tablet",
+   "label": "0.4 mg tablet",
+   "short": "0.4 mg",
+   "unit": "tablet",
+   "onHand": 296,
+   "dailyUse": 31.181,
+   "days": 9.5,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 74,
+     "dailyUse": 13.203,
+     "days": 5.6,
+     "lines": [
+      "EA-E-000165"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 198,
+     "dailyUse": 14.181,
+     "days": 14,
+     "lines": [
+      "CG-288"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 24,
+     "dailyUse": 3.797,
+     "days": 6.3,
+     "lines": [
+      "LS-LS-0076"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -538,34 +607,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Golden State Medical Supply, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from HF Acquisition Co LLC, DBA HealthFirst",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Henry Schein, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Lifestar Pharma LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -628,43 +670,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals,Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from ProPharma Distribution",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Proficient Rx LP",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from REMEDYREPACK INC.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -725,59 +731,53 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "FDA's shortage list shows nitroglycerin ointment from AbbVie Inc. posted as To Be Discontinued on 2026-04-14 and the shortage has been listed for 37 months as of 2026-10-21",
+  "headline": "FDA's records show nitroglycerin listed as To Be Discontinued since 2023-10-06; our three sites hold 5.6 to 14 days on hand",
   "sentences": [
    {
-    "text": "FDA's shortage list records nitroglycerin ointment from AbbVie Inc. with a status of To Be Discontinued and an initial posting date of 2026-04-14.",
+    "text": "FDA's shortage list shows nitroglycerin with status To Be Discontinued and an initial posting date of 2023-10-06, which as of 2026-10-21 has been on the list for 37 months.",
     "cites": [
-     "E11"
+     "D4"
     ]
    },
    {
-    "text": "As of 2026-10-21 the shortage has been on FDA's list for 37 months.",
+    "text": "Corvale East holds 74 tablets of the 0.4 mg presentation at 13.2 tablets per day, providing 5.6 days on hand.",
     "cites": [
-     "D7"
+     "D1"
     ]
    },
    {
-    "text": "The label for NDC 50090326600 names A-S Medication Solutions as the product labeler and plant with FEI 1450743, operations RELABEL and REPACK, and a last inspection classification of VAI on 2026-08-12.",
+    "text": "Corvale General holds 198 tablets at 14.2 per day, providing 14 days on hand.",
     "cites": [
-     "E10"
+     "D2"
     ]
    },
    {
-    "text": "FDA inspection records for FEI 1450743 show multiple VAI classifications from 2009 through 2026, with the most recent inspection ending 2026-08-12 and known date 2026-10-14.",
+    "text": "Corvale Lakeside holds 24 tablets at 3.8 per day, providing 6.3 days on hand.",
+    "cites": [
+     "D3"
+    ]
+   },
+   {
+    "text": "The rule-based check finds FDA actions or weak links but no action before a posting at a registered plant, or some records fail data checks; the buyer should verify current supply agreements and inspection histories for the labeled plants.",
     "cites": [
      "E4",
      "E5",
      "E6",
      "E7",
-     "E8"
+     "E8",
+     "E9",
+     "E10"
     ]
    },
    {
-    "text": "A Warning Letter was issued to A-S Medication Solutions LLC on 2017-06-05.",
+    "text": "The best option by rule is to buy from Advagen Pharma Ltd., which is not on FDA's shortage list today, though its label names no plant we could place.",
     "cites": [
-     "E9"
-    ]
-   },
-   {
-    "text": "Current inventory at Corvale East is 74 units at 13.2 units per day (6 days on hand), Corvale General holds 198 units at 14.2 units per day (14 days on hand), and Corvale Lakeside holds 24 units at 3.8 units per day (6 days on hand).",
-    "cites": [
-     "D1",
-     "D2",
-     "D3"
-    ]
-   },
-   {
-    "text": "The rule-based best option is to buy from Advagen Pharma Ltd., which is not on FDA's shortage list today, though its label names no plant we could place.",
-    "cites": [
-     "D4"
+     "D5"
     ]
    }
   ],
   "verifier": {
-   "checked": 8,
+   "checked": 7,
    "rejected": [],
    "repaired": 0
   },
@@ -786,45 +786,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -846,80 +867,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T08:06:56.190Z",
+   "at": "2026-10-22T12:25:26.868Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract P49SZYWM scope"
+   "reason": "in contract CJQBB85T scope"
   },
   {
-   "at": "2026-10-22T08:06:56.191Z",
+   "at": "2026-10-22T12:25:26.869Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract P49SZYWM scope"
+   "reason": "in contract CJQBB85T scope"
   },
   {
-   "at": "2026-10-22T08:07:00.771Z",
+   "at": "2026-10-22T12:25:30.086Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract P49SZYWM scope"
+   "reason": "in contract CJQBB85T scope"
   },
   {
-   "at": "2026-10-22T08:07:01.793Z",
+   "at": "2026-10-22T12:25:30.500Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract P49SZYWM scope"
+   "reason": "in contract CJQBB85T scope"
   },
   {
-   "at": "2026-10-22T08:07:02.388Z",
+   "at": "2026-10-22T12:25:30.744Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract P49SZYWM scope"
+   "reason": "in contract CJQBB85T scope"
   },
   {
-   "at": "2026-10-22T08:07:04.388Z",
+   "at": "2026-10-22T12:25:31.881Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract P49SZYWM scope"
+   "reason": "in contract CJQBB85T scope"
   },
   {
-   "at": "2026-10-22T08:07:05.628Z",
+   "at": "2026-10-22T12:25:32.561Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract P49SZYWM scope"
+   "reason": "in contract CJQBB85T scope"
   },
   {
-   "at": "2026-10-22T08:07:07.061Z",
+   "at": "2026-10-22T12:25:33.165Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract P49SZYWM scope"
+   "reason": "in contract CJQBB85T scope"
   },
   {
-   "at": "2026-10-22T08:07:09.023Z",
+   "at": "2026-10-22T12:25:34.589Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract P49SZYWM scope"
+   "reason": "in contract CJQBB85T scope"
   },
   {
-   "at": "2026-10-22T08:07:09.028Z",
+   "at": "2026-10-22T12:25:34.590Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract P49SZYWM scope"
+   "reason": "in contract CJQBB85T scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-36973c",
+   "queryId": "Q-6b659a",
    "row": 0,
    "label": "Corvale East: NITROGLYCERIN 0.4MG TAB",
    "fields": {
@@ -930,42 +951,52 @@
     "description": "NITROGLYCERIN 0.4MG TAB",
     "on_hand": "74.00",
     "daily_use": "13.203",
-    "unit": "package",
+    "unit": "tablet",
+    "pkg_units": "4.00",
+    "unit_basis": "packages of 4, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Nitroglycerin",
     "labeler_name": "A-S Medication Solutions",
     "package_ndc": "50090-3266-0",
     "spl_set_id": "fc297c0a-a412-40be-8414-4bf9906fd300",
     "dosage_form": "TABLET",
-    "route": "SUBLINGUAL"
+    "route": "SUBLINGUAL",
+    "strength": "NITROGLYCERIN .4 mg/1",
+    "unit_content": null,
+    "pkg_unit": "bottle"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-36973c",
+   "queryId": "Q-6b659a",
    "row": 1,
-   "label": "Corvale General: Nitroglycerin",
+   "label": "Corvale General: Nitroglycerin 0.4 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-288",
     "ndc11": "50090326600",
     "ndc_as_recorded": "50090326600",
-    "description": "Nitroglycerin",
-    "on_hand": "198.42",
+    "description": "Nitroglycerin 0.4 mg/1",
+    "on_hand": "198.00",
     "daily_use": "14.181",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Nitroglycerin",
     "labeler_name": "A-S Medication Solutions",
     "package_ndc": "50090-3266-0",
     "spl_set_id": "fc297c0a-a412-40be-8414-4bf9906fd300",
     "dosage_form": "TABLET",
-    "route": "SUBLINGUAL"
+    "route": "SUBLINGUAL",
+    "strength": "NITROGLYCERIN .4 mg/1",
+    "unit_content": null,
+    "pkg_unit": "bottle"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-36973c",
+   "queryId": "Q-6b659a",
    "row": 2,
    "label": "Corvale Lakeside: Nitroglycerin 0.4 mg/1",
    "fields": {
@@ -977,13 +1008,18 @@
     "on_hand": "24.00",
     "daily_use": "3.797",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Nitroglycerin",
     "labeler_name": "A-S Medication Solutions",
     "package_ndc": "50090-3266-0",
     "spl_set_id": "fc297c0a-a412-40be-8414-4bf9906fd300",
     "dosage_form": "TABLET",
-    "route": "SUBLINGUAL"
+    "route": "SUBLINGUAL",
+    "strength": "NITROGLYCERIN .4 mg/1",
+    "unit_content": null,
+    "pkg_unit": "bottle"
    }
   },
   "E4": {
@@ -1098,7 +1134,7 @@
   },
   "E11": {
    "id": "E11",
-   "queryId": "Q-56c320",
+   "queryId": "Q-3f5df0",
    "row": 0,
    "label": "FDA shortage list: AbbVie Inc., To Be Discontinued",
    "fields": {
@@ -1115,21 +1151,23 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 74 units of nitroglycerin at 13.2 a day: 6 days on hand",
+   "label": "Corvale East holds 74 tablets of nitroglycerin 0.4 mg at 13.2 a day: 5.6 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "0.4 mg tablet",
     "on_hand": 74,
     "daily_use": 13.2,
-    "days_on_hand": 6
+    "days_on_hand": 5.6
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 198 units of nitroglycerin at 14.2 a day: 14 days on hand",
+   "label": "Corvale General holds 198 tablets of nitroglycerin 0.4 mg at 14.2 a day: 14 days on hand",
    "fields": {
     "hospital": "Corvale General",
+    "presentation": "0.4 mg tablet",
     "on_hand": 198,
     "daily_use": 14.2,
     "days_on_hand": 14
@@ -1139,29 +1177,31 @@
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 24 units of nitroglycerin at 3.8 a day: 6 days on hand",
+   "label": "Corvale Lakeside holds 24 tablets of nitroglycerin 0.4 mg at 3.8 a day: 6.3 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
+    "presentation": "0.4 mg tablet",
     "on_hand": 24,
     "daily_use": 3.8,
-    "days_on_hand": 6
+    "days_on_hand": 6.3
    }
   },
   "D4": {
    "id": "D4",
    "queryId": "derived",
    "row": -1,
-   "label": "Option ranked 3 by rule: Buy from Advagen Pharma Ltd. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "label": "As of 2026-10-21 the shortage has been on FDA's list for 37 months",
    "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
+    "as_of": "2026-10-21",
+    "posted": "2023-10-06",
+    "months": 37
    }
   },
   "D5": {
    "id": "D5",
    "queryId": "derived",
    "row": -1,
-   "label": "Option ranked 3 by rule: Buy from Aurobindo Pharma Limited. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "label": "Option ranked 3 by rule: Buy from Advagen Pharma Ltd. Not on FDA's shortage list today. Its label names no plant we could place.",
    "fields": {
     "kind": "alternate_manufacturer",
     "needs": "buyer"
@@ -1171,7 +1211,7 @@
    "id": "D6",
    "queryId": "derived",
    "row": -1,
-   "label": "Option ranked 3 by rule: Buy from Dr. Reddys Laboratories Inc. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "label": "Option ranked 3 by rule: Buy from Aurobindo Pharma Limited. Not on FDA's shortage list today. Its label names no plant we could place.",
    "fields": {
     "kind": "alternate_manufacturer",
     "needs": "buyer"
@@ -1181,172 +1221,190 @@
    "id": "D7",
    "queryId": "derived",
    "row": -1,
-   "label": "As of 2026-10-21 the shortage has been on FDA's list for 37 months",
+   "label": "Option ranked 3 by rule: Buy from Dr. Reddys Laboratories Inc. Not on FDA's shortage list today. Its label names no plant we could place.",
    "fields": {
-    "as_of": "2026-10-21",
-    "posted": "2023-10-06",
-    "months": 37
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-36973c": {
-   "id": "Q-36973c",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%nitroglycerin%' OR lower(s.description) LIKE '%nitroglycerin%' ORDER BY s.hospital, s.item_key",
-   "ms": 4575,
+  "Q-6b659a": {
+   "id": "Q-6b659a",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*nitroglycerin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*nitroglycerin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3216,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T08:07:00.766Z",
+   "ranAt": "2026-10-22T12:25:30.084Z",
    "rows": 3
   },
   "Q-2a2b4d": {
    "id": "Q-2a2b4d",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('fc297c0a-a412-40be-8414-4bf9906fd300') ORDER BY ps.set_id, ps.establishment",
-   "ms": 1019,
+   "ms": 413,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:07:01.790Z",
+   "ranAt": "2026-10-22T12:25:30.499Z",
    "rows": 1
   },
-  "Q-56c320": {
-   "id": "Q-56c320",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%nitroglycerin%' ORDER BY status, company_name, package_ndc",
-   "ms": 345,
+  "Q-3f5df0": {
+   "id": "Q-3f5df0",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*nitroglycerin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 110,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T08:07:02.137Z",
+   "ranAt": "2026-10-22T12:25:30.609Z",
    "rows": 1
   },
-  "Q-0912ab": {
-   "id": "Q-0912ab",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%nitroglycerin%' ORDER BY first_posting",
-   "ms": 244,
+  "Q-e016f5": {
+   "id": "Q-e016f5",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*nitroglycerin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 132,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T08:07:02.385Z",
+   "ranAt": "2026-10-22T12:25:30.743Z",
    "rows": 3
   },
-  "Q-edd8c3": {
-   "id": "Q-edd8c3",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%nitroglycerin%' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 1994,
+  "Q-94c30c": {
+   "id": "Q-94c30c",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*nitroglycerin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1135,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:07:04.383Z",
+   "ranAt": "2026-10-22T12:25:31.879Z",
    "rows": 82
   },
   "Q-8cc3ad": {
    "id": "Q-8cc3ad",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('1450743') ORDER BY fei, end_date",
-   "ms": 444,
+   "ms": 264,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T08:07:04.832Z",
+   "ranAt": "2026-10-22T12:25:32.145Z",
    "rows": 7
   },
   "Q-3ed322": {
    "id": "Q-3ed322",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('1450743') ORDER BY fei, action_date",
-   "ms": 223,
+   "ms": 172,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T08:07:05.058Z",
+   "ranAt": "2026-10-22T12:25:32.318Z",
    "rows": 1
   },
   "Q-ab4efb": {
    "id": "Q-ab4efb",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('1450743') OR (fei_match <> 'name_and_city' AND firm_key IN ('a s medication solutions')) ORDER BY date_published",
-   "ms": 218,
+   "ms": 99,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T08:07:05.280Z",
+   "ranAt": "2026-10-22T12:25:32.418Z",
    "rows": 0
   },
-  "Q-f199dd": {
-   "id": "Q-f199dd",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('a s medication solutions') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%nitroglycerin%' ORDER BY initiation_date",
-   "ms": 335,
+  "Q-c9749d": {
+   "id": "Q-c9749d",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('a s medication solutions') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*nitroglycerin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 140,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T08:07:05.620Z",
+   "ranAt": "2026-10-22T12:25:32.559Z",
    "rows": 0
   },
   "Q-11b70f": {
    "id": "Q-11b70f",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('50090326600')",
-   "ms": 1429,
+   "ms": 602,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:07:07.057Z",
+   "ranAt": "2026-10-22T12:25:33.163Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-98e4be": {
-   "id": "Q-98e4be",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%nitroglycerin%'",
-   "ms": 1958,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:07:09.018Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-05c878": {
+   "id": "Q-05c878",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*nitroglycerin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1423,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:25:34.587Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 18155,
+  "zetarisMs": 17914,
   "modelCalls": 1,
-  "tokensIn": 1512,
-  "tokensOut": 589,
+  "tokensIn": 1687,
+  "tokensOut": 439,
   "mode": "live"
  },
  "slug": "nitroglycerin",
@@ -1361,7 +1419,7 @@
     "id": "hospital-item:hospital-item:CG-288",
     "type": "HospitalItem",
     "key": "hospital-item:CG-288",
-    "label": "Corvale General: Nitroglycerin",
+    "label": "Corvale General: Nitroglycerin 0.4 mg/1",
     "attrs": {
      "key": "hospital-item:CG-288"
     },
@@ -1456,7 +1514,7 @@
     },
     "facts": [
      {
-      "id": "fact_0e7b3f7d590bc6bf",
+      "id": "fact_525cad82120bb62d",
       "about": "inspection:fda-inspection:1054512",
       "predicate": "classification",
       "value": "VAI",
@@ -1464,9 +1522,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:07:05.627Z"
+       "at": "2026-10-22T12:25:32.560Z"
       },
-      "assertedAt": "2026-10-22T08:07:05.627Z"
+      "assertedAt": "2026-10-22T12:25:32.560Z"
      }
     ],
     "depth": 4
@@ -1482,7 +1540,7 @@
     },
     "facts": [
      {
-      "id": "fact_ed0a5efcf9bdc19e",
+      "id": "fact_dc3c588fb239475c",
       "about": "inspection:fda-inspection:1331612",
       "predicate": "classification",
       "value": "VAI",
@@ -1490,9 +1548,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:07:05.627Z"
+       "at": "2026-10-22T12:25:32.560Z"
       },
-      "assertedAt": "2026-10-22T08:07:05.627Z"
+      "assertedAt": "2026-10-22T12:25:32.560Z"
      }
     ],
     "depth": 4
@@ -1508,7 +1566,7 @@
     },
     "facts": [
      {
-      "id": "fact_28035094dde7026e",
+      "id": "fact_e732597755470447",
       "about": "inspection:fda-inspection:628529",
       "predicate": "classification",
       "value": "VAI",
@@ -1516,9 +1574,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:07:05.625Z"
+       "at": "2026-10-22T12:25:32.560Z"
       },
-      "assertedAt": "2026-10-22T08:07:05.625Z"
+      "assertedAt": "2026-10-22T12:25:32.560Z"
      }
     ],
     "depth": 4
@@ -1534,7 +1592,7 @@
     },
     "facts": [
      {
-      "id": "fact_0b7b7460f815f8db",
+      "id": "fact_647cc12ee98b31a8",
       "about": "inspection:fda-inspection:770191",
       "predicate": "classification",
       "value": "VAI",
@@ -1542,9 +1600,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:07:05.626Z"
+       "at": "2026-10-22T12:25:32.560Z"
       },
-      "assertedAt": "2026-10-22T08:07:05.626Z"
+      "assertedAt": "2026-10-22T12:25:32.560Z"
      }
     ],
     "depth": 4
@@ -1560,7 +1618,7 @@
     },
     "facts": [
      {
-      "id": "fact_3075e5a554e54cde",
+      "id": "fact_a528bcc004078df4",
       "about": "inspection:fda-inspection:834331",
       "predicate": "classification",
       "value": "VAI",
@@ -1568,9 +1626,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:07:05.626Z"
+       "at": "2026-10-22T12:25:32.560Z"
       },
-      "assertedAt": "2026-10-22T08:07:05.626Z"
+      "assertedAt": "2026-10-22T12:25:32.560Z"
      }
     ],
     "depth": 4
@@ -1593,11 +1651,11 @@
     "from": "hospital-item:hospital-item:CG-288",
     "to": "package:ndc-package:50090-3266-0",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:07:00.770Z",
+    "validFrom": "2026-10-22T12:25:30.085Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:07:00.770Z"
+     "at": "2026-10-22T12:25:30.085Z"
     }
    },
    {
@@ -1605,11 +1663,11 @@
     "from": "hospital-item:hospital-item:EA-E-000165",
     "to": "package:ndc-package:50090-3266-0",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:07:00.770Z",
+    "validFrom": "2026-10-22T12:25:30.085Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:07:00.770Z"
+     "at": "2026-10-22T12:25:30.085Z"
     }
    },
    {
@@ -1617,11 +1675,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0076",
     "to": "package:ndc-package:50090-3266-0",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:07:00.771Z",
+    "validFrom": "2026-10-22T12:25:30.085Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:07:00.771Z"
+     "at": "2026-10-22T12:25:30.085Z"
     }
    },
    {
@@ -1629,11 +1687,11 @@
     "from": "package:ndc-package:50090-3266-0",
     "to": "product:ndc-product:50090-3266",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:07:00.770Z",
+    "validFrom": "2026-10-22T12:25:30.085Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:07:00.770Z"
+     "at": "2026-10-22T12:25:30.085Z"
     }
    },
    {
@@ -1641,11 +1699,11 @@
     "from": "product:ndc-product:50090-3266",
     "to": "drug:generic:nitroglycerin",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:07:00.770Z",
+    "validFrom": "2026-10-22T12:25:30.085Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:07:00.770Z"
+     "at": "2026-10-22T12:25:30.085Z"
     }
    },
    {
@@ -1653,11 +1711,11 @@
     "from": "product:ndc-product:50090-3266",
     "to": "labeler:ndc-labeler:50090",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:07:00.770Z",
+    "validFrom": "2026-10-22T12:25:30.085Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:07:00.770Z"
+     "at": "2026-10-22T12:25:30.085Z"
     }
    },
    {
@@ -1665,11 +1723,11 @@
     "from": "product:ndc-product:50090-3266",
     "to": "site:fei:1450743",
     "type": "made-at",
-    "validFrom": "2026-10-22T08:07:05.625Z",
+    "validFrom": "2026-10-22T12:25:32.560Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:07:05.625Z"
+     "at": "2026-10-22T12:25:32.560Z"
     }
    },
    {
@@ -1677,11 +1735,11 @@
     "from": "inspection:fda-inspection:628529",
     "to": "site:fei:1450743",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:07:05.625Z",
+    "validFrom": "2026-10-22T12:25:32.560Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:07:05.625Z"
+     "at": "2026-10-22T12:25:32.560Z"
     }
    },
    {
@@ -1689,11 +1747,11 @@
     "from": "inspection:fda-inspection:770191",
     "to": "site:fei:1450743",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:07:05.626Z",
+    "validFrom": "2026-10-22T12:25:32.560Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:07:05.626Z"
+     "at": "2026-10-22T12:25:32.560Z"
     }
    },
    {
@@ -1701,11 +1759,11 @@
     "from": "inspection:fda-inspection:834331",
     "to": "site:fei:1450743",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:07:05.626Z",
+    "validFrom": "2026-10-22T12:25:32.560Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:07:05.626Z"
+     "at": "2026-10-22T12:25:32.560Z"
     }
    },
    {
@@ -1713,11 +1771,11 @@
     "from": "inspection:fda-inspection:1054512",
     "to": "site:fei:1450743",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:07:05.627Z",
+    "validFrom": "2026-10-22T12:25:32.560Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:07:05.627Z"
+     "at": "2026-10-22T12:25:32.560Z"
     }
    },
    {
@@ -1725,11 +1783,11 @@
     "from": "inspection:fda-inspection:1331612",
     "to": "site:fei:1450743",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:07:05.627Z",
+    "validFrom": "2026-10-22T12:25:32.560Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:07:05.627Z"
+     "at": "2026-10-22T12:25:32.560Z"
     }
    },
    {
@@ -1737,11 +1795,11 @@
     "from": "warning-letter:fda-warning-letter:522197",
     "to": "site:fei:1450743",
     "type": "issued-to",
-    "validFrom": "2026-10-22T08:07:05.626Z",
+    "validFrom": "2026-10-22T12:25:32.560Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:07:05.626Z"
+     "at": "2026-10-22T12:25:32.560Z"
     }
    }
   ],

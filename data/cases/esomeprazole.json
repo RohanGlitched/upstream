@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-da0433",
+ "id": "case-2026-10-22-d4873a",
  "question": "Why is esomeprazole sodium short, and what do we do?",
- "askedAt": "2026-10-22T07:44:58.459Z",
+ "askedAt": "2026-10-22T11:57:00.529Z",
  "asOf": "2026-10-21",
  "molecule": "esomeprazole sodium",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H93QYSF7B6GXZG9NJD3HFR",
+  "contractId": "01M5HQH98CTB1RRZZX2VT135YN",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-708ee8"
+    "Q-b8c5b1"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2723,
+   "ms": 3182,
    "rows": 4,
-   "finding": "4 stock lines across 2 hospitals.",
+   "finding": "4 stock lines across 2 hospitals, 2 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-79c3db"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 649,
+   "ms": 375,
    "rows": 2,
    "finding": "2 plant links on 2 labels; 2 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-8abafd",
-    "Q-eb403f"
+    "Q-5e0c8c",
+    "Q-a19ddb"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 446,
+   "ms": 208,
    "rows": 1,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-839bb6"
+    "Q-4ad87b"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1735,
+   "ms": 1099,
    "rows": 4,
    "finding": "3 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-fa482a",
     "Q-4bc2f1",
     "Q-915044",
-    "Q-13ab31"
+    "Q-438b94"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1067,
+   "ms": 560,
    "rows": 11,
    "finding": "11 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1039,
+   "ms": 605,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-ac5b58"
+    "Q-97983d"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1171,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1110,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 1,
+   "ms": 0,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -153,8 +164,11 @@
    "onHand": 132,
    "dailyUse": 8.06,
    "days": 16.4,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "esomeprazole sodium|20mg/5ml|injection|5ml|vial",
+   "presentationLabel": "20 mg/5 mL injection, 5 mL vial",
    "evidence": "E1"
   },
   {
@@ -166,35 +180,116 @@
    "onHand": 311,
    "dailyUse": 9.518,
    "days": 32.7,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "esomeprazole sodium|40mg/5ml|injection|5ml|vial",
+   "presentationLabel": "40 mg/5 mL injection, 5 mL vial",
    "evidence": "E2"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-212",
    "ndc11": "68083045110",
-   "description": "Esomeprazole Sodium",
+   "description": "Esomeprazole Sodium 20 mg/5mL",
    "labeler": "Gland Pharma Limited",
-   "onHand": 242.16,
+   "onHand": 242,
    "dailyUse": 9.472,
-   "days": 25.6,
+   "days": 25.5,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "esomeprazole sodium|20mg/5ml|injection|5ml|vial",
+   "presentationLabel": "20 mg/5 mL injection, 5 mL vial",
    "evidence": "E3"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-213",
    "ndc11": "70436019082",
-   "description": "Esomeprazole sodium",
+   "description": "Esomeprazole sodium 40 mg/5mL",
    "labeler": "Slate Run Pharmaceuticals, LLC",
-   "onHand": 308.43,
+   "onHand": 308,
    "dailyUse": 9.764,
-   "days": 31.6,
+   "days": 31.5,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "esomeprazole sodium|40mg/5ml|injection|5ml|vial",
+   "presentationLabel": "40 mg/5 mL injection, 5 mL vial",
    "evidence": "E4"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "esomeprazole sodium|20mg/5ml|injection|5ml|vial",
+   "label": "20 mg/5 mL injection, 5 mL vial",
+   "short": "20 mg/5 mL, 5 mL",
+   "unit": "vial",
+   "onHand": 374,
+   "dailyUse": 17.532,
+   "days": 21.3,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 132,
+     "dailyUse": 8.06,
+     "days": 16.4,
+     "lines": [
+      "EA-E-000247"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 242,
+     "dailyUse": 9.472,
+     "days": 25.5,
+     "lines": [
+      "CG-212"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "esomeprazole sodium|40mg/5ml|injection|5ml|vial",
+   "label": "40 mg/5 mL injection, 5 mL vial",
+   "short": "40 mg/5 mL, 5 mL",
+   "unit": "vial",
+   "onHand": 619,
+   "dailyUse": 19.282,
+   "days": 32.1,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 311,
+     "dailyUse": 9.518,
+     "days": 32.7,
+     "lines": [
+      "EA-E-000264"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 308,
+     "dailyUse": 9.764,
+     "days": 31.5,
+     "lines": [
+      "CG-213"
+     ],
+     "evidence": [
+      "E4"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -503,62 +598,60 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "Esomeprazole sodium is not on FDA's shortage list; two hospital sites hold 25 and 29 days of supply and the registered plants for two labels show only VAI inspections",
+  "headline": "Esomeprazole sodium is not on FDA's shortage list as of 2026-10-21; Corvale East has 16.4 days on hand for the 20 mg/5 mL presentation and Corvale General has 25.5 days on hand for the same presentation",
   "sentences": [
    {
-    "text": "Corvale East holds 443 units at 17.6 units per day, providing 25 days on hand.",
+    "text": "FDA's records show esomeprazole sodium is not listed on the drug shortage list as of 2026-10-21.",
+    "cites": [
+     "D5"
+    ]
+   },
+   {
+    "text": "Corvale East holds 132 vials of the 20 mg/5 mL presentation with 8.1 vials used per day, providing 16.4 days on hand.",
     "cites": [
      "D1"
     ]
    },
    {
-    "text": "Corvale General holds 551 units at 19.2 units per day, providing 29 days on hand.",
+    "text": "Corvale General holds 242 vials of the 20 mg/5 mL presentation with 9.5 vials used per day, providing 25.5 days on hand.",
     "cites": [
      "D2"
     ]
    },
    {
-    "text": "One label (NDC 68083045110) names Gland Pharma Limited (FEI 3002647489) as the manufacturing plant with a last inspection classification of VAI on 2024-07-25.",
+    "text": "For the 40 mg/5 mL presentation, Corvale East has 311 vials at 9.5 per day (32.7 days) and Corvale General has 308 vials at 9.8 per day (31.5 days).",
+    "cites": [
+     "D3",
+     "D4"
+    ]
+   },
+   {
+    "text": "The rule-based best option is to buy from Eugia US LLC, which is not on FDA's shortage list today, though its label names no plant we could place.",
+    "cites": [
+     "D6"
+    ]
+   },
+   {
+    "text": "Two registered plants appear on current labels: Gland Pharma Limited (FEI 3002647489) with a VAI inspection ending 2024-07-25, and Hainan Poly Pharm. Co., Ltd. (FEI 3005115952) with a VAI inspection ending 2023-06-30.",
     "cites": [
      "E11",
-     "E10"
-    ]
-   },
-   {
-    "text": "A second label (NDC 70436019082) names Hainan Poly Pharm. Co., Ltd. (FEI 3005115952) as the manufacturing plant with a last inspection classification of VAI on 2023-06-30.",
-    "cites": [
      "E16",
+     "E10",
      "E15"
     ]
    },
    {
-    "text": "Both plants have histories of VAI classifications only, with no OAI or NAI findings recorded in the available inspection records.",
+    "text": "Check whether the Eugia US LLC product can be traced to a registered plant with an acceptable inspection history before committing to purchase.",
     "cites": [
-     "E5",
-     "E6",
-     "E7",
-     "E8",
-     "E9",
-     "E10",
-     "E12",
-     "E13",
-     "E14",
-     "E15"
+     "D6",
+     "E11",
+     "E16"
     ]
    }
   ],
   "verifier": {
    "checked": 8,
-   "rejected": [
-    {
-     "text": "FDA's drug shortage database does not list esomeprazole sodium as in shortage as of 2026-10-21.",
-     "reason": "cites nothing"
-    },
-    {
-     "text": "Verify current allocation status with Eugia US LLC and confirm whether the labeled plants are actively supplying your NDCs.",
-     "reason": "cites nothing"
-    }
-   ],
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -566,45 +659,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -619,80 +733,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:44:49.626Z",
+   "at": "2026-10-22T11:56:53.388Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract 9NJD3HFR scope"
+   "reason": "in contract 2VT135YN scope"
   },
   {
-   "at": "2026-10-22T07:44:49.626Z",
+   "at": "2026-10-22T11:56:53.388Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 9NJD3HFR scope"
+   "reason": "in contract 2VT135YN scope"
   },
   {
-   "at": "2026-10-22T07:44:52.350Z",
+   "at": "2026-10-22T11:56:56.571Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 9NJD3HFR scope"
+   "reason": "in contract 2VT135YN scope"
   },
   {
-   "at": "2026-10-22T07:44:53.000Z",
+   "at": "2026-10-22T11:56:56.946Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 9NJD3HFR scope"
+   "reason": "in contract 2VT135YN scope"
   },
   {
-   "at": "2026-10-22T07:44:53.446Z",
+   "at": "2026-10-22T11:56:57.154Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 9NJD3HFR scope"
+   "reason": "in contract 2VT135YN scope"
   },
   {
-   "at": "2026-10-22T07:44:55.181Z",
+   "at": "2026-10-22T11:56:58.253Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 9NJD3HFR scope"
+   "reason": "in contract 2VT135YN scope"
   },
   {
-   "at": "2026-10-22T07:44:56.248Z",
+   "at": "2026-10-22T11:56:58.814Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 9NJD3HFR scope"
+   "reason": "in contract 2VT135YN scope"
   },
   {
-   "at": "2026-10-22T07:44:57.287Z",
+   "at": "2026-10-22T11:56:59.418Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 9NJD3HFR scope"
+   "reason": "in contract 2VT135YN scope"
   },
   {
-   "at": "2026-10-22T07:44:58.458Z",
+   "at": "2026-10-22T11:57:00.529Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract 9NJD3HFR scope"
+   "reason": "in contract 2VT135YN scope"
   },
   {
-   "at": "2026-10-22T07:44:58.460Z",
+   "at": "2026-10-22T11:57:00.529Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract 9NJD3HFR scope"
+   "reason": "in contract 2VT135YN scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-708ee8",
+   "queryId": "Q-b8c5b1",
    "row": 0,
    "label": "Corvale East: ESOMEPRAZOLE SODIUM 20MG/5ML 5ML SDV",
    "fields": {
@@ -703,19 +817,24 @@
     "description": "ESOMEPRAZOLE SODIUM 20MG/5ML 5ML SDV",
     "on_hand": "132.00",
     "daily_use": "8.060",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Esomeprazole Sodium",
     "labeler_name": "Gland Pharma Limited",
     "package_ndc": "68083-451-10",
     "spl_set_id": "9354958c-e997-41c8-8605-23f0a58993c0",
     "dosage_form": "INJECTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "ESOMEPRAZOLE SODIUM 20 mg/5mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-708ee8",
+   "queryId": "Q-b8c5b1",
    "row": 1,
    "label": "Corvale East: ESOMEPRAZOLE SODIUM 40MG/5ML 5ML SDV",
    "fields": {
@@ -726,60 +845,75 @@
     "description": "ESOMEPRAZOLE SODIUM 40MG/5ML 5ML SDV",
     "on_hand": "311.00",
     "daily_use": "9.518",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Esomeprazole sodium",
     "labeler_name": "Slate Run Pharmaceuticals, LLC",
     "package_ndc": "70436-190-82",
     "spl_set_id": "23395673-116d-4a8e-b0ce-59f9ca5b3daf",
     "dosage_form": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "ESOMEPRAZOLE SODIUM 40 mg/5mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-708ee8",
+   "queryId": "Q-b8c5b1",
    "row": 2,
-   "label": "Corvale General: Esomeprazole Sodium",
+   "label": "Corvale General: Esomeprazole Sodium 20 mg/5mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-212",
     "ndc11": "68083045110",
     "ndc_as_recorded": "68083045110",
-    "description": "Esomeprazole Sodium",
-    "on_hand": "242.16",
+    "description": "Esomeprazole Sodium 20 mg/5mL",
+    "on_hand": "242.00",
     "daily_use": "9.472",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Esomeprazole Sodium",
     "labeler_name": "Gland Pharma Limited",
     "package_ndc": "68083-451-10",
     "spl_set_id": "9354958c-e997-41c8-8605-23f0a58993c0",
     "dosage_form": "INJECTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "ESOMEPRAZOLE SODIUM 20 mg/5mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-708ee8",
+   "queryId": "Q-b8c5b1",
    "row": 3,
-   "label": "Corvale General: Esomeprazole sodium",
+   "label": "Corvale General: Esomeprazole sodium 40 mg/5mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-213",
     "ndc11": "70436019082",
     "ndc_as_recorded": "70436019082",
-    "description": "Esomeprazole sodium",
-    "on_hand": "308.43",
+    "description": "Esomeprazole sodium 40 mg/5mL",
+    "on_hand": "308.00",
     "daily_use": "9.764",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Esomeprazole sodium",
     "labeler_name": "Slate Run Pharmaceuticals, LLC",
     "package_ndc": "70436-190-82",
     "spl_set_id": "23395673-116d-4a8e-b0ce-59f9ca5b3daf",
     "dosage_form": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "ESOMEPRAZOLE SODIUM 40 mg/5mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E5": {
@@ -978,185 +1112,252 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 443 units of esomeprazole sodium at 17.6 a day: 25 days on hand",
+   "label": "Corvale East holds 132 vials of esomeprazole sodium 20 mg/5 mL, 5 mL at 8.1 a day: 16.4 days on hand",
    "fields": {
     "hospital": "Corvale East",
-    "on_hand": 443,
-    "daily_use": 17.6,
-    "days_on_hand": 25
+    "presentation": "20 mg/5 mL injection, 5 mL vial",
+    "on_hand": 132,
+    "daily_use": 8.1,
+    "days_on_hand": 16.4
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 551 units of esomeprazole sodium at 19.2 a day: 29 days on hand",
+   "label": "Corvale General holds 242 vials of esomeprazole sodium 20 mg/5 mL, 5 mL at 9.5 a day: 25.5 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 551,
-    "daily_use": 19.2,
-    "days_on_hand": 29
+    "presentation": "20 mg/5 mL injection, 5 mL vial",
+    "on_hand": 242,
+    "daily_use": 9.5,
+    "days_on_hand": 25.5
+   }
+  },
+  "D3": {
+   "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale East holds 311 vials of esomeprazole sodium 40 mg/5 mL, 5 mL at 9.5 a day: 32.7 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "40 mg/5 mL injection, 5 mL vial",
+    "on_hand": 311,
+    "daily_use": 9.5,
+    "days_on_hand": 32.7
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 308 vials of esomeprazole sodium 40 mg/5 mL, 5 mL at 9.8 a day: 31.5 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "40 mg/5 mL injection, 5 mL vial",
+    "on_hand": 308,
+    "daily_use": 9.8,
+    "days_on_hand": 31.5
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "esomeprazole sodium is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Eugia US LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-708ee8": {
-   "id": "Q-708ee8",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%esomeprazole%' OR lower(s.description) LIKE '%esomeprazole%' ORDER BY s.hospital, s.item_key",
-   "ms": 2721,
+  "Q-b8c5b1": {
+   "id": "Q-b8c5b1",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*esomeprazole(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*esomeprazole(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3181,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:44:52.347Z",
+   "ranAt": "2026-10-22T11:56:56.569Z",
    "rows": 4
   },
   "Q-79c3db": {
    "id": "Q-79c3db",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('9354958c-e997-41c8-8605-23f0a58993c0', '23395673-116d-4a8e-b0ce-59f9ca5b3daf') ORDER BY ps.set_id, ps.establishment",
-   "ms": 648,
+   "ms": 375,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:44:52.997Z",
+   "ranAt": "2026-10-22T11:56:56.945Z",
    "rows": 2
   },
-  "Q-8abafd": {
-   "id": "Q-8abafd",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%esomeprazole%' ORDER BY status, company_name, package_ndc",
-   "ms": 227,
+  "Q-5e0c8c": {
+   "id": "Q-5e0c8c",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*esomeprazole(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 98,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:44:53.227Z",
+   "ranAt": "2026-10-22T11:56:57.045Z",
    "rows": 0
   },
-  "Q-eb403f": {
-   "id": "Q-eb403f",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%esomeprazole%' ORDER BY first_posting",
-   "ms": 216,
+  "Q-a19ddb": {
+   "id": "Q-a19ddb",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*esomeprazole(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 107,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:44:53.444Z",
+   "ranAt": "2026-10-22T11:56:57.153Z",
    "rows": 1
   },
-  "Q-839bb6": {
-   "id": "Q-839bb6",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%esomeprazole%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 1733,
+  "Q-4ad87b": {
+   "id": "Q-4ad87b",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*esomeprazole(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1098,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:44:55.179Z",
+   "ranAt": "2026-10-22T11:56:58.252Z",
    "rows": 4
   },
   "Q-fa482a": {
    "id": "Q-fa482a",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3005115952', '3002647489') ORDER BY fei, end_date",
-   "ms": 411,
+   "ms": 240,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:44:55.592Z",
+   "ranAt": "2026-10-22T11:56:58.493Z",
    "rows": 11
   },
   "Q-4bc2f1": {
    "id": "Q-4bc2f1",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3005115952', '3002647489') ORDER BY fei, action_date",
-   "ms": 210,
+   "ms": 100,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:44:55.803Z",
+   "ranAt": "2026-10-22T11:56:58.593Z",
    "rows": 0
   },
   "Q-915044": {
    "id": "Q-915044",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3005115952', '3002647489') OR (fei_match <> 'name_and_city' AND firm_key IN ('hainan poly pharm', 'gland')) ORDER BY date_published",
-   "ms": 238,
+   "ms": 88,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:44:56.043Z",
+   "ranAt": "2026-10-22T11:56:58.683Z",
    "rows": 0
   },
-  "Q-13ab31": {
-   "id": "Q-13ab31",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('hainan poly pharm', 'gland', 'slate run') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%esomeprazole%' ORDER BY initiation_date",
-   "ms": 199,
+  "Q-438b94": {
+   "id": "Q-438b94",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('hainan poly pharm', 'gland', 'slate run') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*esomeprazole(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 128,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:44:56.245Z",
+   "ranAt": "2026-10-22T11:56:58.812Z",
    "rows": 0
   },
   "Q-2f737c": {
    "id": "Q-2f737c",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('68083045110', '70436019082')",
-   "ms": 1037,
+   "ms": 604,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:44:57.285Z",
+   "ranAt": "2026-10-22T11:56:59.417Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-ac5b58": {
-   "id": "Q-ac5b58",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%esomeprazole%'",
-   "ms": 1169,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:44:58.456Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-97983d": {
+   "id": "Q-97983d",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*esomeprazole(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1109,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:57:00.527Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 14180,
+  "zetarisMs": 17336,
   "modelCalls": 1,
-  "tokensIn": 1757,
-  "tokensOut": 522,
+  "tokensIn": 2227,
+  "tokensOut": 586,
   "mode": "live"
  },
  "slug": "esomeprazole",
@@ -1172,7 +1373,7 @@
     "id": "hospital-item:hospital-item:CG-212",
     "type": "HospitalItem",
     "key": "hospital-item:CG-212",
-    "label": "Corvale General: Esomeprazole Sodium",
+    "label": "Corvale General: Esomeprazole Sodium 20 mg/5mL",
     "attrs": {
      "key": "hospital-item:CG-212"
     },
@@ -1183,7 +1384,7 @@
     "id": "hospital-item:hospital-item:CG-213",
     "type": "HospitalItem",
     "key": "hospital-item:CG-213",
-    "label": "Corvale General: Esomeprazole sodium",
+    "label": "Corvale General: Esomeprazole sodium 40 mg/5mL",
     "attrs": {
      "key": "hospital-item:CG-213"
     },
@@ -1322,7 +1523,7 @@
     },
     "facts": [
      {
-      "id": "fact_6d9fdf6c6f6362cb",
+      "id": "fact_6f1665b51128a4d7",
       "about": "inspection:fda-inspection:1002974",
       "predicate": "classification",
       "value": "VAI",
@@ -1330,9 +1531,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:44:56.248Z"
+       "at": "2026-10-22T11:56:58.813Z"
       },
-      "assertedAt": "2026-10-22T07:44:56.248Z"
+      "assertedAt": "2026-10-22T11:56:58.813Z"
      }
     ],
     "depth": 4
@@ -1348,7 +1549,7 @@
     },
     "facts": [
      {
-      "id": "fact_414d72be95c57b6f",
+      "id": "fact_3e01715225d31f77",
       "about": "inspection:fda-inspection:1090548",
       "predicate": "classification",
       "value": "VAI",
@@ -1356,9 +1557,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:44:56.248Z"
+       "at": "2026-10-22T11:56:58.813Z"
       },
-      "assertedAt": "2026-10-22T07:44:56.248Z"
+      "assertedAt": "2026-10-22T11:56:58.813Z"
      }
     ],
     "depth": 4
@@ -1374,7 +1575,7 @@
     },
     "facts": [
      {
-      "id": "fact_e77f590d54263b70",
+      "id": "fact_bd83a658c444b244",
       "about": "inspection:fda-inspection:1102926",
       "predicate": "classification",
       "value": "VAI",
@@ -1382,9 +1583,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:44:56.248Z"
+       "at": "2026-10-22T11:56:58.813Z"
       },
-      "assertedAt": "2026-10-22T07:44:56.248Z"
+      "assertedAt": "2026-10-22T11:56:58.813Z"
      }
     ],
     "depth": 4
@@ -1400,7 +1601,7 @@
     },
     "facts": [
      {
-      "id": "fact_64eabff8534d7161",
+      "id": "fact_db9646cbb6aed504",
       "about": "inspection:fda-inspection:1210381",
       "predicate": "classification",
       "value": "VAI",
@@ -1408,9 +1609,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:44:56.248Z"
+       "at": "2026-10-22T11:56:58.813Z"
       },
-      "assertedAt": "2026-10-22T07:44:56.248Z"
+      "assertedAt": "2026-10-22T11:56:58.813Z"
      }
     ],
     "depth": 4
@@ -1426,7 +1627,7 @@
     },
     "facts": [
      {
-      "id": "fact_aa440ca0c32d0666",
+      "id": "fact_78e15756a3948169",
       "about": "inspection:fda-inspection:1210935",
       "predicate": "classification",
       "value": "VAI",
@@ -1434,9 +1635,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:44:56.248Z"
+       "at": "2026-10-22T11:56:58.813Z"
       },
-      "assertedAt": "2026-10-22T07:44:56.248Z"
+      "assertedAt": "2026-10-22T11:56:58.813Z"
      }
     ],
     "depth": 4
@@ -1452,7 +1653,7 @@
     },
     "facts": [
      {
-      "id": "fact_8cf2634c5310af14",
+      "id": "fact_56c331250ffb4ddb",
       "about": "inspection:fda-inspection:1244548",
       "predicate": "classification",
       "value": "VAI",
@@ -1460,9 +1661,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:44:56.248Z"
+       "at": "2026-10-22T11:56:58.813Z"
       },
-      "assertedAt": "2026-10-22T07:44:56.248Z"
+      "assertedAt": "2026-10-22T11:56:58.813Z"
      }
     ],
     "depth": 4
@@ -1478,7 +1679,7 @@
     },
     "facts": [
      {
-      "id": "fact_08f660943661a451",
+      "id": "fact_1821052548c6e19f",
       "about": "inspection:fda-inspection:800507",
       "predicate": "classification",
       "value": "VAI",
@@ -1486,9 +1687,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:44:56.247Z"
+       "at": "2026-10-22T11:56:58.813Z"
       },
-      "assertedAt": "2026-10-22T07:44:56.247Z"
+      "assertedAt": "2026-10-22T11:56:58.813Z"
      }
     ],
     "depth": 4
@@ -1504,7 +1705,7 @@
     },
     "facts": [
      {
-      "id": "fact_e3dc59b8b6d70119",
+      "id": "fact_42c0ac3427c764c0",
       "about": "inspection:fda-inspection:877469",
       "predicate": "classification",
       "value": "VAI",
@@ -1512,9 +1713,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:44:56.248Z"
+       "at": "2026-10-22T11:56:58.813Z"
       },
-      "assertedAt": "2026-10-22T07:44:56.248Z"
+      "assertedAt": "2026-10-22T11:56:58.813Z"
      }
     ],
     "depth": 4
@@ -1530,7 +1731,7 @@
     },
     "facts": [
      {
-      "id": "fact_647c978296476427",
+      "id": "fact_2c07bf28ce1c26eb",
       "about": "inspection:fda-inspection:921536",
       "predicate": "classification",
       "value": "VAI",
@@ -1538,9 +1739,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:44:56.247Z"
+       "at": "2026-10-22T11:56:58.813Z"
       },
-      "assertedAt": "2026-10-22T07:44:56.247Z"
+      "assertedAt": "2026-10-22T11:56:58.813Z"
      }
     ],
     "depth": 4
@@ -1556,7 +1757,7 @@
     },
     "facts": [
      {
-      "id": "fact_c8a3ad360914002d",
+      "id": "fact_6020238bda863197",
       "about": "inspection:fda-inspection:956953",
       "predicate": "classification",
       "value": "VAI",
@@ -1564,9 +1765,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:44:56.248Z"
+       "at": "2026-10-22T11:56:58.813Z"
       },
-      "assertedAt": "2026-10-22T07:44:56.248Z"
+      "assertedAt": "2026-10-22T11:56:58.813Z"
      }
     ],
     "depth": 4
@@ -1578,11 +1779,11 @@
     "from": "hospital-item:hospital-item:CG-212",
     "to": "package:ndc-package:68083-451-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:44:52.349Z",
+    "validFrom": "2026-10-22T11:56:56.571Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:44:52.349Z"
+     "at": "2026-10-22T11:56:56.571Z"
     }
    },
    {
@@ -1590,11 +1791,11 @@
     "from": "hospital-item:hospital-item:CG-213",
     "to": "package:ndc-package:70436-190-82",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:44:52.349Z",
+    "validFrom": "2026-10-22T11:56:56.571Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:44:52.349Z"
+     "at": "2026-10-22T11:56:56.571Z"
     }
    },
    {
@@ -1602,11 +1803,11 @@
     "from": "hospital-item:hospital-item:EA-E-000247",
     "to": "package:ndc-package:68083-451-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:44:52.349Z",
+    "validFrom": "2026-10-22T11:56:56.570Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:44:52.349Z"
+     "at": "2026-10-22T11:56:56.570Z"
     }
    },
    {
@@ -1614,11 +1815,11 @@
     "from": "hospital-item:hospital-item:EA-E-000264",
     "to": "package:ndc-package:70436-190-82",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:44:52.349Z",
+    "validFrom": "2026-10-22T11:56:56.570Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:44:52.349Z"
+     "at": "2026-10-22T11:56:56.570Z"
     }
    },
    {
@@ -1626,11 +1827,11 @@
     "from": "package:ndc-package:68083-451-10",
     "to": "product:ndc-product:68083-451",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:44:52.349Z",
+    "validFrom": "2026-10-22T11:56:56.570Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:44:52.349Z"
+     "at": "2026-10-22T11:56:56.570Z"
     }
    },
    {
@@ -1638,11 +1839,11 @@
     "from": "package:ndc-package:70436-190-82",
     "to": "product:ndc-product:70436-190",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:44:52.349Z",
+    "validFrom": "2026-10-22T11:56:56.570Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:44:52.349Z"
+     "at": "2026-10-22T11:56:56.570Z"
     }
    },
    {
@@ -1650,11 +1851,11 @@
     "from": "product:ndc-product:68083-451",
     "to": "drug:generic:esomeprazole sodium",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:44:52.349Z",
+    "validFrom": "2026-10-22T11:56:56.570Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:44:52.349Z"
+     "at": "2026-10-22T11:56:56.570Z"
     }
    },
    {
@@ -1662,11 +1863,11 @@
     "from": "product:ndc-product:68083-451",
     "to": "labeler:ndc-labeler:68083",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:44:52.349Z",
+    "validFrom": "2026-10-22T11:56:56.570Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:44:52.349Z"
+     "at": "2026-10-22T11:56:56.570Z"
     }
    },
    {
@@ -1674,11 +1875,11 @@
     "from": "product:ndc-product:68083-451",
     "to": "site:fei:3002647489",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:44:56.247Z",
+    "validFrom": "2026-10-22T11:56:58.813Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:44:56.247Z"
+     "at": "2026-10-22T11:56:58.813Z"
     }
    },
    {
@@ -1686,11 +1887,11 @@
     "from": "product:ndc-product:70436-190",
     "to": "drug:generic:esomeprazole sodium",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:44:52.349Z",
+    "validFrom": "2026-10-22T11:56:56.570Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:44:52.349Z"
+     "at": "2026-10-22T11:56:56.570Z"
     }
    },
    {
@@ -1698,11 +1899,11 @@
     "from": "product:ndc-product:70436-190",
     "to": "labeler:ndc-labeler:70436",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:44:52.349Z",
+    "validFrom": "2026-10-22T11:56:56.570Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:44:52.349Z"
+     "at": "2026-10-22T11:56:56.570Z"
     }
    },
    {
@@ -1710,11 +1911,11 @@
     "from": "product:ndc-product:70436-190",
     "to": "site:fei:3005115952",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:44:56.248Z",
+    "validFrom": "2026-10-22T11:56:58.813Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:44:56.248Z"
+     "at": "2026-10-22T11:56:58.813Z"
     }
    },
    {
@@ -1722,11 +1923,11 @@
     "from": "inspection:fda-inspection:800507",
     "to": "site:fei:3002647489",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:44:56.247Z",
+    "validFrom": "2026-10-22T11:56:58.813Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:44:56.247Z"
+     "at": "2026-10-22T11:56:58.813Z"
     }
    },
    {
@@ -1734,11 +1935,11 @@
     "from": "inspection:fda-inspection:921536",
     "to": "site:fei:3002647489",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:44:56.247Z",
+    "validFrom": "2026-10-22T11:56:58.813Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:44:56.247Z"
+     "at": "2026-10-22T11:56:58.813Z"
     }
    },
    {
@@ -1746,11 +1947,11 @@
     "from": "inspection:fda-inspection:1002974",
     "to": "site:fei:3002647489",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:44:56.247Z",
+    "validFrom": "2026-10-22T11:56:58.813Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:44:56.247Z"
+     "at": "2026-10-22T11:56:58.813Z"
     }
    },
    {
@@ -1758,11 +1959,11 @@
     "from": "inspection:fda-inspection:1090548",
     "to": "site:fei:3002647489",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:44:56.248Z",
+    "validFrom": "2026-10-22T11:56:58.813Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:44:56.248Z"
+     "at": "2026-10-22T11:56:58.813Z"
     }
    },
    {
@@ -1770,11 +1971,11 @@
     "from": "inspection:fda-inspection:1210381",
     "to": "site:fei:3002647489",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:44:56.248Z",
+    "validFrom": "2026-10-22T11:56:58.813Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:44:56.248Z"
+     "at": "2026-10-22T11:56:58.813Z"
     }
    },
    {
@@ -1782,11 +1983,11 @@
     "from": "inspection:fda-inspection:1244548",
     "to": "site:fei:3002647489",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:44:56.248Z",
+    "validFrom": "2026-10-22T11:56:58.813Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:44:56.248Z"
+     "at": "2026-10-22T11:56:58.813Z"
     }
    },
    {
@@ -1794,11 +1995,11 @@
     "from": "inspection:fda-inspection:877469",
     "to": "site:fei:3005115952",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:44:56.248Z",
+    "validFrom": "2026-10-22T11:56:58.813Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:44:56.248Z"
+     "at": "2026-10-22T11:56:58.813Z"
     }
    },
    {
@@ -1806,11 +2007,11 @@
     "from": "inspection:fda-inspection:956953",
     "to": "site:fei:3005115952",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:44:56.248Z",
+    "validFrom": "2026-10-22T11:56:58.813Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:44:56.248Z"
+     "at": "2026-10-22T11:56:58.813Z"
     }
    },
    {
@@ -1818,11 +2019,11 @@
     "from": "inspection:fda-inspection:1102926",
     "to": "site:fei:3005115952",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:44:56.248Z",
+    "validFrom": "2026-10-22T11:56:58.813Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:44:56.248Z"
+     "at": "2026-10-22T11:56:58.813Z"
     }
    },
    {
@@ -1830,11 +2031,11 @@
     "from": "inspection:fda-inspection:1210935",
     "to": "site:fei:3005115952",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:44:56.248Z",
+    "validFrom": "2026-10-22T11:56:58.813Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:44:56.248Z"
+     "at": "2026-10-22T11:56:58.813Z"
     }
    }
   ],

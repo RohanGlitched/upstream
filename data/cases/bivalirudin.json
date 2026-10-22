@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-478124",
+ "id": "case-2026-10-22-a7e285",
  "question": "Why is bivalirudin short, and what do we do?",
- "askedAt": "2026-10-22T07:28:24.533Z",
+ "askedAt": "2026-10-22T11:33:16.282Z",
  "asOf": "2026-10-21",
  "molecule": "bivalirudin",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H8530TYCVYK3BYWT4WEPS1",
+  "contractId": "01M5HP5T9E0BSZV976B40NP9ED",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-acd34d"
+    "Q-7ddd58"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 7709,
+   "ms": 3106,
    "rows": 2,
-   "finding": "2 stock lines across 2 hospitals.",
+   "finding": "2 stock lines across 2 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-96e91e"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1603,
+   "ms": 438,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-209fe5",
-    "Q-1ab2fb"
+    "Q-4f1c60",
+    "Q-5378a5"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 821,
+   "ms": 214,
    "rows": 2,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-e7dc9b"
+    "Q-3b62e0"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 3010,
+   "ms": 1118,
    "rows": 18,
    "finding": "13 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-c6af31",
     "Q-aeb1da",
     "Q-cd2cd6",
-    "Q-d03180"
+    "Q-40d9d2"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 2325,
+   "ms": 549,
    "rows": 7,
    "finding": "7 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 2058,
+   "ms": 682,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-a80de2"
+    "Q-cb934e"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1855,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1133,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 1,
+   "ms": 0,
    "rows": 0,
    "finding": "No past decisions on this drug.",
    "status": "empty"
@@ -153,22 +164,65 @@
    "onHand": 270,
    "dailyUse": 8.758,
    "days": 30.8,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "bivalirudin|250mg|injection||vial",
+   "presentationLabel": "250 mg injection",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-157",
    "ndc11": "55111065237",
-   "description": "Bivalirudin",
+   "description": "Bivalirudin 250 mg/1",
    "labeler": "Dr. Reddy's Laboratories Limited",
-   "onHand": 136.8,
+   "onHand": 136,
    "dailyUse": 10.736,
    "days": 12.7,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "bivalirudin|250mg|injection||vial",
+   "presentationLabel": "250 mg injection",
    "evidence": "E2"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "bivalirudin|250mg|injection||vial",
+   "label": "250 mg injection",
+   "short": "250 mg",
+   "unit": "vial",
+   "onHand": 406,
+   "dailyUse": 19.494,
+   "days": 20.8,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 270,
+     "dailyUse": 8.758,
+     "days": 30.8,
+     "lines": [
+      "EA-E-000189"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 136,
+     "dailyUse": 10.736,
+     "days": 12.7,
+     "lines": [
+      "CG-157"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -549,55 +603,56 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "Bivalirudin supply at Corvale sites shows 31 days at Corvale East and 13 days at Corvale General; the Dr. Reddy's label lists Gland Pharma Limited as the manufacturing plant with a VAI inspection on 2024-07-25",
+  "headline": "Bivalirudin is not on FDA's shortage list; Corvale General has 12.7 days on hand and Corvale East has 30.8 days on hand",
   "sentences": [
    {
-    "text": "Corvale East holds 270 units of bivalirudin with a daily use of 8.8 units, providing 31 days on hand.",
+    "text": "FDA's drug shortage list does not include bivalirudin as of 2026-10-21.",
     "cites": [
-     "D1"
+     "D3"
     ]
    },
    {
-    "text": "Corvale General holds 137 units with a daily use of 10.7 units, providing 13 days on hand.",
+    "text": "Corvale General holds 136 vials of the 250 mg injection with a daily use of 10.7 vials, giving 12.7 days on hand.",
     "cites": [
      "D2"
     ]
    },
    {
-    "text": "The product label for NDC 55111065237 identifies Gland Pharma Limited as the manufacturing plant.",
+    "text": "Corvale East holds 270 vials of the 250 mg injection with a daily use of 8.8 vials, giving 30.8 days on hand.",
     "cites": [
-     "E9"
+     "D1"
     ]
    },
    {
-    "text": "FDA inspection records for Gland Pharma Limited (FEI 3002647489) show a Voluntary Action Indicated classification from the most recent inspection ending 2024-07-25.",
+    "text": "The rule‑based best option is to buy from Accord Healthcare, Inc., which is also not on FDA's shortage list today.",
     "cites": [
+     "D4"
+    ]
+   },
+   {
+    "text": "Accord Healthcare's label names no plant we could place, so the manufacturing site cannot be verified from the label.",
+    "cites": [
+     "D4"
+    ]
+   },
+   {
+    "text": "A Dr. Reddy's label lists Gland Pharma Limited (FEI 3002647489) as a registered plant with a VAI inspection on 2024-07-25.",
+    "cites": [
+     "E9",
      "E8"
     ]
    },
    {
-    "text": "Previous inspections of the same facility in 2012, 2015, 2017, 2019, and 2023 also resulted in VAI classifications.",
+    "text": "Check whether the Accord product can be sourced from a registered facility with an acceptable inspection history.",
     "cites": [
-     "E3",
-     "E4",
-     "E5",
-     "E6",
-     "E7"
+     "D4",
+     "E9"
     ]
    }
   ],
   "verifier": {
    "checked": 8,
-   "rejected": [
-    {
-     "text": "Bivalirudin is not on the FDA drug shortage list as of 2026-10-21.",
-     "reason": "cites nothing"
-    },
-    {
-     "text": "Verify current allocation status with Accord Healthcare, Inc., the recommended supplier, and confirm whether the Dr. Reddy's product remains available for ordering.",
-     "reason": "cites nothing"
-    }
-   ],
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -605,125 +660,146 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [],
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:28:05.146Z",
+   "at": "2026-10-22T11:33:09.038Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract WT4WEPS1 scope"
+   "reason": "in contract B40NP9ED scope"
   },
   {
-   "at": "2026-10-22T07:28:05.146Z",
+   "at": "2026-10-22T11:33:09.038Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WT4WEPS1 scope"
+   "reason": "in contract B40NP9ED scope"
   },
   {
-   "at": "2026-10-22T07:28:12.857Z",
+   "at": "2026-10-22T11:33:12.144Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WT4WEPS1 scope"
+   "reason": "in contract B40NP9ED scope"
   },
   {
-   "at": "2026-10-22T07:28:14.460Z",
+   "at": "2026-10-22T11:33:12.582Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WT4WEPS1 scope"
+   "reason": "in contract B40NP9ED scope"
   },
   {
-   "at": "2026-10-22T07:28:15.281Z",
+   "at": "2026-10-22T11:33:12.796Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WT4WEPS1 scope"
+   "reason": "in contract B40NP9ED scope"
   },
   {
-   "at": "2026-10-22T07:28:18.291Z",
+   "at": "2026-10-22T11:33:13.915Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WT4WEPS1 scope"
+   "reason": "in contract B40NP9ED scope"
   },
   {
-   "at": "2026-10-22T07:28:20.620Z",
+   "at": "2026-10-22T11:33:14.465Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WT4WEPS1 scope"
+   "reason": "in contract B40NP9ED scope"
   },
   {
-   "at": "2026-10-22T07:28:22.678Z",
+   "at": "2026-10-22T11:33:15.148Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WT4WEPS1 scope"
+   "reason": "in contract B40NP9ED scope"
   },
   {
-   "at": "2026-10-22T07:28:24.532Z",
+   "at": "2026-10-22T11:33:16.282Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract WT4WEPS1 scope"
+   "reason": "in contract B40NP9ED scope"
   },
   {
-   "at": "2026-10-22T07:28:24.534Z",
+   "at": "2026-10-22T11:33:16.282Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract WT4WEPS1 scope"
+   "reason": "in contract B40NP9ED scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-acd34d",
+   "queryId": "Q-7ddd58",
    "row": 0,
    "label": "Corvale East: BIVALIRUDIN 250MG",
    "fields": {
@@ -734,37 +810,47 @@
     "description": "BIVALIRUDIN 250MG",
     "on_hand": "270.00",
     "daily_use": "8.758",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Bivalirudin",
     "labeler_name": "Dr. Reddy's Laboratories Limited",
     "package_ndc": "55111-652-37",
     "spl_set_id": "19beb2ae-6064-3c24-fe50-0cee86896979",
     "dosage_form": "INJECTION",
-    "route": "INTRACAVERNOUS"
+    "route": "INTRACAVERNOUS",
+    "strength": "BIVALIRUDIN 250 mg/1",
+    "unit_content": null,
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-acd34d",
+   "queryId": "Q-7ddd58",
    "row": 1,
-   "label": "Corvale General: Bivalirudin",
+   "label": "Corvale General: Bivalirudin 250 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-157",
     "ndc11": "55111065237",
     "ndc_as_recorded": "55111065237",
-    "description": "Bivalirudin",
-    "on_hand": "136.80",
+    "description": "Bivalirudin 250 mg/1",
+    "on_hand": "136.00",
     "daily_use": "10.736",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Bivalirudin",
     "labeler_name": "Dr. Reddy's Laboratories Limited",
     "package_ndc": "55111-652-37",
     "spl_set_id": "19beb2ae-6064-3c24-fe50-0cee86896979",
     "dosage_form": "INJECTION",
-    "route": "INTRACAVERNOUS"
+    "route": "INTRACAVERNOUS",
+    "strength": "BIVALIRUDIN 250 mg/1",
+    "unit_content": null,
+    "pkg_unit": "vial"
    }
   },
   "E3": {
@@ -883,185 +969,246 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 270 units of bivalirudin at 8.8 a day: 31 days on hand",
+   "label": "Corvale East holds 270 vials of bivalirudin 250 mg at 8.8 a day: 30.8 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "250 mg injection",
     "on_hand": 270,
     "daily_use": 8.8,
-    "days_on_hand": 31
+    "days_on_hand": 30.8
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 137 units of bivalirudin at 10.7 a day: 13 days on hand",
+   "label": "Corvale General holds 136 vials of bivalirudin 250 mg at 10.7 a day: 12.7 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 137,
+    "presentation": "250 mg injection",
+    "on_hand": 136,
     "daily_use": 10.7,
-    "days_on_hand": 13
+    "days_on_hand": 12.7
+   }
+  },
+  "D3": {
+   "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "bivalirudin is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Accord Healthcare, Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Avenacy, LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Civica, Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-acd34d": {
-   "id": "Q-acd34d",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%bivalirudin%' OR lower(s.description) LIKE '%bivalirudin%' ORDER BY s.hospital, s.item_key",
-   "ms": 7704,
+  "Q-7ddd58": {
+   "id": "Q-7ddd58",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*bivalirudin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*bivalirudin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3105,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:28:12.851Z",
+   "ranAt": "2026-10-22T11:33:12.143Z",
    "rows": 2
   },
   "Q-96e91e": {
    "id": "Q-96e91e",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('19beb2ae-6064-3c24-fe50-0cee86896979') ORDER BY ps.set_id, ps.establishment",
-   "ms": 1595,
+   "ms": 436,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:28:14.452Z",
+   "ranAt": "2026-10-22T11:33:12.581Z",
    "rows": 1
   },
-  "Q-209fe5": {
-   "id": "Q-209fe5",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%bivalirudin%' ORDER BY status, company_name, package_ndc",
-   "ms": 481,
+  "Q-4f1c60": {
+   "id": "Q-4f1c60",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*bivalirudin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 106,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:28:14.941Z",
+   "ranAt": "2026-10-22T11:33:12.689Z",
    "rows": 0
   },
-  "Q-1ab2fb": {
-   "id": "Q-1ab2fb",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%bivalirudin%' ORDER BY first_posting",
-   "ms": 333,
+  "Q-5378a5": {
+   "id": "Q-5378a5",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*bivalirudin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 106,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:28:15.277Z",
+   "ranAt": "2026-10-22T11:33:12.795Z",
    "rows": 2
   },
-  "Q-e7dc9b": {
-   "id": "Q-e7dc9b",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%bivalirudin%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 3008,
+  "Q-3b62e0": {
+   "id": "Q-3b62e0",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*bivalirudin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1117,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:28:18.288Z",
+   "ranAt": "2026-10-22T11:33:13.913Z",
    "rows": 18
   },
   "Q-c6af31": {
    "id": "Q-c6af31",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3002647489') ORDER BY fei, end_date",
-   "ms": 847,
+   "ms": 222,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:28:19.138Z",
+   "ranAt": "2026-10-22T11:33:14.137Z",
    "rows": 7
   },
   "Q-aeb1da": {
    "id": "Q-aeb1da",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3002647489') ORDER BY fei, action_date",
-   "ms": 317,
+   "ms": 109,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:28:19.458Z",
+   "ranAt": "2026-10-22T11:33:14.247Z",
    "rows": 0
   },
   "Q-cd2cd6": {
    "id": "Q-cd2cd6",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3002647489') OR (fei_match <> 'name_and_city' AND firm_key IN ('gland')) ORDER BY date_published",
-   "ms": 403,
+   "ms": 93,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:28:19.864Z",
+   "ranAt": "2026-10-22T11:33:14.341Z",
    "rows": 0
   },
-  "Q-d03180": {
-   "id": "Q-d03180",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('gland', 'dr reddy s') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%bivalirudin%' ORDER BY initiation_date",
-   "ms": 740,
+  "Q-40d9d2": {
+   "id": "Q-40d9d2",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('gland', 'dr reddy s') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*bivalirudin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 121,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:28:20.612Z",
+   "ranAt": "2026-10-22T11:33:14.463Z",
    "rows": 0
   },
   "Q-ac2dd6": {
    "id": "Q-ac2dd6",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('55111065237')",
-   "ms": 2055,
+   "ms": 680,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:28:22.675Z",
+   "ranAt": "2026-10-22T11:33:15.146Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-a80de2": {
-   "id": "Q-a80de2",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%bivalirudin%'",
-   "ms": 1851,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:28:24.529Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-cb934e": {
+   "id": "Q-cb934e",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*bivalirudin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1132,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:33:16.280Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 24705,
+  "zetarisMs": 17435,
   "modelCalls": 1,
-  "tokensIn": 1182,
-  "tokensOut": 481,
+  "tokensIn": 1526,
+  "tokensOut": 434,
   "mode": "live"
  },
  "slug": "bivalirudin",
@@ -1075,7 +1222,7 @@
     "id": "hospital-item:hospital-item:CG-157",
     "type": "HospitalItem",
     "key": "hospital-item:CG-157",
-    "label": "Corvale General: Bivalirudin",
+    "label": "Corvale General: Bivalirudin 250 mg/1",
     "attrs": {
      "key": "hospital-item:CG-157"
     },
@@ -1159,7 +1306,7 @@
     },
     "facts": [
      {
-      "id": "fact_baed9c782eb77570",
+      "id": "fact_b0059e84f4e8adff",
       "about": "inspection:fda-inspection:1002974",
       "predicate": "classification",
       "value": "VAI",
@@ -1167,9 +1314,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:28:20.618Z"
+       "at": "2026-10-22T11:33:14.465Z"
       },
-      "assertedAt": "2026-10-22T07:28:20.618Z"
+      "assertedAt": "2026-10-22T11:33:14.465Z"
      }
     ],
     "depth": 4
@@ -1185,7 +1332,7 @@
     },
     "facts": [
      {
-      "id": "fact_bcd2f8a021c80cea",
+      "id": "fact_d826593c07d6c936",
       "about": "inspection:fda-inspection:1090548",
       "predicate": "classification",
       "value": "VAI",
@@ -1193,9 +1340,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:28:20.618Z"
+       "at": "2026-10-22T11:33:14.465Z"
       },
-      "assertedAt": "2026-10-22T07:28:20.618Z"
+      "assertedAt": "2026-10-22T11:33:14.465Z"
      }
     ],
     "depth": 4
@@ -1211,7 +1358,7 @@
     },
     "facts": [
      {
-      "id": "fact_a2a5f8c822646f41",
+      "id": "fact_9a669b77adb22b9f",
       "about": "inspection:fda-inspection:1210381",
       "predicate": "classification",
       "value": "VAI",
@@ -1219,9 +1366,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:28:20.618Z"
+       "at": "2026-10-22T11:33:14.465Z"
       },
-      "assertedAt": "2026-10-22T07:28:20.618Z"
+      "assertedAt": "2026-10-22T11:33:14.465Z"
      }
     ],
     "depth": 4
@@ -1237,7 +1384,7 @@
     },
     "facts": [
      {
-      "id": "fact_29928bff3271282d",
+      "id": "fact_3365bd7f26fd2e95",
       "about": "inspection:fda-inspection:1244548",
       "predicate": "classification",
       "value": "VAI",
@@ -1245,9 +1392,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:28:20.619Z"
+       "at": "2026-10-22T11:33:14.465Z"
       },
-      "assertedAt": "2026-10-22T07:28:20.619Z"
+      "assertedAt": "2026-10-22T11:33:14.465Z"
      }
     ],
     "depth": 4
@@ -1263,7 +1410,7 @@
     },
     "facts": [
      {
-      "id": "fact_f34474b854426fc9",
+      "id": "fact_a24b4924dbff5297",
       "about": "inspection:fda-inspection:800507",
       "predicate": "classification",
       "value": "VAI",
@@ -1271,9 +1418,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:28:20.616Z"
+       "at": "2026-10-22T11:33:14.465Z"
       },
-      "assertedAt": "2026-10-22T07:28:20.616Z"
+      "assertedAt": "2026-10-22T11:33:14.465Z"
      }
     ],
     "depth": 4
@@ -1289,7 +1436,7 @@
     },
     "facts": [
      {
-      "id": "fact_9ec27d6e37a2c1ac",
+      "id": "fact_a388ed273b7dc26b",
       "about": "inspection:fda-inspection:921536",
       "predicate": "classification",
       "value": "VAI",
@@ -1297,9 +1444,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:28:20.617Z"
+       "at": "2026-10-22T11:33:14.465Z"
       },
-      "assertedAt": "2026-10-22T07:28:20.617Z"
+      "assertedAt": "2026-10-22T11:33:14.465Z"
      }
     ],
     "depth": 4
@@ -1311,11 +1458,11 @@
     "from": "hospital-item:hospital-item:CG-157",
     "to": "package:ndc-package:55111-652-37",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:28:12.856Z",
+    "validFrom": "2026-10-22T11:33:12.144Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:12.856Z"
+     "at": "2026-10-22T11:33:12.144Z"
     }
    },
    {
@@ -1323,11 +1470,11 @@
     "from": "hospital-item:hospital-item:EA-E-000189",
     "to": "package:ndc-package:55111-652-37",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:28:12.855Z",
+    "validFrom": "2026-10-22T11:33:12.144Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:12.855Z"
+     "at": "2026-10-22T11:33:12.144Z"
     }
    },
    {
@@ -1335,11 +1482,11 @@
     "from": "package:ndc-package:55111-652-37",
     "to": "product:ndc-product:55111-652",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:28:12.855Z",
+    "validFrom": "2026-10-22T11:33:12.144Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:12.855Z"
+     "at": "2026-10-22T11:33:12.144Z"
     }
    },
    {
@@ -1347,11 +1494,11 @@
     "from": "product:ndc-product:55111-652",
     "to": "drug:generic:bivalirudin",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:28:12.856Z",
+    "validFrom": "2026-10-22T11:33:12.144Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:12.856Z"
+     "at": "2026-10-22T11:33:12.144Z"
     }
    },
    {
@@ -1359,11 +1506,11 @@
     "from": "product:ndc-product:55111-652",
     "to": "labeler:ndc-labeler:55111",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:28:12.856Z",
+    "validFrom": "2026-10-22T11:33:12.144Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:12.856Z"
+     "at": "2026-10-22T11:33:12.144Z"
     }
    },
    {
@@ -1371,11 +1518,11 @@
     "from": "product:ndc-product:55111-652",
     "to": "site:fei:3002647489",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:28:20.616Z",
+    "validFrom": "2026-10-22T11:33:14.465Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:20.616Z"
+     "at": "2026-10-22T11:33:14.465Z"
     }
    },
    {
@@ -1383,11 +1530,11 @@
     "from": "inspection:fda-inspection:800507",
     "to": "site:fei:3002647489",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:28:20.616Z",
+    "validFrom": "2026-10-22T11:33:14.465Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:20.616Z"
+     "at": "2026-10-22T11:33:14.465Z"
     }
    },
    {
@@ -1395,11 +1542,11 @@
     "from": "inspection:fda-inspection:921536",
     "to": "site:fei:3002647489",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:28:20.617Z",
+    "validFrom": "2026-10-22T11:33:14.465Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:20.617Z"
+     "at": "2026-10-22T11:33:14.465Z"
     }
    },
    {
@@ -1407,11 +1554,11 @@
     "from": "inspection:fda-inspection:1002974",
     "to": "site:fei:3002647489",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:28:20.617Z",
+    "validFrom": "2026-10-22T11:33:14.465Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:20.617Z"
+     "at": "2026-10-22T11:33:14.465Z"
     }
    },
    {
@@ -1419,11 +1566,11 @@
     "from": "inspection:fda-inspection:1090548",
     "to": "site:fei:3002647489",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:28:20.618Z",
+    "validFrom": "2026-10-22T11:33:14.465Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:20.618Z"
+     "at": "2026-10-22T11:33:14.465Z"
     }
    },
    {
@@ -1431,11 +1578,11 @@
     "from": "inspection:fda-inspection:1210381",
     "to": "site:fei:3002647489",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:28:20.618Z",
+    "validFrom": "2026-10-22T11:33:14.465Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:20.618Z"
+     "at": "2026-10-22T11:33:14.465Z"
     }
    },
    {
@@ -1443,11 +1590,11 @@
     "from": "inspection:fda-inspection:1244548",
     "to": "site:fei:3002647489",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:28:20.618Z",
+    "validFrom": "2026-10-22T11:33:14.465Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:28:20.618Z"
+     "at": "2026-10-22T11:33:14.465Z"
     }
    }
   ],

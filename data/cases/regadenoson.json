@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-46b505",
+ "id": "case-2026-10-22-eb95d8",
  "question": "Why is regadenoson short, and what do we do?",
- "askedAt": "2026-10-22T08:19:09.686Z",
+ "askedAt": "2026-10-22T12:36:58.779Z",
  "asOf": "2026-10-21",
  "molecule": "regadenoson",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5HB248JTB7D4NSP2AZNG3TE",
+  "contractId": "01M5HSTF7BKJE1Q170T80SMQF3",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-cb6465"
+    "Q-8a858b"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 4387,
+   "ms": 3137,
    "rows": 1,
-   "finding": "1 stock lines across 1 hospitals.",
+   "finding": "1 stock lines across 1 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-5518e9"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2411,
+   "ms": 310,
    "rows": 0,
    "finding": "0 plant links on 1 labels; 0 placed in FDA's registration file.",
    "status": "empty"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-c04d8e",
-    "Q-fa84f1"
+    "Q-80d3b5",
+    "Q-58232d"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 964,
+   "ms": 219,
    "rows": 0,
    "finding": "Not on FDA's current shortage list.",
    "status": "empty"
@@ -63,14 +68,16 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-1abb17"
+    "Q-e2239c"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 3349,
-   "rows": 16,
-   "finding": "15 labelers make it in this form.",
+   "ms": 1140,
+   "rows": 15,
+   "finding": "14 labelers make it in this form.",
    "status": "ok"
   },
   {
@@ -81,15 +88,15 @@
     "Q-31d658",
     "Q-838cf9",
     "Q-4794e1",
-    "Q-0c32aa"
+    "Q-02139b"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1632,
+   "ms": 613,
    "rows": 16,
    "finding": "15 inspections (0 OAI at our plants), 1 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1427,
+   "ms": 548,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-a40472"
+    "Q-7c893c"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1671,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1248,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -153,9 +164,37 @@
    "onHand": 71,
    "dailyUse": 3.321,
    "days": 21.4,
-   "unit": "package",
+   "unit": "syringe",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "regadenoson|0.08mg/ml|injection|5ml|syringe",
+   "presentationLabel": "0.08 mg/mL injection, 5 mL syringe",
    "evidence": "E1"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "regadenoson|0.08mg/ml|injection|5ml|syringe",
+   "label": "0.08 mg/mL injection, 5 mL syringe",
+   "short": "0.08 mg/mL, 5 mL",
+   "unit": "syringe",
+   "onHand": 71,
+   "dailyUse": 3.321,
+   "days": 21.4,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 71,
+     "dailyUse": 3.321,
+     "days": 21.4,
+     "lines": [
+      "EA-E-000078"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -237,14 +276,6 @@
   {
    "labeler": "Gland Pharma Limited",
    "ndc11": "68083017510",
-   "dosageForm": "INJECTION, SOLUTION",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
-   "labeler": "HF Acquisition Co LLC, DBA HealthFirst",
-   "ndc11": "51662144801",
    "dosageForm": "INJECTION, SOLUTION",
    "plants": [],
    "onShortageList": false,
@@ -399,15 +430,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from HF Acquisition Co LLC, DBA HealthFirst",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Indies Pharma Jamaica Limited",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -453,27 +475,42 @@
  ],
  "explanation": {
   "state": "no_signal",
-  "headline": "No FDA shortage signal for regadenoson at our supplier's plants; Corvale East has 21 days on hand",
+  "headline": "Regadenoson is not on FDA's drug shortage list as of 2026-10-21",
   "sentences": [
    {
-    "text": "Corvale East holds 71 units with daily use of 3.3, providing 21 days on hand.",
+    "text": "FDA's records show regadenoson is not on the drug shortage list as of 2026-10-21.",
+    "cites": [
+     "D2"
+    ]
+   },
+   {
+    "text": "Corvale East holds 71 syringes of regadenoson 0.08 mg/mL, 5 mL at 3.3 a day, providing 21.4 days on hand.",
     "cites": [
      "D1"
+    ]
+   },
+   {
+    "text": "The top-ranked purchasing option is to buy from Astellas Pharma US, Inc., which is also not on FDA's shortage list today.",
+    "cites": [
+     "D3"
+    ]
+   },
+   {
+    "text": "An alternate manufacturer option is Hikma Pharmaceuticals USA Inc. at its Berkeley Heights plant, also not on the shortage list.",
+    "cites": [
+     "D4"
+    ]
+   },
+   {
+    "text": "A third option is Accord Healthcare Inc., whose label names no plant we could place, and it is not on the shortage list.",
+    "cites": [
+     "D5"
     ]
    }
   ],
   "verifier": {
-   "checked": 4,
-   "rejected": [
-    {
-     "text": "FDA's shortage list shows no signal for regadenoson at Astellas Pharma US, Inc. plants as of 2026-10-21.",
-     "reason": "cites nothing"
-    },
-    {
-     "text": "The best option by rule is to buy from Astellas Pharma US, Inc.",
-     "reason": "cites nothing"
-    }
-   ],
+   "checked": 6,
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -481,125 +518,146 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [],
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T08:18:53.843Z",
+   "at": "2026-10-22T12:36:51.563Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract 2AZNG3TE scope"
+   "reason": "in contract T80SMQF3 scope"
   },
   {
-   "at": "2026-10-22T08:18:53.843Z",
+   "at": "2026-10-22T12:36:51.563Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 2AZNG3TE scope"
+   "reason": "in contract T80SMQF3 scope"
   },
   {
-   "at": "2026-10-22T08:18:58.231Z",
+   "at": "2026-10-22T12:36:54.700Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 2AZNG3TE scope"
+   "reason": "in contract T80SMQF3 scope"
   },
   {
-   "at": "2026-10-22T08:19:00.642Z",
+   "at": "2026-10-22T12:36:55.010Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 2AZNG3TE scope"
+   "reason": "in contract T80SMQF3 scope"
   },
   {
-   "at": "2026-10-22T08:19:01.606Z",
+   "at": "2026-10-22T12:36:55.229Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 2AZNG3TE scope"
+   "reason": "in contract T80SMQF3 scope"
   },
   {
-   "at": "2026-10-22T08:19:04.954Z",
+   "at": "2026-10-22T12:36:56.370Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 2AZNG3TE scope"
+   "reason": "in contract T80SMQF3 scope"
   },
   {
-   "at": "2026-10-22T08:19:06.587Z",
+   "at": "2026-10-22T12:36:56.983Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 2AZNG3TE scope"
+   "reason": "in contract T80SMQF3 scope"
   },
   {
-   "at": "2026-10-22T08:19:08.015Z",
+   "at": "2026-10-22T12:36:57.530Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 2AZNG3TE scope"
+   "reason": "in contract T80SMQF3 scope"
   },
   {
-   "at": "2026-10-22T08:19:09.685Z",
+   "at": "2026-10-22T12:36:58.778Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract 2AZNG3TE scope"
+   "reason": "in contract T80SMQF3 scope"
   },
   {
-   "at": "2026-10-22T08:19:09.686Z",
+   "at": "2026-10-22T12:36:58.779Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract 2AZNG3TE scope"
+   "reason": "in contract T80SMQF3 scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-cb6465",
+   "queryId": "Q-8a858b",
    "row": 0,
    "label": "Corvale East: REGADENOSON 0.08MG/ML 5ML SYR",
    "fields": {
@@ -610,187 +668,252 @@
     "description": "REGADENOSON 0.08MG/ML 5ML SYR",
     "on_hand": "71.00",
     "daily_use": "3.321",
-    "unit": "package",
+    "unit": "syringe",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Regadenoson",
     "labeler_name": "Hospira, Inc.",
     "package_ndc": "0409-1401-01",
     "spl_set_id": "0e3f080d-b1fb-47ed-8cd3-90a4206fa704",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "REGADENOSON ANHYDROUS .08 mg/mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "carton"
    }
   },
   "D1": {
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 71 units of regadenoson at 3.3 a day: 21 days on hand",
+   "label": "Corvale East holds 71 syringes of regadenoson 0.08 mg/mL, 5 mL at 3.3 a day: 21.4 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "0.08 mg/mL injection, 5 mL syringe",
     "on_hand": 71,
     "daily_use": 3.3,
-    "days_on_hand": 21
+    "days_on_hand": 21.4
+   }
+  },
+  "D2": {
+   "id": "D2",
+   "queryId": "derived",
+   "row": -1,
+   "label": "regadenoson is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D3": {
+   "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from Astellas Pharma US, Inc.. Not on FDA's shortage list today. Plants: ASTELLAS.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from Hikma Pharmaceuticals USA Inc.. Not on FDA's shortage list today. Plants: Hikma Pharmaceuticals USA Inc. Berkeley Heights.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Accord Healthcare Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-cb6465": {
-   "id": "Q-cb6465",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%regadenoson%' OR lower(s.description) LIKE '%regadenoson%' ORDER BY s.hospital, s.item_key",
-   "ms": 4383,
+  "Q-8a858b": {
+   "id": "Q-8a858b",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*regadenoson(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*regadenoson(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3136,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T08:18:58.226Z",
+   "ranAt": "2026-10-22T12:36:54.699Z",
    "rows": 1
   },
   "Q-5518e9": {
    "id": "Q-5518e9",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('0e3f080d-b1fb-47ed-8cd3-90a4206fa704') ORDER BY ps.set_id, ps.establishment",
-   "ms": 2408,
+   "ms": 308,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:19:00.639Z",
+   "ranAt": "2026-10-22T12:36:55.008Z",
    "rows": 0
   },
-  "Q-c04d8e": {
-   "id": "Q-c04d8e",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%regadenoson%' ORDER BY status, company_name, package_ndc",
-   "ms": 478,
+  "Q-80d3b5": {
+   "id": "Q-80d3b5",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*regadenoson(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 109,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T08:19:01.120Z",
+   "ranAt": "2026-10-22T12:36:55.119Z",
    "rows": 0
   },
-  "Q-fa84f1": {
-   "id": "Q-fa84f1",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%regadenoson%' ORDER BY first_posting",
-   "ms": 481,
+  "Q-58232d": {
+   "id": "Q-58232d",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*regadenoson(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 108,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T08:19:01.603Z",
+   "ranAt": "2026-10-22T12:36:55.228Z",
    "rows": 0
   },
-  "Q-1abb17": {
-   "id": "Q-1abb17",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%regadenoson%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 3345,
+  "Q-e2239c": {
+   "id": "Q-e2239c",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*regadenoson(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1146,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:19:04.952Z",
-   "rows": 16
+   "ranAt": "2026-10-22T12:36:56.368Z",
+   "rows": 15
   },
   "Q-31d658": {
    "id": "Q-31d658",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('2016148') ORDER BY fei, end_date",
-   "ms": 672,
+   "ms": 257,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T08:19:05.626Z",
+   "ranAt": "2026-10-22T12:36:56.627Z",
    "rows": 15
   },
   "Q-838cf9": {
    "id": "Q-838cf9",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('2016148') ORDER BY fei, action_date",
-   "ms": 333,
+   "ms": 124,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T08:19:05.961Z",
+   "ranAt": "2026-10-22T12:36:56.752Z",
    "rows": 1
   },
   "Q-4794e1": {
    "id": "Q-4794e1",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('') OR (fei_match <> 'name_and_city' AND firm_key IN ('')) ORDER BY date_published",
-   "ms": 270,
+   "ms": 98,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T08:19:06.233Z",
+   "ranAt": "2026-10-22T12:36:56.851Z",
    "rows": 0
   },
-  "Q-0c32aa": {
-   "id": "Q-0c32aa",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('hospira') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%regadenoson%' ORDER BY initiation_date",
-   "ms": 350,
+  "Q-02139b": {
+   "id": "Q-02139b",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('hospira') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*regadenoson(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 129,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T08:19:06.585Z",
+   "ranAt": "2026-10-22T12:36:56.981Z",
    "rows": 0
   },
   "Q-c97a97": {
    "id": "Q-c97a97",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('00409140101')",
-   "ms": 1426,
+   "ms": 546,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:19:08.013Z",
+   "ranAt": "2026-10-22T12:36:57.529Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-a40472": {
-   "id": "Q-a40472",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%regadenoson%'",
-   "ms": 1668,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:19:09.683Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-7c893c": {
+   "id": "Q-7c893c",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*regadenoson(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1247,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:36:58.777Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 21185,
+  "zetarisMs": 17416,
   "modelCalls": 1,
-  "tokensIn": 390,
-  "tokensOut": 182,
+  "tokensIn": 723,
+  "tokensOut": 300,
   "mode": "live"
  },
  "slug": "regadenoson",
@@ -861,11 +984,11 @@
     "from": "hospital-item:hospital-item:EA-E-000078",
     "to": "package:ndc-package:0409-1401-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:18:58.230Z",
+    "validFrom": "2026-10-22T12:36:54.700Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:18:58.230Z"
+     "at": "2026-10-22T12:36:54.700Z"
     }
    },
    {
@@ -873,11 +996,11 @@
     "from": "package:ndc-package:0409-1401-01",
     "to": "product:ndc-product:0409-1401",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:18:58.230Z",
+    "validFrom": "2026-10-22T12:36:54.700Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:18:58.230Z"
+     "at": "2026-10-22T12:36:54.700Z"
     }
    },
    {
@@ -885,11 +1008,11 @@
     "from": "product:ndc-product:0409-1401",
     "to": "drug:generic:regadenoson",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:18:58.230Z",
+    "validFrom": "2026-10-22T12:36:54.700Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:18:58.230Z"
+     "at": "2026-10-22T12:36:54.700Z"
     }
    },
    {
@@ -897,11 +1020,11 @@
     "from": "product:ndc-product:0409-1401",
     "to": "labeler:ndc-labeler:0409",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:18:58.230Z",
+    "validFrom": "2026-10-22T12:36:54.700Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:18:58.230Z"
+     "at": "2026-10-22T12:36:54.700Z"
     }
    }
   ],

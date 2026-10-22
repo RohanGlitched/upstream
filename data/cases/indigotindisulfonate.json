@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-88c717",
+ "id": "case-2026-10-22-692f48",
  "question": "Why is indigotindisulfonate sodium short, and what do we do?",
- "askedAt": "2026-10-22T07:53:37.824Z",
+ "askedAt": "2026-10-22T12:08:37.796Z",
  "asOf": "2026-10-21",
  "molecule": "indigotindisulfonate sodium",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H9KHFQPVBN2JEDWMSY5DZZ",
+  "contractId": "01M5HR6G84W405NSC97KAFS6G6",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-6caa11"
+    "Q-3ed075"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2864,
+   "ms": 3476,
    "rows": 3,
-   "finding": "3 stock lines across 3 hospitals.",
+   "finding": "3 stock lines across 3 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-873ec9"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 809,
+   "ms": 462,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-0ac457",
-    "Q-f2eef9"
+    "Q-d743c3",
+    "Q-c628e2"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 429,
+   "ms": 319,
    "rows": 1,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-0cde07"
+    "Q-a5f57b"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2120,
+   "ms": 1373,
    "rows": 2,
    "finding": "2 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-cfac63",
     "Q-382230",
     "Q-661994",
-    "Q-297b17"
+    "Q-bcf6c2"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 999,
+   "ms": 776,
    "rows": 5,
    "finding": "5 inspections (1 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,7 +111,7 @@
    "sources": [
     "fda.citations"
    ],
-   "ms": 248,
+   "ms": 299,
    "rows": 9,
    "finding": "9 Form 483 observations recorded.",
    "status": "ok"
@@ -119,9 +126,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1199,
+   "ms": 733,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -129,19 +136,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-f52569"
+    "Q-d486e1"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1861,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1680,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -168,21 +179,27 @@
    "onHand": 31,
    "dailyUse": 4.372,
    "days": 7.1,
-   "unit": "package",
+   "unit": "each",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 5, converted to units",
+   "presentation": "indigotindisulfonate sodium|8mg/ml|injection|5ml|each",
+   "presentationLabel": "8 mg/mL injection, 5 mL each",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-65",
    "ndc11": "81284031505",
-   "description": "indigotindisulfonate sodium",
+   "description": "indigotindisulfonate sodium 8 mg/mL",
    "labeler": "Provepharm Inc.",
-   "onHand": 64.7,
+   "onHand": 64,
    "dailyUse": 4.313,
-   "days": 15,
+   "days": 14.8,
    "unit": "each",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "indigotindisulfonate sodium|8mg/ml|injection|5ml|each",
+   "presentationLabel": "8 mg/mL injection, 5 mL each",
    "evidence": "E2"
   },
   {
@@ -196,7 +213,59 @@
    "days": 8.5,
    "unit": "each",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "indigotindisulfonate sodium|8mg/ml|injection|5ml|each",
+   "presentationLabel": "8 mg/mL injection, 5 mL each",
    "evidence": "E3"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "indigotindisulfonate sodium|8mg/ml|injection|5ml|each",
+   "label": "8 mg/mL injection, 5 mL each",
+   "short": "8 mg/mL, 5 mL",
+   "unit": "each",
+   "onHand": 105,
+   "dailyUse": 9.858,
+   "days": 10.7,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 31,
+     "dailyUse": 4.372,
+     "days": 7.1,
+     "lines": [
+      "EA-E-000317"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 64,
+     "dailyUse": 4.313,
+     "days": 14.8,
+     "lines": [
+      "CG-65"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 10,
+     "dailyUse": 1.173,
+     "days": 8.5,
+     "lines": [
+      "LS-LS-0137"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -324,14 +393,25 @@
   {
    "kind": "transfer",
    "rank": 1,
-   "title": "Transfer 4 from Corvale General to Corvale East",
-   "detail": "Corvale General has 15 days on hand and can spare 4 while keeping two weeks; Corvale East has 7.1 days and would reach 8.",
-   "why": "Same product, no clinical change, no new supplier.",
+   "title": "Transfer 3 units of 8 mg/mL, 5 mL from Corvale General to Corvale East",
+   "detail": "Corvale General has 15 days of 8 mg/mL injection, 5 mL each on hand and can spare 3 units while keeping two weeks; Corvale East has 7.1 days and would reach 8.",
+   "why": "Same presentation, no clinical change, no new supplier.",
    "needs": "pharmacy director (transfer request)",
    "evidence": [
     "E2",
     "E1"
-   ]
+   ],
+   "transfer": {
+    "qty": 3,
+    "unit": "each",
+    "presentation": "8 mg/mL injection, 5 mL each",
+    "from": "Corvale General",
+    "to": "Corvale East",
+    "fromDays": 14.8,
+    "toDays": 7.1,
+    "fromAfter": 14,
+    "toAfter": 8
+   }
   },
   {
    "kind": "alternate_manufacturer",
@@ -368,47 +448,52 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "The public record is incomplete; check the flagged links",
+  "headline": "FDA's records trace our supply to a plant classified VAI 64 days after the shortage posting",
   "sentences": [
    {
-    "text": "The product label for NDC 81284031505 identifies CENEXI (FEI 3007250542) as the manufacturing plant.",
+    "text": "Indigotindisulfonate sodium has been on FDA's shortage list since 2022-08-23 and remains listed as of 2026-10-21, a span of 50 months.",
+    "cites": [
+     "D5"
+    ]
+   },
+   {
+    "text": "The product used at Corvale General and Corvale East carries NDC 81284031505 and is labeled by Provepharm Inc.",
+    "cites": [
+     "E1",
+     "E2"
+    ]
+   },
+   {
+    "text": "The label identifies the manufacturing plant as CENEXI (FEI 3007250542) in France.",
     "cites": [
      "E10"
     ]
    },
    {
-    "text": "FDA inspection 924508 of that plant ended 2015-04-28 and was classified OAI with nine observations including SOPs not followed and batches formulated to less than 100%.",
+    "text": "FDA inspection 1245208 at that plant ended 2022-10-26 and was classified VAI, which occurred 64 days after the shortage was first posted.",
     "cites": [
-     "E6"
+     "D4",
+     "E9"
     ]
    },
    {
-    "text": "FDA posted the shortage on 2022-08-23, and the most recent inspection (1245208) ended 2022-10-26, classified VAI, 64 days after the posting.",
+    "text": "Earlier inspections at the same plant include an OAI classification in 2015 and VAI classifications in 2012, 2016, and 2018.",
     "cites": [
-     "D4"
+     "E4",
+     "E6",
+     "E7",
+     "E8"
     ]
    },
    {
-    "text": "As of 2026-10-21 the shortage has been on FDA's list for 50 months.",
-    "cites": [
-     "D7"
-    ]
-   },
-   {
-    "text": "Corvale East holds 31 units at 4.4 per day (7 days on hand) and Corvale General holds 65 units at 4.3 per day (15 days on hand).",
+    "text": "Corvale East holds 31 units with 7.1 days on hand, while Corvale General holds 64 units with 14.8 days on hand.",
     "cites": [
      "D1",
      "D2"
     ]
    },
    {
-    "text": "The rule-ranked option is to transfer 4 units from Corvale General to Corvale East; Corvale General can spare 4 while keeping two weeks and Corvale East would reach 8 days.",
-    "cites": [
-     "D5"
-    ]
-   },
-   {
-    "text": "Check whether Sagent Pharmaceuticals is a viable alternate source, as it is not on FDA's shortage list today and its label names no plant we could place.",
+    "text": "The recommended action is to transfer 3 units of the 8 mg/mL, 5 mL presentation from Corvale General to Corvale East, which would raise Corvale East to about 8 days of supply while Corvale General retains roughly two weeks.",
     "cites": [
      "D6"
     ]
@@ -416,12 +501,7 @@
   ],
   "verifier": {
    "checked": 8,
-   "rejected": [
-    {
-     "text": "FDA's records trace our supply to a plant classified OAI 2740 days before the shortage posting",
-     "reason": "headline: number 2740 is not in the cited evidence"
-    }
-   ],
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -429,45 +509,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -489,87 +590,87 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:53:27.288Z",
+   "at": "2026-10-22T12:08:28.676Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract WMSY5DZZ scope"
+   "reason": "in contract 7KAFS6G6 scope"
   },
   {
-   "at": "2026-10-22T07:53:27.288Z",
+   "at": "2026-10-22T12:08:28.676Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WMSY5DZZ scope"
+   "reason": "in contract 7KAFS6G6 scope"
   },
   {
-   "at": "2026-10-22T07:53:30.156Z",
+   "at": "2026-10-22T12:08:32.152Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WMSY5DZZ scope"
+   "reason": "in contract 7KAFS6G6 scope"
   },
   {
-   "at": "2026-10-22T07:53:30.964Z",
+   "at": "2026-10-22T12:08:32.614Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WMSY5DZZ scope"
+   "reason": "in contract 7KAFS6G6 scope"
   },
   {
-   "at": "2026-10-22T07:53:31.393Z",
+   "at": "2026-10-22T12:08:32.933Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WMSY5DZZ scope"
+   "reason": "in contract 7KAFS6G6 scope"
   },
   {
-   "at": "2026-10-22T07:53:33.514Z",
+   "at": "2026-10-22T12:08:34.306Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WMSY5DZZ scope"
+   "reason": "in contract 7KAFS6G6 scope"
   },
   {
-   "at": "2026-10-22T07:53:34.513Z",
+   "at": "2026-10-22T12:08:35.083Z",
    "action": "What FDA wrote at the OAI inspections",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WMSY5DZZ scope"
+   "reason": "in contract 7KAFS6G6 scope"
   },
   {
-   "at": "2026-10-22T07:53:34.762Z",
+   "at": "2026-10-22T12:08:35.382Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WMSY5DZZ scope"
+   "reason": "in contract 7KAFS6G6 scope"
   },
   {
-   "at": "2026-10-22T07:53:35.962Z",
+   "at": "2026-10-22T12:08:36.116Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WMSY5DZZ scope"
+   "reason": "in contract 7KAFS6G6 scope"
   },
   {
-   "at": "2026-10-22T07:53:37.822Z",
+   "at": "2026-10-22T12:08:37.795Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract WMSY5DZZ scope"
+   "reason": "in contract 7KAFS6G6 scope"
   },
   {
-   "at": "2026-10-22T07:53:37.824Z",
+   "at": "2026-10-22T12:08:37.796Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract WMSY5DZZ scope"
+   "reason": "in contract 7KAFS6G6 scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-6caa11",
+   "queryId": "Q-3ed075",
    "row": 0,
    "label": "Corvale East: INDIGOTINDISULFONATE SODIUM 8MG/ML 5ML AMP",
    "fields": {
@@ -580,42 +681,52 @@
     "description": "INDIGOTINDISULFONATE SODIUM 8MG/ML 5ML AMP",
     "on_hand": "31.00",
     "daily_use": "4.372",
-    "unit": "package",
+    "unit": "each",
+    "pkg_units": "5.00",
+    "unit_basis": "packages of 5, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "indigotindisulfonate sodium",
     "labeler_name": "Provepharm Inc.",
     "package_ndc": "81284-315-05",
     "spl_set_id": "73f246c4-b127-452e-856f-134b56cb8870",
     "dosage_form": "INJECTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "INDIGOTINDISULFONATE SODIUM 8 mg/mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "ampule"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-6caa11",
+   "queryId": "Q-3ed075",
    "row": 1,
-   "label": "Corvale General: indigotindisulfonate sodium",
+   "label": "Corvale General: indigotindisulfonate sodium 8 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-65",
     "ndc11": "81284031505",
     "ndc_as_recorded": "81284031505",
-    "description": "indigotindisulfonate sodium",
-    "on_hand": "64.70",
+    "description": "indigotindisulfonate sodium 8 mg/mL",
+    "on_hand": "64.00",
     "daily_use": "4.313",
     "unit": "each",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "indigotindisulfonate sodium",
     "labeler_name": "Provepharm Inc.",
     "package_ndc": "81284-315-05",
     "spl_set_id": "73f246c4-b127-452e-856f-134b56cb8870",
     "dosage_form": "INJECTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "INDIGOTINDISULFONATE SODIUM 8 mg/mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "ampule"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-6caa11",
+   "queryId": "Q-3ed075",
    "row": 2,
    "label": "Corvale Lakeside: indigotindisulfonate sodium 8 mg/mL",
    "fields": {
@@ -627,13 +738,18 @@
     "on_hand": "10.00",
     "daily_use": "1.173",
     "unit": "each",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "indigotindisulfonate sodium",
     "labeler_name": "Provepharm Inc.",
     "package_ndc": "81284-315-05",
     "spl_set_id": "73f246c4-b127-452e-856f-134b56cb8870",
     "dosage_form": "INJECTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "INDIGOTINDISULFONATE SODIUM 8 mg/mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "ampule"
    }
   },
   "E4": {
@@ -749,36 +865,39 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 31 units of indigotindisulfonate sodium at 4.4 a day: 7 days on hand",
+   "label": "Corvale East holds 31 eachs of indigotindisulfonate sodium 8 mg/mL, 5 mL at 4.4 a day: 7.1 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "8 mg/mL injection, 5 mL each",
     "on_hand": 31,
     "daily_use": 4.4,
-    "days_on_hand": 7
+    "days_on_hand": 7.1
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 65 units of indigotindisulfonate sodium at 4.3 a day: 15 days on hand",
+   "label": "Corvale General holds 64 eachs of indigotindisulfonate sodium 8 mg/mL, 5 mL at 4.3 a day: 14.8 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 65,
+    "presentation": "8 mg/mL injection, 5 mL each",
+    "on_hand": 64,
     "daily_use": 4.3,
-    "days_on_hand": 15
+    "days_on_hand": 14.8
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 10 units of indigotindisulfonate sodium at 1.2 a day: 9 days on hand",
+   "label": "Corvale Lakeside holds 10 eachs of indigotindisulfonate sodium 8 mg/mL, 5 mL at 1.2 a day: 8.5 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
+    "presentation": "8 mg/mL injection, 5 mL each",
     "on_hand": 10,
     "daily_use": 1.2,
-    "days_on_hand": 9
+    "days_on_hand": 8.5
    }
   },
   "D4": {
@@ -796,14 +915,25 @@
    "id": "D5",
    "queryId": "derived",
    "row": -1,
-   "label": "Option ranked 1 by rule: Transfer 4 from Corvale General to Corvale East. Corvale General has 15 days on hand and can spare 4 while keeping two weeks; Corvale East has 7.1 days and would reach 8.",
+   "label": "As of 2026-10-21 the shortage has been on FDA's list for 50 months",
+   "fields": {
+    "as_of": "2026-10-21",
+    "posted": "2022-08-23",
+    "months": 50
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 3 units of 8 mg/mL, 5 mL from Corvale General to Corvale East. Corvale General has 15 days of 8 mg/mL injection, 5 mL each on hand and can spare 3 units while keeping two weeks; Corvale East has 7.1 days and would reach 8.",
    "fields": {
     "kind": "transfer",
     "needs": "pharmacy director (transfer request)"
    }
   },
-  "D6": {
-   "id": "D6",
+  "D7": {
+   "id": "D7",
    "queryId": "derived",
    "row": -1,
    "label": "Option ranked 3 by rule: Buy from Sagent Pharmaceuticals. Not on FDA's shortage list today. Its label names no plant we could place.",
@@ -811,188 +941,196 @@
     "kind": "alternate_manufacturer",
     "needs": "buyer"
    }
-  },
-  "D7": {
-   "id": "D7",
-   "queryId": "derived",
-   "row": -1,
-   "label": "As of 2026-10-21 the shortage has been on FDA's list for 50 months",
-   "fields": {
-    "as_of": "2026-10-21",
-    "posted": "2022-08-23",
-    "months": 50
-   }
   }
  },
  "queries": {
-  "Q-6caa11": {
-   "id": "Q-6caa11",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%indigotindisulfonate%' OR lower(s.description) LIKE '%indigotindisulfonate%' ORDER BY s.hospital, s.item_key",
-   "ms": 2861,
+  "Q-3ed075": {
+   "id": "Q-3ed075",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*indigotindisulfonate(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*indigotindisulfonate(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3474,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:53:30.149Z",
+   "ranAt": "2026-10-22T12:08:32.151Z",
    "rows": 3
   },
   "Q-873ec9": {
    "id": "Q-873ec9",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('73f246c4-b127-452e-856f-134b56cb8870') ORDER BY ps.set_id, ps.establishment",
-   "ms": 805,
+   "ms": 459,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:53:30.961Z",
+   "ranAt": "2026-10-22T12:08:32.611Z",
    "rows": 1
   },
-  "Q-0ac457": {
-   "id": "Q-0ac457",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%indigotindisulfonate%' ORDER BY status, company_name, package_ndc",
-   "ms": 165,
+  "Q-d743c3": {
+   "id": "Q-d743c3",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*indigotindisulfonate(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 154,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:53:31.130Z",
+   "ranAt": "2026-10-22T12:08:32.768Z",
    "rows": 0
   },
-  "Q-f2eef9": {
-   "id": "Q-f2eef9",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%indigotindisulfonate%' ORDER BY first_posting",
-   "ms": 256,
+  "Q-c628e2": {
+   "id": "Q-c628e2",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*indigotindisulfonate(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 161,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:53:31.390Z",
+   "ranAt": "2026-10-22T12:08:32.931Z",
    "rows": 1
   },
-  "Q-0cde07": {
-   "id": "Q-0cde07",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%indigotindisulfonate%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2116,
+  "Q-a5f57b": {
+   "id": "Q-a5f57b",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*indigotindisulfonate(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1371,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:53:33.509Z",
+   "ranAt": "2026-10-22T12:08:34.304Z",
    "rows": 2
   },
   "Q-cfac63": {
    "id": "Q-cfac63",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3007250542') ORDER BY fei, end_date",
-   "ms": 409,
+   "ms": 259,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:53:33.923Z",
+   "ranAt": "2026-10-22T12:08:34.565Z",
    "rows": 5
   },
   "Q-382230": {
    "id": "Q-382230",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3007250542') ORDER BY fei, action_date",
-   "ms": 193,
+   "ms": 173,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:53:34.120Z",
+   "ranAt": "2026-10-22T12:08:34.741Z",
    "rows": 0
   },
   "Q-661994": {
    "id": "Q-661994",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3007250542') OR (fei_match <> 'name_and_city' AND firm_key IN ('cenexi')) ORDER BY date_published",
-   "ms": 179,
+   "ms": 147,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:53:34.303Z",
+   "ranAt": "2026-10-22T12:08:34.888Z",
    "rows": 0
   },
-  "Q-297b17": {
-   "id": "Q-297b17",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('cenexi', 'provepharm') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%indigotindisulfonate%' ORDER BY initiation_date",
-   "ms": 202,
+  "Q-bcf6c2": {
+   "id": "Q-bcf6c2",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('cenexi', 'provepharm') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*indigotindisulfonate(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 191,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:53:34.509Z",
+   "ranAt": "2026-10-22T12:08:35.081Z",
    "rows": 0
   },
   "Q-30d2cc": {
    "id": "Q-30d2cc",
    "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('924508') ORDER BY inspection_id, cfr",
-   "ms": 243,
+   "ms": 297,
    "mode": "live",
    "sources": [
     "fda.citations"
    ],
-   "ranAt": "2026-10-22T07:53:34.756Z",
+   "ranAt": "2026-10-22T12:08:35.379Z",
    "rows": 9
   },
   "Q-f5c60d": {
    "id": "Q-f5c60d",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('81284031505')",
-   "ms": 1195,
+   "ms": 732,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:53:35.957Z",
+   "ranAt": "2026-10-22T12:08:36.114Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-f52569": {
-   "id": "Q-f52569",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%indigotindisulfonate%'",
-   "ms": 1858,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:53:37.820Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-d486e1": {
+   "id": "Q-d486e1",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*indigotindisulfonate(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1678,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:08:37.793Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 15,
-  "zetarisMs": 15853,
+  "zetarisMs": 19304,
   "modelCalls": 1,
-  "tokensIn": 1912,
-  "tokensOut": 478,
+  "tokensIn": 2293,
+  "tokensOut": 492,
   "mode": "live"
  },
  "slug": "indigotindisulfonate",
@@ -1007,7 +1145,7 @@
     "id": "hospital-item:hospital-item:CG-65",
     "type": "HospitalItem",
     "key": "hospital-item:CG-65",
-    "label": "Corvale General: indigotindisulfonate sodium",
+    "label": "Corvale General: indigotindisulfonate sodium 8 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-65"
     },
@@ -1102,7 +1240,7 @@
     },
     "facts": [
      {
-      "id": "fact_e7e1164ad813f6ea",
+      "id": "fact_30a42aac77bef1c9",
       "about": "inspection:fda-inspection:1116659",
       "predicate": "classification",
       "value": "VAI",
@@ -1110,9 +1248,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:53:34.761Z"
+       "at": "2026-10-22T12:08:35.382Z"
       },
-      "assertedAt": "2026-10-22T07:53:34.761Z"
+      "assertedAt": "2026-10-22T12:08:35.382Z"
      }
     ],
     "depth": 4
@@ -1128,7 +1266,7 @@
     },
     "facts": [
      {
-      "id": "fact_8eb11c91932bcffd",
+      "id": "fact_a706394d085e2f5b",
       "about": "inspection:fda-inspection:1245208",
       "predicate": "classification",
       "value": "VAI",
@@ -1136,9 +1274,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:53:34.762Z"
+       "at": "2026-10-22T12:08:35.382Z"
       },
-      "assertedAt": "2026-10-22T07:53:34.762Z"
+      "assertedAt": "2026-10-22T12:08:35.382Z"
      }
     ],
     "depth": 4
@@ -1154,7 +1292,7 @@
     },
     "facts": [
      {
-      "id": "fact_a94aa5d0d61223b0",
+      "id": "fact_6804a7ff49f84eee",
       "about": "inspection:fda-inspection:811365",
       "predicate": "classification",
       "value": "VAI",
@@ -1162,9 +1300,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:53:34.760Z"
+       "at": "2026-10-22T12:08:35.381Z"
       },
-      "assertedAt": "2026-10-22T07:53:34.760Z"
+      "assertedAt": "2026-10-22T12:08:35.381Z"
      }
     ],
     "depth": 4
@@ -1180,7 +1318,7 @@
     },
     "facts": [
      {
-      "id": "fact_a47b926d0f1eb8f2",
+      "id": "fact_b7de7a777e83f30d",
       "about": "inspection:fda-inspection:924508",
       "predicate": "classification",
       "value": "OAI",
@@ -1188,9 +1326,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:53:34.761Z"
+       "at": "2026-10-22T12:08:35.382Z"
       },
-      "assertedAt": "2026-10-22T07:53:34.761Z"
+      "assertedAt": "2026-10-22T12:08:35.382Z"
      }
     ],
     "depth": 4
@@ -1206,7 +1344,7 @@
     },
     "facts": [
      {
-      "id": "fact_db18b7cc634a5ddf",
+      "id": "fact_730b9bbdd1f7186d",
       "about": "inspection:fda-inspection:976108",
       "predicate": "classification",
       "value": "VAI",
@@ -1214,9 +1352,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:53:34.761Z"
+       "at": "2026-10-22T12:08:35.382Z"
       },
-      "assertedAt": "2026-10-22T07:53:34.761Z"
+      "assertedAt": "2026-10-22T12:08:35.382Z"
      }
     ],
     "depth": 4
@@ -1228,11 +1366,11 @@
     "from": "hospital-item:hospital-item:CG-65",
     "to": "package:ndc-package:81284-315-05",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:53:30.154Z",
+    "validFrom": "2026-10-22T12:08:32.152Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:30.154Z"
+     "at": "2026-10-22T12:08:32.152Z"
     }
    },
    {
@@ -1240,11 +1378,11 @@
     "from": "hospital-item:hospital-item:EA-E-000317",
     "to": "package:ndc-package:81284-315-05",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:53:30.154Z",
+    "validFrom": "2026-10-22T12:08:32.152Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:30.154Z"
+     "at": "2026-10-22T12:08:32.152Z"
     }
    },
    {
@@ -1252,11 +1390,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0137",
     "to": "package:ndc-package:81284-315-05",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:53:30.155Z",
+    "validFrom": "2026-10-22T12:08:32.152Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:30.155Z"
+     "at": "2026-10-22T12:08:32.152Z"
     }
    },
    {
@@ -1264,11 +1402,11 @@
     "from": "package:ndc-package:81284-315-05",
     "to": "product:ndc-product:81284-315",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:53:30.154Z",
+    "validFrom": "2026-10-22T12:08:32.152Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:30.154Z"
+     "at": "2026-10-22T12:08:32.152Z"
     }
    },
    {
@@ -1276,11 +1414,11 @@
     "from": "product:ndc-product:81284-315",
     "to": "drug:generic:indigotindisulfonate sodium",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:53:30.154Z",
+    "validFrom": "2026-10-22T12:08:32.152Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:30.154Z"
+     "at": "2026-10-22T12:08:32.152Z"
     }
    },
    {
@@ -1288,11 +1426,11 @@
     "from": "product:ndc-product:81284-315",
     "to": "labeler:ndc-labeler:81284",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:53:30.154Z",
+    "validFrom": "2026-10-22T12:08:32.152Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:30.154Z"
+     "at": "2026-10-22T12:08:32.152Z"
     }
    },
    {
@@ -1300,11 +1438,11 @@
     "from": "product:ndc-product:81284-315",
     "to": "site:fei:3007250542",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:53:34.760Z",
+    "validFrom": "2026-10-22T12:08:35.381Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:34.760Z"
+     "at": "2026-10-22T12:08:35.381Z"
     }
    },
    {
@@ -1312,11 +1450,11 @@
     "from": "inspection:fda-inspection:811365",
     "to": "site:fei:3007250542",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:53:34.760Z",
+    "validFrom": "2026-10-22T12:08:35.381Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:34.760Z"
+     "at": "2026-10-22T12:08:35.381Z"
     }
    },
    {
@@ -1324,11 +1462,11 @@
     "from": "inspection:fda-inspection:924508",
     "to": "site:fei:3007250542",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:53:34.761Z",
+    "validFrom": "2026-10-22T12:08:35.382Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:34.761Z"
+     "at": "2026-10-22T12:08:35.382Z"
     }
    },
    {
@@ -1336,11 +1474,11 @@
     "from": "inspection:fda-inspection:976108",
     "to": "site:fei:3007250542",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:53:34.761Z",
+    "validFrom": "2026-10-22T12:08:35.382Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:34.761Z"
+     "at": "2026-10-22T12:08:35.382Z"
     }
    },
    {
@@ -1348,11 +1486,11 @@
     "from": "inspection:fda-inspection:1116659",
     "to": "site:fei:3007250542",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:53:34.761Z",
+    "validFrom": "2026-10-22T12:08:35.382Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:34.761Z"
+     "at": "2026-10-22T12:08:35.382Z"
     }
    },
    {
@@ -1360,11 +1498,11 @@
     "from": "inspection:fda-inspection:1245208",
     "to": "site:fei:3007250542",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:53:34.761Z",
+    "validFrom": "2026-10-22T12:08:35.382Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:53:34.761Z"
+     "at": "2026-10-22T12:08:35.382Z"
     }
    }
   ],

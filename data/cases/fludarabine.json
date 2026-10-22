@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-b49d1e",
+ "id": "case-2026-10-22-91f08e",
  "question": "Why is fludarabine phosphate short, and what do we do?",
- "askedAt": "2026-10-22T07:46:29.872Z",
+ "askedAt": "2026-10-22T12:00:09.182Z",
  "asOf": "2026-10-21",
  "molecule": "fludarabine phosphate",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H96F1X0RKWF13HFM614ZBQ",
+  "contractId": "01M5HQPZG66YY5J1FJW61XVMV0",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-6b6c4c"
+    "Q-1c7110"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3015,
+   "ms": 3834,
    "rows": 5,
-   "finding": "5 stock lines across 3 hospitals.",
+   "finding": "5 stock lines across 3 hospitals, 2 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-a92d45"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 736,
+   "ms": 464,
    "rows": 2,
    "finding": "2 plant links on 2 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-a4e9bb",
-    "Q-4810c2"
+    "Q-5c7dc8",
+    "Q-e1b7e1"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 576,
+   "ms": 268,
    "rows": 1,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-d5dc72"
+    "Q-e2ecc4"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2122,
+   "ms": 1331,
    "rows": 6,
    "finding": "6 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-767e91",
     "Q-052252",
     "Q-15db6f",
-    "Q-0469f9"
+    "Q-d44a10"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1391,
+   "ms": 809,
    "rows": 20,
    "finding": "20 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1770,
+   "ms": 1002,
    "rows": 2,
    "finding": "2 approved interchanges on file.",
    "status": "ok"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-2ac8ec"
+    "Q-8b7f18"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1441,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1465,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 0,
+   "ms": 1,
    "rows": 0,
    "finding": "No past decisions on this drug.",
    "status": "empty"
@@ -153,8 +164,11 @@
    "onHand": 15,
    "dailyUse": 3.397,
    "days": 4.4,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "fludarabine phosphate|50mg/2ml|injection|2ml|vial",
+   "presentationLabel": "50 mg/2 mL injection, 2 mL vial",
    "evidence": "E1"
   },
   {
@@ -166,34 +180,43 @@
    "onHand": 18,
    "dailyUse": 4.377,
    "days": 4.1,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "fludarabine phosphate|25mg/ml|injection|2ml|vial",
+   "presentationLabel": "25 mg/mL injection, 2 mL vial",
    "evidence": "E2"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-50",
    "ndc11": "45963060955",
-   "description": "Fludarabine phosphate",
+   "description": "Fludarabine phosphate 50 mg/2mL",
    "labeler": "Actavis Pharma, Inc.",
-   "onHand": 82.39,
+   "onHand": 82,
    "dailyUse": 4.514,
-   "days": 18.3,
+   "days": 18.2,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "fludarabine phosphate|50mg/2ml|injection|2ml|vial",
+   "presentationLabel": "50 mg/2 mL injection, 2 mL vial",
    "evidence": "E3"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-51",
    "ndc11": "59923060402",
-   "description": "Fludarabine Phosphate",
+   "description": "Fludarabine Phosphate 25 mg/mL",
    "labeler": "Areva Pharmaceuticals",
-   "onHand": 53.59,
+   "onHand": 53,
    "dailyUse": 4.33,
-   "days": 12.4,
+   "days": 12.2,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "fludarabine phosphate|25mg/ml|injection|2ml|vial",
+   "presentationLabel": "25 mg/mL injection, 2 mL vial",
    "evidence": "E4"
   },
   {
@@ -207,7 +230,94 @@
    "days": 6.3,
    "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "fludarabine phosphate|50mg/2ml|injection|2ml|vial",
+   "presentationLabel": "50 mg/2 mL injection, 2 mL vial",
    "evidence": "E5"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "fludarabine phosphate|25mg/ml|injection|2ml|vial",
+   "label": "25 mg/mL injection, 2 mL vial",
+   "short": "25 mg/mL, 2 mL",
+   "unit": "vial",
+   "onHand": 71,
+   "dailyUse": 8.707,
+   "days": 8.2,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 18,
+     "dailyUse": 4.377,
+     "days": 4.1,
+     "lines": [
+      "EA-E-000199"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 53,
+     "dailyUse": 4.33,
+     "days": 12.2,
+     "lines": [
+      "CG-51"
+     ],
+     "evidence": [
+      "E4"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "fludarabine phosphate|50mg/2ml|injection|2ml|vial",
+   "label": "50 mg/2 mL injection, 2 mL vial",
+   "short": "50 mg/2 mL, 2 mL",
+   "unit": "vial",
+   "onHand": 103,
+   "dailyUse": 8.861,
+   "days": 11.6,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 15,
+     "dailyUse": 3.397,
+     "days": 4.4,
+     "lines": [
+      "EA-E-000160"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 82,
+     "dailyUse": 4.514,
+     "days": 18.2,
+     "lines": [
+      "CG-50"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 6,
+     "dailyUse": 0.95,
+     "days": 6.3,
+     "lines": [
+      "LS-LS-0074"
+     ],
+     "evidence": [
+      "E5"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -411,16 +521,25 @@
   {
    "kind": "transfer",
    "rank": 1,
-   "title": "Transfer 12 from Corvale General to Corvale East",
-   "detail": "Corvale General has 15 days on hand and can spare 12 while keeping two weeks; Corvale East has 4.2 days and would reach 6.",
-   "why": "Same product, no clinical change, no new supplier.",
+   "title": "Transfer 18 vials of 50 mg/2 mL, 2 mL from Corvale General to Corvale East",
+   "detail": "Corvale General has 18 days of 50 mg/2 mL injection, 2 mL vials on hand and can spare 18 vials while keeping two weeks; Corvale East has 4.4 days and would reach 10.",
+   "why": "Same presentation, no clinical change, no new supplier.",
    "needs": "pharmacy director (transfer request)",
    "evidence": [
     "E3",
-    "E4",
-    "E1",
-    "E2"
-   ]
+    "E1"
+   ],
+   "transfer": {
+    "qty": 18,
+    "unit": "vial",
+    "presentation": "50 mg/2 mL injection, 2 mL vial",
+    "from": "Corvale General",
+    "to": "Corvale East",
+    "fromDays": 18.2,
+    "toDays": 4.4,
+    "fromAfter": 14,
+    "toAfter": 10
+   }
   },
   {
    "kind": "alternate_manufacturer",
@@ -509,48 +628,52 @@
   "headline": "FDA's records trace our supply to a plant classified VAI 840 days before the shortage posting",
   "sentences": [
    {
-    "text": "FDA posted the fludarabine phosphate shortage on 2022-05-06 and as of 2026-10-21 it has been on the list for 54 months.",
+    "text": "Fludarabine phosphate has been on FDA's shortage list since 2022-05-06 and remains listed as of 2026-10-21.",
     "cites": [
-     "D8"
+     "D7"
     ]
    },
    {
-    "text": "An FDA inspection of NerPharMa S.r.l. (FEI 3004762406) ended 2020-01-17 and was classified VAI, with the classification letter dated 2021-05-19 — 840 days before the shortage posting.",
+    "text": "The product used at Corvale General and Corvale East carries NDC 45963060955 and is labeled by Actavis Pharma, Inc.",
     "cites": [
-     "D4",
-     "E10"
+     "E1",
+     "E3"
     ]
    },
    {
-    "text": "The same plant was inspected again on 2024-09-13 and classified VAI.",
-    "cites": [
-     "E11"
-    ]
-   },
-   {
-    "text": "A second label names ACTAVIS TOTOWA as the manufacturing plant, but the evidence provides no inspection record for that site.",
+    "text": "That label names ACTAVIS TOTOWA as the manufacturing plant.",
     "cites": [
      "E6"
     ]
    },
    {
-    "text": "Corvale East holds 33 units at 7.8 per day for 4 days on hand, while Corvale General holds 136 units at 8.8 per day for 15 days on hand.",
+    "text": "FDA inspection 1142104 at the associated facility (FEI 3004762406, NerPharMa S.r.l.) ended 2020-01-17 and was classified VAI, with the classification letter dated 2021-05-19 — 840 days before FDA posted the shortage on 2022-05-06.",
     "cites": [
-     "D1",
-     "D2"
+     "D6",
+     "E10"
     ]
    },
    {
-    "text": "The rule‑ranked first option is to transfer 12 units from Corvale General to Corvale East; Corvale General can spare 12 while keeping two weeks of supply and Corvale East would reach 6 days on hand.",
+    "text": "No FDA inspection at a registered plant for this product occurred after the shortage posting, so the record shows a VAI classification well before the posting but no later action tied to the shortage.",
     "cites": [
-     "D5"
+     "D6",
+     "E10",
+     "E11"
     ]
    },
    {
-    "text": "Because the links between labels and plants are weak or some records fail data checks, verify the current manufacturing sites for each NDC and confirm transfer feasibility with the pharmacy director.",
+    "text": "The rule‑based best option is to transfer 18 vials of 50 mg/2 mL, 2 mL from Corvale General to Corvale East; Corvale General has 18.2 days on hand and can spare the vials while keeping two weeks, and Corvale East would rise from 4.4 days to about 10 days.",
     "cites": [
-     "E6",
-     "E12"
+     "D3",
+     "D4",
+     "D8"
+    ]
+   },
+   {
+    "text": "Alternate manufacturers Fresenius Kabi USA, LLC (plant last inspected VAI 2023-08-24) and Hisun Pharmaceuticals USA, Inc. (no plant identified on label) are not on FDA's shortage list today.",
+    "cites": [
+     "D9",
+     "D10"
     ]
    }
   ],
@@ -564,125 +687,146 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [],
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:46:18.814Z",
+   "at": "2026-10-22T12:00:00.007Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract FM614ZBQ scope"
+   "reason": "in contract W61XVMV0 scope"
   },
   {
-   "at": "2026-10-22T07:46:18.814Z",
+   "at": "2026-10-22T12:00:00.007Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FM614ZBQ scope"
+   "reason": "in contract W61XVMV0 scope"
   },
   {
-   "at": "2026-10-22T07:46:21.830Z",
+   "at": "2026-10-22T12:00:03.843Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FM614ZBQ scope"
+   "reason": "in contract W61XVMV0 scope"
   },
   {
-   "at": "2026-10-22T07:46:22.566Z",
+   "at": "2026-10-22T12:00:04.306Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FM614ZBQ scope"
+   "reason": "in contract W61XVMV0 scope"
   },
   {
-   "at": "2026-10-22T07:46:23.142Z",
+   "at": "2026-10-22T12:00:04.574Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FM614ZBQ scope"
+   "reason": "in contract W61XVMV0 scope"
   },
   {
-   "at": "2026-10-22T07:46:25.265Z",
+   "at": "2026-10-22T12:00:05.905Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FM614ZBQ scope"
+   "reason": "in contract W61XVMV0 scope"
   },
   {
-   "at": "2026-10-22T07:46:26.659Z",
+   "at": "2026-10-22T12:00:06.714Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FM614ZBQ scope"
+   "reason": "in contract W61XVMV0 scope"
   },
   {
-   "at": "2026-10-22T07:46:28.429Z",
+   "at": "2026-10-22T12:00:07.717Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FM614ZBQ scope"
+   "reason": "in contract W61XVMV0 scope"
   },
   {
-   "at": "2026-10-22T07:46:29.871Z",
+   "at": "2026-10-22T12:00:09.181Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract FM614ZBQ scope"
+   "reason": "in contract W61XVMV0 scope"
   },
   {
-   "at": "2026-10-22T07:46:29.873Z",
+   "at": "2026-10-22T12:00:09.182Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract FM614ZBQ scope"
+   "reason": "in contract W61XVMV0 scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-6b6c4c",
+   "queryId": "Q-1c7110",
    "row": 0,
    "label": "Corvale East: FLUDARABINE PHOSPHATE 50MG/2ML 2ML SDV",
    "fields": {
@@ -693,19 +837,24 @@
     "description": "FLUDARABINE PHOSPHATE 50MG/2ML 2ML SDV",
     "on_hand": "15.00",
     "daily_use": "3.397",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Fludarabine phosphate",
     "labeler_name": "Actavis Pharma, Inc.",
     "package_ndc": "45963-609-55",
     "spl_set_id": "3adca34b-4f65-4e21-8058-3c01fc7fc9bb",
     "dosage_form": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "FLUDARABINE PHOSPHATE 50 mg/2mL",
+    "unit_content": "2 mL",
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-6b6c4c",
+   "queryId": "Q-1c7110",
    "row": 1,
    "label": "Corvale East: FLUDARABINE PHOSPHATE 25MG/ML 2ML SDV",
    "fields": {
@@ -716,65 +865,80 @@
     "description": "FLUDARABINE PHOSPHATE 25MG/ML 2ML SDV",
     "on_hand": "18.00",
     "daily_use": "4.377",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Fludarabine Phosphate",
     "labeler_name": "Areva Pharmaceuticals",
     "package_ndc": "59923-604-02",
     "spl_set_id": "8039c2e3-ffe5-3997-e053-2991aa0ad9d0",
     "dosage_form": "INJECTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "FLUDARABINE PHOSPHATE 25 mg/mL",
+    "unit_content": "2 mL",
+    "pkg_unit": "vial"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-6b6c4c",
+   "queryId": "Q-1c7110",
    "row": 2,
-   "label": "Corvale General: Fludarabine phosphate",
+   "label": "Corvale General: Fludarabine phosphate 50 mg/2mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-50",
     "ndc11": "45963060955",
     "ndc_as_recorded": "45963060955",
-    "description": "Fludarabine phosphate",
-    "on_hand": "82.39",
+    "description": "Fludarabine phosphate 50 mg/2mL",
+    "on_hand": "82.00",
     "daily_use": "4.514",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Fludarabine phosphate",
     "labeler_name": "Actavis Pharma, Inc.",
     "package_ndc": "45963-609-55",
     "spl_set_id": "3adca34b-4f65-4e21-8058-3c01fc7fc9bb",
     "dosage_form": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "FLUDARABINE PHOSPHATE 50 mg/2mL",
+    "unit_content": "2 mL",
+    "pkg_unit": "vial"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-6b6c4c",
+   "queryId": "Q-1c7110",
    "row": 3,
-   "label": "Corvale General: Fludarabine Phosphate",
+   "label": "Corvale General: Fludarabine Phosphate 25 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-51",
     "ndc11": "59923060402",
     "ndc_as_recorded": "59923060402",
-    "description": "Fludarabine Phosphate",
-    "on_hand": "53.59",
+    "description": "Fludarabine Phosphate 25 mg/mL",
+    "on_hand": "53.00",
     "daily_use": "4.330",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Fludarabine Phosphate",
     "labeler_name": "Areva Pharmaceuticals",
     "package_ndc": "59923-604-02",
     "spl_set_id": "8039c2e3-ffe5-3997-e053-2991aa0ad9d0",
     "dosage_form": "INJECTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "FLUDARABINE PHOSPHATE 25 mg/mL",
+    "unit_content": "2 mL",
+    "pkg_unit": "vial"
    }
   },
   "E5": {
    "id": "E5",
-   "queryId": "Q-6b6c4c",
+   "queryId": "Q-1c7110",
    "row": 4,
    "label": "Corvale Lakeside: Fludarabine phosphate 50 mg/2mL 2 mL vial",
    "fields": {
@@ -786,13 +950,18 @@
     "on_hand": "6.00",
     "daily_use": "0.950",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Fludarabine phosphate",
     "labeler_name": "Actavis Pharma, Inc.",
     "package_ndc": "45963-609-55",
     "spl_set_id": "3adca34b-4f65-4e21-8058-3c01fc7fc9bb",
     "dosage_form": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "FLUDARABINE PHOSPHATE 50 mg/2mL",
+    "unit_content": "2 mL",
+    "pkg_unit": "vial"
    }
   },
   "E6": {
@@ -947,40 +1116,69 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 33 units of fludarabine phosphate at 7.8 a day: 4 days on hand",
+   "label": "Corvale East holds 18 vials of fludarabine phosphate 25 mg/mL, 2 mL at 4.4 a day: 4.1 days on hand",
    "fields": {
     "hospital": "Corvale East",
-    "on_hand": 33,
-    "daily_use": 7.8,
-    "days_on_hand": 4
+    "presentation": "25 mg/mL injection, 2 mL vial",
+    "on_hand": 18,
+    "daily_use": 4.4,
+    "days_on_hand": 4.1
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 136 units of fludarabine phosphate at 8.8 a day: 15 days on hand",
+   "label": "Corvale General holds 53 vials of fludarabine phosphate 25 mg/mL, 2 mL at 4.3 a day: 12.2 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 136,
-    "daily_use": 8.8,
-    "days_on_hand": 15
+    "presentation": "25 mg/mL injection, 2 mL vial",
+    "on_hand": 53,
+    "daily_use": 4.3,
+    "days_on_hand": 12.2
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 6 units of fludarabine phosphate at 1 a day: 6 days on hand",
+   "label": "Corvale East holds 15 vials of fludarabine phosphate 50 mg/2 mL, 2 mL at 3.4 a day: 4.4 days on hand",
    "fields": {
-    "hospital": "Corvale Lakeside",
-    "on_hand": 6,
-    "daily_use": 1,
-    "days_on_hand": 6
+    "hospital": "Corvale East",
+    "presentation": "50 mg/2 mL injection, 2 mL vial",
+    "on_hand": 15,
+    "daily_use": 3.4,
+    "days_on_hand": 4.4
    }
   },
   "D4": {
    "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 82 vials of fludarabine phosphate 50 mg/2 mL, 2 mL at 4.5 a day: 18.2 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "50 mg/2 mL injection, 2 mL vial",
+    "on_hand": 82,
+    "daily_use": 4.5,
+    "days_on_hand": 18.2
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale Lakeside holds 6 vials of fludarabine phosphate 50 mg/2 mL, 2 mL at 1 a day: 6.3 days on hand",
+   "fields": {
+    "hospital": "Corvale Lakeside",
+    "presentation": "50 mg/2 mL injection, 2 mL vial",
+    "on_hand": 6,
+    "daily_use": 1,
+    "days_on_hand": 6.3
+   }
+  },
+  "D6": {
+   "id": "D6",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 1142104 ended 2020-01-17, classified VAI; classification letter 2021-05-19 — 840 days before FDA posted the shortage on 2022-05-06",
@@ -990,38 +1188,8 @@
     "days": 840
    }
   },
-  "D5": {
-   "id": "D5",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 1 by rule: Transfer 12 from Corvale General to Corvale East. Corvale General has 15 days on hand and can spare 12 while keeping two weeks; Corvale East has 4.2 days and would reach 6.",
-   "fields": {
-    "kind": "transfer",
-    "needs": "pharmacy director (transfer request)"
-   }
-  },
-  "D6": {
-   "id": "D6",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 2 by rule: Buy from Fresenius Kabi USA, LLC. Not on FDA's shortage list today. Plants: Fresenius Kabi USA, LLC (last inspection VAI 2023-08-24).",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
-   }
-  },
   "D7": {
    "id": "D7",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 3 by rule: Buy from Hisun Pharmaceuticals USA, Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
-   }
-  },
-  "D8": {
-   "id": "D8",
    "queryId": "derived",
    "row": -1,
    "label": "As of 2026-10-21 the shortage has been on FDA's list for 54 months",
@@ -1030,166 +1198,215 @@
     "posted": "2022-05-06",
     "months": 54
    }
+  },
+  "D8": {
+   "id": "D8",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 18 vials of 50 mg/2 mL, 2 mL from Corvale General to Corvale East. Corvale General has 18 days of 50 mg/2 mL injection, 2 mL vials on hand and can spare 18 vials while keeping two weeks; Corvale East has 4.4 days and would reach 10.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D9": {
+   "id": "D9",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from Fresenius Kabi USA, LLC. Not on FDA's shortage list today. Plants: Fresenius Kabi USA, LLC (last inspection VAI 2023-08-24).",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D10": {
+   "id": "D10",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Hisun Pharmaceuticals USA, Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
   }
  },
  "queries": {
-  "Q-6b6c4c": {
-   "id": "Q-6b6c4c",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%fludarabine%' OR lower(s.description) LIKE '%fludarabine%' ORDER BY s.hospital, s.item_key",
-   "ms": 3013,
+  "Q-1c7110": {
+   "id": "Q-1c7110",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*fludarabine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*fludarabine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3832,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:46:21.827Z",
+   "ranAt": "2026-10-22T12:00:03.840Z",
    "rows": 5
   },
   "Q-a92d45": {
    "id": "Q-a92d45",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('3adca34b-4f65-4e21-8058-3c01fc7fc9bb', '8039c2e3-ffe5-3997-e053-2991aa0ad9d0') ORDER BY ps.set_id, ps.establishment",
-   "ms": 734,
+   "ms": 463,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:46:22.564Z",
+   "ranAt": "2026-10-22T12:00:04.305Z",
    "rows": 2
   },
-  "Q-a4e9bb": {
-   "id": "Q-a4e9bb",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%fludarabine%' ORDER BY status, company_name, package_ndc",
-   "ms": 275,
+  "Q-5c7dc8": {
+   "id": "Q-5c7dc8",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*fludarabine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 136,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:46:22.841Z",
+   "ranAt": "2026-10-22T12:00:04.442Z",
    "rows": 0
   },
-  "Q-4810c2": {
-   "id": "Q-4810c2",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%fludarabine%' ORDER BY first_posting",
-   "ms": 293,
+  "Q-e1b7e1": {
+   "id": "Q-e1b7e1",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*fludarabine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 129,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:46:23.138Z",
+   "ranAt": "2026-10-22T12:00:04.573Z",
    "rows": 1
   },
-  "Q-d5dc72": {
-   "id": "Q-d5dc72",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%fludarabine%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2118,
+  "Q-e2ecc4": {
+   "id": "Q-e2ecc4",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*fludarabine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1330,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:46:25.261Z",
+   "ranAt": "2026-10-22T12:00:05.904Z",
    "rows": 6
   },
   "Q-767e91": {
    "id": "Q-767e91",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3004762406', '1450022') ORDER BY fei, end_date",
-   "ms": 564,
+   "ms": 296,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:46:25.829Z",
+   "ranAt": "2026-10-22T12:00:06.201Z",
    "rows": 20
   },
   "Q-052252": {
    "id": "Q-052252",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3004762406', '1450022') ORDER BY fei, action_date",
-   "ms": 239,
+   "ms": 169,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:46:26.071Z",
+   "ranAt": "2026-10-22T12:00:06.371Z",
    "rows": 0
   },
   "Q-15db6f": {
    "id": "Q-15db6f",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3004762406') OR (fei_match <> 'name_and_city' AND firm_key IN ('actavis totowa', 'nerpharma', 'nerpharma s r l')) ORDER BY date_published",
-   "ms": 295,
+   "ms": 174,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:46:26.370Z",
+   "ranAt": "2026-10-22T12:00:06.547Z",
    "rows": 0
   },
-  "Q-0469f9": {
-   "id": "Q-0469f9",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('actavis totowa', 'nerpharma', 'nerpharma s r l', 'actavis', 'areva') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%fludarabine%' ORDER BY initiation_date",
-   "ms": 276,
+  "Q-d44a10": {
+   "id": "Q-d44a10",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('actavis totowa', 'nerpharma', 'nerpharma s r l', 'actavis', 'areva') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*fludarabine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 165,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:46:26.650Z",
+   "ranAt": "2026-10-22T12:00:06.713Z",
    "rows": 0
   },
   "Q-373842": {
    "id": "Q-373842",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('45963060955', '59923060402')",
-   "ms": 1766,
+   "ms": 1001,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:46:28.425Z",
+   "ranAt": "2026-10-22T12:00:07.716Z",
    "rows": 2
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-2ac8ec": {
-   "id": "Q-2ac8ec",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%fludarabine%'",
-   "ms": 1437,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:46:29.867Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-8b7f18": {
+   "id": "Q-8b7f18",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*fludarabine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1463,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:00:09.180Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 16381,
+  "zetarisMs": 19366,
   "modelCalls": 1,
-  "tokensIn": 2002,
-  "tokensOut": 490,
+  "tokensIn": 2658,
+  "tokensOut": 566,
   "mode": "live"
  },
  "slug": "fludarabine",
@@ -1206,7 +1423,7 @@
     "id": "hospital-item:hospital-item:CG-50",
     "type": "HospitalItem",
     "key": "hospital-item:CG-50",
-    "label": "Corvale General: Fludarabine phosphate",
+    "label": "Corvale General: Fludarabine phosphate 50 mg/2mL",
     "attrs": {
      "key": "hospital-item:CG-50"
     },
@@ -1217,7 +1434,7 @@
     "id": "hospital-item:hospital-item:CG-51",
     "type": "HospitalItem",
     "key": "hospital-item:CG-51",
-    "label": "Corvale General: Fludarabine Phosphate",
+    "label": "Corvale General: Fludarabine Phosphate 25 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-51"
     },
@@ -1356,7 +1573,7 @@
     },
     "facts": [
      {
-      "id": "fact_6e376061826629bb",
+      "id": "fact_dfd0ddb80f39bf6b",
       "about": "inspection:fda-inspection:1017090",
       "predicate": "classification",
       "value": "VAI",
@@ -1364,9 +1581,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:46:26.657Z"
+       "at": "2026-10-22T12:00:06.714Z"
       },
-      "assertedAt": "2026-10-22T07:46:26.657Z"
+      "assertedAt": "2026-10-22T12:00:06.714Z"
      }
     ],
     "depth": 4
@@ -1382,7 +1599,7 @@
     },
     "facts": [
      {
-      "id": "fact_d5d324e4903fdf13",
+      "id": "fact_24e1e27633701b82",
       "about": "inspection:fda-inspection:1142104",
       "predicate": "classification",
       "value": "VAI",
@@ -1390,9 +1607,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:46:26.658Z"
+       "at": "2026-10-22T12:00:06.714Z"
       },
-      "assertedAt": "2026-10-22T07:46:26.658Z"
+      "assertedAt": "2026-10-22T12:00:06.714Z"
      }
     ],
     "depth": 4
@@ -1408,7 +1625,7 @@
     },
     "facts": [
      {
-      "id": "fact_8929b3c179bbf594",
+      "id": "fact_76e194348f241215",
       "about": "inspection:fda-inspection:1271174",
       "predicate": "classification",
       "value": "VAI",
@@ -1416,9 +1633,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:46:26.658Z"
+       "at": "2026-10-22T12:00:06.714Z"
       },
-      "assertedAt": "2026-10-22T07:46:26.658Z"
+      "assertedAt": "2026-10-22T12:00:06.714Z"
      }
     ],
     "depth": 4
@@ -1434,7 +1651,7 @@
     },
     "facts": [
      {
-      "id": "fact_614d78c490ef3461",
+      "id": "fact_cce9ce63889a1301",
       "about": "inspection:fda-inspection:635650",
       "predicate": "classification",
       "value": "VAI",
@@ -1442,9 +1659,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:46:26.657Z"
+       "at": "2026-10-22T12:00:06.714Z"
       },
-      "assertedAt": "2026-10-22T07:46:26.657Z"
+      "assertedAt": "2026-10-22T12:00:06.714Z"
      }
     ],
     "depth": 4
@@ -1460,7 +1677,7 @@
     },
     "facts": [
      {
-      "id": "fact_5714496a0cf67ee8",
+      "id": "fact_acf49c23a5aa33fd",
       "about": "inspection:fda-inspection:920306",
       "predicate": "classification",
       "value": "VAI",
@@ -1468,9 +1685,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:46:26.657Z"
+       "at": "2026-10-22T12:00:06.714Z"
       },
-      "assertedAt": "2026-10-22T07:46:26.657Z"
+      "assertedAt": "2026-10-22T12:00:06.714Z"
      }
     ],
     "depth": 4
@@ -1482,11 +1699,11 @@
     "from": "hospital-item:hospital-item:CG-50",
     "to": "package:ndc-package:45963-609-55",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:46:21.830Z",
+    "validFrom": "2026-10-22T12:00:03.842Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:46:21.830Z"
+     "at": "2026-10-22T12:00:03.842Z"
     }
    },
    {
@@ -1494,11 +1711,11 @@
     "from": "hospital-item:hospital-item:CG-51",
     "to": "package:ndc-package:59923-604-02",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:46:21.830Z",
+    "validFrom": "2026-10-22T12:00:03.842Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:46:21.830Z"
+     "at": "2026-10-22T12:00:03.842Z"
     }
    },
    {
@@ -1506,11 +1723,11 @@
     "from": "hospital-item:hospital-item:EA-E-000160",
     "to": "package:ndc-package:45963-609-55",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:46:21.829Z",
+    "validFrom": "2026-10-22T12:00:03.842Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:46:21.829Z"
+     "at": "2026-10-22T12:00:03.842Z"
     }
    },
    {
@@ -1518,11 +1735,11 @@
     "from": "hospital-item:hospital-item:EA-E-000199",
     "to": "package:ndc-package:59923-604-02",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:46:21.830Z",
+    "validFrom": "2026-10-22T12:00:03.842Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:46:21.830Z"
+     "at": "2026-10-22T12:00:03.842Z"
     }
    },
    {
@@ -1530,11 +1747,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0074",
     "to": "package:ndc-package:45963-609-55",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:46:21.830Z",
+    "validFrom": "2026-10-22T12:00:03.842Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:46:21.830Z"
+     "at": "2026-10-22T12:00:03.842Z"
     }
    },
    {
@@ -1542,11 +1759,11 @@
     "from": "package:ndc-package:45963-609-55",
     "to": "product:ndc-product:45963-609",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:46:21.829Z",
+    "validFrom": "2026-10-22T12:00:03.842Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:46:21.829Z"
+     "at": "2026-10-22T12:00:03.842Z"
     }
    },
    {
@@ -1554,11 +1771,11 @@
     "from": "package:ndc-package:59923-604-02",
     "to": "product:ndc-product:59923-604",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:46:21.830Z",
+    "validFrom": "2026-10-22T12:00:03.842Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:46:21.830Z"
+     "at": "2026-10-22T12:00:03.842Z"
     }
    },
    {
@@ -1566,11 +1783,11 @@
     "from": "product:ndc-product:45963-609",
     "to": "drug:generic:fludarabine phosphate",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:46:21.829Z",
+    "validFrom": "2026-10-22T12:00:03.842Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:46:21.829Z"
+     "at": "2026-10-22T12:00:03.842Z"
     }
    },
    {
@@ -1578,11 +1795,11 @@
     "from": "product:ndc-product:45963-609",
     "to": "labeler:ndc-labeler:45963",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:46:21.829Z",
+    "validFrom": "2026-10-22T12:00:03.842Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:46:21.829Z"
+     "at": "2026-10-22T12:00:03.842Z"
     }
    },
    {
@@ -1590,11 +1807,11 @@
     "from": "product:ndc-product:59923-604",
     "to": "drug:generic:fludarabine phosphate",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:46:21.830Z",
+    "validFrom": "2026-10-22T12:00:03.842Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:46:21.830Z"
+     "at": "2026-10-22T12:00:03.842Z"
     }
    },
    {
@@ -1602,11 +1819,11 @@
     "from": "product:ndc-product:59923-604",
     "to": "labeler:ndc-labeler:59923",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:46:21.830Z",
+    "validFrom": "2026-10-22T12:00:03.842Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:46:21.830Z"
+     "at": "2026-10-22T12:00:03.842Z"
     }
    },
    {
@@ -1614,11 +1831,11 @@
     "from": "product:ndc-product:59923-604",
     "to": "site:fei:3004762406",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:46:26.657Z",
+    "validFrom": "2026-10-22T12:00:06.714Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:46:26.657Z"
+     "at": "2026-10-22T12:00:06.714Z"
     }
    },
    {
@@ -1626,11 +1843,11 @@
     "from": "inspection:fda-inspection:635650",
     "to": "site:fei:3004762406",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:46:26.657Z",
+    "validFrom": "2026-10-22T12:00:06.714Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:46:26.657Z"
+     "at": "2026-10-22T12:00:06.714Z"
     }
    },
    {
@@ -1638,11 +1855,11 @@
     "from": "inspection:fda-inspection:920306",
     "to": "site:fei:3004762406",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:46:26.657Z",
+    "validFrom": "2026-10-22T12:00:06.714Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:46:26.657Z"
+     "at": "2026-10-22T12:00:06.714Z"
     }
    },
    {
@@ -1650,11 +1867,11 @@
     "from": "inspection:fda-inspection:1017090",
     "to": "site:fei:3004762406",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:46:26.657Z",
+    "validFrom": "2026-10-22T12:00:06.714Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:46:26.657Z"
+     "at": "2026-10-22T12:00:06.714Z"
     }
    },
    {
@@ -1662,11 +1879,11 @@
     "from": "inspection:fda-inspection:1142104",
     "to": "site:fei:3004762406",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:46:26.657Z",
+    "validFrom": "2026-10-22T12:00:06.714Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:46:26.657Z"
+     "at": "2026-10-22T12:00:06.714Z"
     }
    },
    {
@@ -1674,11 +1891,11 @@
     "from": "inspection:fda-inspection:1271174",
     "to": "site:fei:3004762406",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:46:26.658Z",
+    "validFrom": "2026-10-22T12:00:06.714Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:46:26.658Z"
+     "at": "2026-10-22T12:00:06.714Z"
     }
    }
   ],

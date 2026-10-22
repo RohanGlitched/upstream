@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-8e8cc5",
+ "id": "case-2026-10-22-86969b",
  "question": "Why is sertraline hydrochloride short, and what do we do?",
- "askedAt": "2026-10-22T08:24:00.081Z",
+ "askedAt": "2026-10-22T12:41:09.324Z",
  "asOf": "2026-10-21",
  "molecule": "sertraline hydrochloride",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5HBAE0JV793P24WE3SEFGG3",
+  "contractId": "01M5HT23P3Y6RQ57MNGRHV4S0Z",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-1b8f12"
+    "Q-aecf8d"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 12524,
+   "ms": 3159,
    "rows": 3,
-   "finding": "3 stock lines across 3 hospitals.",
+   "finding": "3 stock lines across 3 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-325117"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 3842,
+   "ms": 449,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-9744e9",
-    "Q-6dfa39"
+    "Q-650afe",
+    "Q-599c79"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 1247,
+   "ms": 232,
    "rows": 3,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-07ed6c"
+    "Q-3d65c4"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 5056,
+   "ms": 1101,
    "rows": 597,
    "finding": "41 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-692491",
     "Q-210c61",
     "Q-92f2a2",
-    "Q-6c65b8"
+    "Q-a008e4"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 3936,
+   "ms": 583,
    "rows": 6,
    "finding": "6 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 2084,
+   "ms": 577,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-ca6ffb"
+    "Q-051e74"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 5414,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1331,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 1,
+   "ms": 0,
    "rows": 0,
    "finding": "No past decisions on this drug.",
    "status": "empty"
@@ -151,23 +162,29 @@
    "description": "SERTRALINE HYDROCHLORIDE 25MG TAB",
    "labeler": "Preferred Pharmaceuticals Inc.",
    "onHand": 208,
-   "dailyUse": 6.688,
+   "dailyUse": 6.687,
    "days": 31.1,
-   "unit": "package",
+   "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 30, converted to units",
+   "presentation": "sertraline hydrochloride|25mg|tablet||tablet",
+   "presentationLabel": "25 mg tablet",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-332",
    "ndc11": "68788404503",
-   "description": "Sertraline Hydrochloride",
+   "description": "Sertraline Hydrochloride 25 mg/1",
    "labeler": "Preferred Pharmaceuticals Inc.",
-   "onHand": 224.99,
+   "onHand": 224,
    "dailyUse": 7.876,
-   "days": 28.6,
+   "days": 28.4,
    "unit": "tablet",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "sertraline hydrochloride|25mg|tablet||tablet",
+   "presentationLabel": "25 mg tablet",
    "evidence": "E2"
   },
   {
@@ -181,7 +198,59 @@
    "days": 8.5,
    "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "sertraline hydrochloride|25mg|tablet||tablet",
+   "presentationLabel": "25 mg tablet",
    "evidence": "E3"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "sertraline hydrochloride|25mg|tablet||tablet",
+   "label": "25 mg tablet",
+   "short": "25 mg",
+   "unit": "tablet",
+   "onHand": 447,
+   "dailyUse": 16.323,
+   "days": 27.4,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 208,
+     "dailyUse": 6.687,
+     "days": 31.1,
+     "lines": [
+      "EA-E-000254"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 224,
+     "dailyUse": 7.876,
+     "days": 28.4,
+     "lines": [
+      "CG-332"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 15,
+     "dailyUse": 1.76,
+     "days": 8.5,
+     "lines": [
+      "LS-LS-0113"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -617,35 +686,48 @@
   {
    "kind": "transfer",
    "rank": 1,
-   "title": "Transfer 10 from Corvale East to Corvale Lakeside",
-   "detail": "Corvale East has 31 days on hand and can spare 10 while keeping two weeks; Corvale Lakeside has 8.5 days and would reach 14.",
-   "why": "Same product, no clinical change, no new supplier.",
+   "title": "Transfer 10 tablets of 25 mg from Corvale East to Corvale Lakeside",
+   "detail": "Corvale East has 31 days of 25 mg tablets on hand and can spare 10 tablets while keeping two weeks; Corvale Lakeside has 8.5 days and would reach 14.",
+   "why": "Same presentation, no clinical change, no new supplier.",
    "needs": "pharmacy director (transfer request)",
    "evidence": [
     "E1",
     "E3"
-   ]
+   ],
+   "transfer": {
+    "qty": 10,
+    "unit": "tablet",
+    "presentation": "25 mg tablet",
+    "from": "Corvale East",
+    "to": "Corvale Lakeside",
+    "fromDays": 31.1,
+    "toDays": 8.5,
+    "fromAfter": 30,
+    "toAfter": 14
+   }
   },
   {
    "kind": "transfer",
    "rank": 1,
-   "title": "Transfer 10 from Corvale General to Corvale Lakeside",
-   "detail": "Corvale General has 29 days on hand and can spare 10 while keeping two weeks; Corvale Lakeside has 8.5 days and would reach 14.",
-   "why": "Same product, no clinical change, no new supplier.",
+   "title": "Transfer 10 tablets of 25 mg from Corvale General to Corvale Lakeside",
+   "detail": "Corvale General has 28 days of 25 mg tablets on hand and can spare 10 tablets while keeping two weeks; Corvale Lakeside has 8.5 days and would reach 14.",
+   "why": "Same presentation, no clinical change, no new supplier.",
    "needs": "pharmacy director (transfer request)",
    "evidence": [
     "E2",
     "E3"
-   ]
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from A-S Medication Solutions",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
+   ],
+   "transfer": {
+    "qty": 10,
+    "unit": "tablet",
+    "presentation": "25 mg tablet",
+    "from": "Corvale General",
+    "to": "Corvale Lakeside",
+    "fromDays": 28.4,
+    "toDays": 8.5,
+    "fromAfter": 27,
+    "toAfter": 14
+   }
   },
   {
    "kind": "alternate_manufacturer",
@@ -668,34 +750,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from American Health Packaging",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Aphena Pharma Solutions - Tennessee, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Ascent Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Asclemed USA, Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -722,25 +777,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Bryant Ranch Prepack",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Camber Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Cardinal Health 107, LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -759,24 +796,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Coupler LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from DIRECT RX",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Direct_Rx",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -848,51 +867,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Northwind Health Company, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals,Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from PD-Rx Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Proficient Rx LP",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from QPharma Inc",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -911,34 +885,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Quality Care Products LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Quality Care Products, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Quallent Pharmaceuticals Health LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from REMEDYREPACK INC.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -1045,56 +992,55 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "FDA's records show the product labeler Preferred Pharmaceuticals Inc. received a VAI classification on 2025-05-27",
+  "headline": "Sertraline hydrochloride is not on FDA's shortage list as of 2026-10-21; supply traces to a registered repack plant last classified VAI on 2025-05-27",
   "sentences": [
    {
-    "text": "The sertraline hydrochloride 25 mg tablets used across Corvale sites carry NDC 68788404503 and are labeled by Preferred Pharmaceuticals Inc. per SPL set 8f5a71b2.",
+    "text": "FDA's drug shortage list does not include sertraline hydrochloride as of 2026-10-21.",
+    "cites": [
+     "D4"
+    ]
+   },
+   {
+    "text": "The product used at Corvale East, Corvale General, and Corvale Lakeside carries NDC 68788404503 and labeler Preferred Pharmaceuticals Inc.",
     "cites": [
      "E1",
      "E2",
-     "E3",
+     "E3"
+    ]
+   },
+   {
+    "text": "The label identifies Preferred Pharmaceuticals Inc. as a registered repack plant (FEI 3004582966).",
+    "cites": [
      "E9"
     ]
    },
    {
-    "text": "FDA inspection 1270956 of the labeler's facility (FEI 3004582966) ended on 2025-05-27 and was classified VAI, with the classification known on 2025-07-30.",
+    "text": "FDA's most recent inspection of that plant ended 2025-05-27 and was classified VAI, with the classification known on 2025-07-30.",
     "cites": [
      "E8"
     ]
    },
    {
-    "text": "Earlier inspections of the same facility in 2009, 2015, 2018, and 2020 were also classified VAI.",
+    "text": "Corvale Lakeside holds 15 tablets at 1.8 per day, giving 8.5 days on hand, below a two‑week buffer.",
     "cites": [
-     "E4",
-     "E5",
-     "E6",
-     "E7"
+     "D3"
     ]
    },
    {
-    "text": "Corvale Lakeside holds 15 units at 1.8 per day, giving 9 days on hand, while Corvale East holds 208 units at 6.7 per day, giving 31 days on hand.",
+    "text": "The recommended action is to transfer 10 tablets of 25 mg from Corvale East to Corvale Lakeside, which would bring Lakeside to roughly 14 days on hand.",
     "cites": [
-     "D3",
-     "D1"
-    ]
-   },
-   {
-    "text": "Corvale General holds 225 units at 7.9 per day, giving 29 days on hand.",
-    "cites": [
-     "D2"
-    ]
-   },
-   {
-    "text": "Because the links between the shortage and the inspection record are weak, verify current allocation policies and confirm whether the labeler has communicated any supply constraints.",
-    "cites": [
-     "E8",
-     "E9"
+     "D5"
     ]
    }
   ],
   "verifier": {
-   "checked": 7,
-   "rejected": [],
+   "checked": 8,
+   "rejected": [
+    {
+     "text": "Corvale East holds 208 tablets at 6.7 per day, giving 31.1 days on hand and can spare 10 tablets while retaining at least two weeks.",
+     "reason": "number 10 is not in the cited evidence"
+    }
+   ],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -1102,125 +1048,146 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [],
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T08:23:25.971Z",
+   "at": "2026-10-22T12:41:01.891Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract E3SEFGG3 scope"
+   "reason": "in contract GRHV4S0Z scope"
   },
   {
-   "at": "2026-10-22T08:23:25.971Z",
+   "at": "2026-10-22T12:41:01.891Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract E3SEFGG3 scope"
+   "reason": "in contract GRHV4S0Z scope"
   },
   {
-   "at": "2026-10-22T08:23:38.497Z",
+   "at": "2026-10-22T12:41:05.051Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract E3SEFGG3 scope"
+   "reason": "in contract GRHV4S0Z scope"
   },
   {
-   "at": "2026-10-22T08:23:42.340Z",
+   "at": "2026-10-22T12:41:05.501Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract E3SEFGG3 scope"
+   "reason": "in contract GRHV4S0Z scope"
   },
   {
-   "at": "2026-10-22T08:23:43.588Z",
+   "at": "2026-10-22T12:41:05.732Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract E3SEFGG3 scope"
+   "reason": "in contract GRHV4S0Z scope"
   },
   {
-   "at": "2026-10-22T08:23:48.644Z",
+   "at": "2026-10-22T12:41:06.833Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract E3SEFGG3 scope"
+   "reason": "in contract GRHV4S0Z scope"
   },
   {
-   "at": "2026-10-22T08:23:52.584Z",
+   "at": "2026-10-22T12:41:07.417Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract E3SEFGG3 scope"
+   "reason": "in contract GRHV4S0Z scope"
   },
   {
-   "at": "2026-10-22T08:23:54.665Z",
+   "at": "2026-10-22T12:41:07.993Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract E3SEFGG3 scope"
+   "reason": "in contract GRHV4S0Z scope"
   },
   {
-   "at": "2026-10-22T08:24:00.080Z",
+   "at": "2026-10-22T12:41:09.324Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract E3SEFGG3 scope"
+   "reason": "in contract GRHV4S0Z scope"
   },
   {
-   "at": "2026-10-22T08:24:00.081Z",
+   "at": "2026-10-22T12:41:09.325Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract E3SEFGG3 scope"
+   "reason": "in contract GRHV4S0Z scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-1b8f12",
+   "queryId": "Q-aecf8d",
    "row": 0,
    "label": "Corvale East: SERTRALINE HYDROCHLORIDE 25MG TAB",
    "fields": {
@@ -1230,43 +1197,53 @@
     "ndc_as_recorded": "68788-4045-3",
     "description": "SERTRALINE HYDROCHLORIDE 25MG TAB",
     "on_hand": "208.00",
-    "daily_use": "6.688",
-    "unit": "package",
+    "daily_use": "6.687",
+    "unit": "tablet",
+    "pkg_units": "30.00",
+    "unit_basis": "packages of 30, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Sertraline Hydrochloride",
     "labeler_name": "Preferred Pharmaceuticals Inc.",
     "package_ndc": "68788-4045-3",
     "spl_set_id": "8f5a71b2-2821-46a0-ac65-28d9b2db73ec",
     "dosage_form": "TABLET, FILM COATED",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "SERTRALINE HYDROCHLORIDE 25 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-1b8f12",
+   "queryId": "Q-aecf8d",
    "row": 1,
-   "label": "Corvale General: Sertraline Hydrochloride",
+   "label": "Corvale General: Sertraline Hydrochloride 25 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-332",
     "ndc11": "68788404503",
     "ndc_as_recorded": "68788404503",
-    "description": "Sertraline Hydrochloride",
-    "on_hand": "224.99",
+    "description": "Sertraline Hydrochloride 25 mg/1",
+    "on_hand": "224.00",
     "daily_use": "7.876",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Sertraline Hydrochloride",
     "labeler_name": "Preferred Pharmaceuticals Inc.",
     "package_ndc": "68788-4045-3",
     "spl_set_id": "8f5a71b2-2821-46a0-ac65-28d9b2db73ec",
     "dosage_form": "TABLET, FILM COATED",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "SERTRALINE HYDROCHLORIDE 25 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-1b8f12",
+   "queryId": "Q-aecf8d",
    "row": 2,
    "label": "Corvale Lakeside: Sertraline Hydrochloride 25 mg/1",
    "fields": {
@@ -1278,13 +1255,18 @@
     "on_hand": "15.00",
     "daily_use": "1.760",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Sertraline Hydrochloride",
     "labeler_name": "Preferred Pharmaceuticals Inc.",
     "package_ndc": "68788-4045-3",
     "spl_set_id": "8f5a71b2-2821-46a0-ac65-28d9b2db73ec",
     "dosage_form": "TABLET, FILM COATED",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "SERTRALINE HYDROCHLORIDE 25 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E4": {
@@ -1387,197 +1369,259 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 208 units of sertraline hydrochloride at 6.7 a day: 31 days on hand",
+   "label": "Corvale East holds 208 tablets of sertraline hydrochloride 25 mg at 6.7 a day: 31.1 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "25 mg tablet",
     "on_hand": 208,
     "daily_use": 6.7,
-    "days_on_hand": 31
+    "days_on_hand": 31.1
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 225 units of sertraline hydrochloride at 7.9 a day: 29 days on hand",
+   "label": "Corvale General holds 224 tablets of sertraline hydrochloride 25 mg at 7.9 a day: 28.4 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 225,
+    "presentation": "25 mg tablet",
+    "on_hand": 224,
     "daily_use": 7.9,
-    "days_on_hand": 29
+    "days_on_hand": 28.4
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 15 units of sertraline hydrochloride at 1.8 a day: 9 days on hand",
+   "label": "Corvale Lakeside holds 15 tablets of sertraline hydrochloride 25 mg at 1.8 a day: 8.5 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
+    "presentation": "25 mg tablet",
     "on_hand": 15,
     "daily_use": 1.8,
-    "days_on_hand": 9
+    "days_on_hand": 8.5
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "sertraline hydrochloride is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 10 tablets of 25 mg from Corvale East to Corvale Lakeside. Corvale East has 31 days of 25 mg tablets on hand and can spare 10 tablets while keeping two weeks; Corvale Lakeside has 8.5 days and would reach 14.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 10 tablets of 25 mg from Corvale General to Corvale Lakeside. Corvale General has 28 days of 25 mg tablets on hand and can spare 10 tablets while keeping two weeks; Corvale Lakeside has 8.5 days and would reach 14.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Accord Healthcare, Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-1b8f12": {
-   "id": "Q-1b8f12",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%sertraline%' OR lower(s.description) LIKE '%sertraline%' ORDER BY s.hospital, s.item_key",
-   "ms": 12518,
+  "Q-aecf8d": {
+   "id": "Q-aecf8d",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*sertraline(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*sertraline(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3158,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T08:23:38.493Z",
+   "ranAt": "2026-10-22T12:41:05.049Z",
    "rows": 3
   },
   "Q-325117": {
    "id": "Q-325117",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('8f5a71b2-2821-46a0-ac65-28d9b2db73ec') ORDER BY ps.set_id, ps.establishment",
-   "ms": 3839,
+   "ms": 449,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:23:42.337Z",
+   "ranAt": "2026-10-22T12:41:05.500Z",
    "rows": 1
   },
-  "Q-9744e9": {
-   "id": "Q-9744e9",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%sertraline%' ORDER BY status, company_name, package_ndc",
-   "ms": 506,
+  "Q-650afe": {
+   "id": "Q-650afe",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*sertraline(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 110,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T08:23:42.847Z",
+   "ranAt": "2026-10-22T12:41:05.611Z",
    "rows": 0
   },
-  "Q-6dfa39": {
-   "id": "Q-6dfa39",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%sertraline%' ORDER BY first_posting",
-   "ms": 737,
+  "Q-599c79": {
+   "id": "Q-599c79",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*sertraline(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 119,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T08:23:43.586Z",
+   "ranAt": "2026-10-22T12:41:05.731Z",
    "rows": 3
   },
-  "Q-07ed6c": {
-   "id": "Q-07ed6c",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%sertraline%' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 5046,
+  "Q-3d65c4": {
+   "id": "Q-3d65c4",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*sertraline(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1099,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:23:48.634Z",
+   "ranAt": "2026-10-22T12:41:06.831Z",
    "rows": 597
   },
   "Q-692491": {
    "id": "Q-692491",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3004582966') ORDER BY fei, end_date",
-   "ms": 1767,
+   "ms": 239,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T08:23:50.412Z",
+   "ranAt": "2026-10-22T12:41:07.073Z",
    "rows": 6
   },
   "Q-210c61": {
    "id": "Q-210c61",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3004582966') ORDER BY fei, action_date",
-   "ms": 707,
+   "ms": 116,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T08:23:51.121Z",
+   "ranAt": "2026-10-22T12:41:07.189Z",
    "rows": 0
   },
   "Q-92f2a2": {
    "id": "Q-92f2a2",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3004582966') OR (fei_match <> 'name_and_city' AND firm_key IN ('preferred')) ORDER BY date_published",
-   "ms": 564,
+   "ms": 94,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T08:23:51.688Z",
+   "ranAt": "2026-10-22T12:41:07.284Z",
    "rows": 0
   },
-  "Q-6c65b8": {
-   "id": "Q-6c65b8",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('preferred') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%sertraline%' ORDER BY initiation_date",
-   "ms": 886,
+  "Q-a008e4": {
+   "id": "Q-a008e4",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('preferred') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*sertraline(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 129,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T08:23:52.577Z",
+   "ranAt": "2026-10-22T12:41:07.415Z",
    "rows": 0
   },
   "Q-4e3ee6": {
    "id": "Q-4e3ee6",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('68788404503')",
-   "ms": 2078,
+   "ms": 576,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:23:54.662Z",
+   "ranAt": "2026-10-22T12:41:07.992Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-ca6ffb": {
-   "id": "Q-ca6ffb",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%sertraline%'",
-   "ms": 5412,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:24:00.077Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-051e74": {
+   "id": "Q-051e74",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*sertraline(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1330,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:41:09.323Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 39431,
+  "zetarisMs": 17627,
   "modelCalls": 1,
-  "tokensIn": 1808,
-  "tokensOut": 465,
+  "tokensIn": 2416,
+  "tokensOut": 471,
   "mode": "live"
  },
  "slug": "sertraline",
@@ -1592,7 +1636,7 @@
     "id": "hospital-item:hospital-item:CG-332",
     "type": "HospitalItem",
     "key": "hospital-item:CG-332",
-    "label": "Corvale General: Sertraline Hydrochloride",
+    "label": "Corvale General: Sertraline Hydrochloride 25 mg/1",
     "attrs": {
      "key": "hospital-item:CG-332"
     },
@@ -1687,7 +1731,7 @@
     },
     "facts": [
      {
-      "id": "fact_fc079efae6c19808",
+      "id": "fact_7466eb21e1f93f5b",
       "about": "inspection:fda-inspection:1039020",
       "predicate": "classification",
       "value": "VAI",
@@ -1695,9 +1739,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:23:52.580Z"
+       "at": "2026-10-22T12:41:07.416Z"
       },
-      "assertedAt": "2026-10-22T08:23:52.580Z"
+      "assertedAt": "2026-10-22T12:41:07.416Z"
      }
     ],
     "depth": 4
@@ -1713,7 +1757,7 @@
     },
     "facts": [
      {
-      "id": "fact_c0f46a7ac94dfb1f",
+      "id": "fact_c7071f19327d7d12",
       "about": "inspection:fda-inspection:1115035",
       "predicate": "classification",
       "value": "VAI",
@@ -1721,9 +1765,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:23:52.580Z"
+       "at": "2026-10-22T12:41:07.416Z"
       },
-      "assertedAt": "2026-10-22T08:23:52.580Z"
+      "assertedAt": "2026-10-22T12:41:07.416Z"
      }
     ],
     "depth": 4
@@ -1739,7 +1783,7 @@
     },
     "facts": [
      {
-      "id": "fact_410f90151d64ac9f",
+      "id": "fact_a6eff7750dc767be",
       "about": "inspection:fda-inspection:1270956",
       "predicate": "classification",
       "value": "VAI",
@@ -1747,9 +1791,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:23:52.580Z"
+       "at": "2026-10-22T12:41:07.416Z"
       },
-      "assertedAt": "2026-10-22T08:23:52.580Z"
+      "assertedAt": "2026-10-22T12:41:07.416Z"
      }
     ],
     "depth": 4
@@ -1765,7 +1809,7 @@
     },
     "facts": [
      {
-      "id": "fact_7d1fb5eba9b82e7b",
+      "id": "fact_d247fc34620d1ced",
       "about": "inspection:fda-inspection:636331",
       "predicate": "classification",
       "value": "VAI",
@@ -1773,9 +1817,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:23:52.580Z"
+       "at": "2026-10-22T12:41:07.416Z"
       },
-      "assertedAt": "2026-10-22T08:23:52.580Z"
+      "assertedAt": "2026-10-22T12:41:07.416Z"
      }
     ],
     "depth": 4
@@ -1791,7 +1835,7 @@
     },
     "facts": [
      {
-      "id": "fact_e270730c7de3a8f5",
+      "id": "fact_c84f3c0c85b6e280",
       "about": "inspection:fda-inspection:949048",
       "predicate": "classification",
       "value": "VAI",
@@ -1799,9 +1843,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:23:52.580Z"
+       "at": "2026-10-22T12:41:07.416Z"
       },
-      "assertedAt": "2026-10-22T08:23:52.580Z"
+      "assertedAt": "2026-10-22T12:41:07.416Z"
      }
     ],
     "depth": 4
@@ -1813,11 +1857,11 @@
     "from": "hospital-item:hospital-item:CG-332",
     "to": "package:ndc-package:68788-4045-3",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:23:38.496Z",
+    "validFrom": "2026-10-22T12:41:05.051Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:23:38.496Z"
+     "at": "2026-10-22T12:41:05.051Z"
     }
    },
    {
@@ -1825,11 +1869,11 @@
     "from": "hospital-item:hospital-item:EA-E-000254",
     "to": "package:ndc-package:68788-4045-3",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:23:38.496Z",
+    "validFrom": "2026-10-22T12:41:05.050Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:23:38.496Z"
+     "at": "2026-10-22T12:41:05.050Z"
     }
    },
    {
@@ -1837,11 +1881,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0113",
     "to": "package:ndc-package:68788-4045-3",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:23:38.496Z",
+    "validFrom": "2026-10-22T12:41:05.051Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:23:38.496Z"
+     "at": "2026-10-22T12:41:05.051Z"
     }
    },
    {
@@ -1849,11 +1893,11 @@
     "from": "package:ndc-package:68788-4045-3",
     "to": "product:ndc-product:68788-4045",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:23:38.496Z",
+    "validFrom": "2026-10-22T12:41:05.051Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:23:38.496Z"
+     "at": "2026-10-22T12:41:05.051Z"
     }
    },
    {
@@ -1861,11 +1905,11 @@
     "from": "product:ndc-product:68788-4045",
     "to": "drug:generic:sertraline hydrochloride",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:23:38.496Z",
+    "validFrom": "2026-10-22T12:41:05.051Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:23:38.496Z"
+     "at": "2026-10-22T12:41:05.051Z"
     }
    },
    {
@@ -1873,11 +1917,11 @@
     "from": "product:ndc-product:68788-4045",
     "to": "labeler:ndc-labeler:68788",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:23:38.496Z",
+    "validFrom": "2026-10-22T12:41:05.051Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:23:38.496Z"
+     "at": "2026-10-22T12:41:05.051Z"
     }
    },
    {
@@ -1885,11 +1929,11 @@
     "from": "product:ndc-product:68788-4045",
     "to": "site:fei:3004582966",
     "type": "made-at",
-    "validFrom": "2026-10-22T08:23:52.580Z",
+    "validFrom": "2026-10-22T12:41:07.416Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:23:52.580Z"
+     "at": "2026-10-22T12:41:07.416Z"
     }
    },
    {
@@ -1897,11 +1941,11 @@
     "from": "inspection:fda-inspection:636331",
     "to": "site:fei:3004582966",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:23:52.580Z",
+    "validFrom": "2026-10-22T12:41:07.416Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:23:52.580Z"
+     "at": "2026-10-22T12:41:07.416Z"
     }
    },
    {
@@ -1909,11 +1953,11 @@
     "from": "inspection:fda-inspection:949048",
     "to": "site:fei:3004582966",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:23:52.580Z",
+    "validFrom": "2026-10-22T12:41:07.416Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:23:52.580Z"
+     "at": "2026-10-22T12:41:07.416Z"
     }
    },
    {
@@ -1921,11 +1965,11 @@
     "from": "inspection:fda-inspection:1039020",
     "to": "site:fei:3004582966",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:23:52.580Z",
+    "validFrom": "2026-10-22T12:41:07.416Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:23:52.580Z"
+     "at": "2026-10-22T12:41:07.416Z"
     }
    },
    {
@@ -1933,11 +1977,11 @@
     "from": "inspection:fda-inspection:1115035",
     "to": "site:fei:3004582966",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:23:52.580Z",
+    "validFrom": "2026-10-22T12:41:07.416Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:23:52.580Z"
+     "at": "2026-10-22T12:41:07.416Z"
     }
    },
    {
@@ -1945,11 +1989,11 @@
     "from": "inspection:fda-inspection:1270956",
     "to": "site:fei:3004582966",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:23:52.580Z",
+    "validFrom": "2026-10-22T12:41:07.416Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:23:52.580Z"
+     "at": "2026-10-22T12:41:07.416Z"
     }
    }
   ],

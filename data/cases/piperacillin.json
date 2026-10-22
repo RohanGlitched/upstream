@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-bddc7b",
+ "id": "case-2026-10-22-d44601",
  "question": "Why is piperacillin and tazobactam short, and what do we do?",
- "askedAt": "2026-10-22T08:13:52.135Z",
+ "askedAt": "2026-10-22T12:31:47.170Z",
  "asOf": "2026-10-21",
- "molecule": "piperacillin sodium and tazobactam sodium",
+ "molecule": "piperacillin and tazobactam",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5HARF50H776SJSJFVS460ZV",
+  "contractId": "01M5HSGGR3DC8HA763ZY458NVM",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-945398"
+    "Q-e2857e"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 4196,
+   "ms": 10490,
    "rows": 5,
-   "finding": "5 stock lines across 3 hospitals.",
+   "finding": "5 stock lines across 3 hospitals, 2 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-9c3986"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1178,
+   "ms": 1182,
    "rows": 3,
    "finding": "3 plant links on 2 labels; 2 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-680334",
-    "Q-68d80e"
+    "Q-5b1489",
+    "Q-34cc28"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 805,
+   "ms": 729,
    "rows": 2,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,14 +68,16 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-d59f5d"
+    "Q-3225fb"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2939,
-   "rows": 88,
-   "finding": "19 labelers make it in this form.",
+   "ms": 3911,
+   "rows": 85,
+   "finding": "18 labelers make it in this form.",
    "status": "ok"
   },
   {
@@ -81,15 +88,15 @@
     "Q-eba6e0",
     "Q-317170",
     "Q-ac2f3f",
-    "Q-491d02"
+    "Q-97f904"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1533,
+   "ms": 1844,
    "rows": 10,
    "finding": "10 inspections (1 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,7 +111,7 @@
    "sources": [
     "fda.citations"
    ],
-   "ms": 572,
+   "ms": 289,
    "rows": 0,
    "finding": "0 Form 483 observations recorded.",
    "status": "empty"
@@ -119,9 +126,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1559,
+   "ms": 1245,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -129,19 +136,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-e4d066"
+    "Q-f754c7"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2029,
-   "rows": 7,
-   "finding": "12 stock rows across the system fail the NDC rule; 1 of them are this drug.",
+   "ms": 2034,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -168,8 +179,11 @@
    "onHand": 261,
    "dailyUse": 14.553,
    "days": 17.9,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "piperacillin sodium and tazobactam sodium|2g+0.25g|injection||vial",
+   "presentationLabel": "2 g + 0.25 g injection",
    "evidence": "E1"
   },
   {
@@ -181,48 +195,144 @@
    "onHand": 343,
    "dailyUse": 13.828,
    "days": 24.8,
-   "unit": "package",
+   "unit": "each",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "piperacillin and tazobactam|36g/180ml+4.5g/180ml|injection|180ml|each",
+   "presentationLabel": "36 g/180 mL + 4.5 g/180 mL injection, 180 mL each",
    "evidence": "E2"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-311",
    "ndc11": "83634011299",
-   "description": "piperacillin and tazobactam",
+   "description": "piperacillin and tazobactam 36 g/180mL",
    "labeler": "Avenacy, LLC",
-   "onHand": 395.89,
+   "onHand": 395,
    "dailyUse": 15.728,
-   "days": 25.2,
+   "days": 25.1,
    "unit": "each",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "piperacillin and tazobactam|36g/180ml+4.5g/180ml|injection|180ml|each",
+   "presentationLabel": "36 g/180 mL + 4.5 g/180 mL injection, 180 mL each",
    "evidence": "E3"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-312",
    "ndc11": "55150011909",
-   "description": "Piperacillin Sodium and Tazobactam Sodium",
+   "description": "Piperacillin Sodium and Tazobactam Sodium 2 g/1",
    "labeler": "Eugia US LLC",
-   "onHand": 376.46,
+   "onHand": 376,
    "dailyUse": 15.965,
    "days": 23.6,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "piperacillin sodium and tazobactam sodium|2g+0.25g|injection||vial",
+   "presentationLabel": "2 g + 0.25 g injection",
    "evidence": "E4"
   },
   {
    "hospital": "Corvale Lakeside",
    "itemKey": "LS-LS-0139",
-   "ndc11": "08363411299",
+   "ndc11": "83634011299",
    "description": "piperacillin and tazobactam 36 g/180mL",
-   "labeler": null,
+   "labeler": "Avenacy, LLC",
    "onHand": 78,
    "dailyUse": 4.3,
    "days": 18.1,
    "unit": "each",
-   "ndcMatch": "repaired: leading zero restored",
+   "ndcMatch": "repaired: undashed, only the 5-3-2 reading is in FDA",
+   "unitBasis": "units of use, as exported",
+   "presentation": "piperacillin and tazobactam|36g/180ml+4.5g/180ml|injection|180ml|each",
+   "presentationLabel": "36 g/180 mL + 4.5 g/180 mL injection, 180 mL each",
    "evidence": "E5"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "piperacillin sodium and tazobactam sodium|2g+0.25g|injection||vial",
+   "label": "2 g + 0.25 g injection",
+   "short": "2 g + 0.25 g",
+   "unit": "vial",
+   "onHand": 637,
+   "dailyUse": 30.518,
+   "days": 20.9,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 261,
+     "dailyUse": 14.553,
+     "days": 17.9,
+     "lines": [
+      "EA-E-000190"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 376,
+     "dailyUse": 15.965,
+     "days": 23.6,
+     "lines": [
+      "CG-312"
+     ],
+     "evidence": [
+      "E4"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "piperacillin and tazobactam|36g/180ml+4.5g/180ml|injection|180ml|each",
+   "label": "36 g/180 mL + 4.5 g/180 mL injection, 180 mL each",
+   "short": "36 g/180 mL + 4.5 g/180 mL, 180 mL",
+   "unit": "each",
+   "onHand": 816,
+   "dailyUse": 33.856,
+   "days": 24.1,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 343,
+     "dailyUse": 13.828,
+     "days": 24.8,
+     "lines": [
+      "EA-E-000323"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 395,
+     "dailyUse": 15.728,
+     "days": 25.1,
+     "lines": [
+      "CG-311"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 78,
+     "dailyUse": 4.3,
+     "days": 18.1,
+     "lines": [
+      "LS-LS-0139"
+     ],
+     "evidence": [
+      "E5"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -505,7 +615,7 @@
    "ndc11": "63323030030",
    "dosageForm": "INJECTION, POWDER, FOR SOLUTION",
    "plants": [],
-   "onShortageList": false,
+   "onShortageList": true,
    "inOurStock": false
   },
   {
@@ -579,14 +689,6 @@
    "plants": [],
    "onShortageList": false,
    "inOurStock": false
-  },
-  {
-   "labeler": "Wyeth Pharmaceuticals LLC, a subsidiary of Pfizer Inc.",
-   "ndc11": "00206886002",
-   "dosageForm": "INJECTION, SOLUTION",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
   }
  ],
  "options": [
@@ -639,15 +741,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Civica, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Fresenius Kabi USA, LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -733,15 +826,6 @@
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
    "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Wyeth Pharmaceuticals LLC, a subsidiary of Pfizer Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
   }
  ],
  "timeline": [
@@ -817,60 +901,58 @@
   }
  ],
  "explanation": {
-  "state": "confirmed",
-  "headline": "FDA's records trace this shortage to a plant on our own labels",
+  "state": "check",
+  "headline": "Piperacillin and tazobactam is not on FDA's shortage list as of 2026-10-21; Fresenius Kabi USA, LLC posted a discontinuation on 2026-01-20",
   "sentences": [
    {
-    "text": "The label for NDC 55150-0119-09 lists Aurobindo Pharma Limited (FEI 3004446312) as a registered manufacturing plant.",
+    "text": "FDA's drug shortage list shows piperacillin and tazobactam is not listed as of 2026-10-21.",
     "cites": [
-     "E13"
+     "D6"
     ]
    },
    {
-    "text": "FDA inspection 1286862 of that plant ended on 2025-09-05 and was classified OAI, with the classification known on 2025-12-04.",
-    "cites": [
-     "E12"
-    ]
-   },
-   {
-    "text": "The same label also names Eugia SEZ Private Limited (FEI 3011905047) as a registered plant for analysis, manufacture, and pack, last inspected VAI on 2019-03-01.",
-    "cites": [
-     "E16"
-    ]
-   },
-   {
-    "text": "A second label (NDC 83634-0112-99) names ACS DOBFAR SPA as a sponsor-only manufacturing site.",
-    "cites": [
-     "E17"
-    ]
-   },
-   {
-    "text": "Fresenius Kabi USA, LLC appears on the FDA shortage list with status To Be Discontinued, initial posting 2026-01-20, citing discontinuation of manufacture.",
+    "text": "Fresenius Kabi USA, LLC posted a discontinuation for piperacillin and tazobactam injection on 2026-01-20.",
     "cites": [
      "E18"
     ]
    },
    {
-    "text": "Current inventory across Corvale sites provides 18 to 24 days on hand.",
+    "text": "Corvale East holds 261 vials of the 2 g + 0.25 g presentation with 17.9 days on hand at 14.6 vials per day.",
     "cites": [
-     "D1",
-     "D2",
-     "D3"
+     "D1"
+    ]
+   },
+   {
+    "text": "Corvale General holds 376 vials of the same presentation with 23.6 days on hand at 16 vials per day.",
+    "cites": [
+     "D2"
+    ]
+   },
+   {
+    "text": "For the 36 g/180 mL + 4.5 g/180 mL presentation, Corvale East has 24.8 days on hand, Corvale General has 25.1 days, and Corvale Lakeside has 18.1 days.",
+    "cites": [
+     "D3",
+     "D4",
+     "D5"
+    ]
+   },
+   {
+    "text": "The rule-based check finds no FDA shortage posting before a registered plant action, so the buyer should verify current supplier allocations and consider alternate manufacturers.",
+    "cites": [
+     "D6",
+     "D7"
+    ]
+   },
+   {
+    "text": "Apotex Corp. is the top-ranked alternate manufacturer option, though its label names no plant we could place.",
+    "cites": [
+     "D7"
     ]
    }
   ],
   "verifier": {
    "checked": 8,
-   "rejected": [
-    {
-     "text": "That OAI classification occurred 41 days before the Fresenius Kabi discontinuation posting on 2026-01-20.",
-     "reason": "number 41 is not in the cited evidence"
-    },
-    {
-     "text": "FDA's records trace our supply to a plant classified OAI 41 days before the posting",
-     "reason": "headline: number 41 is not in the cited evidence"
-    }
-   ],
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -878,139 +960,153 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
   },
   {
    "table": "stock_lakeside",
-   "rule": "piperacillin sodium and tazobactam sodium rows the NDC rule rejects",
-   "total": 1,
-   "invalid": 1,
-   "note": "LS-LS-0139 \"piperacillin and tazobactam 36 g/180mL\" (NDC 8363411299: repaired: leading zero restored)"
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [],
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T08:13:37.314Z",
+   "at": "2026-10-22T12:31:25.443Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract FVS460ZV scope"
+   "reason": "in contract ZY458NVM scope"
   },
   {
-   "at": "2026-10-22T08:13:37.314Z",
+   "at": "2026-10-22T12:31:25.443Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FVS460ZV scope"
+   "reason": "in contract ZY458NVM scope"
   },
   {
-   "at": "2026-10-22T08:13:41.513Z",
+   "at": "2026-10-22T12:31:35.934Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FVS460ZV scope"
+   "reason": "in contract ZY458NVM scope"
   },
   {
-   "at": "2026-10-22T08:13:42.692Z",
+   "at": "2026-10-22T12:31:37.116Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FVS460ZV scope"
+   "reason": "in contract ZY458NVM scope"
   },
   {
-   "at": "2026-10-22T08:13:43.497Z",
+   "at": "2026-10-22T12:31:37.846Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FVS460ZV scope"
+   "reason": "in contract ZY458NVM scope"
   },
   {
-   "at": "2026-10-22T08:13:46.436Z",
+   "at": "2026-10-22T12:31:41.757Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FVS460ZV scope"
+   "reason": "in contract ZY458NVM scope"
   },
   {
-   "at": "2026-10-22T08:13:47.969Z",
+   "at": "2026-10-22T12:31:43.601Z",
    "action": "What FDA wrote at the OAI inspections",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FVS460ZV scope"
+   "reason": "in contract ZY458NVM scope"
   },
   {
-   "at": "2026-10-22T08:13:48.546Z",
+   "at": "2026-10-22T12:31:43.890Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FVS460ZV scope"
+   "reason": "in contract ZY458NVM scope"
   },
   {
-   "at": "2026-10-22T08:13:50.105Z",
+   "at": "2026-10-22T12:31:45.136Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FVS460ZV scope"
+   "reason": "in contract ZY458NVM scope"
   },
   {
-   "at": "2026-10-22T08:13:52.134Z",
+   "at": "2026-10-22T12:31:47.169Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract FVS460ZV scope"
+   "reason": "in contract ZY458NVM scope"
   },
   {
-   "at": "2026-10-22T08:13:52.136Z",
+   "at": "2026-10-22T12:31:47.170Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract FVS460ZV scope"
+   "reason": "in contract ZY458NVM scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-945398",
+   "queryId": "Q-e2857e",
    "row": 0,
    "label": "Corvale East: PIPERACILLIN SODIUM AND TAZOBACTAM SODIUM 2G",
    "fields": {
@@ -1021,19 +1117,24 @@
     "description": "PIPERACILLIN SODIUM AND TAZOBACTAM SODIUM 2G",
     "on_hand": "261.00",
     "daily_use": "14.553",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Piperacillin Sodium and Tazobactam Sodium",
     "labeler_name": "Eugia US LLC",
     "package_ndc": "55150-119-09",
     "spl_set_id": "a5d8625e-e630-4076-bc55-46ebe861c6a5",
     "dosage_form": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "PIPERACILLIN SODIUM 2 g/1; TAZOBACTAM SODIUM .25 g/1",
+    "unit_content": null,
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-945398",
+   "queryId": "Q-e2857e",
    "row": 1,
    "label": "Corvale East: PIPERACILLIN AND TAZOBACTAM 36G80ML 180ML BTL",
    "fields": {
@@ -1044,83 +1145,103 @@
     "description": "PIPERACILLIN AND TAZOBACTAM 36G80ML 180ML BTL",
     "on_hand": "343.00",
     "daily_use": "13.828",
-    "unit": "package",
+    "unit": "each",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "piperacillin and tazobactam",
     "labeler_name": "Avenacy, LLC",
     "package_ndc": "83634-112-99",
     "spl_set_id": "668a2730-e95a-4639-a506-ae95a6502ca1",
     "dosage_form": "INJECTION, POWDER, FOR SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "PIPERACILLIN SODIUM 36 g/180mL; TAZOBACTAM SODIUM 4.5 g/180mL",
+    "unit_content": "180 mL",
+    "pkg_unit": "bottle"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-945398",
+   "queryId": "Q-e2857e",
    "row": 2,
-   "label": "Corvale General: piperacillin and tazobactam",
+   "label": "Corvale General: piperacillin and tazobactam 36 g/180mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-311",
     "ndc11": "83634011299",
     "ndc_as_recorded": "83634011299",
-    "description": "piperacillin and tazobactam",
-    "on_hand": "395.89",
+    "description": "piperacillin and tazobactam 36 g/180mL",
+    "on_hand": "395.00",
     "daily_use": "15.728",
     "unit": "each",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "piperacillin and tazobactam",
     "labeler_name": "Avenacy, LLC",
     "package_ndc": "83634-112-99",
     "spl_set_id": "668a2730-e95a-4639-a506-ae95a6502ca1",
     "dosage_form": "INJECTION, POWDER, FOR SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "PIPERACILLIN SODIUM 36 g/180mL; TAZOBACTAM SODIUM 4.5 g/180mL",
+    "unit_content": "180 mL",
+    "pkg_unit": "bottle"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-945398",
+   "queryId": "Q-e2857e",
    "row": 3,
-   "label": "Corvale General: Piperacillin Sodium and Tazobactam Sodium",
+   "label": "Corvale General: Piperacillin Sodium and Tazobactam Sodium 2 g/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-312",
     "ndc11": "55150011909",
     "ndc_as_recorded": "55150011909",
-    "description": "Piperacillin Sodium and Tazobactam Sodium",
-    "on_hand": "376.46",
+    "description": "Piperacillin Sodium and Tazobactam Sodium 2 g/1",
+    "on_hand": "376.00",
     "daily_use": "15.965",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Piperacillin Sodium and Tazobactam Sodium",
     "labeler_name": "Eugia US LLC",
     "package_ndc": "55150-119-09",
     "spl_set_id": "a5d8625e-e630-4076-bc55-46ebe861c6a5",
     "dosage_form": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "PIPERACILLIN SODIUM 2 g/1; TAZOBACTAM SODIUM .25 g/1",
+    "unit_content": null,
+    "pkg_unit": "vial"
    }
   },
   "E5": {
    "id": "E5",
-   "queryId": "Q-945398",
+   "queryId": "Q-e2857e",
    "row": 4,
    "label": "Corvale Lakeside: piperacillin and tazobactam 36 g/180mL",
    "fields": {
     "hospital": "Corvale Lakeside",
     "item_key": "LS-LS-0139",
-    "ndc11": "08363411299",
+    "ndc11": "83634011299",
     "ndc_as_recorded": "8363411299",
     "description": "piperacillin and tazobactam 36 g/180mL",
     "on_hand": "78.00",
     "daily_use": "4.300",
     "unit": "each",
-    "ndc_match": "repaired: leading zero restored",
-    "generic_name": null,
-    "labeler_name": null,
-    "package_ndc": null,
-    "spl_set_id": null,
-    "dosage_form": null,
-    "route": null
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
+    "ndc_match": "repaired: undashed, only the 5-3-2 reading is in FDA",
+    "generic_name": "piperacillin and tazobactam",
+    "labeler_name": "Avenacy, LLC",
+    "package_ndc": "83634-112-99",
+    "spl_set_id": "668a2730-e95a-4639-a506-ae95a6502ca1",
+    "dosage_form": "INJECTION, POWDER, FOR SOLUTION",
+    "route": "INTRAVENOUS",
+    "strength": "PIPERACILLIN SODIUM 36 g/180mL; TAZOBACTAM SODIUM 4.5 g/180mL",
+    "unit_content": "180 mL",
+    "pkg_unit": "bottle"
    }
   },
   "E6": {
@@ -1317,7 +1438,7 @@
   },
   "E18": {
    "id": "E18",
-   "queryId": "Q-680334",
+   "queryId": "Q-5b1489",
    "row": 0,
    "label": "FDA shortage list: Fresenius Kabi USA, LLC, To Be Discontinued",
    "fields": {
@@ -1334,208 +1455,296 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 604 units of piperacillin sodium and tazobactam sodium at 28.4 a day: 21 days on hand",
+   "label": "Corvale East holds 261 vials of piperacillin and tazobactam 2 g + 0.25 g at 14.6 a day: 17.9 days on hand",
    "fields": {
     "hospital": "Corvale East",
-    "on_hand": 604,
-    "daily_use": 28.4,
-    "days_on_hand": 21
+    "presentation": "2 g + 0.25 g injection",
+    "on_hand": 261,
+    "daily_use": 14.6,
+    "days_on_hand": 17.9
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 772 units of piperacillin sodium and tazobactam sodium at 31.7 a day: 24 days on hand",
+   "label": "Corvale General holds 376 vials of piperacillin and tazobactam 2 g + 0.25 g at 16 a day: 23.6 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 772,
-    "daily_use": 31.7,
-    "days_on_hand": 24
+    "presentation": "2 g + 0.25 g injection",
+    "on_hand": 376,
+    "daily_use": 16,
+    "days_on_hand": 23.6
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 78 units of piperacillin sodium and tazobactam sodium at 4.3 a day: 18 days on hand",
+   "label": "Corvale East holds 343 eachs of piperacillin and tazobactam 36 g/180 mL + 4.5 g/180 mL, 180 mL at 13.8 a day: 24.8 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "36 g/180 mL + 4.5 g/180 mL injection, 180 mL each",
+    "on_hand": 343,
+    "daily_use": 13.8,
+    "days_on_hand": 24.8
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 395 eachs of piperacillin and tazobactam 36 g/180 mL + 4.5 g/180 mL, 180 mL at 15.7 a day: 25.1 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "36 g/180 mL + 4.5 g/180 mL injection, 180 mL each",
+    "on_hand": 395,
+    "daily_use": 15.7,
+    "days_on_hand": 25.1
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale Lakeside holds 78 eachs of piperacillin and tazobactam 36 g/180 mL + 4.5 g/180 mL, 180 mL at 4.3 a day: 18.1 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
+    "presentation": "36 g/180 mL + 4.5 g/180 mL injection, 180 mL each",
     "on_hand": 78,
     "daily_use": 4.3,
-    "days_on_hand": 18
+    "days_on_hand": 18.1
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "piperacillin and tazobactam is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Apotex Corp.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D8": {
+   "id": "D8",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Armas Pharmaceuticals Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D9": {
+   "id": "D9",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from B. Braun Medical Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-945398": {
-   "id": "Q-945398",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%piperacillin%' OR lower(s.description) LIKE '%piperacillin%' ORDER BY s.hospital, s.item_key",
-   "ms": 4192,
+  "Q-e2857e": {
+   "id": "Q-e2857e",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*piperacillin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*piperacillin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 10488,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T08:13:41.507Z",
+   "ranAt": "2026-10-22T12:31:35.931Z",
    "rows": 5
   },
   "Q-9c3986": {
    "id": "Q-9c3986",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('a5d8625e-e630-4076-bc55-46ebe861c6a5', '668a2730-e95a-4639-a506-ae95a6502ca1') ORDER BY ps.set_id, ps.establishment",
-   "ms": 1174,
+   "ms": 1180,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:13:42.687Z",
+   "ranAt": "2026-10-22T12:31:37.115Z",
    "rows": 3
   },
-  "Q-680334": {
-   "id": "Q-680334",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%piperacillin%' ORDER BY status, company_name, package_ndc",
+  "Q-5b1489": {
+   "id": "Q-5b1489",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*piperacillin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
    "ms": 373,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T08:13:43.065Z",
+   "ranAt": "2026-10-22T12:31:37.490Z",
    "rows": 1
   },
-  "Q-68d80e": {
-   "id": "Q-68d80e",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%piperacillin%' ORDER BY first_posting",
-   "ms": 422,
+  "Q-34cc28": {
+   "id": "Q-34cc28",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*piperacillin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 353,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T08:13:43.493Z",
+   "ranAt": "2026-10-22T12:31:37.844Z",
    "rows": 1
   },
-  "Q-d59f5d": {
-   "id": "Q-d59f5d",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%piperacillin%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2934,
+  "Q-3225fb": {
+   "id": "Q-3225fb",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*piperacillin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 3909,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:13:46.431Z",
-   "rows": 88
+   "ranAt": "2026-10-22T12:31:41.754Z",
+   "rows": 85
   },
   "Q-eba6e0": {
    "id": "Q-eba6e0",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3004446312', '3011905047') ORDER BY fei, end_date",
-   "ms": 614,
+   "ms": 749,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T08:13:47.050Z",
+   "ranAt": "2026-10-22T12:31:42.506Z",
    "rows": 10
   },
   "Q-317170": {
    "id": "Q-317170",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3004446312', '3011905047') ORDER BY fei, action_date",
-   "ms": 247,
+   "ms": 382,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T08:13:47.300Z",
+   "ranAt": "2026-10-22T12:31:42.891Z",
    "rows": 0
   },
   "Q-ac2f3f": {
    "id": "Q-ac2f3f",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3004446312', '3011905047') OR (fei_match <> 'name_and_city' AND firm_key IN ('acs dobfar', 'aurobindo', 'eugia sez')) ORDER BY date_published",
-   "ms": 269,
+   "ms": 285,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T08:13:47.575Z",
+   "ranAt": "2026-10-22T12:31:43.177Z",
    "rows": 0
   },
-  "Q-491d02": {
-   "id": "Q-491d02",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('acs dobfar', 'aurobindo', 'eugia sez', 'eugia', 'avenacy') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%piperacillin%' ORDER BY initiation_date",
-   "ms": 385,
+  "Q-97f904": {
+   "id": "Q-97f904",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('acs dobfar', 'aurobindo', 'eugia sez', 'eugia', 'avenacy') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*piperacillin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 421,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T08:13:47.964Z",
+   "ranAt": "2026-10-22T12:31:43.599Z",
    "rows": 0
   },
   "Q-ef8f12": {
    "id": "Q-ef8f12",
    "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('1286862') ORDER BY inspection_id, cfr",
-   "ms": 567,
+   "ms": 286,
    "mode": "live",
    "sources": [
     "fda.citations"
    ],
-   "ranAt": "2026-10-22T08:13:48.537Z",
+   "ranAt": "2026-10-22T12:31:43.888Z",
    "rows": 0
   },
   "Q-068763": {
    "id": "Q-068763",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('55150011909', '83634011299')",
-   "ms": 1553,
+   "ms": 1244,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:13:50.099Z",
+   "ranAt": "2026-10-22T12:31:45.134Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-e4d066": {
-   "id": "Q-e4d066",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%piperacillin%'",
-   "ms": 2024,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:13:52.129Z",
-   "rows": 1
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-f754c7": {
+   "id": "Q-f754c7",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*piperacillin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 2032,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:31:47.168Z",
+   "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 15,
-  "zetarisMs": 20125,
+  "zetarisMs": 31910,
   "modelCalls": 1,
-  "tokensIn": 1924,
-  "tokensOut": 483,
+  "tokensIn": 2615,
+  "tokensOut": 486,
   "mode": "live"
  },
  "slug": "piperacillin",
@@ -1544,14 +1753,15 @@
    "hospital-item:hospital-item:CG-311",
    "hospital-item:hospital-item:CG-312",
    "hospital-item:hospital-item:EA-E-000190",
-   "hospital-item:hospital-item:EA-E-000323"
+   "hospital-item:hospital-item:EA-E-000323",
+   "hospital-item:hospital-item:LS-LS-0139"
   ],
   "nodes": [
    {
     "id": "hospital-item:hospital-item:CG-311",
     "type": "HospitalItem",
     "key": "hospital-item:CG-311",
-    "label": "Corvale General: piperacillin and tazobactam",
+    "label": "Corvale General: piperacillin and tazobactam 36 g/180mL",
     "attrs": {
      "key": "hospital-item:CG-311"
     },
@@ -1562,7 +1772,7 @@
     "id": "hospital-item:hospital-item:CG-312",
     "type": "HospitalItem",
     "key": "hospital-item:CG-312",
-    "label": "Corvale General: Piperacillin Sodium and Tazobactam Sodium",
+    "label": "Corvale General: Piperacillin Sodium and Tazobactam Sodium 2 g/1",
     "attrs": {
      "key": "hospital-item:CG-312"
     },
@@ -1587,6 +1797,17 @@
     "label": "Corvale East: PIPERACILLIN AND TAZOBACTAM 36G80ML 180ML BTL",
     "attrs": {
      "key": "hospital-item:EA-E-000323"
+    },
+    "facts": [],
+    "depth": 0
+   },
+   {
+    "id": "hospital-item:hospital-item:LS-LS-0139",
+    "type": "HospitalItem",
+    "key": "hospital-item:LS-LS-0139",
+    "label": "Corvale Lakeside: piperacillin and tazobactam 36 g/180mL",
+    "attrs": {
+     "key": "hospital-item:LS-LS-0139"
     },
     "facts": [],
     "depth": 0
@@ -1636,12 +1857,12 @@
     "depth": 2
    },
    {
-    "id": "drug:generic:piperacillin sodium and tazobactam sodium",
+    "id": "drug:generic:piperacillin and tazobactam",
     "type": "Drug",
-    "key": "generic:piperacillin sodium and tazobactam sodium",
-    "label": "piperacillin sodium and tazobactam sodium",
+    "key": "generic:piperacillin and tazobactam",
+    "label": "piperacillin and tazobactam",
     "attrs": {
-     "key": "generic:piperacillin sodium and tazobactam sodium"
+     "key": "generic:piperacillin and tazobactam"
     },
     "facts": [],
     "depth": 3
@@ -1701,7 +1922,7 @@
     },
     "facts": [
      {
-      "id": "fact_265a5e47d1491e90",
+      "id": "fact_5b50c3031c58308c",
       "about": "inspection:fda-inspection:1046218",
       "predicate": "classification",
       "value": "VAI",
@@ -1709,9 +1930,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:13:48.543Z"
+       "at": "2026-10-22T12:31:43.889Z"
       },
-      "assertedAt": "2026-10-22T08:13:48.543Z"
+      "assertedAt": "2026-10-22T12:31:43.889Z"
      }
     ],
     "depth": 4
@@ -1727,7 +1948,7 @@
     },
     "facts": [
      {
-      "id": "fact_4af14726f70f488b",
+      "id": "fact_f30b1fa181580809",
       "about": "inspection:fda-inspection:1050666",
       "predicate": "classification",
       "value": "VAI",
@@ -1735,9 +1956,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:13:48.544Z"
+       "at": "2026-10-22T12:31:43.889Z"
       },
-      "assertedAt": "2026-10-22T08:13:48.544Z"
+      "assertedAt": "2026-10-22T12:31:43.889Z"
      }
     ],
     "depth": 4
@@ -1753,7 +1974,7 @@
     },
     "facts": [
      {
-      "id": "fact_38503f0a61559d25",
+      "id": "fact_7b45e59c22747866",
       "about": "inspection:fda-inspection:1081040",
       "predicate": "classification",
       "value": "VAI",
@@ -1761,9 +1982,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:13:48.544Z"
+       "at": "2026-10-22T12:31:43.890Z"
       },
-      "assertedAt": "2026-10-22T08:13:48.544Z"
+      "assertedAt": "2026-10-22T12:31:43.890Z"
      }
     ],
     "depth": 4
@@ -1779,7 +2000,7 @@
     },
     "facts": [
      {
-      "id": "fact_fe8214b384a3802f",
+      "id": "fact_a0bba31066edbeb8",
       "about": "inspection:fda-inspection:1118385",
       "predicate": "classification",
       "value": "VAI",
@@ -1787,9 +2008,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:13:48.543Z"
+       "at": "2026-10-22T12:31:43.889Z"
       },
-      "assertedAt": "2026-10-22T08:13:48.543Z"
+      "assertedAt": "2026-10-22T12:31:43.889Z"
      }
     ],
     "depth": 4
@@ -1805,7 +2026,7 @@
     },
     "facts": [
      {
-      "id": "fact_5b6dee81744bd7eb",
+      "id": "fact_e1e5115171dee393",
       "about": "inspection:fda-inspection:1241780",
       "predicate": "classification",
       "value": "VAI",
@@ -1813,9 +2034,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:13:48.543Z"
+       "at": "2026-10-22T12:31:43.889Z"
       },
-      "assertedAt": "2026-10-22T08:13:48.543Z"
+      "assertedAt": "2026-10-22T12:31:43.889Z"
      }
     ],
     "depth": 4
@@ -1831,7 +2052,7 @@
     },
     "facts": [
      {
-      "id": "fact_22e2e5cc9f67a52b",
+      "id": "fact_338321b34e466e0f",
       "about": "inspection:fda-inspection:1286862",
       "predicate": "classification",
       "value": "OAI",
@@ -1839,9 +2060,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:13:48.544Z"
+       "at": "2026-10-22T12:31:43.889Z"
       },
-      "assertedAt": "2026-10-22T08:13:48.544Z"
+      "assertedAt": "2026-10-22T12:31:43.889Z"
      }
     ],
     "depth": 4
@@ -1857,7 +2078,7 @@
     },
     "facts": [
      {
-      "id": "fact_f476ba10ce2c4704",
+      "id": "fact_cee9a99ce4f83df9",
       "about": "inspection:fda-inspection:583461",
       "predicate": "classification",
       "value": "VAI",
@@ -1865,9 +2086,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:13:48.542Z"
+       "at": "2026-10-22T12:31:43.889Z"
       },
-      "assertedAt": "2026-10-22T08:13:48.542Z"
+      "assertedAt": "2026-10-22T12:31:43.889Z"
      }
     ],
     "depth": 4
@@ -1883,7 +2104,7 @@
     },
     "facts": [
      {
-      "id": "fact_b553f21a238be4bd",
+      "id": "fact_f9748a482223edc2",
       "about": "inspection:fda-inspection:684549",
       "predicate": "classification",
       "value": "VAI",
@@ -1891,9 +2112,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:13:48.542Z"
+       "at": "2026-10-22T12:31:43.889Z"
       },
-      "assertedAt": "2026-10-22T08:13:48.542Z"
+      "assertedAt": "2026-10-22T12:31:43.889Z"
      }
     ],
     "depth": 4
@@ -1909,7 +2130,7 @@
     },
     "facts": [
      {
-      "id": "fact_455e3f5ae641d50c",
+      "id": "fact_875c9c9d74bb1f15",
       "about": "inspection:fda-inspection:793023",
       "predicate": "classification",
       "value": "VAI",
@@ -1917,9 +2138,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:13:48.542Z"
+       "at": "2026-10-22T12:31:43.889Z"
       },
-      "assertedAt": "2026-10-22T08:13:48.542Z"
+      "assertedAt": "2026-10-22T12:31:43.889Z"
      }
     ],
     "depth": 4
@@ -1931,11 +2152,11 @@
     "from": "hospital-item:hospital-item:CG-311",
     "to": "package:ndc-package:83634-112-99",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:13:41.512Z",
+    "validFrom": "2026-10-22T12:31:35.934Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:13:41.512Z"
+     "at": "2026-10-22T12:31:35.934Z"
     }
    },
    {
@@ -1943,11 +2164,11 @@
     "from": "hospital-item:hospital-item:CG-312",
     "to": "package:ndc-package:55150-119-09",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:13:41.512Z",
+    "validFrom": "2026-10-22T12:31:35.934Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:13:41.512Z"
+     "at": "2026-10-22T12:31:35.934Z"
     }
    },
    {
@@ -1955,11 +2176,11 @@
     "from": "hospital-item:hospital-item:EA-E-000190",
     "to": "package:ndc-package:55150-119-09",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:13:41.511Z",
+    "validFrom": "2026-10-22T12:31:35.933Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:13:41.511Z"
+     "at": "2026-10-22T12:31:35.933Z"
     }
    },
    {
@@ -1967,11 +2188,23 @@
     "from": "hospital-item:hospital-item:EA-E-000323",
     "to": "package:ndc-package:83634-112-99",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:13:41.511Z",
+    "validFrom": "2026-10-22T12:31:35.933Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:13:41.511Z"
+     "at": "2026-10-22T12:31:35.933Z"
+    }
+   },
+   {
+    "id": "rel_10e43857484ace7f",
+    "from": "hospital-item:hospital-item:LS-LS-0139",
+    "to": "package:ndc-package:83634-112-99",
+    "type": "stocks",
+    "validFrom": "2026-10-22T12:31:35.934Z",
+    "source": {
+     "kind": "zetaris",
+     "by": "upstream-investigator",
+     "at": "2026-10-22T12:31:35.934Z"
     }
    },
    {
@@ -1979,11 +2212,11 @@
     "from": "package:ndc-package:83634-112-99",
     "to": "product:ndc-product:83634-112",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:13:41.511Z",
+    "validFrom": "2026-10-22T12:31:35.933Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:13:41.511Z"
+     "at": "2026-10-22T12:31:35.933Z"
     }
    },
    {
@@ -1991,23 +2224,23 @@
     "from": "package:ndc-package:55150-119-09",
     "to": "product:ndc-product:55150-119",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:13:41.511Z",
+    "validFrom": "2026-10-22T12:31:35.933Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:13:41.511Z"
+     "at": "2026-10-22T12:31:35.933Z"
     }
    },
    {
-    "id": "rel_ab120989239fb8a3",
+    "id": "rel_0992e84d1c75b7ea",
     "from": "product:ndc-product:83634-112",
-    "to": "drug:generic:piperacillin sodium and tazobactam sodium",
+    "to": "drug:generic:piperacillin and tazobactam",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:13:41.512Z",
+    "validFrom": "2026-10-22T12:31:35.934Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:13:41.512Z"
+     "at": "2026-10-22T12:31:35.934Z"
     }
    },
    {
@@ -2015,23 +2248,23 @@
     "from": "product:ndc-product:83634-112",
     "to": "labeler:ndc-labeler:83634",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:13:41.512Z",
+    "validFrom": "2026-10-22T12:31:35.934Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:13:41.512Z"
+     "at": "2026-10-22T12:31:35.934Z"
     }
    },
    {
-    "id": "rel_88a3ca483cacfb75",
+    "id": "rel_98afc4699240710f",
     "from": "product:ndc-product:55150-119",
-    "to": "drug:generic:piperacillin sodium and tazobactam sodium",
+    "to": "drug:generic:piperacillin and tazobactam",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:13:41.511Z",
+    "validFrom": "2026-10-22T12:31:35.933Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:13:41.511Z"
+     "at": "2026-10-22T12:31:35.933Z"
     }
    },
    {
@@ -2039,11 +2272,11 @@
     "from": "product:ndc-product:55150-119",
     "to": "labeler:ndc-labeler:55150",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:13:41.511Z",
+    "validFrom": "2026-10-22T12:31:35.933Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:13:41.511Z"
+     "at": "2026-10-22T12:31:35.933Z"
     }
    },
    {
@@ -2051,11 +2284,11 @@
     "from": "product:ndc-product:55150-119",
     "to": "site:fei:3004446312",
     "type": "made-at",
-    "validFrom": "2026-10-22T08:13:48.542Z",
+    "validFrom": "2026-10-22T12:31:43.889Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:13:48.542Z"
+     "at": "2026-10-22T12:31:43.889Z"
     }
    },
    {
@@ -2063,11 +2296,11 @@
     "from": "product:ndc-product:55150-119",
     "to": "site:fei:3011905047",
     "type": "made-at",
-    "validFrom": "2026-10-22T08:13:48.544Z",
+    "validFrom": "2026-10-22T12:31:43.889Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:13:48.544Z"
+     "at": "2026-10-22T12:31:43.889Z"
     }
    },
    {
@@ -2075,11 +2308,11 @@
     "from": "inspection:fda-inspection:583461",
     "to": "site:fei:3004446312",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:13:48.542Z",
+    "validFrom": "2026-10-22T12:31:43.889Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:13:48.542Z"
+     "at": "2026-10-22T12:31:43.889Z"
     }
    },
    {
@@ -2087,11 +2320,11 @@
     "from": "inspection:fda-inspection:684549",
     "to": "site:fei:3004446312",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:13:48.542Z",
+    "validFrom": "2026-10-22T12:31:43.889Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:13:48.542Z"
+     "at": "2026-10-22T12:31:43.889Z"
     }
    },
    {
@@ -2099,11 +2332,11 @@
     "from": "inspection:fda-inspection:793023",
     "to": "site:fei:3004446312",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:13:48.542Z",
+    "validFrom": "2026-10-22T12:31:43.889Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:13:48.542Z"
+     "at": "2026-10-22T12:31:43.889Z"
     }
    },
    {
@@ -2111,11 +2344,11 @@
     "from": "inspection:fda-inspection:1046218",
     "to": "site:fei:3004446312",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:13:48.543Z",
+    "validFrom": "2026-10-22T12:31:43.889Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:13:48.543Z"
+     "at": "2026-10-22T12:31:43.889Z"
     }
    },
    {
@@ -2123,11 +2356,11 @@
     "from": "inspection:fda-inspection:1118385",
     "to": "site:fei:3004446312",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:13:48.543Z",
+    "validFrom": "2026-10-22T12:31:43.889Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:13:48.543Z"
+     "at": "2026-10-22T12:31:43.889Z"
     }
    },
    {
@@ -2135,11 +2368,11 @@
     "from": "inspection:fda-inspection:1241780",
     "to": "site:fei:3004446312",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:13:48.543Z",
+    "validFrom": "2026-10-22T12:31:43.889Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:13:48.543Z"
+     "at": "2026-10-22T12:31:43.889Z"
     }
    },
    {
@@ -2147,11 +2380,11 @@
     "from": "inspection:fda-inspection:1286862",
     "to": "site:fei:3004446312",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:13:48.543Z",
+    "validFrom": "2026-10-22T12:31:43.889Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:13:48.543Z"
+     "at": "2026-10-22T12:31:43.889Z"
     }
    },
    {
@@ -2159,11 +2392,11 @@
     "from": "inspection:fda-inspection:1050666",
     "to": "site:fei:3011905047",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:13:48.544Z",
+    "validFrom": "2026-10-22T12:31:43.889Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:13:48.544Z"
+     "at": "2026-10-22T12:31:43.889Z"
     }
    },
    {
@@ -2171,16 +2404,16 @@
     "from": "inspection:fda-inspection:1081040",
     "to": "site:fei:3011905047",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:13:48.544Z",
+    "validFrom": "2026-10-22T12:31:43.890Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:13:48.544Z"
+     "at": "2026-10-22T12:31:43.890Z"
     }
    }
   ],
   "counts": {
-   "HospitalItem": 4,
+   "HospitalItem": 5,
    "Package": 2,
    "Product": 2,
    "Drug": 1,

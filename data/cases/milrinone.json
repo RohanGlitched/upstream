@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-3902f8",
+ "id": "case-2026-10-22-fc93a9",
  "question": "Why is milrinone lactate short, and what do we do?",
- "askedAt": "2026-10-22T08:04:13.725Z",
+ "askedAt": "2026-10-22T12:23:07.519Z",
  "asOf": "2026-10-21",
  "molecule": "milrinone lactate",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5HA6VRF95H0WPG1X1FGCRBN",
+  "contractId": "01M5HS10YP7Y5PDTKTSM2VQYWY",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-3b2944"
+    "Q-c913d6"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 4031,
+   "ms": 4572,
    "rows": 3,
-   "finding": "3 stock lines across 3 hospitals.",
+   "finding": "3 stock lines across 3 hospitals, 2 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-f21e84"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1103,
+   "ms": 513,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-99c9b3",
-    "Q-31b011"
+    "Q-767063",
+    "Q-dd2fe7"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 613,
+   "ms": 340,
    "rows": 0,
    "finding": "Not on FDA's current shortage list.",
    "status": "empty"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-d76025"
+    "Q-0552ba"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2297,
+   "ms": 1540,
    "rows": 49,
    "finding": "13 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-de52b9",
     "Q-bc911b",
     "Q-c38f78",
-    "Q-16c9fa"
+    "Q-b98ded"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1452,
+   "ms": 675,
    "rows": 26,
    "finding": "25 inspections (0 OAI at our plants), 1 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1575,
+   "ms": 612,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-05c74b"
+    "Q-8d68e1"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2245,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1516,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 2,
+   "ms": 1,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -153,21 +164,27 @@
    "onHand": 75,
    "dailyUse": 5.073,
    "days": 14.8,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "milrinone lactate|1mg/ml|injection|50ml|vial",
+   "presentationLabel": "1 mg/mL injection, 50 mL vial",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-279",
    "ndc11": "71288020011",
-   "description": "Milrinone Lactate",
+   "description": "Milrinone Lactate 1 mg/mL",
    "labeler": "Meitheal Pharmaceuticals Inc.",
-   "onHand": 158.28,
+   "onHand": 158,
    "dailyUse": 6.012,
    "days": 26.3,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "milrinone lactate|1mg/ml|injection|10ml|vial",
+   "presentationLabel": "1 mg/mL injection, 10 mL vial",
    "evidence": "E2"
   },
   {
@@ -181,7 +198,70 @@
    "days": 8,
    "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "milrinone lactate|1mg/ml|injection|10ml|vial",
+   "presentationLabel": "1 mg/mL injection, 10 mL vial",
    "evidence": "E3"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "milrinone lactate|1mg/ml|injection|10ml|vial",
+   "label": "1 mg/mL injection, 10 mL vial",
+   "short": "1 mg/mL, 10 mL",
+   "unit": "vial",
+   "onHand": 171,
+   "dailyUse": 7.639,
+   "days": 22.4,
+   "hospitals": [
+    {
+     "hospital": "Corvale General",
+     "onHand": 158,
+     "dailyUse": 6.012,
+     "days": 26.3,
+     "lines": [
+      "CG-279"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 13,
+     "dailyUse": 1.627,
+     "days": 8,
+     "lines": [
+      "LS-LS-0122"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "milrinone lactate|1mg/ml|injection|50ml|vial",
+   "label": "1 mg/mL injection, 50 mL vial",
+   "short": "1 mg/mL, 50 mL",
+   "unit": "vial",
+   "onHand": 75,
+   "dailyUse": 5.073,
+   "days": 14.8,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 75,
+     "dailyUse": 5.073,
+     "days": 14.8,
+     "lines": [
+      "EA-E-000281"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -482,26 +562,25 @@
   {
    "kind": "transfer",
    "rank": 1,
-   "title": "Transfer 10 from Corvale General to Corvale Lakeside",
-   "detail": "Corvale General has 26 days on hand and can spare 10 while keeping two weeks; Corvale Lakeside has 8 days and would reach 14.",
-   "why": "Same product, no clinical change, no new supplier.",
+   "title": "Transfer 10 vials of 1 mg/mL, 10 mL from Corvale General to Corvale Lakeside",
+   "detail": "Corvale General has 26 days of 1 mg/mL injection, 10 mL vials on hand and can spare 10 vials while keeping two weeks; Corvale Lakeside has 8 days and would reach 14.",
+   "why": "Same presentation, no clinical change, no new supplier.",
    "needs": "pharmacy director (transfer request)",
    "evidence": [
     "E2",
     "E3"
-   ]
-  },
-  {
-   "kind": "transfer",
-   "rank": 1,
-   "title": "Transfer 3 from Corvale East to Corvale Lakeside",
-   "detail": "Corvale East has 15 days on hand and can spare 3 while keeping two weeks; Corvale Lakeside has 8 days and would reach 10.",
-   "why": "Same product, no clinical change, no new supplier.",
-   "needs": "pharmacy director (transfer request)",
-   "evidence": [
-    "E1",
-    "E3"
-   ]
+   ],
+   "transfer": {
+    "qty": 10,
+    "unit": "vial",
+    "presentation": "1 mg/mL injection, 10 mL vial",
+    "from": "Corvale General",
+    "to": "Corvale Lakeside",
+    "fromDays": 26.3,
+    "toDays": 8,
+    "fromAfter": 25,
+    "toAfter": 14
+   }
   },
   {
    "kind": "alternate_manufacturer",
@@ -635,18 +714,29 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "FDA records show the product is manufactured at a plant with VAI inspections through 2023-11-10; no OAI classification appears in the provided records",
+  "headline": "Milrinone lactate is not on FDA's shortage list as of 2026-10-21; supply traces to a registered plant with VAI inspections in 2015, 2018, and 2023",
   "sentences": [
    {
-    "text": "The milrinone lactate used at Corvale General and Corvale Lakeside shares NDC 71288020011 and labeler Meitheal Pharmaceuticals Inc., and its SPL set ID 6c6b69f9 identifies Nanjing King-Friend Biochemical Pharmaceutical Co., Ltd. (FEI 3010625707) as the manufacturing plant.",
+    "text": "FDA's drug shortage list does not include milrinone lactate as of 2026-10-21.",
+    "cites": [
+     "D4"
+    ]
+   },
+   {
+    "text": "The product used at Corvale General and Corvale Lakeside carries NDC 71288020011 and is labeled by Meitheal Pharmaceuticals Inc.",
     "cites": [
      "E2",
-     "E3",
+     "E3"
+    ]
+   },
+   {
+    "text": "The SPL set ID 6c6b69f9-e229-4a93-a108-9eafdab614f0 names Nanjing King-Friend Biochemical Pharmaceutical Co., Ltd. (FEI 3010625707) as a registered manufacturing plant.",
+    "cites": [
      "E7"
     ]
    },
    {
-    "text": "FDA inspection records for that plant show three VAI classifications: inspection 937313 ending 2015-05-12, inspection 1048084 ending 2018-04-03, and inspection 1224895 ending 2023-11-10.",
+    "text": "FDA inspection records for that plant show VAI classifications on 2015-05-12, 2018-04-03, and 2023-11-10.",
     "cites": [
      "E4",
      "E5",
@@ -654,85 +744,94 @@
     ]
    },
    {
-    "text": "No OAI classification or other enforcement action appears in the supplied FDA records for this facility.",
+    "text": "Corvale General holds 158 vials of the 1 mg/mL 10 mL presentation, providing 26.3 days of supply at current use.",
     "cites": [
-     "E4",
-     "E5",
-     "E6"
+     "D1"
     ]
    },
    {
-    "text": "Corvale General holds 158 units with 6.0 daily use (26 days on hand) and Corvale Lakeside holds 13 units with 1.6 daily use (8 days on hand).",
+    "text": "Corvale Lakeside holds 13 vials of the same presentation, providing 8 days of supply at current use.",
     "cites": [
-     "D2",
-     "D3"
+     "D2"
     ]
    },
    {
-    "text": "Corvale East holds a different package size (NDC 71288020050) with 75 units and 5.1 daily use (15 days on hand).",
+    "text": "The top-ranked action is to transfer 10 vials from Corvale General to Corvale Lakeside, which would leave Corvale General with about two weeks of supply and bring Corvale Lakeside to 14 days.",
     "cites": [
-     "D1",
-     "E1"
-    ]
-   },
-   {
-    "text": "Because the links between the shortage and any specific FDA finding are weak or absent in the provided data, verify current allocation status with Meitheal and check FDA's drug shortage database for any posted shortage reason.",
-    "cites": [
-     "E2",
-     "E3",
-     "E7"
+     "D5"
     ]
    }
   ],
   "verifier": {
-   "checked": 7,
+   "checked": 8,
    "rejected": [],
-   "repaired": 1
+   "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
  },
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -747,80 +846,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T08:04:00.400Z",
+   "at": "2026-10-22T12:22:57.750Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract X1FGCRBN scope"
+   "reason": "in contract SM2VQYWY scope"
   },
   {
-   "at": "2026-10-22T08:04:00.401Z",
+   "at": "2026-10-22T12:22:57.751Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract X1FGCRBN scope"
+   "reason": "in contract SM2VQYWY scope"
   },
   {
-   "at": "2026-10-22T08:04:04.434Z",
+   "at": "2026-10-22T12:23:02.322Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract X1FGCRBN scope"
+   "reason": "in contract SM2VQYWY scope"
   },
   {
-   "at": "2026-10-22T08:04:05.537Z",
+   "at": "2026-10-22T12:23:02.835Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract X1FGCRBN scope"
+   "reason": "in contract SM2VQYWY scope"
   },
   {
-   "at": "2026-10-22T08:04:06.149Z",
+   "at": "2026-10-22T12:23:03.175Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract X1FGCRBN scope"
+   "reason": "in contract SM2VQYWY scope"
   },
   {
-   "at": "2026-10-22T08:04:08.447Z",
+   "at": "2026-10-22T12:23:04.716Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract X1FGCRBN scope"
+   "reason": "in contract SM2VQYWY scope"
   },
   {
-   "at": "2026-10-22T08:04:09.902Z",
+   "at": "2026-10-22T12:23:05.391Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract X1FGCRBN scope"
+   "reason": "in contract SM2VQYWY scope"
   },
   {
-   "at": "2026-10-22T08:04:11.477Z",
+   "at": "2026-10-22T12:23:06.002Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract X1FGCRBN scope"
+   "reason": "in contract SM2VQYWY scope"
   },
   {
-   "at": "2026-10-22T08:04:13.722Z",
+   "at": "2026-10-22T12:23:07.518Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract X1FGCRBN scope"
+   "reason": "in contract SM2VQYWY scope"
   },
   {
-   "at": "2026-10-22T08:04:13.726Z",
+   "at": "2026-10-22T12:23:07.519Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract X1FGCRBN scope"
+   "reason": "in contract SM2VQYWY scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-3b2944",
+   "queryId": "Q-c913d6",
    "row": 0,
    "label": "Corvale East: MILRINONE LACTATE 1MG/ML 50ML SDV",
    "fields": {
@@ -831,42 +930,52 @@
     "description": "MILRINONE LACTATE 1MG/ML 50ML SDV",
     "on_hand": "75.00",
     "daily_use": "5.073",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Milrinone Lactate",
     "labeler_name": "Meitheal Pharmaceuticals Inc.",
     "package_ndc": "71288-200-50",
     "spl_set_id": "6c6b69f9-e229-4a93-a108-9eafdab614f0",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "MILRINONE LACTATE 1 mg/mL",
+    "unit_content": "50 mL",
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-3b2944",
+   "queryId": "Q-c913d6",
    "row": 1,
-   "label": "Corvale General: Milrinone Lactate",
+   "label": "Corvale General: Milrinone Lactate 1 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-279",
     "ndc11": "71288020011",
     "ndc_as_recorded": "71288020011",
-    "description": "Milrinone Lactate",
-    "on_hand": "158.28",
+    "description": "Milrinone Lactate 1 mg/mL",
+    "on_hand": "158.00",
     "daily_use": "6.012",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Milrinone Lactate",
     "labeler_name": "Meitheal Pharmaceuticals Inc.",
     "package_ndc": "71288-200-11",
     "spl_set_id": "6c6b69f9-e229-4a93-a108-9eafdab614f0",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "MILRINONE LACTATE 1 mg/mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-3b2944",
+   "queryId": "Q-c913d6",
    "row": 2,
    "label": "Corvale Lakeside: Milrinone Lactate 1 mg/mL 10 mL vial",
    "fields": {
@@ -878,13 +987,18 @@
     "on_hand": "13.00",
     "daily_use": "1.627",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Milrinone Lactate",
     "labeler_name": "Meitheal Pharmaceuticals Inc.",
     "package_ndc": "71288-200-11",
     "spl_set_id": "6c6b69f9-e229-4a93-a108-9eafdab614f0",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "MILRINONE LACTATE 1 mg/mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E4": {
@@ -955,197 +1069,259 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 75 units of milrinone lactate at 5.1 a day: 15 days on hand",
+   "label": "Corvale General holds 158 vials of milrinone lactate 1 mg/mL, 10 mL at 6 a day: 26.3 days on hand",
    "fields": {
-    "hospital": "Corvale East",
-    "on_hand": 75,
-    "daily_use": 5.1,
-    "days_on_hand": 15
+    "hospital": "Corvale General",
+    "presentation": "1 mg/mL injection, 10 mL vial",
+    "on_hand": 158,
+    "daily_use": 6,
+    "days_on_hand": 26.3
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 158 units of milrinone lactate at 6 a day: 26 days on hand",
+   "label": "Corvale Lakeside holds 13 vials of milrinone lactate 1 mg/mL, 10 mL at 1.6 a day: 8 days on hand",
    "fields": {
-    "hospital": "Corvale General",
-    "on_hand": 158,
-    "daily_use": 6,
-    "days_on_hand": 26
+    "hospital": "Corvale Lakeside",
+    "presentation": "1 mg/mL injection, 10 mL vial",
+    "on_hand": 13,
+    "daily_use": 1.6,
+    "days_on_hand": 8
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 13 units of milrinone lactate at 1.6 a day: 8 days on hand",
+   "label": "Corvale East holds 75 vials of milrinone lactate 1 mg/mL, 50 mL at 5.1 a day: 14.8 days on hand",
    "fields": {
-    "hospital": "Corvale Lakeside",
-    "on_hand": 13,
-    "daily_use": 1.6,
-    "days_on_hand": 8
+    "hospital": "Corvale East",
+    "presentation": "1 mg/mL injection, 50 mL vial",
+    "on_hand": 75,
+    "daily_use": 5.1,
+    "days_on_hand": 14.8
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "milrinone lactate is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 10 vials of 1 mg/mL, 10 mL from Corvale General to Corvale Lakeside. Corvale General has 26 days of 1 mg/mL injection, 10 mL vials on hand and can spare 10 vials while keeping two weeks; Corvale Lakeside has 8 days and would reach 14.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from Armas Pharmaceuticals Inc.. Not on FDA's shortage list today. Plants: Caplin Steriles Limited (last inspection NAI 2024-08-09).",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from Hikma Pharmaceuticals USA Inc.. Not on FDA's shortage list today. Plants: HIKMA FARMACÊUTICA (PORTUGAL).",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-3b2944": {
-   "id": "Q-3b2944",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%milrinone%' OR lower(s.description) LIKE '%milrinone%' ORDER BY s.hospital, s.item_key",
-   "ms": 4026,
+  "Q-c913d6": {
+   "id": "Q-c913d6",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*milrinone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*milrinone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 4570,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T08:04:04.427Z",
+   "ranAt": "2026-10-22T12:23:02.321Z",
    "rows": 3
   },
   "Q-f21e84": {
    "id": "Q-f21e84",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('6c6b69f9-e229-4a93-a108-9eafdab614f0') ORDER BY ps.set_id, ps.establishment",
-   "ms": 1099,
+   "ms": 512,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:04:05.533Z",
+   "ranAt": "2026-10-22T12:23:02.834Z",
    "rows": 1
   },
-  "Q-99c9b3": {
-   "id": "Q-99c9b3",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%milrinone%' ORDER BY status, company_name, package_ndc",
-   "ms": 274,
+  "Q-767063": {
+   "id": "Q-767063",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*milrinone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 160,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T08:04:05.811Z",
+   "ranAt": "2026-10-22T12:23:02.996Z",
    "rows": 0
   },
-  "Q-31b011": {
-   "id": "Q-31b011",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%milrinone%' ORDER BY first_posting",
-   "ms": 331,
+  "Q-dd2fe7": {
+   "id": "Q-dd2fe7",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*milrinone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 178,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T08:04:06.145Z",
+   "ranAt": "2026-10-22T12:23:03.174Z",
    "rows": 0
   },
-  "Q-d76025": {
-   "id": "Q-d76025",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%milrinone%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2292,
+  "Q-0552ba": {
+   "id": "Q-0552ba",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*milrinone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1539,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:04:08.441Z",
+   "ranAt": "2026-10-22T12:23:04.714Z",
    "rows": 49
   },
   "Q-de52b9": {
    "id": "Q-de52b9",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3010625707', '3005035920', '3008461619', '3002647489', '3006704412') ORDER BY fei, end_date",
-   "ms": 569,
+   "ms": 272,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T08:04:09.017Z",
+   "ranAt": "2026-10-22T12:23:04.987Z",
    "rows": 25
   },
   "Q-bc911b": {
    "id": "Q-bc911b",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3010625707', '3005035920', '3008461619', '3002647489', '3006704412') ORDER BY fei, action_date",
-   "ms": 300,
+   "ms": 149,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T08:04:09.320Z",
+   "ranAt": "2026-10-22T12:23:05.138Z",
    "rows": 1
   },
   "Q-c38f78": {
    "id": "Q-c38f78",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3010625707') OR (fei_match <> 'name_and_city' AND firm_key IN ('nanjing king friend biochemical')) ORDER BY date_published",
-   "ms": 238,
+   "ms": 124,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T08:04:09.562Z",
+   "ranAt": "2026-10-22T12:23:05.263Z",
    "rows": 0
   },
-  "Q-16c9fa": {
-   "id": "Q-16c9fa",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('nanjing king friend biochemical', 'meitheal') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%milrinone%' ORDER BY initiation_date",
-   "ms": 330,
+  "Q-b98ded": {
+   "id": "Q-b98ded",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('nanjing king friend biochemical', 'meitheal') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*milrinone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 125,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T08:04:09.896Z",
+   "ranAt": "2026-10-22T12:23:05.389Z",
    "rows": 0
   },
   "Q-d84107": {
    "id": "Q-d84107",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('71288020050', '71288020011')",
-   "ms": 1570,
+   "ms": 610,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:04:11.472Z",
+   "ranAt": "2026-10-22T12:23:06.001Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-05c74b": {
-   "id": "Q-05c74b",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%milrinone%'",
-   "ms": 2240,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:04:13.718Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-8d68e1": {
+   "id": "Q-8d68e1",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*milrinone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1515,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:23:07.517Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 18640,
+  "zetarisMs": 19962,
   "modelCalls": 1,
-  "tokensIn": 1649,
-  "tokensOut": 536,
+  "tokensIn": 2033,
+  "tokensOut": 528,
   "mode": "live"
  },
  "slug": "milrinone",
@@ -1160,7 +1336,7 @@
     "id": "hospital-item:hospital-item:CG-279",
     "type": "HospitalItem",
     "key": "hospital-item:CG-279",
-    "label": "Corvale General: Milrinone Lactate",
+    "label": "Corvale General: Milrinone Lactate 1 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-279"
     },
@@ -1266,7 +1442,7 @@
     },
     "facts": [
      {
-      "id": "fact_c98be00fc911fabf",
+      "id": "fact_20c26537632ff0f0",
       "about": "inspection:fda-inspection:1048084",
       "predicate": "classification",
       "value": "VAI",
@@ -1274,9 +1450,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:04:09.900Z"
+       "at": "2026-10-22T12:23:05.390Z"
       },
-      "assertedAt": "2026-10-22T08:04:09.900Z"
+      "assertedAt": "2026-10-22T12:23:05.390Z"
      }
     ],
     "depth": 4
@@ -1292,7 +1468,7 @@
     },
     "facts": [
      {
-      "id": "fact_a28bde8483daef37",
+      "id": "fact_6f7e6b680c01a60c",
       "about": "inspection:fda-inspection:1224895",
       "predicate": "classification",
       "value": "VAI",
@@ -1300,23 +1476,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:04:09.900Z"
+       "at": "2026-10-22T12:23:05.390Z"
       },
-      "assertedAt": "2026-10-22T08:04:09.900Z",
-      "supersededBy": "fact_f1fda4e10c067796"
-     },
-     {
-      "id": "fact_f1fda4e10c067796",
-      "about": "inspection:fda-inspection:1224895",
-      "predicate": "classification",
-      "value": "VAI",
-      "confidence": 0.5,
-      "source": {
-       "kind": "fda-inspection",
-       "by": "upstream-investigator",
-       "at": "2026-10-22T08:04:09.901Z"
-      },
-      "assertedAt": "2026-10-22T08:04:09.901Z"
+      "assertedAt": "2026-10-22T12:23:05.390Z"
      }
     ],
     "depth": 4
@@ -1332,7 +1494,7 @@
     },
     "facts": [
      {
-      "id": "fact_72c8cfc3a5257d12",
+      "id": "fact_85abe964bbc760c8",
       "about": "inspection:fda-inspection:937313",
       "predicate": "classification",
       "value": "VAI",
@@ -1340,9 +1502,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:04:09.900Z"
+       "at": "2026-10-22T12:23:05.390Z"
       },
-      "assertedAt": "2026-10-22T08:04:09.900Z"
+      "assertedAt": "2026-10-22T12:23:05.390Z"
      }
     ],
     "depth": 4
@@ -1354,11 +1516,11 @@
     "from": "hospital-item:hospital-item:CG-279",
     "to": "package:ndc-package:71288-200-11",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:04:04.432Z",
+    "validFrom": "2026-10-22T12:23:02.322Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:04.432Z"
+     "at": "2026-10-22T12:23:02.322Z"
     }
    },
    {
@@ -1366,11 +1528,11 @@
     "from": "hospital-item:hospital-item:EA-E-000281",
     "to": "package:ndc-package:71288-200-50",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:04:04.432Z",
+    "validFrom": "2026-10-22T12:23:02.322Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:04.432Z"
+     "at": "2026-10-22T12:23:02.322Z"
     }
    },
    {
@@ -1378,11 +1540,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0122",
     "to": "package:ndc-package:71288-200-11",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:04:04.433Z",
+    "validFrom": "2026-10-22T12:23:02.322Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:04.433Z"
+     "at": "2026-10-22T12:23:02.322Z"
     }
    },
    {
@@ -1390,11 +1552,11 @@
     "from": "package:ndc-package:71288-200-11",
     "to": "product:ndc-product:71288-200",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:04:04.433Z",
+    "validFrom": "2026-10-22T12:23:02.322Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:04.433Z"
+     "at": "2026-10-22T12:23:02.322Z"
     }
    },
    {
@@ -1402,11 +1564,11 @@
     "from": "package:ndc-package:71288-200-50",
     "to": "product:ndc-product:71288-200",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:04:04.432Z",
+    "validFrom": "2026-10-22T12:23:02.322Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:04.432Z"
+     "at": "2026-10-22T12:23:02.322Z"
     }
    },
    {
@@ -1414,11 +1576,11 @@
     "from": "product:ndc-product:71288-200",
     "to": "drug:generic:milrinone lactate",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:04:04.432Z",
+    "validFrom": "2026-10-22T12:23:02.322Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:04.432Z"
+     "at": "2026-10-22T12:23:02.322Z"
     }
    },
    {
@@ -1426,11 +1588,11 @@
     "from": "product:ndc-product:71288-200",
     "to": "labeler:ndc-labeler:71288",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:04:04.432Z",
+    "validFrom": "2026-10-22T12:23:02.322Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:04.432Z"
+     "at": "2026-10-22T12:23:02.322Z"
     }
    },
    {
@@ -1438,11 +1600,11 @@
     "from": "product:ndc-product:71288-200",
     "to": "site:fei:3010625707",
     "type": "made-at",
-    "validFrom": "2026-10-22T08:04:09.899Z",
+    "validFrom": "2026-10-22T12:23:05.390Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:09.899Z"
+     "at": "2026-10-22T12:23:05.390Z"
     }
    },
    {
@@ -1450,11 +1612,11 @@
     "from": "inspection:fda-inspection:937313",
     "to": "site:fei:3010625707",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:04:09.900Z",
+    "validFrom": "2026-10-22T12:23:05.390Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:09.900Z"
+     "at": "2026-10-22T12:23:05.390Z"
     }
    },
    {
@@ -1462,11 +1624,11 @@
     "from": "inspection:fda-inspection:1048084",
     "to": "site:fei:3010625707",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:04:09.900Z",
+    "validFrom": "2026-10-22T12:23:05.390Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:09.900Z"
+     "at": "2026-10-22T12:23:05.390Z"
     }
    },
    {
@@ -1474,11 +1636,11 @@
     "from": "inspection:fda-inspection:1224895",
     "to": "site:fei:3010625707",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:04:09.900Z",
+    "validFrom": "2026-10-22T12:23:05.390Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:09.900Z"
+     "at": "2026-10-22T12:23:05.390Z"
     }
    }
   ],

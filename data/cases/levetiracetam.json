@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-51fc61",
+ "id": "case-2026-10-22-fd7814",
  "question": "Why is levetiracetam short, and what do we do?",
- "askedAt": "2026-10-22T07:57:17.366Z",
+ "askedAt": "2026-10-22T12:14:04.899Z",
  "asOf": "2026-10-21",
  "molecule": "levetiracetam",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H9T3YZMCJMN94N2VY8D4DE",
+  "contractId": "01M5HRGF7M7YQZQB8E8JR16V1Q",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-e8428f"
+    "Q-f88075"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 4158,
+   "ms": 3957,
    "rows": 3,
-   "finding": "3 stock lines across 3 hospitals.",
+   "finding": "3 stock lines across 3 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-27ef4a"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 946,
+   "ms": 534,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 0 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-c13692",
-    "Q-37261d"
+    "Q-4f5d0f",
+    "Q-3f1a22"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 417,
+   "ms": 303,
    "rows": 0,
    "finding": "Not on FDA's current shortage list.",
    "status": "empty"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-9ca984"
+    "Q-5d917d"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 3055,
+   "ms": 1384,
    "rows": 74,
    "finding": "33 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-19a22b",
     "Q-2b166f",
     "Q-ff597d",
-    "Q-8a1aff"
+    "Q-ac74a1"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1888,
+   "ms": 832,
    "rows": 19,
    "finding": "18 inspections (0 OAI at our plants), 1 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 2151,
+   "ms": 807,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-da4133"
+    "Q-d7a9f6"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1929,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1764,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 3,
+   "ms": 0,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -153,21 +164,27 @@
    "onHand": 124,
    "dailyUse": 6.798,
    "days": 18.2,
-   "unit": "package",
+   "unit": "each",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 3, converted to units",
+   "presentation": "levetiracetam|100mg/ml|solution|5ml|each",
+   "presentationLabel": "100 mg/mL solution, 5 mL each",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-257",
    "ndc11": "39328051130",
-   "description": "Levetiracetam",
+   "description": "Levetiracetam 100 mg/mL",
    "labeler": "Patrin Pharma, Inc.",
-   "onHand": 177.99,
+   "onHand": 177,
    "dailyUse": 7.786,
-   "days": 22.9,
+   "days": 22.7,
    "unit": "each",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "levetiracetam|100mg/ml|solution|5ml|each",
+   "presentationLabel": "100 mg/mL solution, 5 mL each",
    "evidence": "E2"
   },
   {
@@ -181,7 +198,59 @@
    "days": 26.8,
    "unit": "each",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "levetiracetam|100mg/ml|solution|5ml|each",
+   "presentationLabel": "100 mg/mL solution, 5 mL each",
    "evidence": "E3"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "levetiracetam|100mg/ml|solution|5ml|each",
+   "label": "100 mg/mL solution, 5 mL each",
+   "short": "100 mg/mL, 5 mL",
+   "unit": "each",
+   "onHand": 356,
+   "dailyUse": 16.637,
+   "days": 21.4,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 124,
+     "dailyUse": 6.798,
+     "days": 18.2,
+     "lines": [
+      "EA-E-000153"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 177,
+     "dailyUse": 7.786,
+     "days": 22.7,
+     "lines": [
+      "CG-257"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 55,
+     "dailyUse": 2.053,
+     "days": 26.8,
+     "lines": [
+      "LS-LS-0068"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -593,15 +662,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from American Health Packaging",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Amneal Pharmaceuticals LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -656,25 +716,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Bryant Ranch Prepack",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Camber Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Cardinal Health 107, LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -791,15 +833,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from REMEDYREPACK INC.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Sagent Pharmaceuticals",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -836,45 +869,49 @@
  ],
  "explanation": {
   "state": "no_signal",
-  "headline": "No FDA shortage signal for levetiracetam; Corvale sites hold 18–27 days on hand",
+  "headline": "Levetiracetam is not on FDA's shortage list as of 2026-10-21",
   "sentences": [
    {
-    "text": "Corvale East holds 124 units at 6.8 units per day, providing 18 days on hand.",
+    "text": "FDA's records show levetiracetam is not on the drug shortage list as of 2026-10-21.",
+    "cites": [
+     "D4"
+    ]
+   },
+   {
+    "text": "Corvale East holds 124 eachs of levetiracetam 100 mg/mL, 5 mL at 6.8 a day for 18.2 days on hand.",
     "cites": [
      "D1"
     ]
    },
    {
-    "text": "Corvale General holds 178 units at 7.8 units per day, providing 23 days on hand.",
+    "text": "Corvale General holds 177 eachs at 7.8 a day for 22.7 days on hand.",
     "cites": [
      "D2"
     ]
    },
    {
-    "text": "Corvale Lakeside holds 55 units at 2.1 units per day, providing 27 days on hand.",
+    "text": "Corvale Lakeside holds 55 eachs at 2.1 a day for 26.8 days on hand.",
     "cites": [
      "D3"
     ]
    },
    {
-    "text": "The product label identifies Strides Pharma as the manufacturing plant for NDC 39328051130.",
+    "text": "The best option by rule is to buy from Fresenius Kabi USA, LLC, which is not on FDA's shortage list today and whose plant was last inspected VAI on 2023-10-13.",
     "cites": [
-     "E4"
+     "D5"
+    ]
+   },
+   {
+    "text": "Alternate manufacturers include Hospira, Inc. and Mylan Institutional LLC, both not on FDA's shortage list today.",
+    "cites": [
+     "D6",
+     "D7"
     ]
    }
   ],
   "verifier": {
    "checked": 7,
-   "rejected": [
-    {
-     "text": "FDA's shortage list does not include levetiracetam as of 2026-10-21.",
-     "reason": "cites nothing"
-    },
-    {
-     "text": "The recommended action is to buy from Fresenius Kabi USA, LLC, whose plant was last inspected VAI on 2023-10-13.",
-     "reason": "cites nothing"
-    }
-   ],
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -882,45 +919,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -935,80 +993,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:57:02.817Z",
+   "at": "2026-10-22T12:13:55.317Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract 2VY8D4DE scope"
+   "reason": "in contract 8JR16V1Q scope"
   },
   {
-   "at": "2026-10-22T07:57:02.817Z",
+   "at": "2026-10-22T12:13:55.317Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 2VY8D4DE scope"
+   "reason": "in contract 8JR16V1Q scope"
   },
   {
-   "at": "2026-10-22T07:57:06.977Z",
+   "at": "2026-10-22T12:13:59.275Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 2VY8D4DE scope"
+   "reason": "in contract 8JR16V1Q scope"
   },
   {
-   "at": "2026-10-22T07:57:07.922Z",
+   "at": "2026-10-22T12:13:59.809Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 2VY8D4DE scope"
+   "reason": "in contract 8JR16V1Q scope"
   },
   {
-   "at": "2026-10-22T07:57:08.339Z",
+   "at": "2026-10-22T12:14:00.112Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 2VY8D4DE scope"
+   "reason": "in contract 8JR16V1Q scope"
   },
   {
-   "at": "2026-10-22T07:57:11.394Z",
+   "at": "2026-10-22T12:14:01.496Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 2VY8D4DE scope"
+   "reason": "in contract 8JR16V1Q scope"
   },
   {
-   "at": "2026-10-22T07:57:13.283Z",
+   "at": "2026-10-22T12:14:02.328Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 2VY8D4DE scope"
+   "reason": "in contract 8JR16V1Q scope"
   },
   {
-   "at": "2026-10-22T07:57:15.435Z",
+   "at": "2026-10-22T12:14:03.135Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 2VY8D4DE scope"
+   "reason": "in contract 8JR16V1Q scope"
   },
   {
-   "at": "2026-10-22T07:57:17.363Z",
+   "at": "2026-10-22T12:14:04.899Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract 2VY8D4DE scope"
+   "reason": "in contract 8JR16V1Q scope"
   },
   {
-   "at": "2026-10-22T07:57:17.366Z",
+   "at": "2026-10-22T12:14:04.900Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract 2VY8D4DE scope"
+   "reason": "in contract 8JR16V1Q scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-e8428f",
+   "queryId": "Q-f88075",
    "row": 0,
    "label": "Corvale East: LEVETIRACETAM 100MG/ML",
    "fields": {
@@ -1019,42 +1077,52 @@
     "description": "LEVETIRACETAM 100MG/ML",
     "on_hand": "124.00",
     "daily_use": "6.798",
-    "unit": "package",
+    "unit": "each",
+    "pkg_units": "3.00",
+    "unit_basis": "packages of 3, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Levetiracetam",
     "labeler_name": "Patrin Pharma, Inc.",
     "package_ndc": "39328-511-30",
     "spl_set_id": "49117cee-a96c-4593-91a7-8a133e3f0939",
     "dosage_form": "SOLUTION",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "LEVETIRACETAM 100 mg/mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "tray"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-e8428f",
+   "queryId": "Q-f88075",
    "row": 1,
-   "label": "Corvale General: Levetiracetam",
+   "label": "Corvale General: Levetiracetam 100 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-257",
     "ndc11": "39328051130",
     "ndc_as_recorded": "39328051130",
-    "description": "Levetiracetam",
-    "on_hand": "177.99",
+    "description": "Levetiracetam 100 mg/mL",
+    "on_hand": "177.00",
     "daily_use": "7.786",
     "unit": "each",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Levetiracetam",
     "labeler_name": "Patrin Pharma, Inc.",
     "package_ndc": "39328-511-30",
     "spl_set_id": "49117cee-a96c-4593-91a7-8a133e3f0939",
     "dosage_form": "SOLUTION",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "LEVETIRACETAM 100 mg/mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "tray"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-e8428f",
+   "queryId": "Q-f88075",
    "row": 2,
    "label": "Corvale Lakeside: Levetiracetam 100 mg/mL",
    "fields": {
@@ -1066,13 +1134,18 @@
     "on_hand": "55.00",
     "daily_use": "2.053",
     "unit": "each",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Levetiracetam",
     "labeler_name": "Patrin Pharma, Inc.",
     "package_ndc": "39328-511-30",
     "spl_set_id": "49117cee-a96c-4593-91a7-8a133e3f0939",
     "dosage_form": "SOLUTION",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "LEVETIRACETAM 100 mg/mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "tray"
    }
   },
   "E4": {
@@ -1095,197 +1168,259 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 124 units of levetiracetam at 6.8 a day: 18 days on hand",
+   "label": "Corvale East holds 124 eachs of levetiracetam 100 mg/mL, 5 mL at 6.8 a day: 18.2 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "100 mg/mL solution, 5 mL each",
     "on_hand": 124,
     "daily_use": 6.8,
-    "days_on_hand": 18
+    "days_on_hand": 18.2
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 178 units of levetiracetam at 7.8 a day: 23 days on hand",
+   "label": "Corvale General holds 177 eachs of levetiracetam 100 mg/mL, 5 mL at 7.8 a day: 22.7 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 178,
+    "presentation": "100 mg/mL solution, 5 mL each",
+    "on_hand": 177,
     "daily_use": 7.8,
-    "days_on_hand": 23
+    "days_on_hand": 22.7
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 55 units of levetiracetam at 2.1 a day: 27 days on hand",
+   "label": "Corvale Lakeside holds 55 eachs of levetiracetam 100 mg/mL, 5 mL at 2.1 a day: 26.8 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
+    "presentation": "100 mg/mL solution, 5 mL each",
     "on_hand": 55,
     "daily_use": 2.1,
-    "days_on_hand": 27
+    "days_on_hand": 26.8
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "levetiracetam is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from Fresenius Kabi USA, LLC. Not on FDA's shortage list today. Plants: Fresenius Kabi USA, LLC (last inspection VAI 2023-10-13).",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from Hospira, Inc.. Not on FDA's shortage list today. Plants: HOSPIRA INC.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from Mylan Institutional LLC. Not on FDA's shortage list today. Plants: MYLAN LABS LTD.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-e8428f": {
-   "id": "Q-e8428f",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%levetiracetam%' OR lower(s.description) LIKE '%levetiracetam%' ORDER BY s.hospital, s.item_key",
-   "ms": 4154,
+  "Q-f88075": {
+   "id": "Q-f88075",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*levetiracetam(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*levetiracetam(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3956,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:57:06.972Z",
+   "ranAt": "2026-10-22T12:13:59.273Z",
    "rows": 3
   },
   "Q-27ef4a": {
    "id": "Q-27ef4a",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('49117cee-a96c-4593-91a7-8a133e3f0939') ORDER BY ps.set_id, ps.establishment",
-   "ms": 942,
+   "ms": 532,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:57:07.919Z",
+   "ranAt": "2026-10-22T12:13:59.807Z",
    "rows": 1
   },
-  "Q-c13692": {
-   "id": "Q-c13692",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%levetiracetam%' ORDER BY status, company_name, package_ndc",
-   "ms": 216,
+  "Q-4f5d0f": {
+   "id": "Q-4f5d0f",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*levetiracetam(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 143,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:57:08.139Z",
+   "ranAt": "2026-10-22T12:13:59.952Z",
    "rows": 0
   },
-  "Q-37261d": {
-   "id": "Q-37261d",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%levetiracetam%' ORDER BY first_posting",
-   "ms": 194,
+  "Q-3f1a22": {
+   "id": "Q-3f1a22",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*levetiracetam(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 157,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:57:08.335Z",
+   "ranAt": "2026-10-22T12:14:00.110Z",
    "rows": 0
   },
-  "Q-9ca984": {
-   "id": "Q-9ca984",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%levetiracetam%' AND lower(p.dosage_form) LIKE '%solution%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 3047,
+  "Q-5d917d": {
+   "id": "Q-5d917d",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*levetiracetam(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%solution%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1382,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:57:11.387Z",
+   "ranAt": "2026-10-22T12:14:01.494Z",
    "rows": 74
   },
   "Q-19a22b": {
    "id": "Q-19a22b",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3001833549', '3011033544') ORDER BY fei, end_date",
-   "ms": 750,
+   "ms": 307,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:57:12.145Z",
+   "ranAt": "2026-10-22T12:14:01.803Z",
    "rows": 18
   },
   "Q-2b166f": {
    "id": "Q-2b166f",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3001833549', '3011033544') ORDER BY fei, action_date",
-   "ms": 378,
+   "ms": 179,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:57:12.526Z",
+   "ranAt": "2026-10-22T12:14:01.984Z",
    "rows": 1
   },
   "Q-ff597d": {
    "id": "Q-ff597d",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('') OR (fei_match <> 'name_and_city' AND firm_key IN ('strides')) ORDER BY date_published",
-   "ms": 338,
+   "ms": 153,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:57:12.867Z",
+   "ranAt": "2026-10-22T12:14:02.137Z",
    "rows": 0
   },
-  "Q-8a1aff": {
-   "id": "Q-8a1aff",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('strides', 'patrin') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%levetiracetam%' ORDER BY initiation_date",
-   "ms": 409,
+  "Q-ac74a1": {
+   "id": "Q-ac74a1",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('strides', 'patrin') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*levetiracetam(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 188,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:57:13.279Z",
+   "ranAt": "2026-10-22T12:14:02.327Z",
    "rows": 0
   },
   "Q-7e7d8f": {
    "id": "Q-7e7d8f",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('39328051130')",
-   "ms": 2148,
+   "ms": 806,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:57:15.432Z",
+   "ranAt": "2026-10-22T12:14:03.134Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-da4133": {
-   "id": "Q-da4133",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%levetiracetam%'",
-   "ms": 1925,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:57:17.360Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-d7a9f6": {
+   "id": "Q-d7a9f6",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*levetiracetam(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1763,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:14:04.898Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 19872,
+  "zetarisMs": 19774,
   "modelCalls": 1,
-  "tokensIn": 616,
-  "tokensOut": 333,
+  "tokensIn": 1029,
+  "tokensOut": 370,
   "mode": "live"
  },
  "slug": "levetiracetam",
@@ -1300,7 +1435,7 @@
     "id": "hospital-item:hospital-item:CG-257",
     "type": "HospitalItem",
     "key": "hospital-item:CG-257",
-    "label": "Corvale General: Levetiracetam",
+    "label": "Corvale General: Levetiracetam 100 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-257"
     },
@@ -1380,11 +1515,11 @@
     "from": "hospital-item:hospital-item:CG-257",
     "to": "package:ndc-package:39328-511-30",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:57:06.976Z",
+    "validFrom": "2026-10-22T12:13:59.274Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:57:06.976Z"
+     "at": "2026-10-22T12:13:59.274Z"
     }
    },
    {
@@ -1392,11 +1527,11 @@
     "from": "hospital-item:hospital-item:EA-E-000153",
     "to": "package:ndc-package:39328-511-30",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:57:06.976Z",
+    "validFrom": "2026-10-22T12:13:59.274Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:57:06.976Z"
+     "at": "2026-10-22T12:13:59.274Z"
     }
    },
    {
@@ -1404,11 +1539,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0068",
     "to": "package:ndc-package:39328-511-30",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:57:06.976Z",
+    "validFrom": "2026-10-22T12:13:59.274Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:57:06.976Z"
+     "at": "2026-10-22T12:13:59.274Z"
     }
    },
    {
@@ -1416,11 +1551,11 @@
     "from": "package:ndc-package:39328-511-30",
     "to": "product:ndc-product:39328-511",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:57:06.976Z",
+    "validFrom": "2026-10-22T12:13:59.274Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:57:06.976Z"
+     "at": "2026-10-22T12:13:59.274Z"
     }
    },
    {
@@ -1428,11 +1563,11 @@
     "from": "product:ndc-product:39328-511",
     "to": "drug:generic:levetiracetam",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:57:06.976Z",
+    "validFrom": "2026-10-22T12:13:59.274Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:57:06.976Z"
+     "at": "2026-10-22T12:13:59.274Z"
     }
    },
    {
@@ -1440,11 +1575,11 @@
     "from": "product:ndc-product:39328-511",
     "to": "labeler:ndc-labeler:39328",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:57:06.976Z",
+    "validFrom": "2026-10-22T12:13:59.274Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:57:06.976Z"
+     "at": "2026-10-22T12:13:59.274Z"
     }
    }
   ],

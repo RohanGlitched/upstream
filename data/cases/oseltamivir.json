@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-891da6",
+ "id": "case-2026-10-22-da4c10",
  "question": "Why is oseltamivir phosphate short, and what do we do?",
- "askedAt": "2026-10-22T08:09:08.762Z",
+ "askedAt": "2026-10-22T12:27:38.552Z",
  "asOf": "2026-10-21",
  "molecule": "oseltamivir phosphate",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5HAFVZ3DCWYKVEXADEAZC7N",
+  "contractId": "01M5HS9B5AC79J7N0QG17M17ES",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-a0cd4d"
+    "Q-236727"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3308,
+   "ms": 3301,
    "rows": 5,
-   "finding": "5 stock lines across 3 hospitals.",
+   "finding": "5 stock lines across 3 hospitals, 2 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-1f506d"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1109,
+   "ms": 464,
    "rows": 3,
    "finding": "3 plant links on 2 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-40abe4",
-    "Q-fd9b3c"
+    "Q-7c098c",
+    "Q-87be20"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 626,
+   "ms": 281,
    "rows": 1,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-998da2"
+    "Q-33edf0"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2857,
+   "ms": 1247,
    "rows": 118,
    "finding": "29 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-692491",
     "Q-210c61",
     "Q-44443e",
-    "Q-961042"
+    "Q-06e278"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1488,
+   "ms": 652,
    "rows": 6,
    "finding": "6 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1614,
+   "ms": 650,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-409201"
+    "Q-1ca11b"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2222,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1609,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -153,8 +164,11 @@
    "onHand": 331,
    "dailyUse": 15.705,
    "days": 21.1,
-   "unit": "package",
+   "unit": "capsule",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "oseltamivir phosphate|45mg|capsule||capsule",
+   "presentationLabel": "45 mg capsule",
    "evidence": "E1"
   },
   {
@@ -166,34 +180,43 @@
    "onHand": 233,
    "dailyUse": 13.654,
    "days": 17.1,
-   "unit": "package",
+   "unit": "capsule",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "oseltamivir phosphate|75mg|capsule||capsule",
+   "presentationLabel": "75 mg capsule",
    "evidence": "E2"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-296",
    "ndc11": "64380079801",
-   "description": "Oseltamivir Phosphate",
+   "description": "Oseltamivir Phosphate 45 mg/1",
    "labeler": "Strides Pharma Science Limited",
-   "onHand": 341.3,
+   "onHand": 341,
    "dailyUse": 15.993,
    "days": 21.3,
    "unit": "capsule",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "oseltamivir phosphate|45mg|capsule||capsule",
+   "presentationLabel": "45 mg capsule",
    "evidence": "E3"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-297",
    "ndc11": "68788406601",
-   "description": "oseltamivir phosphate",
+   "description": "oseltamivir phosphate 75 mg/1",
    "labeler": "Preferred Pharmaceuticals Inc.",
-   "onHand": 297.99,
+   "onHand": 297,
    "dailyUse": 16.34,
    "days": 18.2,
    "unit": "capsule",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "oseltamivir phosphate|75mg|capsule||capsule",
+   "presentationLabel": "75 mg capsule",
    "evidence": "E4"
   },
   {
@@ -207,7 +230,94 @@
    "days": 14.6,
    "unit": "capsule",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "oseltamivir phosphate|75mg|capsule||capsule",
+   "presentationLabel": "75 mg capsule",
    "evidence": "E5"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "oseltamivir phosphate|75mg|capsule||capsule",
+   "label": "75 mg capsule",
+   "short": "75 mg",
+   "unit": "capsule",
+   "onHand": 577,
+   "dailyUse": 33.217,
+   "days": 17.4,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 233,
+     "dailyUse": 13.654,
+     "days": 17.1,
+     "lines": [
+      "EA-E-000255"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 297,
+     "dailyUse": 16.34,
+     "days": 18.2,
+     "lines": [
+      "CG-297"
+     ],
+     "evidence": [
+      "E4"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 47,
+     "dailyUse": 3.223,
+     "days": 14.6,
+     "lines": [
+      "LS-LS-0114"
+     ],
+     "evidence": [
+      "E5"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "oseltamivir phosphate|45mg|capsule||capsule",
+   "label": "45 mg capsule",
+   "short": "45 mg",
+   "unit": "capsule",
+   "onHand": 672,
+   "dailyUse": 31.698,
+   "days": 21.2,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 331,
+     "dailyUse": 15.705,
+     "days": 21.1,
+     "lines": [
+      "EA-E-000223"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 341,
+     "dailyUse": 15.993,
+     "days": 21.3,
+     "lines": [
+      "CG-296"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -606,15 +716,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from A-S Medication Solutions",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Alembic Pharmaceuticals Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -652,15 +753,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Amneal Pharmaceuticals NY LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Asclemed USA, Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -760,24 +852,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Novadoz Pharmaceuticals LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Proficient Rx LP",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from REMEDYREPACK INC.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -893,56 +967,54 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "Oseltamivir phosphate is not on FDA's shortage list today; three Corvale sites hold 15 to 20 days on hand and the preferred label names a plant not yet placed",
+  "headline": "Oseltamivir phosphate is not on FDA's shortage list as of 2026-10-21; three hospital sites hold 14.6 to 21.3 days on hand",
   "sentences": [
    {
-    "text": "Corvale East holds 564 units at 29.4 per day for 19 days on hand.",
+    "text": "FDA's drug shortage list does not include oseltamivir phosphate as of 2026-10-21.",
+    "cites": [
+     "D6"
+    ]
+   },
+   {
+    "text": "Corvale East holds 233 capsules of the 75 mg presentation at 13.7 per day for 17.1 days on hand.",
     "cites": [
      "D1"
     ]
    },
    {
-    "text": "Corvale General holds 639 units at 32.3 per day for 20 days on hand.",
+    "text": "Corvale General holds 297 capsules of the 75 mg presentation at 16.3 per day for 18.2 days on hand.",
     "cites": [
      "D2"
     ]
    },
    {
-    "text": "Corvale Lakeside holds 47 units at 3.2 per day for 15 days on hand.",
+    "text": "Corvale Lakeside holds 47 capsules of the 75 mg presentation at 3.2 per day for 14.6 days on hand.",
     "cites": [
      "D3"
     ]
    },
    {
-    "text": "The label for NDC 64380079801 names Strides Pharma Science Limited Bengaluru - 562106 as the manufacturing plant, but that plant has not been placed in our records.",
+    "text": "Corvale East holds 331 capsules of the 45 mg presentation at 15.7 per day for 21.1 days on hand.",
     "cites": [
-     "E6"
+     "D4"
     ]
    },
    {
-    "text": "An alternative label for NDC 68788406601 names Preferred Pharmaceuticals Inc. (FEI 3004582966) as a registered relabeling plant with a VAI inspection on 2025-05-27.",
+    "text": "Corvale General holds 341 capsules of the 45 mg presentation at 16 per day for 21.3 days on hand.",
     "cites": [
-     "E12"
+     "D5"
     ]
    },
    {
-    "text": "Check whether the Strides plant can be placed and confirm allocation from A-S Medication Solutions to cover the 15 to 20 day range across sites.",
+    "text": "The rule‑based best option is to buy from Alembic Pharmaceuticals Inc., which is not on FDA's shortage list today and whose label names no plant we could place.",
     "cites": [
-     "E6",
-     "D1",
-     "D2",
-     "D3"
+     "D7"
     ]
    }
   ],
   "verifier": {
    "checked": 8,
-   "rejected": [
-    {
-     "text": "FDA's shortage list does not include oseltamivir phosphate as of 2026-10-21.",
-     "reason": "cites nothing"
-    }
-   ],
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -950,45 +1022,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -1003,80 +1096,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T08:08:55.524Z",
+   "at": "2026-10-22T12:27:30.346Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract ADEAZC7N scope"
+   "reason": "in contract G17M17ES scope"
   },
   {
-   "at": "2026-10-22T08:08:55.524Z",
+   "at": "2026-10-22T12:27:30.346Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract ADEAZC7N scope"
+   "reason": "in contract G17M17ES scope"
   },
   {
-   "at": "2026-10-22T08:08:58.836Z",
+   "at": "2026-10-22T12:27:33.648Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract ADEAZC7N scope"
+   "reason": "in contract G17M17ES scope"
   },
   {
-   "at": "2026-10-22T08:08:59.944Z",
+   "at": "2026-10-22T12:27:34.113Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract ADEAZC7N scope"
+   "reason": "in contract G17M17ES scope"
   },
   {
-   "at": "2026-10-22T08:09:00.571Z",
+   "at": "2026-10-22T12:27:34.393Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract ADEAZC7N scope"
+   "reason": "in contract G17M17ES scope"
   },
   {
-   "at": "2026-10-22T08:09:03.431Z",
+   "at": "2026-10-22T12:27:35.640Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract ADEAZC7N scope"
+   "reason": "in contract G17M17ES scope"
   },
   {
-   "at": "2026-10-22T08:09:04.923Z",
+   "at": "2026-10-22T12:27:36.292Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract ADEAZC7N scope"
+   "reason": "in contract G17M17ES scope"
   },
   {
-   "at": "2026-10-22T08:09:06.537Z",
+   "at": "2026-10-22T12:27:36.942Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract ADEAZC7N scope"
+   "reason": "in contract G17M17ES scope"
   },
   {
-   "at": "2026-10-22T08:09:08.759Z",
+   "at": "2026-10-22T12:27:38.551Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract ADEAZC7N scope"
+   "reason": "in contract G17M17ES scope"
   },
   {
-   "at": "2026-10-22T08:09:08.762Z",
+   "at": "2026-10-22T12:27:38.553Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract ADEAZC7N scope"
+   "reason": "in contract G17M17ES scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-a0cd4d",
+   "queryId": "Q-236727",
    "row": 0,
    "label": "Corvale East: OSELTAMIVIR PHOSPHATE 45MG CAP",
    "fields": {
@@ -1087,19 +1180,24 @@
     "description": "OSELTAMIVIR PHOSPHATE 45MG CAP",
     "on_hand": "331.00",
     "daily_use": "15.705",
-    "unit": "package",
+    "unit": "capsule",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Oseltamivir Phosphate",
     "labeler_name": "Strides Pharma Science Limited",
     "package_ndc": "64380-798-01",
     "spl_set_id": "f26154bd-374c-44a8-983a-b2724a591653",
     "dosage_form": "CAPSULE",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "OSELTAMIVIR PHOSPHATE 45 mg/1",
+    "unit_content": null,
+    "pkg_unit": "capsule"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-a0cd4d",
+   "queryId": "Q-236727",
    "row": 1,
    "label": "Corvale East: OSELTAMIVIR PHOSPHATE 75MG CAP",
    "fields": {
@@ -1110,65 +1208,80 @@
     "description": "OSELTAMIVIR PHOSPHATE 75MG CAP",
     "on_hand": "233.00",
     "daily_use": "13.654",
-    "unit": "package",
+    "unit": "capsule",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "oseltamivir phosphate",
     "labeler_name": "Preferred Pharmaceuticals Inc.",
     "package_ndc": "68788-4066-1",
     "spl_set_id": "9dac3ba2-b667-4081-9395-8db45d38ceac",
     "dosage_form": "CAPSULE",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "OSELTAMIVIR PHOSPHATE 75 mg/1",
+    "unit_content": null,
+    "pkg_unit": "blister"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-a0cd4d",
+   "queryId": "Q-236727",
    "row": 2,
-   "label": "Corvale General: Oseltamivir Phosphate",
+   "label": "Corvale General: Oseltamivir Phosphate 45 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-296",
     "ndc11": "64380079801",
     "ndc_as_recorded": "64380079801",
-    "description": "Oseltamivir Phosphate",
-    "on_hand": "341.30",
+    "description": "Oseltamivir Phosphate 45 mg/1",
+    "on_hand": "341.00",
     "daily_use": "15.993",
     "unit": "capsule",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Oseltamivir Phosphate",
     "labeler_name": "Strides Pharma Science Limited",
     "package_ndc": "64380-798-01",
     "spl_set_id": "f26154bd-374c-44a8-983a-b2724a591653",
     "dosage_form": "CAPSULE",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "OSELTAMIVIR PHOSPHATE 45 mg/1",
+    "unit_content": null,
+    "pkg_unit": "capsule"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-a0cd4d",
+   "queryId": "Q-236727",
    "row": 3,
-   "label": "Corvale General: oseltamivir phosphate",
+   "label": "Corvale General: oseltamivir phosphate 75 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-297",
     "ndc11": "68788406601",
     "ndc_as_recorded": "68788406601",
-    "description": "oseltamivir phosphate",
-    "on_hand": "297.99",
+    "description": "oseltamivir phosphate 75 mg/1",
+    "on_hand": "297.00",
     "daily_use": "16.340",
     "unit": "capsule",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "oseltamivir phosphate",
     "labeler_name": "Preferred Pharmaceuticals Inc.",
     "package_ndc": "68788-4066-1",
     "spl_set_id": "9dac3ba2-b667-4081-9395-8db45d38ceac",
     "dosage_form": "CAPSULE",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "OSELTAMIVIR PHOSPHATE 75 mg/1",
+    "unit_content": null,
+    "pkg_unit": "blister"
    }
   },
   "E5": {
    "id": "E5",
-   "queryId": "Q-a0cd4d",
+   "queryId": "Q-236727",
    "row": 4,
    "label": "Corvale Lakeside: oseltamivir phosphate 75 mg/1",
    "fields": {
@@ -1180,13 +1293,18 @@
     "on_hand": "47.00",
     "daily_use": "3.223",
     "unit": "capsule",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "oseltamivir phosphate",
     "labeler_name": "Preferred Pharmaceuticals Inc.",
     "package_ndc": "68788-4066-1",
     "spl_set_id": "9dac3ba2-b667-4081-9395-8db45d38ceac",
     "dosage_form": "CAPSULE",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "OSELTAMIVIR PHOSPHATE 75 mg/1",
+    "unit_content": null,
+    "pkg_unit": "blister"
    }
   },
   "E6": {
@@ -1305,197 +1423,285 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 564 units of oseltamivir phosphate at 29.4 a day: 19 days on hand",
+   "label": "Corvale East holds 233 capsules of oseltamivir phosphate 75 mg at 13.7 a day: 17.1 days on hand",
    "fields": {
     "hospital": "Corvale East",
-    "on_hand": 564,
-    "daily_use": 29.4,
-    "days_on_hand": 19
+    "presentation": "75 mg capsule",
+    "on_hand": 233,
+    "daily_use": 13.7,
+    "days_on_hand": 17.1
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 639 units of oseltamivir phosphate at 32.3 a day: 20 days on hand",
+   "label": "Corvale General holds 297 capsules of oseltamivir phosphate 75 mg at 16.3 a day: 18.2 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 639,
-    "daily_use": 32.3,
-    "days_on_hand": 20
+    "presentation": "75 mg capsule",
+    "on_hand": 297,
+    "daily_use": 16.3,
+    "days_on_hand": 18.2
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 47 units of oseltamivir phosphate at 3.2 a day: 15 days on hand",
+   "label": "Corvale Lakeside holds 47 capsules of oseltamivir phosphate 75 mg at 3.2 a day: 14.6 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
+    "presentation": "75 mg capsule",
     "on_hand": 47,
     "daily_use": 3.2,
-    "days_on_hand": 15
+    "days_on_hand": 14.6
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale East holds 331 capsules of oseltamivir phosphate 45 mg at 15.7 a day: 21.1 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "45 mg capsule",
+    "on_hand": 331,
+    "daily_use": 15.7,
+    "days_on_hand": 21.1
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 341 capsules of oseltamivir phosphate 45 mg at 16 a day: 21.3 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "45 mg capsule",
+    "on_hand": 341,
+    "daily_use": 16,
+    "days_on_hand": 21.3
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "oseltamivir phosphate is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Alembic Pharmaceuticals Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D8": {
+   "id": "D8",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Alembic Pharmaceuticals Limited. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D9": {
+   "id": "D9",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Alvogen Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-a0cd4d": {
-   "id": "Q-a0cd4d",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%oseltamivir%' OR lower(s.description) LIKE '%oseltamivir%' ORDER BY s.hospital, s.item_key",
-   "ms": 3303,
+  "Q-236727": {
+   "id": "Q-236727",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*oseltamivir(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*oseltamivir(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3300,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T08:08:58.827Z",
+   "ranAt": "2026-10-22T12:27:33.646Z",
    "rows": 5
   },
   "Q-1f506d": {
    "id": "Q-1f506d",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('f26154bd-374c-44a8-983a-b2724a591653', '9dac3ba2-b667-4081-9395-8db45d38ceac') ORDER BY ps.set_id, ps.establishment",
-   "ms": 1104,
+   "ms": 463,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:08:59.940Z",
+   "ranAt": "2026-10-22T12:27:34.111Z",
    "rows": 3
   },
-  "Q-40abe4": {
-   "id": "Q-40abe4",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%oseltamivir%' ORDER BY status, company_name, package_ndc",
-   "ms": 353,
+  "Q-7c098c": {
+   "id": "Q-7c098c",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*oseltamivir(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 144,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T08:09:00.297Z",
+   "ranAt": "2026-10-22T12:27:34.256Z",
    "rows": 0
   },
-  "Q-fd9b3c": {
-   "id": "Q-fd9b3c",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%oseltamivir%' ORDER BY first_posting",
-   "ms": 266,
+  "Q-87be20": {
+   "id": "Q-87be20",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*oseltamivir(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 134,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T08:09:00.567Z",
+   "ranAt": "2026-10-22T12:27:34.391Z",
    "rows": 1
   },
-  "Q-998da2": {
-   "id": "Q-998da2",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%oseltamivir%' AND lower(p.dosage_form) LIKE '%capsule%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2851,
+  "Q-33edf0": {
+   "id": "Q-33edf0",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*oseltamivir(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%capsule%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1246,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:09:03.422Z",
+   "ranAt": "2026-10-22T12:27:35.639Z",
    "rows": 118
   },
   "Q-692491": {
    "id": "Q-692491",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3004582966') ORDER BY fei, end_date",
-   "ms": 625,
+   "ms": 261,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T08:09:04.057Z",
+   "ranAt": "2026-10-22T12:27:35.902Z",
    "rows": 6
   },
   "Q-210c61": {
    "id": "Q-210c61",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3004582966') ORDER BY fei, action_date",
-   "ms": 274,
+   "ms": 128,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T08:09:04.335Z",
+   "ranAt": "2026-10-22T12:27:36.030Z",
    "rows": 0
   },
   "Q-44443e": {
    "id": "Q-44443e",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3004582966') OR (fei_match <> 'name_and_city' AND firm_key IN ('preferred', 'strides science bengaluru 562106')) ORDER BY date_published",
-   "ms": 251,
+   "ms": 114,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T08:09:04.589Z",
+   "ranAt": "2026-10-22T12:27:36.145Z",
    "rows": 0
   },
-  "Q-961042": {
-   "id": "Q-961042",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('preferred', 'strides science bengaluru 562106', 'strides science') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%oseltamivir%' ORDER BY initiation_date",
-   "ms": 323,
+  "Q-06e278": {
+   "id": "Q-06e278",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('preferred', 'strides science bengaluru 562106', 'strides science') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*oseltamivir(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 145,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T08:09:04.916Z",
+   "ranAt": "2026-10-22T12:27:36.291Z",
    "rows": 0
   },
   "Q-f8014e": {
    "id": "Q-f8014e",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('64380079801', '68788406601')",
-   "ms": 1610,
+   "ms": 648,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:09:06.533Z",
+   "ranAt": "2026-10-22T12:27:36.941Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-409201": {
-   "id": "Q-409201",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%oseltamivir%'",
-   "ms": 2219,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:09:08.756Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-1ca11b": {
+   "id": "Q-1ca11b",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*oseltamivir(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1607,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:27:38.550Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 18550,
+  "zetarisMs": 18398,
   "modelCalls": 1,
-  "tokensIn": 1239,
-  "tokensOut": 463,
+  "tokensIn": 1748,
+  "tokensOut": 449,
   "mode": "live"
  },
  "slug": "oseltamivir",
@@ -1512,7 +1718,7 @@
     "id": "hospital-item:hospital-item:CG-296",
     "type": "HospitalItem",
     "key": "hospital-item:CG-296",
-    "label": "Corvale General: Oseltamivir Phosphate",
+    "label": "Corvale General: Oseltamivir Phosphate 45 mg/1",
     "attrs": {
      "key": "hospital-item:CG-296"
     },
@@ -1523,7 +1729,7 @@
     "id": "hospital-item:hospital-item:CG-297",
     "type": "HospitalItem",
     "key": "hospital-item:CG-297",
-    "label": "Corvale General: oseltamivir phosphate",
+    "label": "Corvale General: oseltamivir phosphate 75 mg/1",
     "attrs": {
      "key": "hospital-item:CG-297"
     },
@@ -1662,7 +1868,7 @@
     },
     "facts": [
      {
-      "id": "fact_1e4732834c5c09c2",
+      "id": "fact_882b81b65f5ba6ba",
       "about": "inspection:fda-inspection:1039020",
       "predicate": "classification",
       "value": "VAI",
@@ -1670,9 +1876,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:09:04.921Z"
+       "at": "2026-10-22T12:27:36.292Z"
       },
-      "assertedAt": "2026-10-22T08:09:04.921Z"
+      "assertedAt": "2026-10-22T12:27:36.292Z"
      }
     ],
     "depth": 4
@@ -1688,7 +1894,7 @@
     },
     "facts": [
      {
-      "id": "fact_99322bf5421d8f47",
+      "id": "fact_1039cb1095a1bac5",
       "about": "inspection:fda-inspection:1115035",
       "predicate": "classification",
       "value": "VAI",
@@ -1696,9 +1902,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:09:04.921Z"
+       "at": "2026-10-22T12:27:36.292Z"
       },
-      "assertedAt": "2026-10-22T08:09:04.921Z"
+      "assertedAt": "2026-10-22T12:27:36.292Z"
      }
     ],
     "depth": 4
@@ -1714,7 +1920,7 @@
     },
     "facts": [
      {
-      "id": "fact_7f172ed0a52930bd",
+      "id": "fact_18a1d0d601ee5aaf",
       "about": "inspection:fda-inspection:1270956",
       "predicate": "classification",
       "value": "VAI",
@@ -1722,9 +1928,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:09:04.922Z"
+       "at": "2026-10-22T12:27:36.292Z"
       },
-      "assertedAt": "2026-10-22T08:09:04.922Z"
+      "assertedAt": "2026-10-22T12:27:36.292Z"
      }
     ],
     "depth": 4
@@ -1740,7 +1946,7 @@
     },
     "facts": [
      {
-      "id": "fact_44c8dfae2ccbc8e4",
+      "id": "fact_3f56b33feb3107ea",
       "about": "inspection:fda-inspection:636331",
       "predicate": "classification",
       "value": "VAI",
@@ -1748,9 +1954,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:09:04.920Z"
+       "at": "2026-10-22T12:27:36.292Z"
       },
-      "assertedAt": "2026-10-22T08:09:04.920Z"
+      "assertedAt": "2026-10-22T12:27:36.292Z"
      }
     ],
     "depth": 4
@@ -1766,7 +1972,7 @@
     },
     "facts": [
      {
-      "id": "fact_06a5a063d72d63c1",
+      "id": "fact_8db0264a3ec7b348",
       "about": "inspection:fda-inspection:949048",
       "predicate": "classification",
       "value": "VAI",
@@ -1774,9 +1980,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:09:04.921Z"
+       "at": "2026-10-22T12:27:36.292Z"
       },
-      "assertedAt": "2026-10-22T08:09:04.921Z"
+      "assertedAt": "2026-10-22T12:27:36.292Z"
      }
     ],
     "depth": 4
@@ -1788,11 +1994,11 @@
     "from": "hospital-item:hospital-item:CG-296",
     "to": "package:ndc-package:64380-798-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:08:58.834Z",
+    "validFrom": "2026-10-22T12:27:33.648Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:58.834Z"
+     "at": "2026-10-22T12:27:33.648Z"
     }
    },
    {
@@ -1800,11 +2006,11 @@
     "from": "hospital-item:hospital-item:CG-297",
     "to": "package:ndc-package:68788-4066-1",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:08:58.834Z",
+    "validFrom": "2026-10-22T12:27:33.648Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:58.834Z"
+     "at": "2026-10-22T12:27:33.648Z"
     }
    },
    {
@@ -1812,11 +2018,11 @@
     "from": "hospital-item:hospital-item:EA-E-000223",
     "to": "package:ndc-package:64380-798-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:08:58.833Z",
+    "validFrom": "2026-10-22T12:27:33.647Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:58.833Z"
+     "at": "2026-10-22T12:27:33.647Z"
     }
    },
    {
@@ -1824,11 +2030,11 @@
     "from": "hospital-item:hospital-item:EA-E-000255",
     "to": "package:ndc-package:68788-4066-1",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:08:58.833Z",
+    "validFrom": "2026-10-22T12:27:33.647Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:58.833Z"
+     "at": "2026-10-22T12:27:33.647Z"
     }
    },
    {
@@ -1836,11 +2042,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0114",
     "to": "package:ndc-package:68788-4066-1",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:08:58.834Z",
+    "validFrom": "2026-10-22T12:27:33.648Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:58.834Z"
+     "at": "2026-10-22T12:27:33.648Z"
     }
    },
    {
@@ -1848,11 +2054,11 @@
     "from": "package:ndc-package:64380-798-01",
     "to": "product:ndc-product:64380-798",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:08:58.833Z",
+    "validFrom": "2026-10-22T12:27:33.647Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:58.833Z"
+     "at": "2026-10-22T12:27:33.647Z"
     }
    },
    {
@@ -1860,11 +2066,11 @@
     "from": "package:ndc-package:68788-4066-1",
     "to": "product:ndc-product:68788-4066",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:08:58.833Z",
+    "validFrom": "2026-10-22T12:27:33.647Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:58.833Z"
+     "at": "2026-10-22T12:27:33.647Z"
     }
    },
    {
@@ -1872,11 +2078,11 @@
     "from": "product:ndc-product:64380-798",
     "to": "drug:generic:oseltamivir phosphate",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:08:58.833Z",
+    "validFrom": "2026-10-22T12:27:33.647Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:58.833Z"
+     "at": "2026-10-22T12:27:33.647Z"
     }
    },
    {
@@ -1884,11 +2090,11 @@
     "from": "product:ndc-product:64380-798",
     "to": "labeler:ndc-labeler:64380",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:08:58.833Z",
+    "validFrom": "2026-10-22T12:27:33.647Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:58.833Z"
+     "at": "2026-10-22T12:27:33.647Z"
     }
    },
    {
@@ -1896,11 +2102,11 @@
     "from": "product:ndc-product:68788-4066",
     "to": "drug:generic:oseltamivir phosphate",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:08:58.834Z",
+    "validFrom": "2026-10-22T12:27:33.647Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:58.834Z"
+     "at": "2026-10-22T12:27:33.647Z"
     }
    },
    {
@@ -1908,11 +2114,11 @@
     "from": "product:ndc-product:68788-4066",
     "to": "labeler:ndc-labeler:68788",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:08:58.834Z",
+    "validFrom": "2026-10-22T12:27:33.647Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:58.834Z"
+     "at": "2026-10-22T12:27:33.647Z"
     }
    },
    {
@@ -1920,11 +2126,11 @@
     "from": "product:ndc-product:68788-4066",
     "to": "site:fei:3004582966",
     "type": "made-at",
-    "validFrom": "2026-10-22T08:09:04.920Z",
+    "validFrom": "2026-10-22T12:27:36.292Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:09:04.920Z"
+     "at": "2026-10-22T12:27:36.292Z"
     }
    },
    {
@@ -1932,11 +2138,11 @@
     "from": "inspection:fda-inspection:636331",
     "to": "site:fei:3004582966",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:09:04.920Z",
+    "validFrom": "2026-10-22T12:27:36.292Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:09:04.920Z"
+     "at": "2026-10-22T12:27:36.292Z"
     }
    },
    {
@@ -1944,11 +2150,11 @@
     "from": "inspection:fda-inspection:949048",
     "to": "site:fei:3004582966",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:09:04.920Z",
+    "validFrom": "2026-10-22T12:27:36.292Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:09:04.920Z"
+     "at": "2026-10-22T12:27:36.292Z"
     }
    },
    {
@@ -1956,11 +2162,11 @@
     "from": "inspection:fda-inspection:1039020",
     "to": "site:fei:3004582966",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:09:04.921Z",
+    "validFrom": "2026-10-22T12:27:36.292Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:09:04.921Z"
+     "at": "2026-10-22T12:27:36.292Z"
     }
    },
    {
@@ -1968,11 +2174,11 @@
     "from": "inspection:fda-inspection:1115035",
     "to": "site:fei:3004582966",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:09:04.921Z",
+    "validFrom": "2026-10-22T12:27:36.292Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:09:04.921Z"
+     "at": "2026-10-22T12:27:36.292Z"
     }
    },
    {
@@ -1980,11 +2186,11 @@
     "from": "inspection:fda-inspection:1270956",
     "to": "site:fei:3004582966",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:09:04.921Z",
+    "validFrom": "2026-10-22T12:27:36.292Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:09:04.921Z"
+     "at": "2026-10-22T12:27:36.292Z"
     }
    }
   ],

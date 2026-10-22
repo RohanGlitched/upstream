@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-7df744",
+ "id": "case-2026-10-22-60d82a",
  "question": "Why is aspirin and extended - release dipyridamole short, and what do we do?",
- "askedAt": "2026-10-22T07:26:07.513Z",
+ "askedAt": "2026-10-22T11:30:48.315Z",
  "asOf": "2026-10-21",
  "molecule": "aspirin and extended - release dipyridamole",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H819WDJK3FB6JWX18EVFJW",
+  "contractId": "01M5HP17WA1N51KA4NCJCES77V",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-fb6567"
+    "Q-8f6ab8"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2156,
+   "ms": 3653,
    "rows": 4,
-   "finding": "4 stock lines across 3 hospitals.",
+   "finding": "4 stock lines across 3 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-08f536"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 544,
+   "ms": 643,
    "rows": 2,
    "finding": "2 plant links on 2 labels; 0 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-f660a9",
-    "Q-9f9a81"
+    "Q-e5c808",
+    "Q-db4a56"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 223,
+   "ms": 262,
    "rows": 3,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,14 +68,16 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-b066f4"
+    "Q-d39891"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1108,
-   "rows": 24,
-   "finding": "15 labelers make it in this form.",
+   "ms": 1431,
+   "rows": 8,
+   "finding": "8 labelers make it in this form.",
    "status": "ok"
   },
   {
@@ -81,15 +88,15 @@
     "Q-808a5c",
     "Q-de2bfd",
     "Q-8de5da",
-    "Q-8f32a3"
+    "Q-fb70d6"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 554,
+   "ms": 809,
    "rows": 0,
    "finding": "0 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "empty"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 781,
+   "ms": 759,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-219774"
+    "Q-f0d893"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1044,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1642,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 0,
+   "ms": 1,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -153,34 +164,43 @@
    "onHand": 472,
    "dailyUse": 17.268,
    "days": 27.3,
-   "unit": "package",
+   "unit": "capsule",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 20, converted to units",
+   "presentation": "aspirin and extended - release dipyridamole|25mg+200mg|capsule||capsule",
+   "presentationLabel": "25 mg + 200 mg capsule",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-148",
    "ndc11": "00904705699",
-   "description": "Aspirin and Extended - Release Dipyridamole",
+   "description": "Aspirin and Extended - Release Dipyridamole 25 mg/1",
    "labeler": "Major Pharmaceuticals",
-   "onHand": 356.79,
+   "onHand": 356,
    "dailyUse": 19.936,
    "days": 17.9,
    "unit": "capsule",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "aspirin and extended - release dipyridamole|25mg+200mg|capsule||capsule",
+   "presentationLabel": "25 mg + 200 mg capsule",
    "evidence": "E2"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-149",
    "ndc11": "49884000702",
-   "description": "Aspirin and Extended - Release Dipyridamole",
+   "description": "Aspirin and Extended - Release Dipyridamole 25 mg/1",
    "labeler": "Par Health USA, LLC",
-   "onHand": 364.95,
+   "onHand": 364,
    "dailyUse": 18.713,
    "days": 19.5,
    "unit": "capsule",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "aspirin and extended - release dipyridamole|25mg+200mg|capsule||capsule",
+   "presentationLabel": "25 mg + 200 mg capsule",
    "evidence": "E3"
   },
   {
@@ -194,7 +214,61 @@
    "days": 13.4,
    "unit": "capsule",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "aspirin and extended - release dipyridamole|25mg+200mg|capsule||capsule",
+   "presentationLabel": "25 mg + 200 mg capsule",
    "evidence": "E4"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "aspirin and extended - release dipyridamole|25mg+200mg|capsule||capsule",
+   "label": "25 mg + 200 mg capsule",
+   "short": "25 mg + 200 mg",
+   "unit": "capsule",
+   "onHand": 1241,
+   "dailyUse": 59.567,
+   "days": 20.8,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 472,
+     "dailyUse": 17.268,
+     "days": 27.3,
+     "lines": [
+      "EA-E-000128"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 720,
+     "dailyUse": 38.649,
+     "days": 18.6,
+     "lines": [
+      "CG-148",
+      "CG-149"
+     ],
+     "evidence": [
+      "E2",
+      "E3"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 49,
+     "dailyUse": 3.65,
+     "days": 13.4,
+     "lines": [
+      "LS-LS-0075"
+     ],
+     "evidence": [
+      "E4"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -279,14 +353,6 @@
    "inOurStock": false
   },
   {
-   "labeler": "Amneal Pharmaceuticals of New York, LLC",
-   "ndc11": "69238199301",
-   "dosageForm": "CAPSULE",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
    "labeler": "AvKARE",
    "ndc11": "42291011660",
    "dosageForm": "CAPSULE",
@@ -295,25 +361,9 @@
    "inOurStock": false
   },
   {
-   "labeler": "Breckenridge Pharmaceutical, Inc.",
-   "ndc11": "51991007401",
-   "dosageForm": "CAPSULE",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
    "labeler": "Bryant Ranch Prepack",
-   "ndc11": "63629295201",
-   "dosageForm": "CAPSULE",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
-   "labeler": "Chartwell RX, LLC",
-   "ndc11": "62135043390",
-   "dosageForm": "CAPSULE",
+   "ndc11": "63629504501",
+   "dosageForm": "CAPSULE, EXTENDED RELEASE",
    "plants": [],
    "onShortageList": false,
    "inOurStock": false
@@ -322,22 +372,6 @@
    "labeler": "Dr. Reddy's Laboratories Inc",
    "ndc11": "43598033960",
    "dosageForm": "CAPSULE, EXTENDED RELEASE",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
-   "labeler": "LGM PHARMA SOLUTIONS, LLC",
-   "ndc11": "79739609401",
-   "dosageForm": "CAPSULE",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
-   "labeler": "Lannett Company, Inc.",
-   "ndc11": "00527155201",
-   "dosageForm": "CAPSULE",
    "plants": [],
    "onShortageList": false,
    "inOurStock": false
@@ -389,22 +423,6 @@
    ],
    "onShortageList": false,
    "inOurStock": true
-  },
-  {
-   "labeler": "Sandoz Inc",
-   "ndc11": "00781227001",
-   "dosageForm": "CAPSULE",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
-   "labeler": "Westminster Pharmaceuticals, LLC",
-   "ndc11": "69367041601",
-   "dosageForm": "CAPSULE",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
   }
  ],
  "options": [
@@ -412,15 +430,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Amneal Pharmaceuticals LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Amneal Pharmaceuticals of New York, LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -438,52 +447,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Breckenridge Pharmaceutical, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Bryant Ranch Prepack",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Chartwell RX, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Dr. Reddy's Laboratories Inc",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from LGM PHARMA SOLUTIONS, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Lannett Company, Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -506,24 +470,6 @@
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
    "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Sandoz Inc",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Westminster Pharmaceuticals, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
   }
  ],
  "timeline": [
@@ -537,47 +483,49 @@
  ],
  "explanation": {
   "state": "no_signal",
-  "headline": "No FDA shortage signal for aspirin and extended-release dipyridamole; three Corvale sites hold 19–27 days on hand",
+  "headline": "FDA's records show aspirin and extended-release dipyridamole is not on the shortage list as of 2026-10-21",
   "sentences": [
    {
-    "text": "FDA's shortage list shows no entry for aspirin and extended-release dipyridamole as of today.",
+    "text": "FDA's drug shortage list does not include aspirin and extended-release dipyridamole as of 2026-10-21.",
     "cites": [
-     "E6"
+     "D4"
     ]
    },
    {
-    "text": "Corvale East holds 472 units at 17.3 units per day, providing 27 days on hand.",
+    "text": "Corvale East holds 472 capsules at 17.3 per day for 27.3 days on hand.",
     "cites": [
      "D1"
     ]
    },
    {
-    "text": "Corvale General holds 722 units at 38.6 units per day, providing 19 days on hand.",
+    "text": "Corvale General holds 720 capsules at 38.6 per day for 18.6 days on hand.",
     "cites": [
      "D2"
     ]
    },
    {
-    "text": "Corvale Lakeside holds 49 units at 3.7 units per day, providing 13 days on hand.",
+    "text": "Corvale Lakeside holds 49 capsules at 3.7 per day for 13.4 days on hand.",
     "cites": [
      "D3"
     ]
    },
    {
-    "text": "The product label identifies PH HEALTH as the manufacturing plant for the Par Health USA, LLC product.",
+    "text": "The rule-based best option is to buy from Amneal Pharmaceuticals LLC, which is not on FDA's shortage list today.",
     "cites": [
-     "E5"
+     "D5"
+    ]
+   },
+   {
+    "text": "Alternative manufacturers AvKARE and Dr. Reddy's Laboratories Inc. are also not on FDA's shortage list today.",
+    "cites": [
+     "D6",
+     "D7"
     ]
    }
   ],
   "verifier": {
    "checked": 7,
-   "rejected": [
-    {
-     "text": "The recommended buying option is Amneal Pharmaceuticals LLC, which is not on FDA's shortage list today.",
-     "reason": "cites nothing"
-    }
-   ],
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -585,45 +533,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -638,80 +607,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:26:01.102Z",
+   "at": "2026-10-22T11:30:39.115Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract X18EVFJW scope"
+   "reason": "in contract CJCES77V scope"
   },
   {
-   "at": "2026-10-22T07:26:01.102Z",
+   "at": "2026-10-22T11:30:39.115Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract X18EVFJW scope"
+   "reason": "in contract CJCES77V scope"
   },
   {
-   "at": "2026-10-22T07:26:03.259Z",
+   "at": "2026-10-22T11:30:42.769Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract X18EVFJW scope"
+   "reason": "in contract CJCES77V scope"
   },
   {
-   "at": "2026-10-22T07:26:03.803Z",
+   "at": "2026-10-22T11:30:43.412Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract X18EVFJW scope"
+   "reason": "in contract CJCES77V scope"
   },
   {
-   "at": "2026-10-22T07:26:04.026Z",
+   "at": "2026-10-22T11:30:43.673Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract X18EVFJW scope"
+   "reason": "in contract CJCES77V scope"
   },
   {
-   "at": "2026-10-22T07:26:05.134Z",
+   "at": "2026-10-22T11:30:45.104Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract X18EVFJW scope"
+   "reason": "in contract CJCES77V scope"
   },
   {
-   "at": "2026-10-22T07:26:05.688Z",
+   "at": "2026-10-22T11:30:45.913Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract X18EVFJW scope"
+   "reason": "in contract CJCES77V scope"
   },
   {
-   "at": "2026-10-22T07:26:06.469Z",
+   "at": "2026-10-22T11:30:46.672Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract X18EVFJW scope"
+   "reason": "in contract CJCES77V scope"
   },
   {
-   "at": "2026-10-22T07:26:07.513Z",
+   "at": "2026-10-22T11:30:48.314Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract X18EVFJW scope"
+   "reason": "in contract CJCES77V scope"
   },
   {
-   "at": "2026-10-22T07:26:07.514Z",
+   "at": "2026-10-22T11:30:48.315Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract X18EVFJW scope"
+   "reason": "in contract CJCES77V scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-fb6567",
+   "queryId": "Q-8f6ab8",
    "row": 0,
    "label": "Corvale East: ASPIRIN AND EXTENDED - RELEASE DIPYRIDAMOLE 25MG CAP",
    "fields": {
@@ -722,65 +691,80 @@
     "description": "ASPIRIN AND EXTENDED - RELEASE DIPYRIDAMOLE 25MG CAP",
     "on_hand": "472.00",
     "daily_use": "17.268",
-    "unit": "package",
+    "unit": "capsule",
+    "pkg_units": "20.00",
+    "unit_basis": "packages of 20, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Aspirin and Extended - Release Dipyridamole",
     "labeler_name": "Major Pharmaceuticals",
     "package_ndc": "0904-7056-99",
     "spl_set_id": "a6e652e1-b2e4-47ba-bed2-c5e902f8b8f1",
     "dosage_form": "CAPSULE",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "ASPIRIN 25 mg/1; DIPYRIDAMOLE 200 mg/1",
+    "unit_content": null,
+    "pkg_unit": "blister"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-fb6567",
+   "queryId": "Q-8f6ab8",
    "row": 1,
-   "label": "Corvale General: Aspirin and Extended - Release Dipyridamole",
+   "label": "Corvale General: Aspirin and Extended - Release Dipyridamole 25 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-148",
     "ndc11": "00904705699",
     "ndc_as_recorded": "00904705699",
-    "description": "Aspirin and Extended - Release Dipyridamole",
-    "on_hand": "356.79",
+    "description": "Aspirin and Extended - Release Dipyridamole 25 mg/1",
+    "on_hand": "356.00",
     "daily_use": "19.936",
     "unit": "capsule",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Aspirin and Extended - Release Dipyridamole",
     "labeler_name": "Major Pharmaceuticals",
     "package_ndc": "0904-7056-99",
     "spl_set_id": "a6e652e1-b2e4-47ba-bed2-c5e902f8b8f1",
     "dosage_form": "CAPSULE",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "ASPIRIN 25 mg/1; DIPYRIDAMOLE 200 mg/1",
+    "unit_content": null,
+    "pkg_unit": "blister"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-fb6567",
+   "queryId": "Q-8f6ab8",
    "row": 2,
-   "label": "Corvale General: Aspirin and Extended - Release Dipyridamole",
+   "label": "Corvale General: Aspirin and Extended - Release Dipyridamole 25 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-149",
     "ndc11": "49884000702",
     "ndc_as_recorded": "49884000702",
-    "description": "Aspirin and Extended - Release Dipyridamole",
-    "on_hand": "364.95",
+    "description": "Aspirin and Extended - Release Dipyridamole 25 mg/1",
+    "on_hand": "364.00",
     "daily_use": "18.713",
     "unit": "capsule",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Aspirin and Extended - Release Dipyridamole",
     "labeler_name": "Par Health USA, LLC",
     "package_ndc": "49884-007-02",
     "spl_set_id": "237a1f63-53ff-47fa-903c-ac6276e594a2",
     "dosage_form": "CAPSULE",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "ASPIRIN 25 mg/1; DIPYRIDAMOLE 200 mg/1",
+    "unit_content": null,
+    "pkg_unit": "capsule"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-fb6567",
+   "queryId": "Q-8f6ab8",
    "row": 3,
    "label": "Corvale Lakeside: Aspirin and Extended - Release Dipyridamole 25 mg/1",
    "fields": {
@@ -792,13 +776,18 @@
     "on_hand": "49.00",
     "daily_use": "3.650",
     "unit": "capsule",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Aspirin and Extended - Release Dipyridamole",
     "labeler_name": "Par Health USA, LLC",
     "package_ndc": "49884-007-02",
     "spl_set_id": "237a1f63-53ff-47fa-903c-ac6276e594a2",
     "dosage_form": "CAPSULE",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "ASPIRIN 25 mg/1; DIPYRIDAMOLE 200 mg/1",
+    "unit_content": null,
+    "pkg_unit": "capsule"
    }
   },
   "E5": {
@@ -819,7 +808,7 @@
   },
   "E6": {
    "id": "E6",
-   "queryId": "Q-f660a9",
+   "queryId": "Q-e5c808",
    "row": 0,
    "label": "FDA shortage list: Padagis US LLC, To Be Discontinued",
    "fields": {
@@ -836,197 +825,259 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 472 units of aspirin and extended - release dipyridamole at 17.3 a day: 27 days on hand",
+   "label": "Corvale East holds 472 capsules of aspirin and extended - release dipyridamole 25 mg + 200 mg at 17.3 a day: 27.3 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "25 mg + 200 mg capsule",
     "on_hand": 472,
     "daily_use": 17.3,
-    "days_on_hand": 27
+    "days_on_hand": 27.3
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 722 units of aspirin and extended - release dipyridamole at 38.6 a day: 19 days on hand",
+   "label": "Corvale General holds 720 capsules of aspirin and extended - release dipyridamole 25 mg + 200 mg at 38.6 a day: 18.6 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 722,
+    "presentation": "25 mg + 200 mg capsule",
+    "on_hand": 720,
     "daily_use": 38.6,
-    "days_on_hand": 19
+    "days_on_hand": 18.6
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 49 units of aspirin and extended - release dipyridamole at 3.7 a day: 13 days on hand",
+   "label": "Corvale Lakeside holds 49 capsules of aspirin and extended - release dipyridamole 25 mg + 200 mg at 3.7 a day: 13.4 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
+    "presentation": "25 mg + 200 mg capsule",
     "on_hand": 49,
     "daily_use": 3.7,
-    "days_on_hand": 13
+    "days_on_hand": 13.4
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "aspirin and extended - release dipyridamole is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Amneal Pharmaceuticals LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from AvKARE. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Dr. Reddy's Laboratories Inc. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-fb6567": {
-   "id": "Q-fb6567",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%aspirin%' OR lower(s.description) LIKE '%aspirin%' ORDER BY s.hospital, s.item_key",
-   "ms": 2154,
+  "Q-8f6ab8": {
+   "id": "Q-8f6ab8",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*aspirin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*aspirin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3651,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:26:03.256Z",
+   "ranAt": "2026-10-22T11:30:42.766Z",
    "rows": 4
   },
   "Q-08f536": {
    "id": "Q-08f536",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('a6e652e1-b2e4-47ba-bed2-c5e902f8b8f1', '237a1f63-53ff-47fa-903c-ac6276e594a2') ORDER BY ps.set_id, ps.establishment",
-   "ms": 543,
+   "ms": 642,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:26:03.802Z",
+   "ranAt": "2026-10-22T11:30:43.410Z",
    "rows": 2
   },
-  "Q-f660a9": {
-   "id": "Q-f660a9",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%aspirin%' ORDER BY status, company_name, package_ndc",
-   "ms": 114,
+  "Q-e5c808": {
+   "id": "Q-e5c808",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*aspirin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 126,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:26:03.917Z",
+   "ranAt": "2026-10-22T11:30:43.538Z",
    "rows": 1
   },
-  "Q-9f9a81": {
-   "id": "Q-9f9a81",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%aspirin%' ORDER BY first_posting",
-   "ms": 107,
+  "Q-db4a56": {
+   "id": "Q-db4a56",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*aspirin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 133,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:26:04.025Z",
+   "ranAt": "2026-10-22T11:30:43.672Z",
    "rows": 2
   },
-  "Q-b066f4": {
-   "id": "Q-b066f4",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%aspirin%' AND lower(p.dosage_form) LIKE '%capsule%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 1107,
+  "Q-d39891": {
+   "id": "Q-d39891",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*aspirin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%capsule%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1429,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:26:05.133Z",
-   "rows": 24
+   "ranAt": "2026-10-22T11:30:45.102Z",
+   "rows": 8
   },
   "Q-808a5c": {
    "id": "Q-808a5c",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('') ORDER BY fei, end_date",
-   "ms": 218,
+   "ms": 283,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:26:05.353Z",
+   "ranAt": "2026-10-22T11:30:45.387Z",
    "rows": 0
   },
   "Q-de2bfd": {
    "id": "Q-de2bfd",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('') ORDER BY fei, action_date",
-   "ms": 105,
+   "ms": 148,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:26:05.459Z",
+   "ranAt": "2026-10-22T11:30:45.536Z",
    "rows": 0
   },
   "Q-8de5da": {
    "id": "Q-8de5da",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('') OR (fei_match <> 'name_and_city' AND firm_key IN ('ph health')) ORDER BY date_published",
-   "ms": 93,
+   "ms": 137,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:26:05.553Z",
+   "ranAt": "2026-10-22T11:30:45.675Z",
    "rows": 0
   },
-  "Q-8f32a3": {
-   "id": "Q-8f32a3",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('ph health', 'major', 'par health') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%aspirin%' ORDER BY initiation_date",
-   "ms": 132,
+  "Q-fb70d6": {
+   "id": "Q-fb70d6",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('ph health', 'major', 'par health') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*aspirin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 235,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:26:05.687Z",
+   "ranAt": "2026-10-22T11:30:45.912Z",
    "rows": 0
   },
   "Q-c1b5d0": {
    "id": "Q-c1b5d0",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('00904705699', '49884000702')",
-   "ms": 779,
+   "ms": 757,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:26:06.467Z",
+   "ranAt": "2026-10-22T11:30:46.671Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-219774": {
-   "id": "Q-219774",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%aspirin%'",
-   "ms": 1042,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:26:07.512Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-f0d893": {
+   "id": "Q-f0d893",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*aspirin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1641,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:30:48.313Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 11765,
+  "zetarisMs": 19390,
   "modelCalls": 1,
-  "tokensIn": 720,
-  "tokensOut": 315,
+  "tokensIn": 1102,
+  "tokensOut": 334,
   "mode": "live"
  },
  "slug": "aspirin",
@@ -1042,7 +1093,7 @@
     "id": "hospital-item:hospital-item:CG-148",
     "type": "HospitalItem",
     "key": "hospital-item:CG-148",
-    "label": "Corvale General: Aspirin and Extended - Release Dipyridamole",
+    "label": "Corvale General: Aspirin and Extended - Release Dipyridamole 25 mg/1",
     "attrs": {
      "key": "hospital-item:CG-148"
     },
@@ -1053,7 +1104,7 @@
     "id": "hospital-item:hospital-item:CG-149",
     "type": "HospitalItem",
     "key": "hospital-item:CG-149",
-    "label": "Corvale General: Aspirin and Extended - Release Dipyridamole",
+    "label": "Corvale General: Aspirin and Extended - Release Dipyridamole 25 mg/1",
     "attrs": {
      "key": "hospital-item:CG-149"
     },
@@ -1166,11 +1217,11 @@
     "from": "hospital-item:hospital-item:CG-148",
     "to": "package:ndc-package:0904-7056-99",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:26:03.258Z",
+    "validFrom": "2026-10-22T11:30:42.768Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:03.258Z"
+     "at": "2026-10-22T11:30:42.768Z"
     }
    },
    {
@@ -1178,11 +1229,11 @@
     "from": "hospital-item:hospital-item:CG-149",
     "to": "package:ndc-package:49884-007-02",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:26:03.258Z",
+    "validFrom": "2026-10-22T11:30:42.768Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:03.258Z"
+     "at": "2026-10-22T11:30:42.768Z"
     }
    },
    {
@@ -1190,11 +1241,11 @@
     "from": "hospital-item:hospital-item:EA-E-000128",
     "to": "package:ndc-package:0904-7056-99",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:26:03.258Z",
+    "validFrom": "2026-10-22T11:30:42.768Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:03.258Z"
+     "at": "2026-10-22T11:30:42.768Z"
     }
    },
    {
@@ -1202,11 +1253,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0075",
     "to": "package:ndc-package:49884-007-02",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:26:03.258Z",
+    "validFrom": "2026-10-22T11:30:42.768Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:03.258Z"
+     "at": "2026-10-22T11:30:42.768Z"
     }
    },
    {
@@ -1214,11 +1265,11 @@
     "from": "package:ndc-package:0904-7056-99",
     "to": "product:ndc-product:0904-7056",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:26:03.258Z",
+    "validFrom": "2026-10-22T11:30:42.768Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:03.258Z"
+     "at": "2026-10-22T11:30:42.768Z"
     }
    },
    {
@@ -1226,11 +1277,11 @@
     "from": "package:ndc-package:49884-007-02",
     "to": "product:ndc-product:49884-007",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:26:03.258Z",
+    "validFrom": "2026-10-22T11:30:42.768Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:03.258Z"
+     "at": "2026-10-22T11:30:42.768Z"
     }
    },
    {
@@ -1238,11 +1289,11 @@
     "from": "product:ndc-product:0904-7056",
     "to": "drug:generic:aspirin and extended - release dipyridamole",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:26:03.258Z",
+    "validFrom": "2026-10-22T11:30:42.768Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:03.258Z"
+     "at": "2026-10-22T11:30:42.768Z"
     }
    },
    {
@@ -1250,11 +1301,11 @@
     "from": "product:ndc-product:0904-7056",
     "to": "labeler:ndc-labeler:0904",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:26:03.258Z",
+    "validFrom": "2026-10-22T11:30:42.768Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:03.258Z"
+     "at": "2026-10-22T11:30:42.768Z"
     }
    },
    {
@@ -1262,11 +1313,11 @@
     "from": "product:ndc-product:49884-007",
     "to": "drug:generic:aspirin and extended - release dipyridamole",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:26:03.258Z",
+    "validFrom": "2026-10-22T11:30:42.768Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:03.258Z"
+     "at": "2026-10-22T11:30:42.768Z"
     }
    },
    {
@@ -1274,11 +1325,11 @@
     "from": "product:ndc-product:49884-007",
     "to": "labeler:ndc-labeler:49884",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:26:03.258Z",
+    "validFrom": "2026-10-22T11:30:42.768Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:03.258Z"
+     "at": "2026-10-22T11:30:42.768Z"
     }
    }
   ],

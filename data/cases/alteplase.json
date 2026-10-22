@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-685e5a",
+ "id": "case-2026-10-22-c8754b",
  "question": "Why is alteplase short, and what do we do?",
- "askedAt": "2026-10-22T07:24:19.139Z",
+ "askedAt": "2026-10-22T11:27:14.956Z",
  "asOf": "2026-10-21",
  "molecule": "alteplase",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H7Y0GESS8VCD5FR1W430S2",
+  "contractId": "01M5HNTQRG8SP675HWY8RM0XWV",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-1154cb"
+    "Q-d190ed"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2100,
+   "ms": 3508,
    "rows": 2,
-   "finding": "2 stock lines across 2 hospitals.",
+   "finding": "2 stock lines across 2 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-9983bc"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 471,
+   "ms": 500,
    "rows": 2,
    "finding": "2 plant links on 1 labels; 2 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-8ee439",
-    "Q-027bdf"
+    "Q-f558fa",
+    "Q-2d1b5f"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 230,
+   "ms": 403,
    "rows": 2,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-e5725a"
+    "Q-0a4afa"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1234,
+   "ms": 1447,
    "rows": 4,
    "finding": "1 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-0ed646",
     "Q-ce7da1",
     "Q-1e4cd7",
-    "Q-19a787"
+    "Q-7cc6fe"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 594,
+   "ms": 828,
    "rows": 13,
    "finding": "12 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 1 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 658,
+   "ms": 738,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-9f24f3"
+    "Q-c7a26e"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 651,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1529,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -153,22 +164,65 @@
    "onHand": 191,
    "dailyUse": 9.343,
    "days": 20.4,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "alteplase|2.2mg/2ml|injection|2ml|vial",
+   "presentationLabel": "2.2 mg/2 mL injection, 2 mL vial",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-137",
    "ndc11": "50242004110",
-   "description": "Alteplase",
+   "description": "Alteplase 2.2 mg/2mL",
    "labeler": "Genentech, Inc.",
-   "onHand": 298.76,
+   "onHand": 298,
    "dailyUse": 10.429,
    "days": 28.6,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "alteplase|2.2mg/2ml|injection|2ml|vial",
+   "presentationLabel": "2.2 mg/2 mL injection, 2 mL vial",
    "evidence": "E2"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "alteplase|2.2mg/2ml|injection|2ml|vial",
+   "label": "2.2 mg/2 mL injection, 2 mL vial",
+   "short": "2.2 mg/2 mL, 2 mL",
+   "unit": "vial",
+   "onHand": 489,
+   "dailyUse": 19.772,
+   "days": 24.7,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 191,
+     "dailyUse": 9.343,
+     "days": 20.4,
+     "lines": [
+      "EA-E-000175"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 298,
+     "dailyUse": 10.429,
+     "days": 28.6,
+     "lines": [
+      "CG-137"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -315,7 +369,7 @@
      "last": "NAI 2024-08-16"
     }
    ],
-   "onShortageList": false,
+   "onShortageList": true,
    "inOurStock": true
   }
  ],
@@ -380,49 +434,59 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "FDA shortage list shows Genentech, Inc. alteplase 100 mg vial configuration marked To Be Discontinued as of 2026-05-21",
+  "headline": "Alteplase is not on FDA's shortage list as of 2026-10-21; a Genentech 100 mg vial configuration is posted as To Be Discontinued since 2026-05-21",
   "sentences": [
    {
-    "text": "The FDA shortage list records Genentech, Inc. alteplase injection 100 mg vial (NDC 50242-085-27) with status To Be Discontinued and an initial posting date of 2026-05-21.",
+    "text": "FDA's drug shortage list shows alteplase is not listed as of 2026-10-21.",
+    "cites": [
+     "D3"
+    ]
+   },
+   {
+    "text": "A Genentech, Inc. entry for Alteplase Injection 100 mg vial (NDC 50242-085-27) is posted with status To Be Discontinued, initial posting date 2026-05-21.",
     "cites": [
      "E12"
     ]
    },
    {
-    "text": "A Class II recall (D-0509-2024) for Cathflo Activase 2 mg vials was initiated on 2024-05-20 for lack of assurance of sterility due to deformed stoppers observed during filling operations.",
+    "text": "The product label for NDC 50242004110 identifies Genentech, Inc. as labeler and manufacturer at two registered plants (FEI 3006129086 and FEI 3007232634).",
     "cites": [
-     "E11"
+     "E5",
+     "E10"
     ]
    },
    {
-    "text": "The recalled product is manufactured by Genentech, Inc. at South San Francisco, CA, which corresponds to FEI 3007232634 listed on the product label.",
+    "text": "FDA inspection records for FEI 3006129086 show VAI classifications in 2015 and 2017, with the most recent known date 2018-01-16.",
     "cites": [
-     "E10",
-     "E11"
+     "E3",
+     "E4"
     ]
    },
    {
-    "text": "FDA inspection 1235654 of FEI 3007232634 ended on 2024-04-19 with a VAI classification, and the inspection was known to FDA on 2024-06-28.",
+    "text": "FDA inspection records for FEI 3007232634 show VAI classifications from 2012 through 2024, with the most recent inspection end date 2024-04-19 and known date 2024-06-28.",
     "cites": [
+     "E6",
+     "E7",
+     "E8",
      "E9"
     ]
    },
    {
-    "text": "Current inventory at Corvale East provides 20 days on hand and at Corvale General provides 29 days on hand based on current daily use.",
+    "text": "A Class II recall (D-0509-2024) for Cathflo Activase 2 mg vials was initiated 2024-05-20 and terminated, citing deformed stoppers during filling operations.",
+    "cites": [
+     "E11"
+    ]
+   },
+   {
+    "text": "Current on-hand supply at Corvale East is 191 vials (20.4 days) and at Corvale General is 298 vials (28.6 days) for the 2.2 mg/2 mL presentation.",
     "cites": [
      "D1",
      "D2"
     ]
-   },
-   {
-    "text": "Buyers should verify allocation schedules with Genentech, monitor the FDA shortage list for updates on the discontinuation, and assess alternative alteplase presentations or therapeutic alternatives.",
-    "cites": [
-     "E12"
-    ]
    }
   ],
   "verifier": {
-   "checked": 7,
+   "checked": 8,
    "rejected": [],
    "repaired": 0
   },
@@ -431,45 +495,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -484,80 +569,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:24:13.198Z",
+   "at": "2026-10-22T11:27:06.001Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract R1W430S2 scope"
+   "reason": "in contract Y8RM0XWV scope"
   },
   {
-   "at": "2026-10-22T07:24:13.198Z",
+   "at": "2026-10-22T11:27:06.001Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract R1W430S2 scope"
+   "reason": "in contract Y8RM0XWV scope"
   },
   {
-   "at": "2026-10-22T07:24:15.299Z",
+   "at": "2026-10-22T11:27:09.510Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract R1W430S2 scope"
+   "reason": "in contract Y8RM0XWV scope"
   },
   {
-   "at": "2026-10-22T07:24:15.770Z",
+   "at": "2026-10-22T11:27:10.011Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract R1W430S2 scope"
+   "reason": "in contract Y8RM0XWV scope"
   },
   {
-   "at": "2026-10-22T07:24:15.999Z",
+   "at": "2026-10-22T11:27:10.413Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract R1W430S2 scope"
+   "reason": "in contract Y8RM0XWV scope"
   },
   {
-   "at": "2026-10-22T07:24:17.233Z",
+   "at": "2026-10-22T11:27:11.860Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract R1W430S2 scope"
+   "reason": "in contract Y8RM0XWV scope"
   },
   {
-   "at": "2026-10-22T07:24:17.828Z",
+   "at": "2026-10-22T11:27:12.688Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract R1W430S2 scope"
+   "reason": "in contract Y8RM0XWV scope"
   },
   {
-   "at": "2026-10-22T07:24:18.487Z",
+   "at": "2026-10-22T11:27:13.426Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract R1W430S2 scope"
+   "reason": "in contract Y8RM0XWV scope"
   },
   {
-   "at": "2026-10-22T07:24:19.138Z",
+   "at": "2026-10-22T11:27:14.955Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract R1W430S2 scope"
+   "reason": "in contract Y8RM0XWV scope"
   },
   {
-   "at": "2026-10-22T07:24:19.139Z",
+   "at": "2026-10-22T11:27:14.956Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract R1W430S2 scope"
+   "reason": "in contract Y8RM0XWV scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-1154cb",
+   "queryId": "Q-d190ed",
    "row": 0,
    "label": "Corvale East: ALTEPLASE 2.2MG/2ML 2ML SDV",
    "fields": {
@@ -568,37 +653,47 @@
     "description": "ALTEPLASE 2.2MG/2ML 2ML SDV",
     "on_hand": "191.00",
     "daily_use": "9.343",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Alteplase",
     "labeler_name": "Genentech, Inc.",
     "package_ndc": "50242-041-10",
     "spl_set_id": "91ecdef2-95ff-42dd-a31c-c8a09cab3ad9",
     "dosage_form": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "ALTEPLASE 2.2 mg/2mL",
+    "unit_content": "2 mL",
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-1154cb",
+   "queryId": "Q-d190ed",
    "row": 1,
-   "label": "Corvale General: Alteplase",
+   "label": "Corvale General: Alteplase 2.2 mg/2mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-137",
     "ndc11": "50242004110",
     "ndc_as_recorded": "50242004110",
-    "description": "Alteplase",
-    "on_hand": "298.76",
+    "description": "Alteplase 2.2 mg/2mL",
+    "on_hand": "298.00",
     "daily_use": "10.429",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Alteplase",
     "labeler_name": "Genentech, Inc.",
     "package_ndc": "50242-041-10",
     "spl_set_id": "91ecdef2-95ff-42dd-a31c-c8a09cab3ad9",
     "dosage_form": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "ALTEPLASE 2.2 mg/2mL",
+    "unit_content": "2 mL",
+    "pkg_unit": "vial"
    }
   },
   "E3": {
@@ -731,7 +826,7 @@
   },
   "E11": {
    "id": "E11",
-   "queryId": "Q-19a787",
+   "queryId": "Q-7cc6fe",
    "row": 0,
    "label": "Recall D-0509-2024",
    "fields": {
@@ -749,7 +844,7 @@
   },
   "E12": {
    "id": "E12",
-   "queryId": "Q-8ee439",
+   "queryId": "Q-f558fa",
    "row": 0,
    "label": "FDA shortage list: Genentech, Inc, To Be Discontinued",
    "fields": {
@@ -766,185 +861,216 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 191 units of alteplase at 9.3 a day: 20 days on hand",
+   "label": "Corvale East holds 191 vials of alteplase 2.2 mg/2 mL, 2 mL at 9.3 a day: 20.4 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "2.2 mg/2 mL injection, 2 mL vial",
     "on_hand": 191,
     "daily_use": 9.3,
-    "days_on_hand": 20
+    "days_on_hand": 20.4
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 299 units of alteplase at 10.4 a day: 29 days on hand",
+   "label": "Corvale General holds 298 vials of alteplase 2.2 mg/2 mL, 2 mL at 10.4 a day: 28.6 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 299,
+    "presentation": "2.2 mg/2 mL injection, 2 mL vial",
+    "on_hand": 298,
     "daily_use": 10.4,
-    "days_on_hand": 29
+    "days_on_hand": 28.6
+   }
+  },
+  "D3": {
+   "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "alteplase is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
    }
   }
  },
  "queries": {
-  "Q-1154cb": {
-   "id": "Q-1154cb",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%alteplase%' OR lower(s.description) LIKE '%alteplase%' ORDER BY s.hospital, s.item_key",
-   "ms": 2099,
+  "Q-d190ed": {
+   "id": "Q-d190ed",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*alteplase(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*alteplase(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3507,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:24:15.297Z",
+   "ranAt": "2026-10-22T11:27:09.508Z",
    "rows": 2
   },
   "Q-9983bc": {
    "id": "Q-9983bc",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('91ecdef2-95ff-42dd-a31c-c8a09cab3ad9') ORDER BY ps.set_id, ps.establishment",
-   "ms": 469,
+   "ms": 499,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:24:15.768Z",
+   "ranAt": "2026-10-22T11:27:10.009Z",
    "rows": 2
   },
-  "Q-8ee439": {
-   "id": "Q-8ee439",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%alteplase%' ORDER BY status, company_name, package_ndc",
-   "ms": 120,
+  "Q-f558fa": {
+   "id": "Q-f558fa",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*alteplase(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 253,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:24:15.890Z",
+   "ranAt": "2026-10-22T11:27:10.264Z",
    "rows": 1
   },
-  "Q-027bdf": {
-   "id": "Q-027bdf",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%alteplase%' ORDER BY first_posting",
-   "ms": 107,
+  "Q-2d1b5f": {
+   "id": "Q-2d1b5f",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*alteplase(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 147,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:24:15.998Z",
+   "ranAt": "2026-10-22T11:27:10.412Z",
    "rows": 1
   },
-  "Q-e5725a": {
-   "id": "Q-e5725a",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%alteplase%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 1233,
+  "Q-0a4afa": {
+   "id": "Q-0a4afa",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*alteplase(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1445,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:24:17.232Z",
+   "ranAt": "2026-10-22T11:27:11.858Z",
    "rows": 4
   },
   "Q-0ed646": {
    "id": "Q-0ed646",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3006129086', '3007232634') ORDER BY fei, end_date",
-   "ms": 256,
+   "ms": 349,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:24:17.490Z",
+   "ranAt": "2026-10-22T11:27:12.209Z",
    "rows": 12
   },
   "Q-ce7da1": {
    "id": "Q-ce7da1",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3006129086', '3007232634') ORDER BY fei, action_date",
-   "ms": 114,
+   "ms": 181,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:24:17.605Z",
+   "ranAt": "2026-10-22T11:27:12.391Z",
    "rows": 0
   },
   "Q-1e4cd7": {
    "id": "Q-1e4cd7",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3006129086', '3007232634') OR (fei_match <> 'name_and_city' AND firm_key IN ('genentech')) ORDER BY date_published",
-   "ms": 96,
+   "ms": 136,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:24:17.702Z",
+   "ranAt": "2026-10-22T11:27:12.530Z",
    "rows": 0
   },
-  "Q-19a787": {
-   "id": "Q-19a787",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('genentech') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%alteplase%' ORDER BY initiation_date",
-   "ms": 124,
+  "Q-7cc6fe": {
+   "id": "Q-7cc6fe",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('genentech') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*alteplase(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 155,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:24:17.826Z",
+   "ranAt": "2026-10-22T11:27:12.686Z",
    "rows": 1
   },
   "Q-a4b4a3": {
    "id": "Q-a4b4a3",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('50242004110')",
-   "ms": 657,
+   "ms": 736,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:24:18.485Z",
+   "ranAt": "2026-10-22T11:27:13.425Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-9f24f3": {
-   "id": "Q-9f24f3",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%alteplase%'",
-   "ms": 649,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:24:19.136Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-c7a26e": {
+   "id": "Q-c7a26e",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*alteplase(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1528,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:27:14.954Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 11295,
+  "zetarisMs": 19144,
   "modelCalls": 1,
-  "tokensIn": 1555,
-  "tokensOut": 478,
+  "tokensIn": 1787,
+  "tokensOut": 617,
   "mode": "live"
  },
  "slug": "alteplase",
@@ -958,7 +1084,7 @@
     "id": "hospital-item:hospital-item:CG-137",
     "type": "HospitalItem",
     "key": "hospital-item:CG-137",
-    "label": "Corvale General: Alteplase",
+    "label": "Corvale General: Alteplase 2.2 mg/2mL",
     "attrs": {
      "key": "hospital-item:CG-137"
     },
@@ -1053,7 +1179,7 @@
     },
     "facts": [
      {
-      "id": "fact_04af42c21a471c2f",
+      "id": "fact_0de377f793706079",
       "about": "inspection:fda-inspection:1031803",
       "predicate": "classification",
       "value": "VAI",
@@ -1061,9 +1187,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:24:17.828Z"
+       "at": "2026-10-22T11:27:12.688Z"
       },
-      "assertedAt": "2026-10-22T07:24:17.828Z"
+      "assertedAt": "2026-10-22T11:27:12.688Z"
      }
     ],
     "depth": 4
@@ -1079,7 +1205,7 @@
     },
     "facts": [
      {
-      "id": "fact_65b0b9190c6e35ac",
+      "id": "fact_2e055a2887fb7c74",
       "about": "inspection:fda-inspection:1057924",
       "predicate": "classification",
       "value": "VAI",
@@ -1087,9 +1213,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:24:17.828Z"
+       "at": "2026-10-22T11:27:12.688Z"
       },
-      "assertedAt": "2026-10-22T07:24:17.828Z"
+      "assertedAt": "2026-10-22T11:27:12.688Z"
      }
     ],
     "depth": 4
@@ -1105,7 +1231,7 @@
     },
     "facts": [
      {
-      "id": "fact_b46986a5a8409769",
+      "id": "fact_4d752783b3309b30",
       "about": "inspection:fda-inspection:1235654",
       "predicate": "classification",
       "value": "VAI",
@@ -1113,9 +1239,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:24:17.828Z"
+       "at": "2026-10-22T11:27:12.688Z"
       },
-      "assertedAt": "2026-10-22T07:24:17.828Z"
+      "assertedAt": "2026-10-22T11:27:12.688Z"
      }
     ],
     "depth": 4
@@ -1131,7 +1257,7 @@
     },
     "facts": [
      {
-      "id": "fact_cab0d20d05cb126a",
+      "id": "fact_04eaa571223860d5",
       "about": "inspection:fda-inspection:791162",
       "predicate": "classification",
       "value": "VAI",
@@ -1139,9 +1265,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:24:17.828Z"
+       "at": "2026-10-22T11:27:12.688Z"
       },
-      "assertedAt": "2026-10-22T07:24:17.828Z"
+      "assertedAt": "2026-10-22T11:27:12.688Z"
      }
     ],
     "depth": 4
@@ -1157,7 +1283,7 @@
     },
     "facts": [
      {
-      "id": "fact_76763df582e463a5",
+      "id": "fact_6632f6b504d300a0",
       "about": "inspection:fda-inspection:927320",
       "predicate": "classification",
       "value": "VAI",
@@ -1165,9 +1291,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:24:17.828Z"
+       "at": "2026-10-22T11:27:12.688Z"
       },
-      "assertedAt": "2026-10-22T07:24:17.828Z"
+      "assertedAt": "2026-10-22T11:27:12.688Z"
      }
     ],
     "depth": 4
@@ -1183,7 +1309,7 @@
     },
     "facts": [
      {
-      "id": "fact_12faf1013fda12e2",
+      "id": "fact_0b29aa30c78ed21a",
       "about": "inspection:fda-inspection:975839",
       "predicate": "classification",
       "value": "VAI",
@@ -1191,9 +1317,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:24:17.828Z"
+       "at": "2026-10-22T11:27:12.688Z"
       },
-      "assertedAt": "2026-10-22T07:24:17.828Z"
+      "assertedAt": "2026-10-22T11:27:12.688Z"
      }
     ],
     "depth": 4
@@ -1205,11 +1331,11 @@
     "from": "hospital-item:hospital-item:CG-137",
     "to": "package:ndc-package:50242-041-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:24:15.298Z",
+    "validFrom": "2026-10-22T11:27:09.509Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:24:15.298Z"
+     "at": "2026-10-22T11:27:09.509Z"
     }
    },
    {
@@ -1217,11 +1343,11 @@
     "from": "hospital-item:hospital-item:EA-E-000175",
     "to": "package:ndc-package:50242-041-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:24:15.298Z",
+    "validFrom": "2026-10-22T11:27:09.509Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:24:15.298Z"
+     "at": "2026-10-22T11:27:09.509Z"
     }
    },
    {
@@ -1229,11 +1355,11 @@
     "from": "package:ndc-package:50242-041-10",
     "to": "product:ndc-product:50242-041",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:24:15.298Z",
+    "validFrom": "2026-10-22T11:27:09.509Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:24:15.298Z"
+     "at": "2026-10-22T11:27:09.509Z"
     }
    },
    {
@@ -1241,11 +1367,11 @@
     "from": "product:ndc-product:50242-041",
     "to": "drug:generic:alteplase",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:24:15.298Z",
+    "validFrom": "2026-10-22T11:27:09.509Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:24:15.298Z"
+     "at": "2026-10-22T11:27:09.509Z"
     }
    },
    {
@@ -1253,11 +1379,11 @@
     "from": "product:ndc-product:50242-041",
     "to": "labeler:ndc-labeler:50242",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:24:15.298Z",
+    "validFrom": "2026-10-22T11:27:09.509Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:24:15.298Z"
+     "at": "2026-10-22T11:27:09.509Z"
     }
    },
    {
@@ -1265,11 +1391,11 @@
     "from": "product:ndc-product:50242-041",
     "to": "site:fei:3006129086",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:24:17.827Z",
+    "validFrom": "2026-10-22T11:27:12.688Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:24:17.827Z"
+     "at": "2026-10-22T11:27:12.688Z"
     }
    },
    {
@@ -1277,11 +1403,11 @@
     "from": "product:ndc-product:50242-041",
     "to": "site:fei:3007232634",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:24:17.828Z",
+    "validFrom": "2026-10-22T11:27:12.688Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:24:17.828Z"
+     "at": "2026-10-22T11:27:12.688Z"
     }
    },
    {
@@ -1289,11 +1415,11 @@
     "from": "inspection:fda-inspection:927320",
     "to": "site:fei:3006129086",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:24:17.827Z",
+    "validFrom": "2026-10-22T11:27:12.688Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:24:17.827Z"
+     "at": "2026-10-22T11:27:12.688Z"
     }
    },
    {
@@ -1301,11 +1427,11 @@
     "from": "inspection:fda-inspection:1031803",
     "to": "site:fei:3006129086",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:24:17.828Z",
+    "validFrom": "2026-10-22T11:27:12.688Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:24:17.828Z"
+     "at": "2026-10-22T11:27:12.688Z"
     }
    },
    {
@@ -1313,11 +1439,11 @@
     "from": "inspection:fda-inspection:791162",
     "to": "site:fei:3007232634",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:24:17.828Z",
+    "validFrom": "2026-10-22T11:27:12.688Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:24:17.828Z"
+     "at": "2026-10-22T11:27:12.688Z"
     }
    },
    {
@@ -1325,11 +1451,11 @@
     "from": "inspection:fda-inspection:975839",
     "to": "site:fei:3007232634",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:24:17.828Z",
+    "validFrom": "2026-10-22T11:27:12.688Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:24:17.828Z"
+     "at": "2026-10-22T11:27:12.688Z"
     }
    },
    {
@@ -1337,11 +1463,11 @@
     "from": "inspection:fda-inspection:1057924",
     "to": "site:fei:3007232634",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:24:17.828Z",
+    "validFrom": "2026-10-22T11:27:12.688Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:24:17.828Z"
+     "at": "2026-10-22T11:27:12.688Z"
     }
    },
    {
@@ -1349,11 +1475,11 @@
     "from": "inspection:fda-inspection:1235654",
     "to": "site:fei:3007232634",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:24:17.828Z",
+    "validFrom": "2026-10-22T11:27:12.688Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:24:17.828Z"
+     "at": "2026-10-22T11:27:12.688Z"
     }
    }
   ],

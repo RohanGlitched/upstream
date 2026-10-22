@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-54e82c",
+ "id": "case-2026-10-22-a211a1",
  "question": "Why is dabigatran etexilate mesylate short, and what do we do?",
- "askedAt": "2026-10-22T07:38:02.927Z",
+ "askedAt": "2026-10-22T11:42:14.001Z",
  "asOf": "2026-10-21",
  "molecule": "dabigatran etexilate mesylate",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H8PXEFP3QVYVNGHFQZY9Y3",
+  "contractId": "01M5HPP6Z211RT3FRCVFPZ5C2Z",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-88d477"
+    "Q-2f9980"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3916,
+   "ms": 3167,
    "rows": 5,
-   "finding": "5 stock lines across 3 hospitals.",
+   "finding": "5 stock lines across 3 hospitals, 2 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-ec34c4"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 927,
+   "ms": 395,
    "rows": 3,
    "finding": "3 plant links on 1 labels; 3 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-82e7f3",
-    "Q-2aea7a"
+    "Q-57d996",
+    "Q-016272"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 524,
+   "ms": 211,
    "rows": 0,
    "finding": "Not on FDA's current shortage list.",
    "status": "empty"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-bc0529"
+    "Q-80ca2f"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2769,
+   "ms": 1153,
    "rows": 80,
    "finding": "17 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-234123",
     "Q-2a9a6b",
     "Q-472730",
-    "Q-c4e9eb"
+    "Q-3d2524"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1868,
+   "ms": 572,
    "rows": 22,
    "finding": "19 inspections (1 OAI at our plants), 1 compliance actions, 2 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,7 +111,7 @@
    "sources": [
     "fda.citations"
    ],
-   "ms": 421,
+   "ms": 131,
    "rows": 0,
    "finding": "0 Form 483 observations recorded.",
    "status": "empty"
@@ -119,9 +126,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1379,
+   "ms": 591,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -129,19 +136,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-083fd9"
+    "Q-040e70"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1839,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1469,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -152,7 +163,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 2,
+   "ms": 0,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -168,8 +179,11 @@
    "onHand": 127,
    "dailyUse": 9.531,
    "days": 13.3,
-   "unit": "package",
+   "unit": "capsule",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "dabigatran etexilate mesylate|110mg|capsule||capsule",
+   "presentationLabel": "110 mg capsule",
    "evidence": "E1"
   },
   {
@@ -181,34 +195,43 @@
    "onHand": 289,
    "dailyUse": 9.039,
    "days": 32,
-   "unit": "package",
+   "unit": "capsule",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 60, converted to units",
+   "presentation": "dabigatran etexilate mesylate|75mg|capsule||capsule",
+   "presentationLabel": "75 mg capsule",
    "evidence": "E2"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-190",
    "ndc11": "00597010860",
-   "description": "dabigatran etexilate mesylate",
+   "description": "dabigatran etexilate mesylate 110 mg/1",
    "labeler": "Boehringer Ingelheim Pharmaceuticals Inc.",
-   "onHand": 228.59,
+   "onHand": 228,
    "dailyUse": 10.502,
-   "days": 21.8,
+   "days": 21.7,
    "unit": "capsule",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "dabigatran etexilate mesylate|110mg|capsule||capsule",
+   "presentationLabel": "110 mg capsule",
    "evidence": "E3"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-191",
    "ndc11": "00597035556",
-   "description": "dabigatran etexilate mesylate",
+   "description": "dabigatran etexilate mesylate 75 mg/1",
    "labeler": "Boehringer Ingelheim Pharmaceuticals Inc.",
-   "onHand": 263.82,
+   "onHand": 263,
    "dailyUse": 9.947,
-   "days": 26.5,
+   "days": 26.4,
    "unit": "capsule",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "dabigatran etexilate mesylate|75mg|capsule||capsule",
+   "presentationLabel": "75 mg capsule",
    "evidence": "E4"
   },
   {
@@ -222,7 +245,94 @@
    "days": 20.3,
    "unit": "capsule",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "dabigatran etexilate mesylate|75mg|capsule||capsule",
+   "presentationLabel": "75 mg capsule",
    "evidence": "E5"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "dabigatran etexilate mesylate|110mg|capsule||capsule",
+   "label": "110 mg capsule",
+   "short": "110 mg",
+   "unit": "capsule",
+   "onHand": 355,
+   "dailyUse": 20.033,
+   "days": 17.7,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 127,
+     "dailyUse": 9.531,
+     "days": 13.3,
+     "lines": [
+      "EA-E-000106"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 228,
+     "dailyUse": 10.502,
+     "days": 21.7,
+     "lines": [
+      "CG-190"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "dabigatran etexilate mesylate|75mg|capsule||capsule",
+   "label": "75 mg capsule",
+   "short": "75 mg",
+   "unit": "capsule",
+   "onHand": 587,
+   "dailyUse": 20.706,
+   "days": 28.3,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 289,
+     "dailyUse": 9.039,
+     "days": 32,
+     "lines": [
+      "EA-E-000107"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 263,
+     "dailyUse": 9.947,
+     "days": 26.4,
+     "lines": [
+      "CG-191"
+     ],
+     "evidence": [
+      "E4"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 35,
+     "dailyUse": 1.72,
+     "days": 20.3,
+     "lines": [
+      "LS-LS-0045"
+     ],
+     "evidence": [
+      "E5"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -785,15 +895,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from A-S Medication Solutions",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Alembic Pharmaceuticals Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -804,15 +905,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Alembic Pharmaceuticals Limited",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from American Health Packaging",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -1014,65 +1106,55 @@
   }
  ],
  "explanation": {
-  "state": "confirmed",
-  "headline": "FDA's records trace this shortage to a plant on our own labels",
+  "state": "check",
+  "headline": "Dabigatran etexilate mesylate is not on FDA's shortage list as of 2026-10-21; current hospital stock ranges from 13.3 to 32 days on hand across sites",
   "sentences": [
    {
-    "text": "The label for NDC 00597035556 lists Boehringer Ingelheim Pharma GmbH & Co. KG (FEI 3002806556) as a registered plant for API manufacture, labeling, manufacturing, and packing.",
+    "text": "FDA's drug shortage list does not include dabigatran etexilate mesylate as of 2026-10-21.",
     "cites": [
-     "E18"
+     "D6"
     ]
    },
    {
-    "text": "FDA inspection 808119 of that plant ended on 2012-11-12 and was classified OAI, with the classification known to FDA on 2013-02-10.",
+    "text": "Corvale East holds 127 capsules of the 110 mg presentation with 9.5 used daily, giving 13.3 days on hand.",
     "cites": [
-     "E9"
+     "D1"
     ]
    },
    {
-    "text": "A Warning Letter was subsequently issued to the same plant on 2013-05-06.",
+    "text": "Corvale General holds 228 capsules of the 110 mg presentation with 10.5 used daily, giving 21.7 days on hand.",
     "cites": [
-     "E15"
+     "D2"
     ]
    },
    {
-    "text": "Subsequent inspections in 2014, 2016, 2018, 2021, and 2025 were classified VAI.",
+    "text": "Corvale East holds 289 capsules of the 75 mg presentation with 9 used daily, giving 32 days on hand.",
     "cites": [
-     "E10",
-     "E11",
-     "E12",
-     "E13",
-     "E14"
-    ]
-   },
-   {
-    "text": "The label also names Bidachem S.p.A. (FEI 3002806598) for analysis and API manufacture, with its most recent inspection classified VAI on 2024-05-17.",
-    "cites": [
-     "E8",
-     "E7"
-    ]
-   },
-   {
-    "text": "Corvale East, Corvale General, and Corvale Lakeside hold 22, 24, and 20 days of supply respectively at current usage rates.",
-    "cites": [
-     "D1",
-     "D2",
      "D3"
+    ]
+   },
+   {
+    "text": "Corvale General holds 263 capsules of the 75 mg presentation with 9.9 used daily, giving 26.4 days on hand.",
+    "cites": [
+     "D4"
+    ]
+   },
+   {
+    "text": "Corvale Lakeside holds 35 capsules of the 75 mg presentation with 1.7 used daily, giving 20.3 days on hand.",
+    "cites": [
+     "D5"
+    ]
+   },
+   {
+    "text": "The rule‑based alternate manufacturer option ranked 3 is to buy from Alembic Pharmaceuticals Inc., which is not on FDA's shortage list today and whose label names no plant we could place.",
+    "cites": [
+     "D7"
     ]
    }
   ],
   "verifier": {
    "checked": 8,
-   "rejected": [
-    {
-     "text": "That OAI classification occurred 4757 days before the posting date of 2026-10-21.",
-     "reason": "date 2026-10-21 is not in the cited evidence"
-    },
-    {
-     "text": "FDA's records trace our supply to a plant classified OAI 4757 days before the posting",
-     "reason": "headline: number 4757 is not in the cited evidence"
-    }
-   ],
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -1080,45 +1162,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -1133,87 +1236,87 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:37:49.264Z",
+   "at": "2026-10-22T11:42:06.306Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract HFQZY9Y3 scope"
+   "reason": "in contract VFPZ5C2Z scope"
   },
   {
-   "at": "2026-10-22T07:37:49.265Z",
+   "at": "2026-10-22T11:42:06.307Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract HFQZY9Y3 scope"
+   "reason": "in contract VFPZ5C2Z scope"
   },
   {
-   "at": "2026-10-22T07:37:53.185Z",
+   "at": "2026-10-22T11:42:09.475Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract HFQZY9Y3 scope"
+   "reason": "in contract VFPZ5C2Z scope"
   },
   {
-   "at": "2026-10-22T07:37:54.113Z",
+   "at": "2026-10-22T11:42:09.870Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract HFQZY9Y3 scope"
+   "reason": "in contract VFPZ5C2Z scope"
   },
   {
-   "at": "2026-10-22T07:37:54.636Z",
+   "at": "2026-10-22T11:42:10.082Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract HFQZY9Y3 scope"
+   "reason": "in contract VFPZ5C2Z scope"
   },
   {
-   "at": "2026-10-22T07:37:57.406Z",
+   "at": "2026-10-22T11:42:11.235Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract HFQZY9Y3 scope"
+   "reason": "in contract VFPZ5C2Z scope"
   },
   {
-   "at": "2026-10-22T07:37:59.274Z",
+   "at": "2026-10-22T11:42:11.807Z",
    "action": "What FDA wrote at the OAI inspections",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract HFQZY9Y3 scope"
+   "reason": "in contract VFPZ5C2Z scope"
   },
   {
-   "at": "2026-10-22T07:37:59.707Z",
+   "at": "2026-10-22T11:42:11.940Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract HFQZY9Y3 scope"
+   "reason": "in contract VFPZ5C2Z scope"
   },
   {
-   "at": "2026-10-22T07:38:01.085Z",
+   "at": "2026-10-22T11:42:12.531Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract HFQZY9Y3 scope"
+   "reason": "in contract VFPZ5C2Z scope"
   },
   {
-   "at": "2026-10-22T07:38:02.925Z",
+   "at": "2026-10-22T11:42:14.001Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract HFQZY9Y3 scope"
+   "reason": "in contract VFPZ5C2Z scope"
   },
   {
-   "at": "2026-10-22T07:38:02.928Z",
+   "at": "2026-10-22T11:42:14.001Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract HFQZY9Y3 scope"
+   "reason": "in contract VFPZ5C2Z scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-88d477",
+   "queryId": "Q-2f9980",
    "row": 0,
    "label": "Corvale East: DABIGATRAN ETEXILATE MESYLATE 110MG CAP",
    "fields": {
@@ -1224,19 +1327,24 @@
     "description": "DABIGATRAN ETEXILATE MESYLATE 110MG CAP",
     "on_hand": "127.00",
     "daily_use": "9.531",
-    "unit": "package",
+    "unit": "capsule",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "dabigatran etexilate mesylate",
     "labeler_name": "Boehringer Ingelheim Pharmaceuticals Inc.",
     "package_ndc": "0597-0108-60",
     "spl_set_id": "ba74e3cd-b06f-4145-b284-5fd6b84ff3c9",
     "dosage_form": "CAPSULE",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "DABIGATRAN ETEXILATE MESYLATE 110 mg/1",
+    "unit_content": null,
+    "pkg_unit": "blister"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-88d477",
+   "queryId": "Q-2f9980",
    "row": 1,
    "label": "Corvale East: DABIGATRAN ETEXILATE MESYLATE 75MG CAP",
    "fields": {
@@ -1247,65 +1355,80 @@
     "description": "DABIGATRAN ETEXILATE MESYLATE 75MG CAP",
     "on_hand": "289.00",
     "daily_use": "9.039",
-    "unit": "package",
+    "unit": "capsule",
+    "pkg_units": "60.00",
+    "unit_basis": "packages of 60, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "dabigatran etexilate mesylate",
     "labeler_name": "Boehringer Ingelheim Pharmaceuticals Inc.",
     "package_ndc": "0597-0355-56",
     "spl_set_id": "ba74e3cd-b06f-4145-b284-5fd6b84ff3c9",
     "dosage_form": "CAPSULE",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "DABIGATRAN ETEXILATE MESYLATE 75 mg/1",
+    "unit_content": null,
+    "pkg_unit": "blister"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-88d477",
+   "queryId": "Q-2f9980",
    "row": 2,
-   "label": "Corvale General: dabigatran etexilate mesylate",
+   "label": "Corvale General: dabigatran etexilate mesylate 110 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-190",
     "ndc11": "00597010860",
     "ndc_as_recorded": "00597010860",
-    "description": "dabigatran etexilate mesylate",
-    "on_hand": "228.59",
+    "description": "dabigatran etexilate mesylate 110 mg/1",
+    "on_hand": "228.00",
     "daily_use": "10.502",
     "unit": "capsule",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "dabigatran etexilate mesylate",
     "labeler_name": "Boehringer Ingelheim Pharmaceuticals Inc.",
     "package_ndc": "0597-0108-60",
     "spl_set_id": "ba74e3cd-b06f-4145-b284-5fd6b84ff3c9",
     "dosage_form": "CAPSULE",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "DABIGATRAN ETEXILATE MESYLATE 110 mg/1",
+    "unit_content": null,
+    "pkg_unit": "blister"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-88d477",
+   "queryId": "Q-2f9980",
    "row": 3,
-   "label": "Corvale General: dabigatran etexilate mesylate",
+   "label": "Corvale General: dabigatran etexilate mesylate 75 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-191",
     "ndc11": "00597035556",
     "ndc_as_recorded": "00597035556",
-    "description": "dabigatran etexilate mesylate",
-    "on_hand": "263.82",
+    "description": "dabigatran etexilate mesylate 75 mg/1",
+    "on_hand": "263.00",
     "daily_use": "9.947",
     "unit": "capsule",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "dabigatran etexilate mesylate",
     "labeler_name": "Boehringer Ingelheim Pharmaceuticals Inc.",
     "package_ndc": "0597-0355-56",
     "spl_set_id": "ba74e3cd-b06f-4145-b284-5fd6b84ff3c9",
     "dosage_form": "CAPSULE",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "DABIGATRAN ETEXILATE MESYLATE 75 mg/1",
+    "unit_content": null,
+    "pkg_unit": "blister"
    }
   },
   "E5": {
    "id": "E5",
-   "queryId": "Q-88d477",
+   "queryId": "Q-2f9980",
    "row": 4,
    "label": "Corvale Lakeside: dabigatran etexilate mesylate 75 mg/1",
    "fields": {
@@ -1317,13 +1440,18 @@
     "on_hand": "35.00",
     "daily_use": "1.720",
     "unit": "capsule",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "dabigatran etexilate mesylate",
     "labeler_name": "Boehringer Ingelheim Pharmaceuticals Inc.",
     "package_ndc": "0597-0355-56",
     "spl_set_id": "ba74e3cd-b06f-4145-b284-5fd6b84ff3c9",
     "dosage_form": "CAPSULE",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "DABIGATRAN ETEXILATE MESYLATE 75 mg/1",
+    "unit_content": null,
+    "pkg_unit": "blister"
    }
   },
   "E6": {
@@ -1568,208 +1696,296 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 416 units of dabigatran etexilate mesylate at 18.6 a day: 22 days on hand",
+   "label": "Corvale East holds 127 capsules of dabigatran etexilate mesylate 110 mg at 9.5 a day: 13.3 days on hand",
    "fields": {
     "hospital": "Corvale East",
-    "on_hand": 416,
-    "daily_use": 18.6,
-    "days_on_hand": 22
+    "presentation": "110 mg capsule",
+    "on_hand": 127,
+    "daily_use": 9.5,
+    "days_on_hand": 13.3
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 492 units of dabigatran etexilate mesylate at 20.4 a day: 24 days on hand",
+   "label": "Corvale General holds 228 capsules of dabigatran etexilate mesylate 110 mg at 10.5 a day: 21.7 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 492,
-    "daily_use": 20.4,
-    "days_on_hand": 24
+    "presentation": "110 mg capsule",
+    "on_hand": 228,
+    "daily_use": 10.5,
+    "days_on_hand": 21.7
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 35 units of dabigatran etexilate mesylate at 1.7 a day: 20 days on hand",
+   "label": "Corvale East holds 289 capsules of dabigatran etexilate mesylate 75 mg at 9 a day: 32 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "75 mg capsule",
+    "on_hand": 289,
+    "daily_use": 9,
+    "days_on_hand": 32
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 263 capsules of dabigatran etexilate mesylate 75 mg at 9.9 a day: 26.4 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "75 mg capsule",
+    "on_hand": 263,
+    "daily_use": 9.9,
+    "days_on_hand": 26.4
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale Lakeside holds 35 capsules of dabigatran etexilate mesylate 75 mg at 1.7 a day: 20.3 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
+    "presentation": "75 mg capsule",
     "on_hand": 35,
     "daily_use": 1.7,
-    "days_on_hand": 20
+    "days_on_hand": 20.3
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "dabigatran etexilate mesylate is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Alembic Pharmaceuticals Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D8": {
+   "id": "D8",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Alembic Pharmaceuticals Limited. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D9": {
+   "id": "D9",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Apotex Corp.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-88d477": {
-   "id": "Q-88d477",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%dabigatran%' OR lower(s.description) LIKE '%dabigatran%' ORDER BY s.hospital, s.item_key",
-   "ms": 3912,
+  "Q-2f9980": {
+   "id": "Q-2f9980",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*dabigatran(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*dabigatran(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3166,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:37:53.177Z",
+   "ranAt": "2026-10-22T11:42:09.473Z",
    "rows": 5
   },
   "Q-ec34c4": {
    "id": "Q-ec34c4",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('ba74e3cd-b06f-4145-b284-5fd6b84ff3c9') ORDER BY ps.set_id, ps.establishment",
-   "ms": 924,
+   "ms": 394,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:37:54.109Z",
+   "ranAt": "2026-10-22T11:42:09.869Z",
    "rows": 3
   },
-  "Q-82e7f3": {
-   "id": "Q-82e7f3",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%dabigatran%' ORDER BY status, company_name, package_ndc",
-   "ms": 218,
+  "Q-57d996": {
+   "id": "Q-57d996",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*dabigatran(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 102,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:37:54.332Z",
+   "ranAt": "2026-10-22T11:42:09.972Z",
    "rows": 0
   },
-  "Q-2aea7a": {
-   "id": "Q-2aea7a",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%dabigatran%' ORDER BY first_posting",
-   "ms": 299,
+  "Q-016272": {
+   "id": "Q-016272",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*dabigatran(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 108,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:37:54.633Z",
+   "ranAt": "2026-10-22T11:42:10.081Z",
    "rows": 0
   },
-  "Q-bc0529": {
-   "id": "Q-bc0529",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%dabigatran%' AND lower(p.dosage_form) LIKE '%capsule%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2765,
+  "Q-80ca2f": {
+   "id": "Q-80ca2f",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*dabigatran(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%capsule%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1152,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:37:57.401Z",
+   "ranAt": "2026-10-22T11:42:11.233Z",
    "rows": 80
   },
   "Q-234123": {
    "id": "Q-234123",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3002806598', '3002806556', '1000115322') ORDER BY fei, end_date",
-   "ms": 740,
+   "ms": 227,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:37:58.146Z",
+   "ranAt": "2026-10-22T11:42:11.462Z",
    "rows": 19
   },
   "Q-2a9a6b": {
    "id": "Q-2a9a6b",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3002806598', '3002806556', '1000115322') ORDER BY fei, action_date",
-   "ms": 413,
+   "ms": 116,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:37:58.564Z",
+   "ranAt": "2026-10-22T11:42:11.580Z",
    "rows": 1
   },
   "Q-472730": {
    "id": "Q-472730",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3002806598', '3002806556', '1000115322') OR (fei_match <> 'name_and_city' AND firm_key IN ('bidachem s p a', 'boehringer ingelheim', 'sixarp praxis packaging solutions', 'sixarp')) ORDER BY date_published",
-   "ms": 326,
+   "ms": 103,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:37:58.892Z",
+   "ranAt": "2026-10-22T11:42:11.684Z",
    "rows": 2
   },
-  "Q-c4e9eb": {
-   "id": "Q-c4e9eb",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('bidachem s p a', 'boehringer ingelheim', 'sixarp praxis packaging solutions', 'sixarp') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%dabigatran%' ORDER BY initiation_date",
-   "ms": 375,
+  "Q-3d2524": {
+   "id": "Q-3d2524",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('bidachem s p a', 'boehringer ingelheim', 'sixarp praxis packaging solutions', 'sixarp') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*dabigatran(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 121,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:37:59.270Z",
+   "ranAt": "2026-10-22T11:42:11.806Z",
    "rows": 0
   },
   "Q-c9f838": {
    "id": "Q-c9f838",
    "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('808119') ORDER BY inspection_id, cfr",
-   "ms": 418,
+   "ms": 130,
    "mode": "live",
    "sources": [
     "fda.citations"
    ],
-   "ranAt": "2026-10-22T07:37:59.692Z",
+   "ranAt": "2026-10-22T11:42:11.937Z",
    "rows": 0
   },
   "Q-15b7b2": {
    "id": "Q-15b7b2",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('00597010860', '00597035556')",
-   "ms": 1374,
+   "ms": 590,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:38:01.081Z",
+   "ranAt": "2026-10-22T11:42:12.530Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-083fd9": {
-   "id": "Q-083fd9",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%dabigatran%'",
-   "ms": 1835,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:38:02.921Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-040e70": {
+   "id": "Q-040e70",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*dabigatran(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1468,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:42:14.000Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 15,
-  "zetarisMs": 18970,
+  "zetarisMs": 17885,
   "modelCalls": 1,
-  "tokensIn": 2281,
-  "tokensOut": 501,
+  "tokensIn": 2795,
+  "tokensOut": 467,
   "mode": "live"
  },
  "slug": "dabigatran",
@@ -1786,7 +2002,7 @@
     "id": "hospital-item:hospital-item:CG-190",
     "type": "HospitalItem",
     "key": "hospital-item:CG-190",
-    "label": "Corvale General: dabigatran etexilate mesylate",
+    "label": "Corvale General: dabigatran etexilate mesylate 110 mg/1",
     "attrs": {
      "key": "hospital-item:CG-190"
     },
@@ -1797,7 +2013,7 @@
     "id": "hospital-item:hospital-item:CG-191",
     "type": "HospitalItem",
     "key": "hospital-item:CG-191",
-    "label": "Corvale General: dabigatran etexilate mesylate",
+    "label": "Corvale General: dabigatran etexilate mesylate 75 mg/1",
     "attrs": {
      "key": "hospital-item:CG-191"
     },
@@ -1958,7 +2174,7 @@
     },
     "facts": [
      {
-      "id": "fact_2dfc695fcaa23a21",
+      "id": "fact_d4acee7a522dbffc",
       "about": "inspection:fda-inspection:1053519",
       "predicate": "classification",
       "value": "VAI",
@@ -1966,23 +2182,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:37:59.698Z"
+       "at": "2026-10-22T11:42:11.939Z"
       },
-      "assertedAt": "2026-10-22T07:37:59.698Z",
-      "supersededBy": "fact_34207f5abb56d6fe"
-     },
-     {
-      "id": "fact_34207f5abb56d6fe",
-      "about": "inspection:fda-inspection:1053519",
-      "predicate": "classification",
-      "value": "VAI",
-      "confidence": 0.5,
-      "source": {
-       "kind": "fda-inspection",
-       "by": "upstream-investigator",
-       "at": "2026-10-22T07:37:59.704Z"
-      },
-      "assertedAt": "2026-10-22T07:37:59.704Z"
+      "assertedAt": "2026-10-22T11:42:11.939Z"
      }
     ],
     "depth": 4
@@ -1998,7 +2200,7 @@
     },
     "facts": [
      {
-      "id": "fact_0a973993c58c438e",
+      "id": "fact_f27e01fadf4a471c",
       "about": "inspection:fda-inspection:1123247",
       "predicate": "classification",
       "value": "VAI",
@@ -2006,23 +2208,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:37:59.696Z"
+       "at": "2026-10-22T11:42:11.939Z"
       },
-      "assertedAt": "2026-10-22T07:37:59.696Z",
-      "supersededBy": "fact_3b7046b014b200e2"
-     },
-     {
-      "id": "fact_3b7046b014b200e2",
-      "about": "inspection:fda-inspection:1123247",
-      "predicate": "classification",
-      "value": "VAI",
-      "confidence": 0.5,
-      "source": {
-       "kind": "fda-inspection",
-       "by": "upstream-investigator",
-       "at": "2026-10-22T07:37:59.700Z"
-      },
-      "assertedAt": "2026-10-22T07:37:59.700Z"
+      "assertedAt": "2026-10-22T11:42:11.939Z"
      }
     ],
     "depth": 4
@@ -2038,7 +2226,7 @@
     },
     "facts": [
      {
-      "id": "fact_6489681275884d7d",
+      "id": "fact_e705f3db41adefad",
       "about": "inspection:fda-inspection:1208521",
       "predicate": "classification",
       "value": "VAI",
@@ -2046,23 +2234,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:37:59.699Z"
+       "at": "2026-10-22T11:42:11.939Z"
       },
-      "assertedAt": "2026-10-22T07:37:59.699Z",
-      "supersededBy": "fact_dbd186820598f5c8"
-     },
-     {
-      "id": "fact_dbd186820598f5c8",
-      "about": "inspection:fda-inspection:1208521",
-      "predicate": "classification",
-      "value": "VAI",
-      "confidence": 0.5,
-      "source": {
-       "kind": "fda-inspection",
-       "by": "upstream-investigator",
-       "at": "2026-10-22T07:37:59.704Z"
-      },
-      "assertedAt": "2026-10-22T07:37:59.704Z"
+      "assertedAt": "2026-10-22T11:42:11.939Z"
      }
     ],
     "depth": 4
@@ -2078,7 +2252,7 @@
     },
     "facts": [
      {
-      "id": "fact_c1d61cc5a6ecf442",
+      "id": "fact_e80f40efa0b0fc81",
       "about": "inspection:fda-inspection:1289858",
       "predicate": "classification",
       "value": "VAI",
@@ -2086,23 +2260,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:37:59.697Z"
+       "at": "2026-10-22T11:42:11.939Z"
       },
-      "assertedAt": "2026-10-22T07:37:59.697Z",
-      "supersededBy": "fact_d28ee5f19b52f5b7"
-     },
-     {
-      "id": "fact_d28ee5f19b52f5b7",
-      "about": "inspection:fda-inspection:1289858",
-      "predicate": "classification",
-      "value": "VAI",
-      "confidence": 0.5,
-      "source": {
-       "kind": "fda-inspection",
-       "by": "upstream-investigator",
-       "at": "2026-10-22T07:37:59.700Z"
-      },
-      "assertedAt": "2026-10-22T07:37:59.700Z"
+      "assertedAt": "2026-10-22T11:42:11.939Z"
      }
     ],
     "depth": 4
@@ -2118,7 +2278,7 @@
     },
     "facts": [
      {
-      "id": "fact_92a82d2b217f5e5c",
+      "id": "fact_88b755a56e5084d0",
       "about": "inspection:fda-inspection:1315938",
       "predicate": "classification",
       "value": "VAI",
@@ -2126,23 +2286,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:37:59.699Z"
+       "at": "2026-10-22T11:42:11.939Z"
       },
-      "assertedAt": "2026-10-22T07:37:59.699Z",
-      "supersededBy": "fact_a629e7b67e87433d"
-     },
-     {
-      "id": "fact_a629e7b67e87433d",
-      "about": "inspection:fda-inspection:1315938",
-      "predicate": "classification",
-      "value": "VAI",
-      "confidence": 0.5,
-      "source": {
-       "kind": "fda-inspection",
-       "by": "upstream-investigator",
-       "at": "2026-10-22T07:37:59.704Z"
-      },
-      "assertedAt": "2026-10-22T07:37:59.704Z"
+      "assertedAt": "2026-10-22T11:42:11.939Z"
      }
     ],
     "depth": 4
@@ -2158,7 +2304,7 @@
     },
     "facts": [
      {
-      "id": "fact_8966bb2be5ed16fd",
+      "id": "fact_e46bd5afd421fc5f",
       "about": "inspection:fda-inspection:668729",
       "predicate": "classification",
       "value": "VAI",
@@ -2166,13 +2312,13 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:37:59.700Z"
+       "at": "2026-10-22T11:42:11.939Z"
       },
-      "assertedAt": "2026-10-22T07:37:59.700Z",
-      "supersededBy": "fact_455c1b615a44d4aa"
+      "assertedAt": "2026-10-22T11:42:11.939Z",
+      "supersededBy": "fact_91318cc98b0b65d0"
      },
      {
-      "id": "fact_455c1b615a44d4aa",
+      "id": "fact_91318cc98b0b65d0",
       "about": "inspection:fda-inspection:668729",
       "predicate": "classification",
       "value": "VAI",
@@ -2180,9 +2326,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:37:59.705Z"
+       "at": "2026-10-22T11:42:11.940Z"
       },
-      "assertedAt": "2026-10-22T07:37:59.705Z"
+      "assertedAt": "2026-10-22T11:42:11.940Z"
      }
     ],
     "depth": 4
@@ -2198,7 +2344,7 @@
     },
     "facts": [
      {
-      "id": "fact_e52ef06fda5ca42f",
+      "id": "fact_ca1b11a7b209f00a",
       "about": "inspection:fda-inspection:808119",
       "predicate": "classification",
       "value": "OAI",
@@ -2206,23 +2352,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:37:59.697Z"
+       "at": "2026-10-22T11:42:11.939Z"
       },
-      "assertedAt": "2026-10-22T07:37:59.697Z",
-      "supersededBy": "fact_12c01d67ad285c0e"
-     },
-     {
-      "id": "fact_12c01d67ad285c0e",
-      "about": "inspection:fda-inspection:808119",
-      "predicate": "classification",
-      "value": "OAI",
-      "confidence": 0.5,
-      "source": {
-       "kind": "fda-inspection",
-       "by": "upstream-investigator",
-       "at": "2026-10-22T07:37:59.700Z"
-      },
-      "assertedAt": "2026-10-22T07:37:59.700Z"
+      "assertedAt": "2026-10-22T11:42:11.939Z"
      }
     ],
     "depth": 4
@@ -2238,7 +2370,7 @@
     },
     "facts": [
      {
-      "id": "fact_e8c996d944f53ef8",
+      "id": "fact_b95def5165b42ea6",
       "about": "inspection:fda-inspection:877010",
       "predicate": "classification",
       "value": "VAI",
@@ -2246,23 +2378,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:37:59.698Z"
+       "at": "2026-10-22T11:42:11.939Z"
       },
-      "assertedAt": "2026-10-22T07:37:59.698Z",
-      "supersededBy": "fact_cd4722b09087aefe"
-     },
-     {
-      "id": "fact_cd4722b09087aefe",
-      "about": "inspection:fda-inspection:877010",
-      "predicate": "classification",
-      "value": "VAI",
-      "confidence": 0.5,
-      "source": {
-       "kind": "fda-inspection",
-       "by": "upstream-investigator",
-       "at": "2026-10-22T07:37:59.703Z"
-      },
-      "assertedAt": "2026-10-22T07:37:59.703Z"
+      "assertedAt": "2026-10-22T11:42:11.939Z"
      }
     ],
     "depth": 4
@@ -2278,7 +2396,7 @@
     },
     "facts": [
      {
-      "id": "fact_70fa8af30ba7c8fa",
+      "id": "fact_9ec95d3f5bcef04e",
       "about": "inspection:fda-inspection:962108",
       "predicate": "classification",
       "value": "VAI",
@@ -2286,23 +2404,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:37:59.698Z"
+       "at": "2026-10-22T11:42:11.939Z"
       },
-      "assertedAt": "2026-10-22T07:37:59.698Z",
-      "supersededBy": "fact_f5a9080a44a3f789"
-     },
-     {
-      "id": "fact_f5a9080a44a3f789",
-      "about": "inspection:fda-inspection:962108",
-      "predicate": "classification",
-      "value": "VAI",
-      "confidence": 0.5,
-      "source": {
-       "kind": "fda-inspection",
-       "by": "upstream-investigator",
-       "at": "2026-10-22T07:37:59.704Z"
-      },
-      "assertedAt": "2026-10-22T07:37:59.704Z"
+      "assertedAt": "2026-10-22T11:42:11.939Z"
      }
     ],
     "depth": 4
@@ -2325,11 +2429,11 @@
     "from": "hospital-item:hospital-item:CG-190",
     "to": "package:ndc-package:0597-0108-60",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:37:53.184Z",
+    "validFrom": "2026-10-22T11:42:09.474Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:53.184Z"
+     "at": "2026-10-22T11:42:09.474Z"
     }
    },
    {
@@ -2337,11 +2441,11 @@
     "from": "hospital-item:hospital-item:CG-191",
     "to": "package:ndc-package:0597-0355-56",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:37:53.184Z",
+    "validFrom": "2026-10-22T11:42:09.474Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:53.184Z"
+     "at": "2026-10-22T11:42:09.474Z"
     }
    },
    {
@@ -2349,11 +2453,11 @@
     "from": "hospital-item:hospital-item:EA-E-000106",
     "to": "package:ndc-package:0597-0108-60",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:37:53.181Z",
+    "validFrom": "2026-10-22T11:42:09.474Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:53.181Z"
+     "at": "2026-10-22T11:42:09.474Z"
     }
    },
    {
@@ -2361,11 +2465,11 @@
     "from": "hospital-item:hospital-item:EA-E-000107",
     "to": "package:ndc-package:0597-0355-56",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:37:53.183Z",
+    "validFrom": "2026-10-22T11:42:09.474Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:53.183Z"
+     "at": "2026-10-22T11:42:09.474Z"
     }
    },
    {
@@ -2373,11 +2477,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0045",
     "to": "package:ndc-package:0597-0355-56",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:37:53.184Z",
+    "validFrom": "2026-10-22T11:42:09.474Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:53.184Z"
+     "at": "2026-10-22T11:42:09.474Z"
     }
    },
    {
@@ -2385,11 +2489,11 @@
     "from": "package:ndc-package:0597-0108-60",
     "to": "product:ndc-product:0597-0108",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:37:53.181Z",
+    "validFrom": "2026-10-22T11:42:09.474Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:53.181Z"
+     "at": "2026-10-22T11:42:09.474Z"
     }
    },
    {
@@ -2397,11 +2501,11 @@
     "from": "package:ndc-package:0597-0355-56",
     "to": "product:ndc-product:0597-0355",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:37:53.183Z",
+    "validFrom": "2026-10-22T11:42:09.474Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:53.183Z"
+     "at": "2026-10-22T11:42:09.474Z"
     }
    },
    {
@@ -2409,11 +2513,11 @@
     "from": "product:ndc-product:0597-0108",
     "to": "drug:generic:dabigatran etexilate mesylate",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:37:53.181Z",
+    "validFrom": "2026-10-22T11:42:09.474Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:53.181Z"
+     "at": "2026-10-22T11:42:09.474Z"
     }
    },
    {
@@ -2421,11 +2525,11 @@
     "from": "product:ndc-product:0597-0108",
     "to": "labeler:ndc-labeler:0597",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:37:53.181Z",
+    "validFrom": "2026-10-22T11:42:09.474Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:53.181Z"
+     "at": "2026-10-22T11:42:09.474Z"
     }
    },
    {
@@ -2433,11 +2537,11 @@
     "from": "product:ndc-product:0597-0108",
     "to": "site:fei:3002806598",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:37:59.696Z",
+    "validFrom": "2026-10-22T11:42:11.938Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:59.696Z"
+     "at": "2026-10-22T11:42:11.938Z"
     }
    },
    {
@@ -2445,11 +2549,11 @@
     "from": "product:ndc-product:0597-0108",
     "to": "site:fei:3002806556",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:37:59.697Z",
+    "validFrom": "2026-10-22T11:42:11.939Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:59.697Z"
+     "at": "2026-10-22T11:42:11.939Z"
     }
    },
    {
@@ -2457,11 +2561,11 @@
     "from": "product:ndc-product:0597-0108",
     "to": "site:fei:1000115322",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:37:59.699Z",
+    "validFrom": "2026-10-22T11:42:11.939Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:59.699Z"
+     "at": "2026-10-22T11:42:11.939Z"
     }
    },
    {
@@ -2469,11 +2573,11 @@
     "from": "product:ndc-product:0597-0355",
     "to": "drug:generic:dabigatran etexilate mesylate",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:37:53.183Z",
+    "validFrom": "2026-10-22T11:42:09.474Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:53.183Z"
+     "at": "2026-10-22T11:42:09.474Z"
     }
    },
    {
@@ -2481,11 +2585,11 @@
     "from": "product:ndc-product:0597-0355",
     "to": "labeler:ndc-labeler:0597",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:37:53.183Z",
+    "validFrom": "2026-10-22T11:42:09.474Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:53.183Z"
+     "at": "2026-10-22T11:42:09.474Z"
     }
    },
    {
@@ -2493,11 +2597,11 @@
     "from": "product:ndc-product:0597-0355",
     "to": "site:fei:3002806598",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:37:59.700Z",
+    "validFrom": "2026-10-22T11:42:11.939Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:59.700Z"
+     "at": "2026-10-22T11:42:11.939Z"
     }
    },
    {
@@ -2505,11 +2609,11 @@
     "from": "product:ndc-product:0597-0355",
     "to": "site:fei:3002806556",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:37:59.700Z",
+    "validFrom": "2026-10-22T11:42:11.939Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:59.700Z"
+     "at": "2026-10-22T11:42:11.939Z"
     }
    },
    {
@@ -2517,11 +2621,11 @@
     "from": "product:ndc-product:0597-0355",
     "to": "site:fei:1000115322",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:37:59.705Z",
+    "validFrom": "2026-10-22T11:42:11.939Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:59.705Z"
+     "at": "2026-10-22T11:42:11.939Z"
     }
    },
    {
@@ -2529,11 +2633,11 @@
     "from": "inspection:fda-inspection:1123247",
     "to": "site:fei:3002806598",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:37:59.696Z",
+    "validFrom": "2026-10-22T11:42:11.939Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:59.696Z"
+     "at": "2026-10-22T11:42:11.939Z"
     }
    },
    {
@@ -2541,11 +2645,11 @@
     "from": "inspection:fda-inspection:1289858",
     "to": "site:fei:3002806598",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:37:59.696Z",
+    "validFrom": "2026-10-22T11:42:11.939Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:59.696Z"
+     "at": "2026-10-22T11:42:11.939Z"
     }
    },
    {
@@ -2553,11 +2657,11 @@
     "from": "inspection:fda-inspection:808119",
     "to": "site:fei:3002806556",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:37:59.697Z",
+    "validFrom": "2026-10-22T11:42:11.939Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:59.697Z"
+     "at": "2026-10-22T11:42:11.939Z"
     }
    },
    {
@@ -2565,11 +2669,11 @@
     "from": "inspection:fda-inspection:877010",
     "to": "site:fei:3002806556",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:37:59.698Z",
+    "validFrom": "2026-10-22T11:42:11.939Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:59.698Z"
+     "at": "2026-10-22T11:42:11.939Z"
     }
    },
    {
@@ -2577,11 +2681,11 @@
     "from": "inspection:fda-inspection:962108",
     "to": "site:fei:3002806556",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:37:59.698Z",
+    "validFrom": "2026-10-22T11:42:11.939Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:59.698Z"
+     "at": "2026-10-22T11:42:11.939Z"
     }
    },
    {
@@ -2589,11 +2693,11 @@
     "from": "inspection:fda-inspection:1053519",
     "to": "site:fei:3002806556",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:37:59.698Z",
+    "validFrom": "2026-10-22T11:42:11.939Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:59.698Z"
+     "at": "2026-10-22T11:42:11.939Z"
     }
    },
    {
@@ -2601,11 +2705,11 @@
     "from": "inspection:fda-inspection:1208521",
     "to": "site:fei:3002806556",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:37:59.699Z",
+    "validFrom": "2026-10-22T11:42:11.939Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:59.699Z"
+     "at": "2026-10-22T11:42:11.939Z"
     }
    },
    {
@@ -2613,11 +2717,11 @@
     "from": "inspection:fda-inspection:1315938",
     "to": "site:fei:3002806556",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:37:59.699Z",
+    "validFrom": "2026-10-22T11:42:11.939Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:59.699Z"
+     "at": "2026-10-22T11:42:11.939Z"
     }
    },
    {
@@ -2625,11 +2729,11 @@
     "from": "warning-letter:fda-warning-letter:393563",
     "to": "site:fei:3002806556",
     "type": "issued-to",
-    "validFrom": "2026-10-22T07:37:59.698Z",
+    "validFrom": "2026-10-22T11:42:11.939Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:59.698Z"
+     "at": "2026-10-22T11:42:11.939Z"
     }
    },
    {
@@ -2637,11 +2741,11 @@
     "from": "import-alert:fda-import-alert:66-66",
     "to": "site:fei:3002806556",
     "type": "lists",
-    "validFrom": "2026-10-22T07:37:59.697Z",
+    "validFrom": "2026-10-22T11:42:11.939Z",
     "source": {
      "kind": "fda-import-alert",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:59.697Z"
+     "at": "2026-10-22T11:42:11.939Z"
     }
    },
    {
@@ -2649,11 +2753,11 @@
     "from": "inspection:fda-inspection:668729",
     "to": "site:fei:1000115322",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:37:59.699Z",
+    "validFrom": "2026-10-22T11:42:11.939Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:59.699Z"
+     "at": "2026-10-22T11:42:11.939Z"
     }
    }
   ],

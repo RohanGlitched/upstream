@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-7f0bcd",
+ "id": "case-2026-10-22-4e0038",
  "question": "Why is dopamine hydrochloride short, and what do we do?",
- "askedAt": "2026-10-22T07:41:58.053Z",
+ "askedAt": "2026-10-22T11:52:10.297Z",
  "asOf": "2026-10-21",
  "molecule": "dopamine hydrochloride",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H8Y30F18SJDG7G5NZ5ZPZQ",
+  "contractId": "01M5HQ7WD2CM8P1E86ZRRDXZF8",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-92b156"
+    "Q-5496ee"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3266,
+   "ms": 9328,
    "rows": 4,
-   "finding": "4 stock lines across 3 hospitals.",
+   "finding": "4 stock lines across 3 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-417a53"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 993,
+   "ms": 1286,
    "rows": 2,
    "finding": "2 plant links on 2 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-ef1353",
-    "Q-1d78ce"
+    "Q-d3ff5d",
+    "Q-5bb638"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 537,
+   "ms": 867,
    "rows": 12,
    "finding": "On FDA's list as Current for 3 companies.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-7d1c91"
+    "Q-a6b3a8"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2461,
+   "ms": 4445,
    "rows": 41,
    "finding": "8 labelers make it in this form.",
    "status": "ok"
@@ -78,18 +85,18 @@
    "title": "What FDA found at those plants",
    "purpose": "Read every FDA drug inspection, warning letter, import alert and recall for these plants.",
    "queryIds": [
-    "Q-952fac",
-    "Q-bdd456",
+    "Q-ab7964",
+    "Q-46a50c",
     "Q-f3c17d",
-    "Q-00c505"
+    "Q-da3ff0"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1656,
+   "ms": 2233,
    "rows": 55,
    "finding": "50 inspections (3 OAI at our plants), 5 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,7 +111,7 @@
    "sources": [
     "fda.citations"
    ],
-   "ms": 284,
+   "ms": 547,
    "rows": 26,
    "finding": "26 Form 483 observations recorded.",
    "status": "ok"
@@ -119,9 +126,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1639,
+   "ms": 3980,
    "rows": 2,
    "finding": "2 approved interchanges on file.",
    "status": "ok"
@@ -129,19 +136,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-4123f8"
+    "Q-07b036"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2872,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 2288,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -152,7 +163,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 3,
+   "ms": 1,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -168,34 +179,43 @@
    "onHand": 74,
    "dailyUse": 6.001,
    "days": 12.3,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 25, converted to units",
+   "presentation": "dopamine hydrochloride|40mg/ml|injection|5ml|vial",
+   "presentationLabel": "40 mg/mL injection, 5 mL vial",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-42",
    "ndc11": "00143925225",
-   "description": "Dopamine Hydrochloride",
+   "description": "Dopamine Hydrochloride 40 mg/mL",
    "labeler": "Hikma Pharmaceuticals USA Inc.",
-   "onHand": 86.87,
+   "onHand": 86,
    "dailyUse": 6.166,
-   "days": 14.1,
+   "days": 13.9,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "dopamine hydrochloride|40mg/ml|injection|5ml|vial",
+   "presentationLabel": "40 mg/mL injection, 5 mL vial",
    "evidence": "E2"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-43",
    "ndc11": "00409582001",
-   "description": "Dopamine Hydrochloride",
+   "description": "Dopamine Hydrochloride 40 mg/mL",
    "labeler": "Hospira, Inc.",
-   "onHand": 56.61,
+   "onHand": 56,
    "dailyUse": 6.013,
-   "days": 9.4,
+   "days": 9.3,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "dopamine hydrochloride|40mg/ml|injection|5ml|vial",
+   "presentationLabel": "40 mg/mL injection, 5 mL vial",
    "evidence": "E3"
   },
   {
@@ -209,7 +229,61 @@
    "days": 13.8,
    "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "dopamine hydrochloride|40mg/ml|injection|5ml|vial",
+   "presentationLabel": "40 mg/mL injection, 5 mL vial",
    "evidence": "E4"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "dopamine hydrochloride|40mg/ml|injection|5ml|vial",
+   "label": "40 mg/mL injection, 5 mL vial",
+   "short": "40 mg/mL, 5 mL",
+   "unit": "vial",
+   "onHand": 230,
+   "dailyUse": 19.193,
+   "days": 12,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 74,
+     "dailyUse": 6.001,
+     "days": 12.3,
+     "lines": [
+      "EA-E-000023"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 142,
+     "dailyUse": 12.179,
+     "days": 11.7,
+     "lines": [
+      "CG-42",
+      "CG-43"
+     ],
+     "evidence": [
+      "E2",
+      "E3"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 14,
+     "dailyUse": 1.013,
+     "days": 13.8,
+     "lines": [
+      "LS-LS-0010"
+     ],
+     "evidence": [
+      "E4"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -410,10 +484,10 @@
    "plants": [
     {
      "name": "Baxter Healthcare Corporation",
-     "fei": "1025114",
+     "fei": "1416980",
      "country": "USA",
      "health": "signal",
-     "last": "OAI 2024-02-09"
+     "last": "OAI 2026-04-02"
     }
    ],
    "onShortageList": true,
@@ -514,15 +588,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Henry Schein, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Medical Purchasing Solutions, LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -539,10 +604,10 @@
    "evidence": []
   },
   {
-   "kind": "alternate_concentration",
-   "rank": 3,
-   "title": "Same molecule, alternate concentration or vial size: DOPamine Hydrochloride 40 mg/mL from Hikma Pharmaceuticals USA Inc.",
-   "detail": "Recalculate dose and volume; pharmacist verification required. Approved by Alex Morgan, PharmD on 2025-10-24.",
+   "kind": "alternate_manufacturer",
+   "rank": 4,
+   "title": "Same product, alternate manufacturer: DOPamine Hydrochloride 40 mg/mL from Hikma Pharmaceuticals USA Inc.",
+   "detail": "Recalculate dose and volume; pharmacist verification required. Approved by Alex Morgan, PharmD on 2025-10-24. FDA lists this product Current (posted 2017-11-06).",
    "why": "Already approved by the P&T committee.",
    "needs": "pharmacist",
    "evidence": [
@@ -550,10 +615,10 @@
    ]
   },
   {
-   "kind": "alternate_concentration",
-   "rank": 3,
-   "title": "Same molecule, alternate concentration or vial size: DOPamine Hydrochloride 40 mg/mL from Hospira, Inc.",
-   "detail": "Recalculate dose and volume; pharmacist verification required. Approved by Alex Morgan, PharmD on 2025-12-19.",
+   "kind": "alternate_manufacturer",
+   "rank": 4,
+   "title": "Same product, alternate manufacturer: DOPamine Hydrochloride 40 mg/mL from Hospira, Inc.",
+   "detail": "Recalculate dose and volume; pharmacist verification required. Approved by Alex Morgan, PharmD on 2025-12-19. FDA lists this product Current (posted 2017-11-06).",
    "why": "Already approved by the P&T committee.",
    "needs": "pharmacist",
    "evidence": [
@@ -593,17 +658,35 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "FDA's shortage list shows dopamine hydrochloride on shortage since 2017-11-06 with Baxter, Hikma, and Hospira listed as current; our three sites each have about 12–14 days on hand and the preferred alternate is HF Acquisition Co LLC, DBA HealthFirst, which is not on FDA's shortage list today but its label names no plant we could place.",
+  "headline": "The public record is incomplete; check the flagged links",
   "sentences": [
    {
-    "text": "FDA first posted the dopamine hydrochloride shortage on 2017-11-06 and as of 2026-10-21 it has been on the list for 108 months.",
+    "text": "FDA first posted the dopamine hydrochloride shortage on 2017-11-06 and it remains Current as of 2026-10-21.",
     "cites": [
      "E22",
-     "D9"
+     "E19",
+     "E20",
+     "E21",
+     "D6"
     ]
    },
    {
-    "text": "The current FDA shortage list includes Baxter Healthcare, Hikma Pharmaceuticals USA Inc., and Hospira Inc. (a Pfizer Company) all with status Current.",
+    "text": "The shortage has been on FDA's list for 108 months as of 2026-10-21.",
+    "cites": [
+     "D6"
+    ]
+   },
+   {
+    "text": "Hospira, Inc. (FEI 1021343) is a registered manufacturer for this product and its plant was classified OAI on 2010-01-19, 2011-06-17, and 2011-08-04.",
+    "cites": [
+     "E18",
+     "E8",
+     "E10",
+     "E12"
+    ]
+   },
+   {
+    "text": "Hikma Pharmaceuticals USA Inc. and Baxter Healthcare also appear on FDA's shortage list with Current status.",
     "cites": [
      "E19",
      "E20",
@@ -611,91 +694,100 @@
     ]
    },
    {
-    "text": "Hikma's label names HIKMA FARMACÊUTICA (PORTUGAL) as the manufacturing plant, but the plant is not placed in our records.",
+    "text": "HF Acquisition Co LLC, DBA HealthFirst is not on FDA's shortage list today and its label names no plant we could place.",
     "cites": [
-     "E5"
+     "D7"
     ]
    },
    {
-    "text": "Hospira's registered plant (FEI 1021343) has a history of OAI inspections in 2010 and 2011 and a Warning Letter in 2010-04-12, with the most recent inspection NAI on 2025-02-07.",
-    "cites": [
-     "E8",
-     "E10",
-     "E12",
-     "E17",
-     "E18"
-    ]
-   },
-   {
-    "text": "Corvale East, Corvale General, and Corvale Lakeside each hold roughly 12–14 days of supply at current usage rates.",
+    "text": "Check inventory at Corvale East (12.3 days on hand), Corvale General (11.7 days), and Corvale Lakeside (13.8 days) and evaluate the alternate manufacturer option.",
     "cites": [
      "D1",
      "D2",
-     "D3"
-    ]
-   },
-   {
-    "text": "The rule‑selected alternate manufacturer is HF Acquisition Co LLC, DBA HealthFirst, which is not on FDA's shortage list today, though its label names no plant we could place.",
-    "cites": [
-     "D6"
-    ]
-   },
-   {
-    "text": "Buyer should verify HealthFirst's supply reliability and confirm the manufacturing site before committing to purchase.",
-    "cites": [
-     "D6"
+     "D3",
+     "D7"
     ]
    }
   ],
   "verifier": {
    "checked": 8,
-   "rejected": [],
-   "repaired": 0
+   "rejected": [
+    {
+     "text": "The earliest OAI classification at this plant occurred 2819 days before the shortage posting on 2017-11-06.",
+     "reason": "number 2819 is not in the cited evidence"
+    },
+    {
+     "text": "FDA's records trace our supply to a plant classified OAI 2819 days before the posting",
+     "reason": "headline: number 2819 is not in the cited evidence"
+    }
+   ],
+   "repaired": 1
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
  },
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -710,87 +802,87 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:41:44.336Z",
+   "at": "2026-10-22T11:51:45.314Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract 5NZ5ZPZQ scope"
+   "reason": "in contract ZRRDXZF8 scope"
   },
   {
-   "at": "2026-10-22T07:41:44.337Z",
+   "at": "2026-10-22T11:51:45.314Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 5NZ5ZPZQ scope"
+   "reason": "in contract ZRRDXZF8 scope"
   },
   {
-   "at": "2026-10-22T07:41:47.606Z",
+   "at": "2026-10-22T11:51:54.643Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 5NZ5ZPZQ scope"
+   "reason": "in contract ZRRDXZF8 scope"
   },
   {
-   "at": "2026-10-22T07:41:48.598Z",
+   "at": "2026-10-22T11:51:55.929Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 5NZ5ZPZQ scope"
+   "reason": "in contract ZRRDXZF8 scope"
   },
   {
-   "at": "2026-10-22T07:41:49.136Z",
+   "at": "2026-10-22T11:51:56.796Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 5NZ5ZPZQ scope"
+   "reason": "in contract ZRRDXZF8 scope"
   },
   {
-   "at": "2026-10-22T07:41:51.597Z",
+   "at": "2026-10-22T11:52:01.243Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 5NZ5ZPZQ scope"
+   "reason": "in contract ZRRDXZF8 scope"
   },
   {
-   "at": "2026-10-22T07:41:53.253Z",
+   "at": "2026-10-22T11:52:03.475Z",
    "action": "What FDA wrote at the OAI inspections",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 5NZ5ZPZQ scope"
+   "reason": "in contract ZRRDXZF8 scope"
   },
   {
-   "at": "2026-10-22T07:41:53.540Z",
+   "at": "2026-10-22T11:52:04.026Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 5NZ5ZPZQ scope"
+   "reason": "in contract ZRRDXZF8 scope"
   },
   {
-   "at": "2026-10-22T07:41:55.179Z",
+   "at": "2026-10-22T11:52:08.007Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 5NZ5ZPZQ scope"
+   "reason": "in contract ZRRDXZF8 scope"
   },
   {
-   "at": "2026-10-22T07:41:58.050Z",
+   "at": "2026-10-22T11:52:10.295Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract 5NZ5ZPZQ scope"
+   "reason": "in contract ZRRDXZF8 scope"
   },
   {
-   "at": "2026-10-22T07:41:58.054Z",
+   "at": "2026-10-22T11:52:10.297Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract 5NZ5ZPZQ scope"
+   "reason": "in contract ZRRDXZF8 scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-92b156",
+   "queryId": "Q-5496ee",
    "row": 0,
    "label": "Corvale East: DOPAMINE HYDROCHLORIDE 40MG/ML 5ML SDV",
    "fields": {
@@ -801,65 +893,80 @@
     "description": "DOPAMINE HYDROCHLORIDE 40MG/ML 5ML SDV",
     "on_hand": "74.00",
     "daily_use": "6.001",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "25.00",
+    "unit_basis": "packages of 25, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Dopamine Hydrochloride",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0143-9252-25",
     "spl_set_id": "0e499952-46c7-4172-8c70-186312e240a3",
     "dosage_form": "INJECTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "DOPAMINE HYDROCHLORIDE 40 mg/mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-92b156",
+   "queryId": "Q-5496ee",
    "row": 1,
-   "label": "Corvale General: Dopamine Hydrochloride",
+   "label": "Corvale General: Dopamine Hydrochloride 40 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-42",
     "ndc11": "00143925225",
     "ndc_as_recorded": "00143925225",
-    "description": "Dopamine Hydrochloride",
-    "on_hand": "86.87",
+    "description": "Dopamine Hydrochloride 40 mg/mL",
+    "on_hand": "86.00",
     "daily_use": "6.166",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Dopamine Hydrochloride",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0143-9252-25",
     "spl_set_id": "0e499952-46c7-4172-8c70-186312e240a3",
     "dosage_form": "INJECTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "DOPAMINE HYDROCHLORIDE 40 mg/mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-92b156",
+   "queryId": "Q-5496ee",
    "row": 2,
-   "label": "Corvale General: Dopamine Hydrochloride",
+   "label": "Corvale General: Dopamine Hydrochloride 40 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-43",
     "ndc11": "00409582001",
     "ndc_as_recorded": "00409582001",
-    "description": "Dopamine Hydrochloride",
-    "on_hand": "56.61",
+    "description": "Dopamine Hydrochloride 40 mg/mL",
+    "on_hand": "56.00",
     "daily_use": "6.013",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Dopamine Hydrochloride",
     "labeler_name": "Hospira, Inc.",
     "package_ndc": "0409-5820-01",
     "spl_set_id": "1f306ad2-3606-4525-5a8a-ce78f426c1a2",
     "dosage_form": "INJECTION, SOLUTION, CONCENTRATE",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "DOPAMINE HYDROCHLORIDE 40 mg/mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-92b156",
+   "queryId": "Q-5496ee",
    "row": 3,
    "label": "Corvale Lakeside: DOPamine Hydrochloride 40 mg/mL 5 mL vial",
    "fields": {
@@ -871,13 +978,18 @@
     "on_hand": "14.00",
     "daily_use": "1.013",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Dopamine Hydrochloride",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0143-9252-25",
     "spl_set_id": "0e499952-46c7-4172-8c70-186312e240a3",
     "dosage_form": "INJECTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "DOPAMINE HYDROCHLORIDE 40 mg/mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E5": {
@@ -898,7 +1010,7 @@
   },
   "E6": {
    "id": "E6",
-   "queryId": "Q-952fac",
+   "queryId": "Q-ab7964",
    "row": 0,
    "label": "FDA inspection 606428 (VAI)",
    "fields": {
@@ -927,7 +1039,7 @@
   },
   "E8": {
    "id": "E8",
-   "queryId": "Q-952fac",
+   "queryId": "Q-ab7964",
    "row": 1,
    "label": "FDA inspection 639034 (OAI); Form 483: Control procedures to monitor and validate performance; In-process materials specifications; Dissemination of problem information (6 observations)",
    "fields": {
@@ -956,7 +1068,7 @@
   },
   "E10": {
    "id": "E10",
-   "queryId": "Q-952fac",
+   "queryId": "Q-ab7964",
    "row": 2,
    "label": "FDA inspection 732886 (OAI); Form 483: Control procedures to monitor and validate performance; Deviations from laboratory control requirements; Lack of written stability program (17 observations)",
    "fields": {
@@ -985,7 +1097,7 @@
   },
   "E12": {
    "id": "E12",
-   "queryId": "Q-952fac",
+   "queryId": "Q-ab7964",
    "row": 3,
    "label": "FDA inspection 740633 (OAI); Form 483: Scientifically sound laboratory controls; Investigations of discrepancies, failures; Procedures not  in writing, fully followed",
    "fields": {
@@ -1001,7 +1113,7 @@
   },
   "E13": {
    "id": "E13",
-   "queryId": "Q-952fac",
+   "queryId": "Q-ab7964",
    "row": 4,
    "label": "FDA inspection 833823 (VAI)",
    "fields": {
@@ -1017,7 +1129,7 @@
   },
   "E14": {
    "id": "E14",
-   "queryId": "Q-952fac",
+   "queryId": "Q-ab7964",
    "row": 6,
    "label": "FDA inspection 942202 (VAI)",
    "fields": {
@@ -1033,7 +1145,7 @@
   },
   "E15": {
    "id": "E15",
-   "queryId": "Q-952fac",
+   "queryId": "Q-ab7964",
    "row": 8,
    "label": "FDA inspection 1039547 (VAI)",
    "fields": {
@@ -1049,7 +1161,7 @@
   },
   "E16": {
    "id": "E16",
-   "queryId": "Q-952fac",
+   "queryId": "Q-ab7964",
    "row": 9,
    "label": "FDA inspection 1110899 (VAI)",
    "fields": {
@@ -1065,7 +1177,7 @@
   },
   "E17": {
    "id": "E17",
-   "queryId": "Q-bdd456",
+   "queryId": "Q-46a50c",
    "row": 0,
    "label": "Warning Letter 2010-04-12",
    "fields": {
@@ -1095,7 +1207,7 @@
   },
   "E19": {
    "id": "E19",
-   "queryId": "Q-ef1353",
+   "queryId": "Q-d3ff5d",
    "row": 0,
    "label": "FDA shortage list: Baxter Healthcare, Current",
    "fields": {
@@ -1110,7 +1222,7 @@
   },
   "E20": {
    "id": "E20",
-   "queryId": "Q-ef1353",
+   "queryId": "Q-d3ff5d",
    "row": 4,
    "label": "FDA shortage list: Hikma Pharmaceuticals USA, Inc., Current",
    "fields": {
@@ -1125,7 +1237,7 @@
   },
   "E21": {
    "id": "E21",
-   "queryId": "Q-ef1353",
+   "queryId": "Q-d3ff5d",
    "row": 6,
    "label": "FDA shortage list: Hospira, Inc., a Pfizer Company, Current",
    "fields": {
@@ -1140,7 +1252,7 @@
   },
   "E22": {
    "id": "E22",
-   "queryId": "Q-ef1353",
+   "queryId": "Q-d3ff5d",
    "row": 0,
    "label": "FDA first posted the shortage 2017-11-06",
    "fields": {
@@ -1193,36 +1305,39 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 74 units of dopamine hydrochloride at 6 a day: 12 days on hand",
+   "label": "Corvale East holds 74 vials of dopamine hydrochloride 40 mg/mL, 5 mL at 6 a day: 12.3 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "40 mg/mL injection, 5 mL vial",
     "on_hand": 74,
     "daily_use": 6,
-    "days_on_hand": 12
+    "days_on_hand": 12.3
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 143 units of dopamine hydrochloride at 12.2 a day: 12 days on hand",
+   "label": "Corvale General holds 142 vials of dopamine hydrochloride 40 mg/mL, 5 mL at 12.2 a day: 11.7 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 143,
+    "presentation": "40 mg/mL injection, 5 mL vial",
+    "on_hand": 142,
     "daily_use": 12.2,
-    "days_on_hand": 12
+    "days_on_hand": 11.7
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 14 units of dopamine hydrochloride at 1 a day: 14 days on hand",
+   "label": "Corvale Lakeside holds 14 vials of dopamine hydrochloride 40 mg/mL, 5 mL at 1 a day: 13.8 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
+    "presentation": "40 mg/mL injection, 5 mL vial",
     "on_hand": 14,
     "daily_use": 1,
-    "days_on_hand": 14
+    "days_on_hand": 13.8
    }
   },
   "D4": {
@@ -1251,17 +1366,18 @@
    "id": "D6",
    "queryId": "derived",
    "row": -1,
-   "label": "Option ranked 3 by rule: Buy from HF Acquisition Co LLC, DBA HealthFirst. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "label": "As of 2026-10-21 the shortage has been on FDA's list for 108 months",
    "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
+    "as_of": "2026-10-21",
+    "posted": "2017-11-06",
+    "months": 108
    }
   },
   "D7": {
    "id": "D7",
    "queryId": "derived",
    "row": -1,
-   "label": "Option ranked 3 by rule: Buy from HF Acquisition Co. LLC, DBA Health First. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "label": "Option ranked 3 by rule: Buy from HF Acquisition Co LLC, DBA HealthFirst. Not on FDA's shortage list today. Its label names no plant we could place.",
    "fields": {
     "kind": "alternate_manufacturer",
     "needs": "buyer"
@@ -1271,7 +1387,7 @@
    "id": "D8",
    "queryId": "derived",
    "row": -1,
-   "label": "Option ranked 3 by rule: Buy from Henry Schein, Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "label": "Option ranked 3 by rule: Buy from HF Acquisition Co. LLC, DBA Health First. Not on FDA's shortage list today. Its label names no plant we could place.",
    "fields": {
     "kind": "alternate_manufacturer",
     "needs": "buyer"
@@ -1281,183 +1397,201 @@
    "id": "D9",
    "queryId": "derived",
    "row": -1,
-   "label": "As of 2026-10-21 the shortage has been on FDA's list for 108 months",
+   "label": "Option ranked 3 by rule: Buy from Medical Purchasing Solutions, LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
    "fields": {
-    "as_of": "2026-10-21",
-    "posted": "2017-11-06",
-    "months": 108
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-92b156": {
-   "id": "Q-92b156",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%dopamine%' OR lower(s.description) LIKE '%dopamine%' ORDER BY s.hospital, s.item_key",
-   "ms": 3261,
+  "Q-5496ee": {
+   "id": "Q-5496ee",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*dopamine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*dopamine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 9325,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:41:47.598Z",
+   "ranAt": "2026-10-22T11:51:54.639Z",
    "rows": 4
   },
   "Q-417a53": {
    "id": "Q-417a53",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('0e499952-46c7-4172-8c70-186312e240a3', '1f306ad2-3606-4525-5a8a-ce78f426c1a2') ORDER BY ps.set_id, ps.establishment",
-   "ms": 988,
+   "ms": 1284,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:41:48.595Z",
+   "ranAt": "2026-10-22T11:51:55.927Z",
    "rows": 2
   },
-  "Q-ef1353": {
-   "id": "Q-ef1353",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%dopamine%' ORDER BY status, company_name, package_ndc",
-   "ms": 271,
+  "Q-d3ff5d": {
+   "id": "Q-d3ff5d",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*dopamine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 445,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:41:48.869Z",
+   "ranAt": "2026-10-22T11:51:56.374Z",
    "rows": 11
   },
-  "Q-1d78ce": {
-   "id": "Q-1d78ce",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%dopamine%' ORDER BY first_posting",
-   "ms": 260,
+  "Q-5bb638": {
+   "id": "Q-5bb638",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*dopamine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 415,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:41:49.132Z",
+   "ranAt": "2026-10-22T11:51:56.791Z",
    "rows": 1
   },
-  "Q-7d1c91": {
-   "id": "Q-7d1c91",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%dopamine%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2457,
+  "Q-a6b3a8": {
+   "id": "Q-a6b3a8",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*dopamine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 4442,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:41:51.593Z",
+   "ranAt": "2026-10-22T11:52:01.238Z",
    "rows": 41
   },
-  "Q-952fac": {
-   "id": "Q-952fac",
-   "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('1021343', '1025114', '1416980', '2618677') ORDER BY fei, end_date",
-   "ms": 737,
+  "Q-ab7964": {
+   "id": "Q-ab7964",
+   "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('1021343', '1416980', '1025114', '2618677') ORDER BY fei, end_date",
+   "ms": 1041,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:41:52.333Z",
+   "ranAt": "2026-10-22T11:52:02.284Z",
    "rows": 50
   },
-  "Q-bdd456": {
-   "id": "Q-bdd456",
-   "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('1021343', '1025114', '1416980', '2618677') ORDER BY fei, action_date",
-   "ms": 276,
+  "Q-46a50c": {
+   "id": "Q-46a50c",
+   "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('1021343', '1416980', '1025114', '2618677') ORDER BY fei, action_date",
+   "ms": 377,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:41:52.613Z",
+   "ranAt": "2026-10-22T11:52:02.663Z",
    "rows": 5
   },
   "Q-f3c17d": {
    "id": "Q-f3c17d",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('1021343') OR (fei_match <> 'name_and_city' AND firm_key IN ('hikma farmaceutica', 'hospira')) ORDER BY date_published",
-   "ms": 307,
+   "ms": 343,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:41:52.924Z",
+   "ranAt": "2026-10-22T11:52:03.011Z",
    "rows": 0
   },
-  "Q-00c505": {
-   "id": "Q-00c505",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('hikma farmaceutica', 'hospira', 'hikma') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%dopamine%' ORDER BY initiation_date",
-   "ms": 322,
+  "Q-da3ff0": {
+   "id": "Q-da3ff0",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('hikma farmaceutica', 'hospira', 'hikma') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*dopamine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 461,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:41:53.249Z",
+   "ranAt": "2026-10-22T11:52:03.473Z",
    "rows": 0
   },
   "Q-8cc1cd": {
    "id": "Q-8cc1cd",
    "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('639034', '732886', '740633') ORDER BY inspection_id, cfr",
-   "ms": 278,
+   "ms": 545,
    "mode": "live",
    "sources": [
     "fda.citations"
    ],
-   "ranAt": "2026-10-22T07:41:53.531Z",
+   "ranAt": "2026-10-22T11:52:04.021Z",
    "rows": 26
   },
   "Q-e64e2e": {
    "id": "Q-e64e2e",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('00143925225', '00409582001')",
-   "ms": 1635,
+   "ms": 3979,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:41:55.175Z",
+   "ranAt": "2026-10-22T11:52:08.005Z",
    "rows": 2
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-4123f8": {
-   "id": "Q-4123f8",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%dopamine%'",
-   "ms": 2867,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:41:58.046Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-07b036": {
+   "id": "Q-07b036",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*dopamine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 2286,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:52:10.293Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 15,
-  "zetarisMs": 19030,
+  "zetarisMs": 35151,
   "modelCalls": 1,
-  "tokensIn": 2470,
-  "tokensOut": 588,
+  "tokensIn": 2690,
+  "tokensOut": 490,
   "mode": "live"
  },
  "slug": "dopamine",
@@ -1473,7 +1607,7 @@
     "id": "hospital-item:hospital-item:CG-42",
     "type": "HospitalItem",
     "key": "hospital-item:CG-42",
-    "label": "Corvale General: Dopamine Hydrochloride",
+    "label": "Corvale General: Dopamine Hydrochloride 40 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-42"
     },
@@ -1484,7 +1618,7 @@
     "id": "hospital-item:hospital-item:CG-43",
     "type": "HospitalItem",
     "key": "hospital-item:CG-43",
-    "label": "Corvale General: Dopamine Hydrochloride",
+    "label": "Corvale General: Dopamine Hydrochloride 40 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-43"
     },
@@ -1612,7 +1746,7 @@
     },
     "facts": [
      {
-      "id": "fact_c70008394bdfd8fd",
+      "id": "fact_f59d38749952c97a",
       "about": "inspection:fda-inspection:1039547",
       "predicate": "classification",
       "value": "VAI",
@@ -1620,9 +1754,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:41:53.538Z"
+       "at": "2026-10-22T11:52:04.024Z"
       },
-      "assertedAt": "2026-10-22T07:41:53.538Z"
+      "assertedAt": "2026-10-22T11:52:04.024Z"
      }
     ],
     "depth": 4
@@ -1638,7 +1772,7 @@
     },
     "facts": [
      {
-      "id": "fact_26ec0fcb15eb3384",
+      "id": "fact_450dc34e7aa5fab4",
       "about": "inspection:fda-inspection:1110899",
       "predicate": "classification",
       "value": "VAI",
@@ -1646,9 +1780,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:41:53.538Z"
+       "at": "2026-10-22T11:52:04.024Z"
       },
-      "assertedAt": "2026-10-22T07:41:53.538Z"
+      "assertedAt": "2026-10-22T11:52:04.024Z"
      }
     ],
     "depth": 4
@@ -1664,7 +1798,7 @@
     },
     "facts": [
      {
-      "id": "fact_378ae785ce83795d",
+      "id": "fact_0ca91067a330ecf7",
       "about": "inspection:fda-inspection:606428",
       "predicate": "classification",
       "value": "VAI",
@@ -1672,9 +1806,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:41:53.537Z"
+       "at": "2026-10-22T11:52:04.023Z"
       },
-      "assertedAt": "2026-10-22T07:41:53.537Z"
+      "assertedAt": "2026-10-22T11:52:04.023Z"
      }
     ],
     "depth": 4
@@ -1690,7 +1824,7 @@
     },
     "facts": [
      {
-      "id": "fact_6d3a618c4ce78f31",
+      "id": "fact_4e75fa60f2badf64",
       "about": "inspection:fda-inspection:639034",
       "predicate": "classification",
       "value": "OAI",
@@ -1698,9 +1832,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:41:53.537Z"
+       "at": "2026-10-22T11:52:04.023Z"
       },
-      "assertedAt": "2026-10-22T07:41:53.537Z"
+      "assertedAt": "2026-10-22T11:52:04.023Z"
      }
     ],
     "depth": 4
@@ -1716,7 +1850,7 @@
     },
     "facts": [
      {
-      "id": "fact_c364b24c5213a029",
+      "id": "fact_228b735c3ae9b7f8",
       "about": "inspection:fda-inspection:732886",
       "predicate": "classification",
       "value": "OAI",
@@ -1724,9 +1858,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:41:53.537Z"
+       "at": "2026-10-22T11:52:04.023Z"
       },
-      "assertedAt": "2026-10-22T07:41:53.537Z"
+      "assertedAt": "2026-10-22T11:52:04.023Z"
      }
     ],
     "depth": 4
@@ -1742,7 +1876,7 @@
     },
     "facts": [
      {
-      "id": "fact_d67f4fee2175b27f",
+      "id": "fact_a2b880dbaf496677",
       "about": "inspection:fda-inspection:740633",
       "predicate": "classification",
       "value": "OAI",
@@ -1750,9 +1884,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:41:53.538Z"
+       "at": "2026-10-22T11:52:04.023Z"
       },
-      "assertedAt": "2026-10-22T07:41:53.538Z"
+      "assertedAt": "2026-10-22T11:52:04.023Z"
      }
     ],
     "depth": 4
@@ -1768,7 +1902,7 @@
     },
     "facts": [
      {
-      "id": "fact_7220ce689fe71d55",
+      "id": "fact_6c74569f168aca0c",
       "about": "inspection:fda-inspection:833823",
       "predicate": "classification",
       "value": "VAI",
@@ -1776,9 +1910,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:41:53.538Z"
+       "at": "2026-10-22T11:52:04.024Z"
       },
-      "assertedAt": "2026-10-22T07:41:53.538Z"
+      "assertedAt": "2026-10-22T11:52:04.024Z"
      }
     ],
     "depth": 4
@@ -1794,7 +1928,7 @@
     },
     "facts": [
      {
-      "id": "fact_032cd5877dc31c60",
+      "id": "fact_d9138dc34bf9e480",
       "about": "inspection:fda-inspection:942202",
       "predicate": "classification",
       "value": "VAI",
@@ -1802,9 +1936,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:41:53.538Z"
+       "at": "2026-10-22T11:52:04.024Z"
       },
-      "assertedAt": "2026-10-22T07:41:53.538Z"
+      "assertedAt": "2026-10-22T11:52:04.024Z"
      }
     ],
     "depth": 4
@@ -1838,11 +1972,11 @@
     "from": "hospital-item:hospital-item:CG-42",
     "to": "package:ndc-package:0143-9252-25",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:41:47.603Z",
+    "validFrom": "2026-10-22T11:51:54.642Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:41:47.603Z"
+     "at": "2026-10-22T11:51:54.642Z"
     }
    },
    {
@@ -1850,11 +1984,11 @@
     "from": "hospital-item:hospital-item:CG-43",
     "to": "package:ndc-package:0409-5820-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:41:47.604Z",
+    "validFrom": "2026-10-22T11:51:54.642Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:41:47.604Z"
+     "at": "2026-10-22T11:51:54.642Z"
     }
    },
    {
@@ -1862,11 +1996,11 @@
     "from": "hospital-item:hospital-item:EA-E-000023",
     "to": "package:ndc-package:0143-9252-25",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:41:47.602Z",
+    "validFrom": "2026-10-22T11:51:54.642Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:41:47.602Z"
+     "at": "2026-10-22T11:51:54.642Z"
     }
    },
    {
@@ -1874,11 +2008,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0010",
     "to": "package:ndc-package:0143-9252-25",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:41:47.605Z",
+    "validFrom": "2026-10-22T11:51:54.643Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:41:47.605Z"
+     "at": "2026-10-22T11:51:54.643Z"
     }
    },
    {
@@ -1886,11 +2020,11 @@
     "from": "package:ndc-package:0143-9252-25",
     "to": "product:ndc-product:0143-9252",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:41:47.603Z",
+    "validFrom": "2026-10-22T11:51:54.642Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:41:47.603Z"
+     "at": "2026-10-22T11:51:54.642Z"
     }
    },
    {
@@ -1898,11 +2032,11 @@
     "from": "package:ndc-package:0409-5820-01",
     "to": "product:ndc-product:0409-5820",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:41:47.604Z",
+    "validFrom": "2026-10-22T11:51:54.642Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:41:47.604Z"
+     "at": "2026-10-22T11:51:54.642Z"
     }
    },
    {
@@ -1910,11 +2044,11 @@
     "from": "product:ndc-product:0143-9252",
     "to": "drug:generic:dopamine hydrochloride",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:41:47.603Z",
+    "validFrom": "2026-10-22T11:51:54.642Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:41:47.603Z"
+     "at": "2026-10-22T11:51:54.642Z"
     }
    },
    {
@@ -1922,11 +2056,11 @@
     "from": "product:ndc-product:0143-9252",
     "to": "labeler:ndc-labeler:0143",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:41:47.603Z",
+    "validFrom": "2026-10-22T11:51:54.642Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:41:47.603Z"
+     "at": "2026-10-22T11:51:54.642Z"
     }
    },
    {
@@ -1934,11 +2068,11 @@
     "from": "product:ndc-product:0409-5820",
     "to": "drug:generic:dopamine hydrochloride",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:41:47.604Z",
+    "validFrom": "2026-10-22T11:51:54.642Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:41:47.604Z"
+     "at": "2026-10-22T11:51:54.642Z"
     }
    },
    {
@@ -1946,11 +2080,11 @@
     "from": "product:ndc-product:0409-5820",
     "to": "labeler:ndc-labeler:0409",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:41:47.604Z",
+    "validFrom": "2026-10-22T11:51:54.642Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:41:47.604Z"
+     "at": "2026-10-22T11:51:54.642Z"
     }
    },
    {
@@ -1958,11 +2092,11 @@
     "from": "product:ndc-product:0409-5820",
     "to": "site:fei:1021343",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:41:53.536Z",
+    "validFrom": "2026-10-22T11:52:04.023Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:41:53.536Z"
+     "at": "2026-10-22T11:52:04.023Z"
     }
    },
    {
@@ -1970,11 +2104,11 @@
     "from": "shortage:fda-shortage:dopamine-2017-11-06",
     "to": "drug:generic:dopamine hydrochloride",
     "type": "affects",
-    "validFrom": "2026-10-22T07:41:53.539Z",
+    "validFrom": "2026-10-22T11:52:04.024Z",
     "source": {
      "kind": "fda-shortage-db",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:41:53.539Z"
+     "at": "2026-10-22T11:52:04.024Z"
     }
    },
    {
@@ -1982,11 +2116,11 @@
     "from": "inspection:fda-inspection:606428",
     "to": "site:fei:1021343",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:41:53.537Z",
+    "validFrom": "2026-10-22T11:52:04.023Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:41:53.537Z"
+     "at": "2026-10-22T11:52:04.023Z"
     }
    },
    {
@@ -1994,11 +2128,11 @@
     "from": "inspection:fda-inspection:639034",
     "to": "site:fei:1021343",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:41:53.537Z",
+    "validFrom": "2026-10-22T11:52:04.023Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:41:53.537Z"
+     "at": "2026-10-22T11:52:04.023Z"
     }
    },
    {
@@ -2006,11 +2140,11 @@
     "from": "inspection:fda-inspection:732886",
     "to": "site:fei:1021343",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:41:53.537Z",
+    "validFrom": "2026-10-22T11:52:04.023Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:41:53.537Z"
+     "at": "2026-10-22T11:52:04.023Z"
     }
    },
    {
@@ -2018,11 +2152,11 @@
     "from": "inspection:fda-inspection:740633",
     "to": "site:fei:1021343",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:41:53.538Z",
+    "validFrom": "2026-10-22T11:52:04.023Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:41:53.538Z"
+     "at": "2026-10-22T11:52:04.023Z"
     }
    },
    {
@@ -2030,11 +2164,11 @@
     "from": "inspection:fda-inspection:833823",
     "to": "site:fei:1021343",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:41:53.538Z",
+    "validFrom": "2026-10-22T11:52:04.023Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:41:53.538Z"
+     "at": "2026-10-22T11:52:04.023Z"
     }
    },
    {
@@ -2042,11 +2176,11 @@
     "from": "inspection:fda-inspection:942202",
     "to": "site:fei:1021343",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:41:53.538Z",
+    "validFrom": "2026-10-22T11:52:04.024Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:41:53.538Z"
+     "at": "2026-10-22T11:52:04.024Z"
     }
    },
    {
@@ -2054,11 +2188,11 @@
     "from": "inspection:fda-inspection:1039547",
     "to": "site:fei:1021343",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:41:53.538Z",
+    "validFrom": "2026-10-22T11:52:04.024Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:41:53.538Z"
+     "at": "2026-10-22T11:52:04.024Z"
     }
    },
    {
@@ -2066,11 +2200,11 @@
     "from": "inspection:fda-inspection:1110899",
     "to": "site:fei:1021343",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:41:53.538Z",
+    "validFrom": "2026-10-22T11:52:04.024Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:41:53.538Z"
+     "at": "2026-10-22T11:52:04.024Z"
     }
    },
    {
@@ -2078,11 +2212,11 @@
     "from": "warning-letter:fda-warning-letter:99787",
     "to": "site:fei:1021343",
     "type": "issued-to",
-    "validFrom": "2026-10-22T07:41:53.537Z",
+    "validFrom": "2026-10-22T11:52:04.023Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:41:53.537Z"
+     "at": "2026-10-22T11:52:04.023Z"
     }
    }
   ],

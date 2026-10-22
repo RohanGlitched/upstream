@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-13005c",
+ "id": "case-2026-10-22-e4d9ac",
  "question": "Why is cefuroxime short, and what do we do?",
- "askedAt": "2026-10-22T07:33:14.964Z",
+ "askedAt": "2026-10-22T11:38:00.954Z",
  "asOf": "2026-10-21",
  "molecule": "cefuroxime",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H8E635KNPP0XEFWRZB22D8",
+  "contractId": "01M5HPEDNAAF787BEMFSCKD2G3",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-d6e773"
+    "Q-952546"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3647,
+   "ms": 4428,
    "rows": 2,
-   "finding": "2 stock lines across 2 hospitals.",
+   "finding": "2 stock lines across 2 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-cf544b"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1123,
+   "ms": 501,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-4a8324",
-    "Q-7752a8"
+    "Q-46f048",
+    "Q-daae9f"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 573,
+   "ms": 307,
    "rows": 1,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-307b11"
+    "Q-b3648c"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2744,
+   "ms": 1436,
    "rows": 10,
    "finding": "3 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-54b95d",
     "Q-2a87b7",
     "Q-6410e4",
-    "Q-40ab29"
+    "Q-f35c42"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1184,
+   "ms": 740,
    "rows": 10,
    "finding": "9 inspections (1 OAI at our plants), 1 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,7 +111,7 @@
    "sources": [
     "fda.citations"
    ],
-   "ms": 258,
+   "ms": 186,
    "rows": 6,
    "finding": "6 Form 483 observations recorded.",
    "status": "ok"
@@ -119,9 +126,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1075,
+   "ms": 840,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -129,19 +136,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-a61472"
+    "Q-e5399a"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1145,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1494,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -152,7 +163,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 3,
+   "ms": 1,
    "rows": 2,
    "finding": "2 past decisions recalled.",
    "status": "ok"
@@ -168,22 +179,65 @@
    "onHand": 158,
    "dailyUse": 15.011,
    "days": 10.5,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 25, converted to units",
+   "presentation": "cefuroxime|1.5g|injection||vial",
+   "presentationLabel": "1.5 g injection",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-176",
    "ndc11": "00143997722",
-   "description": "Cefuroxime",
+   "description": "Cefuroxime 1.5 g/1",
    "labeler": "Hikma Pharmaceuticals USA Inc.",
-   "onHand": 367.55,
+   "onHand": 367,
    "dailyUse": 14.343,
    "days": 25.6,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "cefuroxime|1.5g|injection||vial",
+   "presentationLabel": "1.5 g injection",
    "evidence": "E2"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "cefuroxime|1.5g|injection||vial",
+   "label": "1.5 g injection",
+   "short": "1.5 g",
+   "unit": "vial",
+   "onHand": 525,
+   "dailyUse": 29.354,
+   "days": 17.9,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 158,
+     "dailyUse": 15.011,
+     "days": 10.5,
+     "lines": [
+      "EA-E-000043"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 367,
+     "dailyUse": 14.343,
+     "days": 25.6,
+     "lines": [
+      "CG-176"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -427,30 +481,26 @@
   }
  ],
  "explanation": {
-  "state": "confirmed",
-  "headline": "FDA's records trace this shortage to a plant on our own labels",
+  "state": "check",
+  "headline": "Cefuroxime is not on FDA's shortage list as of 2026-10-21; the label for Hikma's product names a plant in Portugal with a history of VAI and OAI inspections",
   "sentences": [
    {
-    "text": "The label for our cefuroxime product names HIKMA FARMACEUTICA (PORTUGAL), S.A. as the manufacturing plant (FEI 3002807173).",
+    "text": "FDA's drug shortage list does not include cefuroxime as of 2026-10-21.",
+    "cites": [
+     "D3"
+    ]
+   },
+   {
+    "text": "The product label for Hikma Pharmaceuticals USA Inc. (NDC 00143997722) identifies the manufacturing plant as HIKMA FARMACEUTICA (PORTUGAL), S.A. (FEI 3002807173) in Portugal.",
     "cites": [
      "E12"
     ]
    },
    {
-    "text": "FDA inspection 876911 of that plant ended on 2014-03-28 and was classified Official Action Indicated (OAI) with six observations including absence of written procedures and deviations from laboratory control requirements.",
+    "text": "FDA inspection records for that plant show a VAI classification in 2011, an OAI classification in 2014, and subsequent VAI classifications in 2015, 2016, 2020, and 2023.",
     "cites": [
-     "E5"
-    ]
-   },
-   {
-    "text": "A Warning Letter was subsequently issued to the plant on 2014-10-21.",
-    "cites": [
-     "E11"
-    ]
-   },
-   {
-    "text": "Subsequent inspections in 2015, 2016, 2020, and 2023 were classified Voluntary Action Indicated (VAI).",
-    "cites": [
+     "E3",
+     "E5",
      "E6",
      "E7",
      "E8",
@@ -459,29 +509,28 @@
     ]
    },
    {
-    "text": "Current inventory shows Corvale East has 11 days on hand and Corvale General has 26 days on hand.",
+    "text": "A Warning Letter was issued to the plant on 2014-10-21.",
+    "cites": [
+     "E11"
+    ]
+   },
+   {
+    "text": "Corvale East holds 158 vials of the 1.5 g presentation with 10.5 days on hand; Corvale General holds 367 vials with 25.6 days on hand.",
     "cites": [
      "D1",
      "D2"
     ]
+   },
+   {
+    "text": "The rule‑based best option is to buy from B. Braun Medical Inc., which is not on FDA's shortage list today and whose label names no plant we could place.",
+    "cites": [
+     "D4"
+    ]
    }
   ],
   "verifier": {
-   "checked": 8,
-   "rejected": [
-    {
-     "text": "The OAI classification occurred 4470 days before the posting date of 2026-10-21.",
-     "reason": "date 2026-10-21 is not in the cited evidence"
-    },
-    {
-     "text": "The recommended action is to buy from B. Braun Medical Inc., which is not on FDA's shortage list today and its label names no plant we could place.",
-     "reason": "cites nothing"
-    },
-    {
-     "text": "FDA's records trace our supply to a plant classified OAI 4470 days before the posting",
-     "reason": "headline: number 4470 is not in the cited evidence"
-    }
-   ],
+   "checked": 7,
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -489,45 +538,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -549,87 +619,87 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:33:03.206Z",
+   "at": "2026-10-22T11:37:51.019Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract WRZB22D8 scope"
+   "reason": "in contract FSCKD2G3 scope"
   },
   {
-   "at": "2026-10-22T07:33:03.207Z",
+   "at": "2026-10-22T11:37:51.019Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WRZB22D8 scope"
+   "reason": "in contract FSCKD2G3 scope"
   },
   {
-   "at": "2026-10-22T07:33:06.856Z",
+   "at": "2026-10-22T11:37:55.448Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WRZB22D8 scope"
+   "reason": "in contract FSCKD2G3 scope"
   },
   {
-   "at": "2026-10-22T07:33:07.980Z",
+   "at": "2026-10-22T11:37:55.949Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WRZB22D8 scope"
+   "reason": "in contract FSCKD2G3 scope"
   },
   {
-   "at": "2026-10-22T07:33:08.553Z",
+   "at": "2026-10-22T11:37:56.256Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WRZB22D8 scope"
+   "reason": "in contract FSCKD2G3 scope"
   },
   {
-   "at": "2026-10-22T07:33:11.297Z",
+   "at": "2026-10-22T11:37:57.692Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WRZB22D8 scope"
+   "reason": "in contract FSCKD2G3 scope"
   },
   {
-   "at": "2026-10-22T07:33:12.480Z",
+   "at": "2026-10-22T11:37:58.432Z",
    "action": "What FDA wrote at the OAI inspections",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WRZB22D8 scope"
+   "reason": "in contract FSCKD2G3 scope"
   },
   {
-   "at": "2026-10-22T07:33:12.741Z",
+   "at": "2026-10-22T11:37:58.619Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WRZB22D8 scope"
+   "reason": "in contract FSCKD2G3 scope"
   },
   {
-   "at": "2026-10-22T07:33:13.817Z",
+   "at": "2026-10-22T11:37:59.459Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WRZB22D8 scope"
+   "reason": "in contract FSCKD2G3 scope"
   },
   {
-   "at": "2026-10-22T07:33:14.961Z",
+   "at": "2026-10-22T11:38:00.953Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract WRZB22D8 scope"
+   "reason": "in contract FSCKD2G3 scope"
   },
   {
-   "at": "2026-10-22T07:33:14.964Z",
+   "at": "2026-10-22T11:38:00.955Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract WRZB22D8 scope"
+   "reason": "in contract FSCKD2G3 scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-d6e773",
+   "queryId": "Q-952546",
    "row": 0,
    "label": "Corvale East: CEFUROXIME 1.5G",
    "fields": {
@@ -640,37 +710,47 @@
     "description": "CEFUROXIME 1.5G",
     "on_hand": "158.00",
     "daily_use": "15.011",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "25.00",
+    "unit_basis": "packages of 25, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Cefuroxime",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0143-9977-22",
     "spl_set_id": "703cc338-c0b6-4a02-b8db-c27aeff181df",
     "dosage_form": "INJECTION, POWDER, FOR SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "CEFUROXIME SODIUM 1.5 g/1",
+    "unit_content": null,
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-d6e773",
+   "queryId": "Q-952546",
    "row": 1,
-   "label": "Corvale General: Cefuroxime",
+   "label": "Corvale General: Cefuroxime 1.5 g/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-176",
     "ndc11": "00143997722",
     "ndc_as_recorded": "00143997722",
-    "description": "Cefuroxime",
-    "on_hand": "367.55",
+    "description": "Cefuroxime 1.5 g/1",
+    "on_hand": "367.00",
     "daily_use": "14.343",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Cefuroxime",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0143-9977-22",
     "spl_set_id": "703cc338-c0b6-4a02-b8db-c27aeff181df",
     "dosage_form": "INJECTION, POWDER, FOR SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "CEFUROXIME SODIUM 1.5 g/1",
+    "unit_content": null,
+    "pkg_unit": "vial"
    }
   },
   "E3": {
@@ -832,196 +912,247 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 158 units of cefuroxime at 15 a day: 11 days on hand",
+   "label": "Corvale East holds 158 vials of cefuroxime 1.5 g at 15 a day: 10.5 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "1.5 g injection",
     "on_hand": 158,
     "daily_use": 15,
-    "days_on_hand": 11
+    "days_on_hand": 10.5
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 368 units of cefuroxime at 14.3 a day: 26 days on hand",
+   "label": "Corvale General holds 367 vials of cefuroxime 1.5 g at 14.3 a day: 25.6 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 368,
+    "presentation": "1.5 g injection",
+    "on_hand": 367,
     "daily_use": 14.3,
-    "days_on_hand": 26
+    "days_on_hand": 25.6
+   }
+  },
+  "D3": {
+   "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "cefuroxime is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from B. Braun Medical Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Sagent Pharmaceuticals. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-d6e773": {
-   "id": "Q-d6e773",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%cefuroxime%' OR lower(s.description) LIKE '%cefuroxime%' ORDER BY s.hospital, s.item_key",
-   "ms": 3643,
+  "Q-952546": {
+   "id": "Q-952546",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cefuroxime(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cefuroxime(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 4427,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:33:06.850Z",
+   "ranAt": "2026-10-22T11:37:55.446Z",
    "rows": 2
   },
   "Q-cf544b": {
    "id": "Q-cf544b",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('703cc338-c0b6-4a02-b8db-c27aeff181df') ORDER BY ps.set_id, ps.establishment",
-   "ms": 1119,
+   "ms": 499,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:33:07.976Z",
+   "ranAt": "2026-10-22T11:37:55.947Z",
    "rows": 1
   },
-  "Q-4a8324": {
-   "id": "Q-4a8324",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%cefuroxime%' ORDER BY status, company_name, package_ndc",
-   "ms": 268,
+  "Q-46f048": {
+   "id": "Q-46f048",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cefuroxime(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 143,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:33:08.248Z",
+   "ranAt": "2026-10-22T11:37:56.092Z",
    "rows": 0
   },
-  "Q-7752a8": {
-   "id": "Q-7752a8",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%cefuroxime%' ORDER BY first_posting",
-   "ms": 299,
+  "Q-daae9f": {
+   "id": "Q-daae9f",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cefuroxime(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 162,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:33:08.549Z",
+   "ranAt": "2026-10-22T11:37:56.255Z",
    "rows": 1
   },
-  "Q-307b11": {
-   "id": "Q-307b11",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%cefuroxime%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2740,
+  "Q-b3648c": {
+   "id": "Q-b3648c",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cefuroxime(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1434,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:33:11.293Z",
+   "ranAt": "2026-10-22T11:37:57.690Z",
    "rows": 10
   },
   "Q-54b95d": {
    "id": "Q-54b95d",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3002807173') ORDER BY fei, end_date",
-   "ms": 567,
+   "ms": 339,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:33:11.865Z",
+   "ranAt": "2026-10-22T11:37:58.031Z",
    "rows": 9
   },
   "Q-2a87b7": {
    "id": "Q-2a87b7",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3002807173') ORDER BY fei, action_date",
-   "ms": 184,
+   "ms": 128,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:33:12.052Z",
+   "ranAt": "2026-10-22T11:37:58.161Z",
    "rows": 1
   },
   "Q-6410e4": {
    "id": "Q-6410e4",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3002807173') OR (fei_match <> 'name_and_city' AND firm_key IN ('hikma farmaceutica s a')) ORDER BY date_published",
-   "ms": 201,
+   "ms": 110,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:33:12.257Z",
+   "ranAt": "2026-10-22T11:37:58.271Z",
    "rows": 0
   },
-  "Q-40ab29": {
-   "id": "Q-40ab29",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('hikma farmaceutica s a', 'hikma') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%cefuroxime%' ORDER BY initiation_date",
-   "ms": 217,
+  "Q-f35c42": {
+   "id": "Q-f35c42",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('hikma farmaceutica s a', 'hikma') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cefuroxime(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 158,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:33:12.477Z",
+   "ranAt": "2026-10-22T11:37:58.430Z",
    "rows": 0
   },
   "Q-70a8ec": {
    "id": "Q-70a8ec",
    "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('876911') ORDER BY inspection_id, cfr",
-   "ms": 254,
+   "ms": 185,
    "mode": "live",
    "sources": [
     "fda.citations"
    ],
-   "ranAt": "2026-10-22T07:33:12.735Z",
+   "ranAt": "2026-10-22T11:37:58.617Z",
    "rows": 6
   },
   "Q-c22d63": {
    "id": "Q-c22d63",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('00143997722')",
-   "ms": 1072,
+   "ms": 839,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:33:13.813Z",
+   "ranAt": "2026-10-22T11:37:59.458Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-a61472": {
-   "id": "Q-a61472",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%cefuroxime%'",
-   "ms": 1141,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:33:14.958Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-e5399a": {
+   "id": "Q-e5399a",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cefuroxime(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1492,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:38:00.952Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 15,
-  "zetarisMs": 17076,
+  "zetarisMs": 20124,
   "modelCalls": 1,
-  "tokensIn": 1477,
-  "tokensOut": 442,
+  "tokensIn": 1767,
+  "tokensOut": 486,
   "mode": "live"
  },
  "slug": "cefuroxime",
@@ -1035,7 +1166,7 @@
     "id": "hospital-item:hospital-item:CG-176",
     "type": "HospitalItem",
     "key": "hospital-item:CG-176",
-    "label": "Corvale General: Cefuroxime",
+    "label": "Corvale General: Cefuroxime 1.5 g/1",
     "attrs": {
      "key": "hospital-item:CG-176"
     },
@@ -1119,7 +1250,7 @@
     },
     "facts": [
      {
-      "id": "fact_b0870b8847789593",
+      "id": "fact_2d6ab372a12804ba",
       "about": "inspection:fda-inspection:1125050",
       "predicate": "classification",
       "value": "VAI",
@@ -1127,9 +1258,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:33:12.740Z"
+       "at": "2026-10-22T11:37:58.619Z"
       },
-      "assertedAt": "2026-10-22T07:33:12.740Z"
+      "assertedAt": "2026-10-22T11:37:58.619Z"
      }
     ],
     "depth": 4
@@ -1145,7 +1276,7 @@
     },
     "facts": [
      {
-      "id": "fact_e2d5661740591803",
+      "id": "fact_529e3d5987f013dd",
       "about": "inspection:fda-inspection:1203129",
       "predicate": "classification",
       "value": "VAI",
@@ -1153,9 +1284,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:33:12.741Z"
+       "at": "2026-10-22T11:37:58.619Z"
       },
-      "assertedAt": "2026-10-22T07:33:12.741Z"
+      "assertedAt": "2026-10-22T11:37:58.619Z"
      }
     ],
     "depth": 4
@@ -1171,7 +1302,7 @@
     },
     "facts": [
      {
-      "id": "fact_f4aa6183229cb82d",
+      "id": "fact_180c9fc0f30bf331",
       "about": "inspection:fda-inspection:1254066",
       "predicate": "classification",
       "value": "VAI",
@@ -1179,9 +1310,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:33:12.740Z"
+       "at": "2026-10-22T11:37:58.619Z"
       },
-      "assertedAt": "2026-10-22T07:33:12.740Z"
+      "assertedAt": "2026-10-22T11:37:58.619Z"
      }
     ],
     "depth": 4
@@ -1197,7 +1328,7 @@
     },
     "facts": [
      {
-      "id": "fact_1cd13028cb432da2",
+      "id": "fact_74d84b40f53864e6",
       "about": "inspection:fda-inspection:749882",
       "predicate": "classification",
       "value": "VAI",
@@ -1205,9 +1336,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:33:12.739Z"
+       "at": "2026-10-22T11:37:58.618Z"
       },
-      "assertedAt": "2026-10-22T07:33:12.739Z"
+      "assertedAt": "2026-10-22T11:37:58.618Z"
      }
     ],
     "depth": 4
@@ -1223,7 +1354,7 @@
     },
     "facts": [
      {
-      "id": "fact_87d1a29d522cd7ba",
+      "id": "fact_d9bdcb19a8a022e6",
       "about": "inspection:fda-inspection:876911",
       "predicate": "classification",
       "value": "OAI",
@@ -1231,9 +1362,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:33:12.739Z"
+       "at": "2026-10-22T11:37:58.618Z"
       },
-      "assertedAt": "2026-10-22T07:33:12.739Z"
+      "assertedAt": "2026-10-22T11:37:58.618Z"
      }
     ],
     "depth": 4
@@ -1249,7 +1380,7 @@
     },
     "facts": [
      {
-      "id": "fact_9beabc8141e39dcb",
+      "id": "fact_e0252e547913ac79",
       "about": "inspection:fda-inspection:940389",
       "predicate": "classification",
       "value": "VAI",
@@ -1257,9 +1388,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:33:12.740Z"
+       "at": "2026-10-22T11:37:58.618Z"
       },
-      "assertedAt": "2026-10-22T07:33:12.740Z"
+      "assertedAt": "2026-10-22T11:37:58.618Z"
      }
     ],
     "depth": 4
@@ -1275,7 +1406,7 @@
     },
     "facts": [
      {
-      "id": "fact_68a9b6ec417822e0",
+      "id": "fact_ccb4d655da8b73a7",
       "about": "inspection:fda-inspection:970483",
       "predicate": "classification",
       "value": "VAI",
@@ -1283,9 +1414,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:33:12.740Z"
+       "at": "2026-10-22T11:37:58.619Z"
       },
-      "assertedAt": "2026-10-22T07:33:12.740Z"
+      "assertedAt": "2026-10-22T11:37:58.619Z"
      }
     ],
     "depth": 4
@@ -1308,11 +1439,11 @@
     "from": "hospital-item:hospital-item:CG-176",
     "to": "package:ndc-package:0143-9977-22",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:33:06.855Z",
+    "validFrom": "2026-10-22T11:37:55.448Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:33:06.855Z"
+     "at": "2026-10-22T11:37:55.448Z"
     }
    },
    {
@@ -1320,11 +1451,11 @@
     "from": "hospital-item:hospital-item:EA-E-000043",
     "to": "package:ndc-package:0143-9977-22",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:33:06.854Z",
+    "validFrom": "2026-10-22T11:37:55.448Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:33:06.854Z"
+     "at": "2026-10-22T11:37:55.448Z"
     }
    },
    {
@@ -1332,11 +1463,11 @@
     "from": "package:ndc-package:0143-9977-22",
     "to": "product:ndc-product:0143-9977",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:33:06.854Z",
+    "validFrom": "2026-10-22T11:37:55.448Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:33:06.854Z"
+     "at": "2026-10-22T11:37:55.448Z"
     }
    },
    {
@@ -1344,11 +1475,11 @@
     "from": "product:ndc-product:0143-9977",
     "to": "drug:generic:cefuroxime",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:33:06.854Z",
+    "validFrom": "2026-10-22T11:37:55.448Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:33:06.854Z"
+     "at": "2026-10-22T11:37:55.448Z"
     }
    },
    {
@@ -1356,11 +1487,11 @@
     "from": "product:ndc-product:0143-9977",
     "to": "labeler:ndc-labeler:0143",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:33:06.854Z",
+    "validFrom": "2026-10-22T11:37:55.448Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:33:06.854Z"
+     "at": "2026-10-22T11:37:55.448Z"
     }
    },
    {
@@ -1368,11 +1499,11 @@
     "from": "product:ndc-product:0143-9977",
     "to": "site:fei:3002807173",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:33:12.739Z",
+    "validFrom": "2026-10-22T11:37:58.618Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:33:12.739Z"
+     "at": "2026-10-22T11:37:58.618Z"
     }
    },
    {
@@ -1380,11 +1511,11 @@
     "from": "inspection:fda-inspection:749882",
     "to": "site:fei:3002807173",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:33:12.739Z",
+    "validFrom": "2026-10-22T11:37:58.618Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:33:12.739Z"
+     "at": "2026-10-22T11:37:58.618Z"
     }
    },
    {
@@ -1392,11 +1523,11 @@
     "from": "inspection:fda-inspection:876911",
     "to": "site:fei:3002807173",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:33:12.739Z",
+    "validFrom": "2026-10-22T11:37:58.618Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:33:12.739Z"
+     "at": "2026-10-22T11:37:58.618Z"
     }
    },
    {
@@ -1404,11 +1535,11 @@
     "from": "inspection:fda-inspection:940389",
     "to": "site:fei:3002807173",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:33:12.740Z",
+    "validFrom": "2026-10-22T11:37:58.618Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:33:12.740Z"
+     "at": "2026-10-22T11:37:58.618Z"
     }
    },
    {
@@ -1416,11 +1547,11 @@
     "from": "inspection:fda-inspection:970483",
     "to": "site:fei:3002807173",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:33:12.740Z",
+    "validFrom": "2026-10-22T11:37:58.619Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:33:12.740Z"
+     "at": "2026-10-22T11:37:58.619Z"
     }
    },
    {
@@ -1428,11 +1559,11 @@
     "from": "inspection:fda-inspection:1125050",
     "to": "site:fei:3002807173",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:33:12.740Z",
+    "validFrom": "2026-10-22T11:37:58.619Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:33:12.740Z"
+     "at": "2026-10-22T11:37:58.619Z"
     }
    },
    {
@@ -1440,11 +1571,11 @@
     "from": "inspection:fda-inspection:1254066",
     "to": "site:fei:3002807173",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:33:12.740Z",
+    "validFrom": "2026-10-22T11:37:58.619Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:33:12.740Z"
+     "at": "2026-10-22T11:37:58.619Z"
     }
    },
    {
@@ -1452,11 +1583,11 @@
     "from": "inspection:fda-inspection:1203129",
     "to": "site:fei:3002807173",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:33:12.741Z",
+    "validFrom": "2026-10-22T11:37:58.619Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:33:12.741Z"
+     "at": "2026-10-22T11:37:58.619Z"
     }
    },
    {
@@ -1464,11 +1595,11 @@
     "from": "warning-letter:fda-warning-letter:433220",
     "to": "site:fei:3002807173",
     "type": "issued-to",
-    "validFrom": "2026-10-22T07:33:12.739Z",
+    "validFrom": "2026-10-22T11:37:58.618Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:33:12.739Z"
+     "at": "2026-10-22T11:37:58.618Z"
     }
    }
   ],

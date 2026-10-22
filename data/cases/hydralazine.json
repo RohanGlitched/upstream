@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-4e5eb2",
+ "id": "case-2026-10-22-ab7d7a",
  "question": "Why is hydralazine hydrochloride short, and what do we do?",
- "askedAt": "2026-10-22T07:50:28.112Z",
+ "askedAt": "2026-10-22T12:05:08.224Z",
  "asOf": "2026-10-21",
  "molecule": "hydralazine hydrochloride",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H9DSB2DK5J53BX0HXMKCEW",
+  "contractId": "01M5HR03WT80X0KZ51XGVH7CVK",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-9175ae"
+    "Q-bd2793"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3033,
+   "ms": 3735,
    "rows": 2,
-   "finding": "2 stock lines across 2 hospitals.",
+   "finding": "2 stock lines across 2 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-ebcd02"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 785,
+   "ms": 439,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 0 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-784ba5",
-    "Q-68d085"
+    "Q-0f15e7",
+    "Q-3f4b1d"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 373,
+   "ms": 340,
    "rows": 1,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,14 +68,16 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-b7b6de"
+    "Q-1b410b"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1931,
-   "rows": 244,
-   "finding": "34 labelers make it in this form.",
+   "ms": 1415,
+   "rows": 238,
+   "finding": "31 labelers make it in this form.",
    "status": "ok"
   },
   {
@@ -81,15 +88,15 @@
     "Q-808a5c",
     "Q-de2bfd",
     "Q-353033",
-    "Q-a938b9"
+    "Q-ebe9da"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 971,
+   "ms": 793,
    "rows": 0,
    "finding": "0 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "empty"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1111,
+   "ms": 718,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-9b15ae"
+    "Q-8a433c"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1178,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1364,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 3,
+   "ms": 1,
    "rows": 2,
    "finding": "2 past decisions recalled.",
    "status": "ok"
@@ -153,22 +164,65 @@
    "onHand": 280,
    "dailyUse": 11.403,
    "days": 24.6,
-   "unit": "package",
+   "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 100, converted to units",
+   "presentation": "hydralazine hydrochloride|10mg|tablet||tablet",
+   "presentationLabel": "10 mg tablet",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-235",
    "ndc11": "48433004620",
-   "description": "Hydralazine Hydrochloride",
+   "description": "Hydralazine Hydrochloride 10 mg/1",
    "labeler": "Safecor Health, LLC",
-   "onHand": 391.05,
+   "onHand": 391,
    "dailyUse": 13.159,
    "days": 29.7,
    "unit": "tablet",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "hydralazine hydrochloride|10mg|tablet||tablet",
+   "presentationLabel": "10 mg tablet",
    "evidence": "E2"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "hydralazine hydrochloride|10mg|tablet||tablet",
+   "label": "10 mg tablet",
+   "short": "10 mg",
+   "unit": "tablet",
+   "onHand": 671,
+   "dailyUse": 24.562,
+   "days": 27.3,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 280,
+     "dailyUse": 11.403,
+     "days": 24.6,
+     "lines": [
+      "EA-E-000163"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 391,
+     "dailyUse": 13.159,
+     "days": 29.7,
+     "lines": [
+      "CG-235"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -213,14 +267,6 @@
    "labeler": "A-S Medication Solutions",
    "ndc11": "50090013704",
    "dosageForm": "TABLET",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
-   "labeler": "A2A Integrated Pharmaceuticals",
-   "ndc11": "73141001203",
-   "dosageForm": "TABLET, FILM COATED",
    "plants": [],
    "onShortageList": false,
    "inOurStock": false
@@ -316,14 +362,6 @@
   {
    "labeler": "Heritage Pharmaceuticals Inc. d/b/a Avet Pharmaceuticals Inc.",
    "ndc11": "23155083201",
-   "dosageForm": "TABLET",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
-   "labeler": "Ingenus Pharmaceuticals, LLC",
-   "ndc11": "50742024618",
    "dosageForm": "TABLET",
    "plants": [],
    "onShortageList": false,
@@ -480,53 +518,9 @@
    "plants": [],
    "onShortageList": false,
    "inOurStock": false
-  },
-  {
-   "labeler": "i3 Pharmaceuticals, LLC",
-   "ndc11": "72319001203",
-   "dosageForm": "TABLET, FILM COATED",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
   }
  ],
  "options": [
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from A-S Medication Solutions",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from A2A Integrated Pharmaceuticals",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from American Health Packaging",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Aphena Pharma Solutions - Tennessee, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
@@ -548,15 +542,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Bryant Ranch Prepack",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Cadila Pharmaceuticals Limited",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -567,15 +552,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Camber Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Cardinal Health 107, LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -612,15 +588,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Heritage Pharmaceuticals Inc. d/b/a Avet Pharmaceuticals Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Ingenus Pharmaceuticals, LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -674,69 +641,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Northwind Health Company, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals,Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from PD-Rx Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Preferred Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Proficient Rx LP",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from REMEDYREPACK INC.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Radha Pharmaceuticals, Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -778,15 +682,6 @@
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
    "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from i3 Pharmaceuticals, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
   }
  ],
  "timeline": [
@@ -800,39 +695,48 @@
  ],
  "explanation": {
   "state": "no_signal",
-  "headline": "No FDA shortage signal for hydralazine hydrochloride; Corvale sites hold 25–30 days on hand",
+  "headline": "FDA's records show hydralazine hydrochloride is not on the shortage list as of 2026-10-21",
   "sentences": [
    {
-    "text": "Corvale East holds 280 units at 11.4 units per day, providing 25 days on hand.",
+    "text": "FDA's drug shortage list does not include hydralazine hydrochloride as of 2026-10-21.",
+    "cites": [
+     "D3"
+    ]
+   },
+   {
+    "text": "Corvale East holds 280 tablets of the 10 mg presentation with 24.6 days on hand at current use.",
     "cites": [
      "D1"
     ]
    },
    {
-    "text": "Corvale General holds 391 units at 13.2 units per day, providing 30 days on hand.",
+    "text": "Corvale General holds 391 tablets of the 10 mg presentation with 29.7 days on hand at current use.",
     "cites": [
      "D2"
     ]
    },
    {
-    "text": "The Safecor Health label (NDC 48433004620) names Teva Czech Industries s.r.o. Opava-Komarov as the manufacturer, though the plant is not placed in FDA's establishment database.",
+    "text": "The product label names Teva Czech Industries s.r.o. Opava-Komarov as the manufacturing plant.",
     "cites": [
      "E3"
+    ]
+   },
+   {
+    "text": "The rule-based recommendation is to buy from Ascend Laboratories, LLC, which is not on FDA's shortage list today.",
+    "cites": [
+     "D4"
+    ]
+   },
+   {
+    "text": "Ascend Laboratories, LLC's label names no plant we could place.",
+    "cites": [
+     "D4"
     ]
    }
   ],
   "verifier": {
-   "checked": 6,
-   "rejected": [
-    {
-     "text": "FDA's shortage list shows no signal for hydralazine hydrochloride as of 2026-10-21.",
-     "reason": "cites nothing"
-    },
-    {
-     "text": "The recommended buying option is A-S Medication Solutions, which is not on FDA's shortage list today.",
-     "reason": "cites nothing"
-    }
-   ],
+   "checked": 7,
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -840,45 +744,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -900,80 +825,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:50:18.723Z",
+   "at": "2026-10-22T12:04:59.419Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract 0HXMKCEW scope"
+   "reason": "in contract XGVH7CVK scope"
   },
   {
-   "at": "2026-10-22T07:50:18.724Z",
+   "at": "2026-10-22T12:04:59.419Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 0HXMKCEW scope"
+   "reason": "in contract XGVH7CVK scope"
   },
   {
-   "at": "2026-10-22T07:50:21.758Z",
+   "at": "2026-10-22T12:05:03.155Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 0HXMKCEW scope"
+   "reason": "in contract XGVH7CVK scope"
   },
   {
-   "at": "2026-10-22T07:50:22.543Z",
+   "at": "2026-10-22T12:05:03.593Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 0HXMKCEW scope"
+   "reason": "in contract XGVH7CVK scope"
   },
   {
-   "at": "2026-10-22T07:50:22.916Z",
+   "at": "2026-10-22T12:05:03.933Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 0HXMKCEW scope"
+   "reason": "in contract XGVH7CVK scope"
   },
   {
-   "at": "2026-10-22T07:50:24.848Z",
+   "at": "2026-10-22T12:05:05.348Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 0HXMKCEW scope"
+   "reason": "in contract XGVH7CVK scope"
   },
   {
-   "at": "2026-10-22T07:50:25.820Z",
+   "at": "2026-10-22T12:05:06.141Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 0HXMKCEW scope"
+   "reason": "in contract XGVH7CVK scope"
   },
   {
-   "at": "2026-10-22T07:50:26.931Z",
+   "at": "2026-10-22T12:05:06.859Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 0HXMKCEW scope"
+   "reason": "in contract XGVH7CVK scope"
   },
   {
-   "at": "2026-10-22T07:50:28.109Z",
+   "at": "2026-10-22T12:05:08.223Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract 0HXMKCEW scope"
+   "reason": "in contract XGVH7CVK scope"
   },
   {
-   "at": "2026-10-22T07:50:28.112Z",
+   "at": "2026-10-22T12:05:08.224Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract 0HXMKCEW scope"
+   "reason": "in contract XGVH7CVK scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-9175ae",
+   "queryId": "Q-bd2793",
    "row": 0,
    "label": "Corvale East: HYDRALAZINE HYDROCHLORIDE 10MG TAB",
    "fields": {
@@ -984,37 +909,47 @@
     "description": "HYDRALAZINE HYDROCHLORIDE 10MG TAB",
     "on_hand": "280.00",
     "daily_use": "11.403",
-    "unit": "package",
+    "unit": "tablet",
+    "pkg_units": "100.00",
+    "unit_basis": "packages of 100, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Hydralazine Hydrochloride",
     "labeler_name": "Safecor Health, LLC",
     "package_ndc": "48433-046-20",
     "spl_set_id": "66c5eaa4-a51a-464b-98ad-f094f32876dd",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "HYDRALAZINE HYDROCHLORIDE 10 mg/1",
+    "unit_content": null,
+    "pkg_unit": "blister"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-9175ae",
+   "queryId": "Q-bd2793",
    "row": 1,
-   "label": "Corvale General: Hydralazine Hydrochloride",
+   "label": "Corvale General: Hydralazine Hydrochloride 10 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-235",
     "ndc11": "48433004620",
     "ndc_as_recorded": "48433004620",
-    "description": "Hydralazine Hydrochloride",
-    "on_hand": "391.05",
+    "description": "Hydralazine Hydrochloride 10 mg/1",
+    "on_hand": "391.00",
     "daily_use": "13.159",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Hydralazine Hydrochloride",
     "labeler_name": "Safecor Health, LLC",
     "package_ndc": "48433-046-20",
     "spl_set_id": "66c5eaa4-a51a-464b-98ad-f094f32876dd",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "HYDRALAZINE HYDROCHLORIDE 10 mg/1",
+    "unit_content": null,
+    "pkg_unit": "blister"
    }
   },
   "E3": {
@@ -1037,185 +972,246 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 280 units of hydralazine hydrochloride at 11.4 a day: 25 days on hand",
+   "label": "Corvale East holds 280 tablets of hydralazine hydrochloride 10 mg at 11.4 a day: 24.6 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "10 mg tablet",
     "on_hand": 280,
     "daily_use": 11.4,
-    "days_on_hand": 25
+    "days_on_hand": 24.6
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 391 units of hydralazine hydrochloride at 13.2 a day: 30 days on hand",
+   "label": "Corvale General holds 391 tablets of hydralazine hydrochloride 10 mg at 13.2 a day: 29.7 days on hand",
    "fields": {
     "hospital": "Corvale General",
+    "presentation": "10 mg tablet",
     "on_hand": 391,
     "daily_use": 13.2,
-    "days_on_hand": 30
+    "days_on_hand": 29.7
+   }
+  },
+  "D3": {
+   "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "hydralazine hydrochloride is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Ascend Laboratories, LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Azurity Pharmaceuticals, Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Cadila Pharmaceuticals Limited. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-9175ae": {
-   "id": "Q-9175ae",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%hydralazine%' OR lower(s.description) LIKE '%hydralazine%' ORDER BY s.hospital, s.item_key",
-   "ms": 3029,
+  "Q-bd2793": {
+   "id": "Q-bd2793",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*hydralazine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*hydralazine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3734,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:50:21.753Z",
+   "ranAt": "2026-10-22T12:05:03.153Z",
    "rows": 2
   },
   "Q-ebcd02": {
    "id": "Q-ebcd02",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('66c5eaa4-a51a-464b-98ad-f094f32876dd') ORDER BY ps.set_id, ps.establishment",
-   "ms": 781,
+   "ms": 436,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:50:22.540Z",
+   "ranAt": "2026-10-22T12:05:03.591Z",
    "rows": 1
   },
-  "Q-784ba5": {
-   "id": "Q-784ba5",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%hydralazine%' ORDER BY status, company_name, package_ndc",
-   "ms": 171,
+  "Q-0f15e7": {
+   "id": "Q-0f15e7",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*hydralazine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 168,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:50:22.714Z",
+   "ranAt": "2026-10-22T12:05:03.761Z",
    "rows": 0
   },
-  "Q-68d085": {
-   "id": "Q-68d085",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%hydralazine%' ORDER BY first_posting",
-   "ms": 193,
+  "Q-3f4b1d": {
+   "id": "Q-3f4b1d",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*hydralazine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 170,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:50:22.911Z",
+   "ranAt": "2026-10-22T12:05:03.932Z",
    "rows": 1
   },
-  "Q-b7b6de": {
-   "id": "Q-b7b6de",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%hydralazine%' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 1922,
+  "Q-1b410b": {
+   "id": "Q-1b410b",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*hydralazine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1413,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:50:24.842Z",
-   "rows": 244
+   "ranAt": "2026-10-22T12:05:05.346Z",
+   "rows": 238
   },
   "Q-808a5c": {
    "id": "Q-808a5c",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('') ORDER BY fei, end_date",
-   "ms": 419,
+   "ms": 288,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:50:25.267Z",
+   "ranAt": "2026-10-22T12:05:05.635Z",
    "rows": 0
   },
   "Q-de2bfd": {
    "id": "Q-de2bfd",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('') ORDER BY fei, action_date",
-   "ms": 169,
+   "ms": 161,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:50:25.439Z",
+   "ranAt": "2026-10-22T12:05:05.798Z",
    "rows": 0
   },
   "Q-353033": {
    "id": "Q-353033",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('') OR (fei_match <> 'name_and_city' AND firm_key IN ('teva czech s r o opava komarov')) ORDER BY date_published",
-   "ms": 176,
+   "ms": 143,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:50:25.618Z",
+   "ranAt": "2026-10-22T12:05:05.942Z",
    "rows": 0
   },
-  "Q-a938b9": {
-   "id": "Q-a938b9",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('teva czech s r o opava komarov', 'safecor health') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%hydralazine%' ORDER BY initiation_date",
-   "ms": 195,
+  "Q-ebe9da": {
+   "id": "Q-ebe9da",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('teva czech s r o opava komarov', 'safecor health') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*hydralazine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 196,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:50:25.816Z",
+   "ranAt": "2026-10-22T12:05:06.140Z",
    "rows": 0
   },
   "Q-6cff32": {
    "id": "Q-6cff32",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('48433004620')",
-   "ms": 1108,
+   "ms": 716,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:50:26.928Z",
+   "ranAt": "2026-10-22T12:05:06.857Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-9b15ae": {
-   "id": "Q-9b15ae",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%hydralazine%'",
-   "ms": 1175,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:50:28.107Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-8a433c": {
+   "id": "Q-8a433c",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*hydralazine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1362,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:05:08.221Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 14709,
+  "zetarisMs": 18995,
   "modelCalls": 1,
-  "tokensIn": 547,
-  "tokensOut": 292,
+  "tokensIn": 872,
+  "tokensOut": 307,
   "mode": "live"
  },
  "slug": "hydralazine",
@@ -1229,7 +1225,7 @@
     "id": "hospital-item:hospital-item:CG-235",
     "type": "HospitalItem",
     "key": "hospital-item:CG-235",
-    "label": "Corvale General: Hydralazine Hydrochloride",
+    "label": "Corvale General: Hydralazine Hydrochloride 10 mg/1",
     "attrs": {
      "key": "hospital-item:CG-235"
     },
@@ -1298,11 +1294,11 @@
     "from": "hospital-item:hospital-item:CG-235",
     "to": "package:ndc-package:48433-046-20",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:50:21.757Z",
+    "validFrom": "2026-10-22T12:05:03.154Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:50:21.757Z"
+     "at": "2026-10-22T12:05:03.154Z"
     }
    },
    {
@@ -1310,11 +1306,11 @@
     "from": "hospital-item:hospital-item:EA-E-000163",
     "to": "package:ndc-package:48433-046-20",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:50:21.757Z",
+    "validFrom": "2026-10-22T12:05:03.154Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:50:21.757Z"
+     "at": "2026-10-22T12:05:03.154Z"
     }
    },
    {
@@ -1322,11 +1318,11 @@
     "from": "package:ndc-package:48433-046-20",
     "to": "product:ndc-product:48433-046",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:50:21.757Z",
+    "validFrom": "2026-10-22T12:05:03.154Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:50:21.757Z"
+     "at": "2026-10-22T12:05:03.154Z"
     }
    },
    {
@@ -1334,11 +1330,11 @@
     "from": "product:ndc-product:48433-046",
     "to": "drug:generic:hydralazine hydrochloride",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:50:21.757Z",
+    "validFrom": "2026-10-22T12:05:03.154Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:50:21.757Z"
+     "at": "2026-10-22T12:05:03.154Z"
     }
    },
    {
@@ -1346,11 +1342,11 @@
     "from": "product:ndc-product:48433-046",
     "to": "labeler:ndc-labeler:48433",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:50:21.757Z",
+    "validFrom": "2026-10-22T12:05:03.154Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:50:21.757Z"
+     "at": "2026-10-22T12:05:03.154Z"
     }
    }
   ],

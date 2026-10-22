@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-166df0",
+ "id": "case-2026-10-22-2b0792",
  "question": "Why is warfarin sodium short, and what do we do?",
- "askedAt": "2026-10-22T09:10:03.509Z",
+ "askedAt": "2026-10-22T12:49:44.091Z",
  "asOf": "2026-10-21",
  "molecule": "warfarin sodium",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5HDZFXYSP6F0GDGV6ZX3XMS",
+  "contractId": "01M5HTHSV1SSV1V8MVR3ZAHAWM",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-246ff6"
+    "Q-68fff2"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3260,
+   "ms": 3171,
    "rows": 4,
-   "finding": "4 stock lines across 3 hospitals.",
+   "finding": "4 stock lines across 3 hospitals, 3 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-3ac96b"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 692,
+   "ms": 736,
    "rows": 2,
    "finding": "2 plant links on 2 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-4c3a7d",
-    "Q-c7c1e6"
+    "Q-d75569",
+    "Q-789bf9"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 452,
+   "ms": 222,
    "rows": 0,
    "finding": "Not on FDA's current shortage list.",
    "status": "empty"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-139728"
+    "Q-519aa7"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2068,
+   "ms": 1189,
    "rows": 389,
    "finding": "19 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-0c9963",
     "Q-a704a1",
     "Q-3379e3",
-    "Q-ba6e54"
+    "Q-e70087"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1238,
+   "ms": 543,
    "rows": 18,
    "finding": "17 inspections (1 OAI at our plants), 1 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,7 +111,7 @@
    "sources": [
     "fda.citations"
    ],
-   "ms": 316,
+   "ms": 135,
    "rows": 6,
    "finding": "6 Form 483 observations recorded.",
    "status": "ok"
@@ -119,9 +126,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 926,
+   "ms": 622,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -129,19 +136,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-41a7aa"
+    "Q-6d4059"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1339,
-   "rows": 7,
-   "finding": "12 stock rows across the system fail the NDC rule; 1 of them are this drug.",
+   "ms": 1373,
+   "rows": 10,
+   "finding": "11 stock rows across the system fail the NDC rule; 1 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -152,7 +163,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 0,
+   "ms": 1,
    "rows": 0,
    "finding": "No past decisions on this drug.",
    "status": "empty"
@@ -168,34 +179,43 @@
    "onHand": 272,
    "dailyUse": 10.476,
    "days": 26,
-   "unit": "package",
+   "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 100, converted to units",
+   "presentation": "warfarin sodium|6mg|tablet||tablet",
+   "presentationLabel": "6 mg tablet",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-357",
    "ndc11": "70518026101",
-   "description": "Warfarin Sodium",
+   "description": "Warfarin Sodium 6 mg/1",
    "labeler": "REMEDYREPACK INC.",
-   "onHand": 189.65,
+   "onHand": 189,
    "dailyUse": 10.043,
-   "days": 18.9,
+   "days": 18.8,
    "unit": "tablet",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "warfarin sodium|6mg|tablet||tablet",
+   "presentationLabel": "6 mg tablet",
    "evidence": "E2"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-358",
    "ndc11": "71335063706",
-   "description": "Warfarin Sodium",
+   "description": "Warfarin Sodium 2 mg/1",
    "labeler": "Bryant Ranch Prepack",
-   "onHand": 266.03,
+   "onHand": 266,
    "dailyUse": 10.704,
    "days": 24.9,
    "unit": "tablet",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "warfarin sodium|2mg|tablet||tablet",
+   "presentationLabel": "2 mg tablet",
    "evidence": "E3"
   },
   {
@@ -209,7 +229,93 @@
    "days": 7,
    "unit": "tablet",
    "ndcMatch": "blank in source",
+   "unitBasis": "units of use, as exported",
+   "presentation": "unplaced:LS-LS-0115",
+   "presentationLabel": "Warfarin Sodium 6 mg/1 (NDC not in FDA's file)",
    "evidence": "E4"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "unplaced:LS-LS-0115",
+   "label": "Warfarin Sodium 6 mg/1 (NDC not in FDA's file)",
+   "short": "Warfarin Sodium 6 mg/1",
+   "unit": "tablet",
+   "onHand": 18,
+   "dailyUse": 2.583,
+   "days": 7,
+   "hospitals": [
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 18,
+     "dailyUse": 2.583,
+     "days": 7,
+     "lines": [
+      "LS-LS-0115"
+     ],
+     "evidence": [
+      "E4"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "warfarin sodium|6mg|tablet||tablet",
+   "label": "6 mg tablet",
+   "short": "6 mg",
+   "unit": "tablet",
+   "onHand": 461,
+   "dailyUse": 20.519,
+   "days": 22.5,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 272,
+     "dailyUse": 10.476,
+     "days": 26,
+     "lines": [
+      "EA-E-000265"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 189,
+     "dailyUse": 10.043,
+     "days": 18.8,
+     "lines": [
+      "CG-357"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "warfarin sodium|2mg|tablet||tablet",
+   "label": "2 mg tablet",
+   "short": "2 mg",
+   "unit": "tablet",
+   "onHand": 266,
+   "dailyUse": 10.704,
+   "days": 24.9,
+   "hospitals": [
+    {
+     "hospital": "Corvale General",
+     "onHand": 266,
+     "dailyUse": 10.704,
+     "days": 24.9,
+     "lines": [
+      "CG-358"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -560,70 +666,9 @@
  ],
  "options": [
   {
-   "kind": "transfer",
-   "rank": 1,
-   "title": "Transfer 19 from Corvale East to Corvale Lakeside",
-   "detail": "Corvale East has 26 days on hand and can spare 19 while keeping two weeks; Corvale Lakeside has 7 days and would reach 14.",
-   "why": "Same product, no clinical change, no new supplier.",
-   "needs": "pharmacy director (transfer request)",
-   "evidence": [
-    "E1",
-    "E4"
-   ]
-  },
-  {
-   "kind": "transfer",
-   "rank": 1,
-   "title": "Transfer 19 from Corvale General to Corvale Lakeside",
-   "detail": "Corvale General has 22 days on hand and can spare 19 while keeping two weeks; Corvale Lakeside has 7 days and would reach 14.",
-   "why": "Same product, no clinical change, no new supplier.",
-   "needs": "pharmacy director (transfer request)",
-   "evidence": [
-    "E2",
-    "E3",
-    "E4"
-   ]
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from A-S Medication Solutions",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from American Health Packaging",
-   "detail": "Not on FDA's shortage list today. Plants: American Health Packaging (last inspection VAI 2026-06-15).",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Amneal Pharmaceuticals LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Aphena Pharma Solutions - Tennessee, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Cardinal Health 107, LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -641,70 +686,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from DIRECT RX",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Direct_Rx",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Exelan Pharmaceuticals Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Golden State Medical Supply, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Northwind Health Company, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from PD-Rx Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Preferred Pharmaceuticals Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Proficient Rx LP",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -818,53 +800,50 @@
   }
  ],
  "explanation": {
-  "state": "confirmed",
-  "headline": "FDA's records trace this shortage to a plant on our own labels",
+  "state": "check",
+  "headline": "Warfarin sodium is not on FDA's shortage list as of 2026-10-21; on-hand supply ranges from 18.8 to 26 days across sites",
   "sentences": [
    {
-    "text": "FDA inspection 590126 of Bryant Ranch PrePack (FEI 1000519407) ended on 2009-06-11 and was classified OAI, with the classification known on 2009-09-09.",
+    "text": "FDA's drug shortage list does not include warfarin sodium as of 2026-10-21.",
     "cites": [
-     "E7"
+     "D4"
     ]
    },
    {
-    "text": "The Bryant Ranch Prepack plant (FEI 1000519407) appears on the label for NDC 71335063706 used at Corvale General.",
+    "text": "Corvale East holds 272 tablets of the 6 mg presentation, providing 26 days on hand at 10.5 tablets per day.",
     "cites": [
-     "E3",
-     "E17"
-    ]
-   },
-   {
-    "text": "The same plant received a Warning Letter on 2010-04-08 and subsequent VAI inspections through 2026-07-16.",
-    "cites": [
-     "E16",
-     "E15"
-    ]
-   },
-   {
-    "text": "Corvale Lakeside holds only 7 days of warfarin sodium (18 units at 2.6 per day) while Corvale East holds 26 days (272 units at 10.5 per day).",
-    "cites": [
-     "D3",
      "D1"
+    ]
+   },
+   {
+    "text": "Corvale General holds 189 tablets of the 6 mg presentation, providing 18.8 days on hand at 10 tablets per day.",
+    "cites": [
+     "D2"
+    ]
+   },
+   {
+    "text": "Corvale General also holds 266 tablets of the 2 mg presentation, providing 24.9 days on hand at 10.7 tablets per day.",
+    "cites": [
+     "D3"
+    ]
+   },
+   {
+    "text": "The rule-ranked alternate manufacturer is Amneal Pharmaceuticals LLC, which is not on FDA's shortage list today and whose label names no plant we could place.",
+    "cites": [
+     "D5"
+    ]
+   },
+   {
+    "text": "Additional alternate manufacturers Coupler LLC and Exelan Pharmaceuticals Inc. are similarly not on the shortage list and have no placeable plant on their labels.",
+    "cites": [
+     "D6",
+     "D7"
     ]
    }
   ],
   "verifier": {
    "checked": 7,
-   "rejected": [
-    {
-     "text": "That OAI classification occurred 6225 days before the most recent VAI inspection known date of 2026-10-14.",
-     "reason": "number 6225 is not in the cited evidence"
-    },
-    {
-     "text": "Transferring 19 units from Corvale East to Corvale Lakeside would leave Corvale East with 19 days on hand and bring Corvale Lakeside to 14 days.",
-     "reason": "number 19 is not in the cited evidence"
-    },
-    {
-     "text": "FDA's records trace our supply to a plant classified OAI 6225 days before the posting",
-     "reason": "headline: number 6225 is not in the cited evidence"
-    }
-   ],
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -872,45 +851,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
@@ -924,87 +924,87 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T09:09:53.214Z",
+   "at": "2026-10-22T12:49:36.097Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract V6ZX3XMS scope"
+   "reason": "in contract R3ZAHAWM scope"
   },
   {
-   "at": "2026-10-22T09:09:53.214Z",
+   "at": "2026-10-22T12:49:36.097Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract V6ZX3XMS scope"
+   "reason": "in contract R3ZAHAWM scope"
   },
   {
-   "at": "2026-10-22T09:09:56.476Z",
+   "at": "2026-10-22T12:49:39.269Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract V6ZX3XMS scope"
+   "reason": "in contract R3ZAHAWM scope"
   },
   {
-   "at": "2026-10-22T09:09:57.167Z",
+   "at": "2026-10-22T12:49:40.005Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract V6ZX3XMS scope"
+   "reason": "in contract R3ZAHAWM scope"
   },
   {
-   "at": "2026-10-22T09:09:57.619Z",
+   "at": "2026-10-22T12:49:40.227Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract V6ZX3XMS scope"
+   "reason": "in contract R3ZAHAWM scope"
   },
   {
-   "at": "2026-10-22T09:09:59.688Z",
+   "at": "2026-10-22T12:49:41.416Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract V6ZX3XMS scope"
+   "reason": "in contract R3ZAHAWM scope"
   },
   {
-   "at": "2026-10-22T09:10:00.925Z",
+   "at": "2026-10-22T12:49:41.959Z",
    "action": "What FDA wrote at the OAI inspections",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract V6ZX3XMS scope"
+   "reason": "in contract R3ZAHAWM scope"
   },
   {
-   "at": "2026-10-22T09:10:01.243Z",
+   "at": "2026-10-22T12:49:42.095Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract V6ZX3XMS scope"
+   "reason": "in contract R3ZAHAWM scope"
   },
   {
-   "at": "2026-10-22T09:10:02.170Z",
+   "at": "2026-10-22T12:49:42.717Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract V6ZX3XMS scope"
+   "reason": "in contract R3ZAHAWM scope"
   },
   {
-   "at": "2026-10-22T09:10:03.509Z",
+   "at": "2026-10-22T12:49:44.090Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract V6ZX3XMS scope"
+   "reason": "in contract R3ZAHAWM scope"
   },
   {
-   "at": "2026-10-22T09:10:03.509Z",
+   "at": "2026-10-22T12:49:44.091Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract V6ZX3XMS scope"
+   "reason": "in contract R3ZAHAWM scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-246ff6",
+   "queryId": "Q-68fff2",
    "row": 0,
    "label": "Corvale East: WARFARIN SODIUM 6MG TAB",
    "fields": {
@@ -1015,65 +1015,80 @@
     "description": "WARFARIN SODIUM 6MG TAB",
     "on_hand": "272.00",
     "daily_use": "10.476",
-    "unit": "package",
+    "unit": "tablet",
+    "pkg_units": "100.00",
+    "unit_basis": "packages of 100, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Warfarin Sodium",
     "labeler_name": "REMEDYREPACK INC.",
     "package_ndc": "70518-0261-1",
     "spl_set_id": "3f1c3083-91d1-488c-ad07-b198fda21da6",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "WARFARIN SODIUM 6 mg/1",
+    "unit_content": null,
+    "pkg_unit": "pouch"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-246ff6",
+   "queryId": "Q-68fff2",
    "row": 1,
-   "label": "Corvale General: Warfarin Sodium",
+   "label": "Corvale General: Warfarin Sodium 6 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-357",
     "ndc11": "70518026101",
     "ndc_as_recorded": "70518026101",
-    "description": "Warfarin Sodium",
-    "on_hand": "189.65",
+    "description": "Warfarin Sodium 6 mg/1",
+    "on_hand": "189.00",
     "daily_use": "10.043",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Warfarin Sodium",
     "labeler_name": "REMEDYREPACK INC.",
     "package_ndc": "70518-0261-1",
     "spl_set_id": "3f1c3083-91d1-488c-ad07-b198fda21da6",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "WARFARIN SODIUM 6 mg/1",
+    "unit_content": null,
+    "pkg_unit": "pouch"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-246ff6",
+   "queryId": "Q-68fff2",
    "row": 2,
-   "label": "Corvale General: Warfarin Sodium",
+   "label": "Corvale General: Warfarin Sodium 2 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-358",
     "ndc11": "71335063706",
     "ndc_as_recorded": "71335063706",
-    "description": "Warfarin Sodium",
-    "on_hand": "266.03",
+    "description": "Warfarin Sodium 2 mg/1",
+    "on_hand": "266.00",
     "daily_use": "10.704",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Warfarin Sodium",
     "labeler_name": "Bryant Ranch Prepack",
     "package_ndc": "71335-0637-6",
     "spl_set_id": "8eae6b6c-1851-4342-b320-7e1896894658",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "WARFARIN SODIUM 2 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-246ff6",
+   "queryId": "Q-68fff2",
    "row": 3,
    "label": "Corvale Lakeside: Warfarin Sodium 6 mg/1",
    "fields": {
@@ -1085,13 +1100,18 @@
     "on_hand": "18.00",
     "daily_use": "2.583",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "blank in source",
     "generic_name": null,
     "labeler_name": null,
     "package_ndc": null,
     "spl_set_id": null,
     "dosage_form": null,
-    "route": null
+    "route": null,
+    "strength": null,
+    "unit_content": null,
+    "pkg_unit": null
    }
   },
   "E5": {
@@ -1301,9 +1321,10 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 272 units of warfarin sodium at 10.5 a day: 26 days on hand",
+   "label": "Corvale East holds 272 tablets of warfarin sodium 6 mg at 10.5 a day: 26 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "6 mg tablet",
     "on_hand": 272,
     "daily_use": 10.5,
     "days_on_hand": 26
@@ -1313,196 +1334,257 @@
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 456 units of warfarin sodium at 20.7 a day: 22 days on hand",
+   "label": "Corvale General holds 189 tablets of warfarin sodium 6 mg at 10 a day: 18.8 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 456,
-    "daily_use": 20.7,
-    "days_on_hand": 22
+    "presentation": "6 mg tablet",
+    "on_hand": 189,
+    "daily_use": 10,
+    "days_on_hand": 18.8
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 18 units of warfarin sodium at 2.6 a day: 7 days on hand",
+   "label": "Corvale General holds 266 tablets of warfarin sodium 2 mg at 10.7 a day: 24.9 days on hand",
    "fields": {
-    "hospital": "Corvale Lakeside",
-    "on_hand": 18,
-    "daily_use": 2.6,
-    "days_on_hand": 7
+    "hospital": "Corvale General",
+    "presentation": "2 mg tablet",
+    "on_hand": 266,
+    "daily_use": 10.7,
+    "days_on_hand": 24.9
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "warfarin sodium is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Amneal Pharmaceuticals LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Coupler LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Exelan Pharmaceuticals Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-246ff6": {
-   "id": "Q-246ff6",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%warfarin%' OR lower(s.description) LIKE '%warfarin%' ORDER BY s.hospital, s.item_key",
-   "ms": 3258,
+  "Q-68fff2": {
+   "id": "Q-68fff2",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*warfarin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*warfarin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3170,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T09:09:56.473Z",
+   "ranAt": "2026-10-22T12:49:39.267Z",
    "rows": 4
   },
   "Q-3ac96b": {
    "id": "Q-3ac96b",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('3f1c3083-91d1-488c-ad07-b198fda21da6', '8eae6b6c-1851-4342-b320-7e1896894658') ORDER BY ps.set_id, ps.establishment",
-   "ms": 690,
+   "ms": 735,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T09:09:57.165Z",
+   "ranAt": "2026-10-22T12:49:40.004Z",
    "rows": 2
   },
-  "Q-4c3a7d": {
-   "id": "Q-4c3a7d",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%warfarin%' ORDER BY status, company_name, package_ndc",
-   "ms": 216,
+  "Q-d75569": {
+   "id": "Q-d75569",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*warfarin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 110,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T09:09:57.384Z",
+   "ranAt": "2026-10-22T12:49:40.115Z",
    "rows": 0
   },
-  "Q-c7c1e6": {
-   "id": "Q-c7c1e6",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%warfarin%' ORDER BY first_posting",
-   "ms": 232,
+  "Q-789bf9": {
+   "id": "Q-789bf9",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*warfarin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 110,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T09:09:57.617Z",
+   "ranAt": "2026-10-22T12:49:40.226Z",
    "rows": 0
   },
-  "Q-139728": {
-   "id": "Q-139728",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%warfarin%' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2066,
+  "Q-519aa7": {
+   "id": "Q-519aa7",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*warfarin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1188,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T09:09:59.684Z",
+   "ranAt": "2026-10-22T12:49:41.415Z",
    "rows": 389
   },
   "Q-0c9963": {
    "id": "Q-0c9963",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('1000519407', '3000209995') ORDER BY fei, end_date",
-   "ms": 446,
+   "ms": 223,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T09:10:00.133Z",
+   "ranAt": "2026-10-22T12:49:41.639Z",
    "rows": 17
   },
   "Q-a704a1": {
    "id": "Q-a704a1",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('1000519407', '3000209995') ORDER BY fei, action_date",
-   "ms": 318,
+   "ms": 108,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T09:10:00.453Z",
+   "ranAt": "2026-10-22T12:49:41.748Z",
    "rows": 1
   },
   "Q-3379e3": {
    "id": "Q-3379e3",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('1000519407') OR (fei_match <> 'name_and_city' AND firm_key IN ('pliva', 'bryant ranch prepack')) ORDER BY date_published",
-   "ms": 211,
+   "ms": 91,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T09:10:00.666Z",
+   "ranAt": "2026-10-22T12:49:41.840Z",
    "rows": 0
   },
-  "Q-ba6e54": {
-   "id": "Q-ba6e54",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('pliva', 'bryant ranch prepack', 'remedyrepack') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%warfarin%' ORDER BY initiation_date",
-   "ms": 255,
+  "Q-e70087": {
+   "id": "Q-e70087",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('pliva', 'bryant ranch prepack', 'remedyrepack') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*warfarin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 117,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T09:10:00.923Z",
+   "ranAt": "2026-10-22T12:49:41.958Z",
    "rows": 0
   },
   "Q-7ba5bd": {
    "id": "Q-7ba5bd",
    "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('590126') ORDER BY inspection_id, cfr",
-   "ms": 315,
+   "ms": 134,
    "mode": "live",
    "sources": [
     "fda.citations"
    ],
-   "ranAt": "2026-10-22T09:10:01.239Z",
+   "ranAt": "2026-10-22T12:49:42.093Z",
    "rows": 6
   },
   "Q-5db99c": {
    "id": "Q-5db99c",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('70518026101', '71335063706')",
-   "ms": 925,
+   "ms": 621,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T09:10:02.168Z",
+   "ranAt": "2026-10-22T12:49:42.716Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2522,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T09:00:21.184Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 2080,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T09:00:23.265Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 2458,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T09:00:25.725Z",
-   "rows": 2
-  },
-  "Q-41a7aa": {
-   "id": "Q-41a7aa",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%warfarin%'",
-   "ms": 1337,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T09:10:03.507Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-6d4059": {
+   "id": "Q-6d4059",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*warfarin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1371,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:49:44.088Z",
    "rows": 1
   }
  },
  "usage": {
   "zetarisQueries": 15,
-  "zetarisMs": 17329,
+  "zetarisMs": 18186,
   "modelCalls": 1,
-  "tokensIn": 2458,
-  "tokensOut": 457,
+  "tokensIn": 2094,
+  "tokensOut": 385,
   "mode": "live"
  },
  "slug": "warfarin",
@@ -1517,7 +1599,7 @@
     "id": "hospital-item:hospital-item:CG-357",
     "type": "HospitalItem",
     "key": "hospital-item:CG-357",
-    "label": "Corvale General: Warfarin Sodium",
+    "label": "Corvale General: Warfarin Sodium 6 mg/1",
     "attrs": {
      "key": "hospital-item:CG-357"
     },
@@ -1528,7 +1610,7 @@
     "id": "hospital-item:hospital-item:CG-358",
     "type": "HospitalItem",
     "key": "hospital-item:CG-358",
-    "label": "Corvale General: Warfarin Sodium",
+    "label": "Corvale General: Warfarin Sodium 2 mg/1",
     "attrs": {
      "key": "hospital-item:CG-358"
     },
@@ -1645,7 +1727,7 @@
     },
     "facts": [
      {
-      "id": "fact_ac9ab35bc90ce0ec",
+      "id": "fact_529daa0d341d9c32",
       "about": "inspection:fda-inspection:1110509",
       "predicate": "classification",
       "value": "VAI",
@@ -1653,9 +1735,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:10:01.242Z"
+       "at": "2026-10-22T12:49:42.094Z"
       },
-      "assertedAt": "2026-10-22T09:10:01.242Z"
+      "assertedAt": "2026-10-22T12:49:42.094Z"
      }
     ],
     "depth": 4
@@ -1671,7 +1753,7 @@
     },
     "facts": [
      {
-      "id": "fact_ebcc397d0cb827ec",
+      "id": "fact_b75045cd819bd645",
       "about": "inspection:fda-inspection:1165537",
       "predicate": "classification",
       "value": "VAI",
@@ -1679,9 +1761,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:10:01.242Z"
+       "at": "2026-10-22T12:49:42.094Z"
       },
-      "assertedAt": "2026-10-22T09:10:01.242Z"
+      "assertedAt": "2026-10-22T12:49:42.094Z"
      }
     ],
     "depth": 4
@@ -1697,7 +1779,7 @@
     },
     "facts": [
      {
-      "id": "fact_4b45f1b0190e40d4",
+      "id": "fact_fbeb9c935b38e2b7",
       "about": "inspection:fda-inspection:1228907",
       "predicate": "classification",
       "value": "VAI",
@@ -1705,9 +1787,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:10:01.242Z"
+       "at": "2026-10-22T12:49:42.095Z"
       },
-      "assertedAt": "2026-10-22T09:10:01.242Z"
+      "assertedAt": "2026-10-22T12:49:42.095Z"
      }
     ],
     "depth": 4
@@ -1723,7 +1805,7 @@
     },
     "facts": [
      {
-      "id": "fact_024a5c0b5eedc23e",
+      "id": "fact_88a40806467ad5a7",
       "about": "inspection:fda-inspection:1326578",
       "predicate": "classification",
       "value": "VAI",
@@ -1731,9 +1813,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:10:01.242Z"
+       "at": "2026-10-22T12:49:42.095Z"
       },
-      "assertedAt": "2026-10-22T09:10:01.242Z"
+      "assertedAt": "2026-10-22T12:49:42.095Z"
      }
     ],
     "depth": 4
@@ -1749,7 +1831,7 @@
     },
     "facts": [
      {
-      "id": "fact_b1715978a1e9d0c2",
+      "id": "fact_c75818a0f37f8e58",
       "about": "inspection:fda-inspection:590126",
       "predicate": "classification",
       "value": "OAI",
@@ -1757,9 +1839,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:10:01.241Z"
+       "at": "2026-10-22T12:49:42.094Z"
       },
-      "assertedAt": "2026-10-22T09:10:01.241Z"
+      "assertedAt": "2026-10-22T12:49:42.094Z"
      }
     ],
     "depth": 4
@@ -1775,7 +1857,7 @@
     },
     "facts": [
      {
-      "id": "fact_4a3e0f14ba7ec9f6",
+      "id": "fact_53cf747ef92020f2",
       "about": "inspection:fda-inspection:682974",
       "predicate": "classification",
       "value": "VAI",
@@ -1783,9 +1865,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:10:01.242Z"
+       "at": "2026-10-22T12:49:42.094Z"
       },
-      "assertedAt": "2026-10-22T09:10:01.242Z"
+      "assertedAt": "2026-10-22T12:49:42.094Z"
      }
     ],
     "depth": 4
@@ -1801,7 +1883,7 @@
     },
     "facts": [
      {
-      "id": "fact_07ec7dc99df335dd",
+      "id": "fact_a14509a948a3731f",
       "about": "inspection:fda-inspection:732513",
       "predicate": "classification",
       "value": "VAI",
@@ -1809,9 +1891,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:10:01.242Z"
+       "at": "2026-10-22T12:49:42.094Z"
       },
-      "assertedAt": "2026-10-22T09:10:01.242Z"
+      "assertedAt": "2026-10-22T12:49:42.094Z"
      }
     ],
     "depth": 4
@@ -1827,7 +1909,7 @@
     },
     "facts": [
      {
-      "id": "fact_0fd2bcf3261dee9c",
+      "id": "fact_1ca05e647e0dbd4e",
       "about": "inspection:fda-inspection:840224",
       "predicate": "classification",
       "value": "VAI",
@@ -1835,9 +1917,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:10:01.242Z"
+       "at": "2026-10-22T12:49:42.094Z"
       },
-      "assertedAt": "2026-10-22T09:10:01.242Z"
+      "assertedAt": "2026-10-22T12:49:42.094Z"
      }
     ],
     "depth": 4
@@ -1853,7 +1935,7 @@
     },
     "facts": [
      {
-      "id": "fact_d4ff644f7ca1ca23",
+      "id": "fact_a7142a3488a23a59",
       "about": "inspection:fda-inspection:995337",
       "predicate": "classification",
       "value": "VAI",
@@ -1861,9 +1943,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:10:01.242Z"
+       "at": "2026-10-22T12:49:42.094Z"
       },
-      "assertedAt": "2026-10-22T09:10:01.242Z"
+      "assertedAt": "2026-10-22T12:49:42.094Z"
      }
     ],
     "depth": 4
@@ -1886,11 +1968,11 @@
     "from": "hospital-item:hospital-item:CG-357",
     "to": "package:ndc-package:70518-0261-1",
     "type": "stocks",
-    "validFrom": "2026-10-22T09:09:56.475Z",
+    "validFrom": "2026-10-22T12:49:39.268Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:09:56.475Z"
+     "at": "2026-10-22T12:49:39.268Z"
     }
    },
    {
@@ -1898,11 +1980,11 @@
     "from": "hospital-item:hospital-item:CG-358",
     "to": "package:ndc-package:71335-0637-6",
     "type": "stocks",
-    "validFrom": "2026-10-22T09:09:56.475Z",
+    "validFrom": "2026-10-22T12:49:39.268Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:09:56.475Z"
+     "at": "2026-10-22T12:49:39.268Z"
     }
    },
    {
@@ -1910,11 +1992,11 @@
     "from": "hospital-item:hospital-item:EA-E-000265",
     "to": "package:ndc-package:70518-0261-1",
     "type": "stocks",
-    "validFrom": "2026-10-22T09:09:56.475Z",
+    "validFrom": "2026-10-22T12:49:39.268Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:09:56.475Z"
+     "at": "2026-10-22T12:49:39.268Z"
     }
    },
    {
@@ -1922,11 +2004,11 @@
     "from": "package:ndc-package:70518-0261-1",
     "to": "product:ndc-product:70518-0261",
     "type": "package-of",
-    "validFrom": "2026-10-22T09:09:56.475Z",
+    "validFrom": "2026-10-22T12:49:39.268Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:09:56.475Z"
+     "at": "2026-10-22T12:49:39.268Z"
     }
    },
    {
@@ -1934,11 +2016,11 @@
     "from": "package:ndc-package:71335-0637-6",
     "to": "product:ndc-product:71335-0637",
     "type": "package-of",
-    "validFrom": "2026-10-22T09:09:56.475Z",
+    "validFrom": "2026-10-22T12:49:39.268Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:09:56.475Z"
+     "at": "2026-10-22T12:49:39.268Z"
     }
    },
    {
@@ -1946,11 +2028,11 @@
     "from": "product:ndc-product:70518-0261",
     "to": "drug:generic:warfarin sodium",
     "type": "of-drug",
-    "validFrom": "2026-10-22T09:09:56.475Z",
+    "validFrom": "2026-10-22T12:49:39.268Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:09:56.475Z"
+     "at": "2026-10-22T12:49:39.268Z"
     }
    },
    {
@@ -1958,11 +2040,11 @@
     "from": "product:ndc-product:70518-0261",
     "to": "labeler:ndc-labeler:70518",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T09:09:56.475Z",
+    "validFrom": "2026-10-22T12:49:39.268Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:09:56.475Z"
+     "at": "2026-10-22T12:49:39.268Z"
     }
    },
    {
@@ -1970,11 +2052,11 @@
     "from": "product:ndc-product:71335-0637",
     "to": "drug:generic:warfarin sodium",
     "type": "of-drug",
-    "validFrom": "2026-10-22T09:09:56.475Z",
+    "validFrom": "2026-10-22T12:49:39.269Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:09:56.475Z"
+     "at": "2026-10-22T12:49:39.269Z"
     }
    },
    {
@@ -1982,11 +2064,11 @@
     "from": "product:ndc-product:71335-0637",
     "to": "labeler:ndc-labeler:71335",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T09:09:56.475Z",
+    "validFrom": "2026-10-22T12:49:39.269Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:09:56.475Z"
+     "at": "2026-10-22T12:49:39.269Z"
     }
    },
    {
@@ -1994,11 +2076,11 @@
     "from": "product:ndc-product:71335-0637",
     "to": "site:fei:1000519407",
     "type": "made-at",
-    "validFrom": "2026-10-22T09:10:01.241Z",
+    "validFrom": "2026-10-22T12:49:42.094Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:10:01.241Z"
+     "at": "2026-10-22T12:49:42.094Z"
     }
    },
    {
@@ -2006,11 +2088,11 @@
     "from": "inspection:fda-inspection:590126",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:10:01.241Z",
+    "validFrom": "2026-10-22T12:49:42.094Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:10:01.241Z"
+     "at": "2026-10-22T12:49:42.094Z"
     }
    },
    {
@@ -2018,11 +2100,11 @@
     "from": "inspection:fda-inspection:682974",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:10:01.242Z",
+    "validFrom": "2026-10-22T12:49:42.094Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:10:01.242Z"
+     "at": "2026-10-22T12:49:42.094Z"
     }
    },
    {
@@ -2030,11 +2112,11 @@
     "from": "inspection:fda-inspection:732513",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:10:01.242Z",
+    "validFrom": "2026-10-22T12:49:42.094Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:10:01.242Z"
+     "at": "2026-10-22T12:49:42.094Z"
     }
    },
    {
@@ -2042,11 +2124,11 @@
     "from": "inspection:fda-inspection:840224",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:10:01.242Z",
+    "validFrom": "2026-10-22T12:49:42.094Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:10:01.242Z"
+     "at": "2026-10-22T12:49:42.094Z"
     }
    },
    {
@@ -2054,11 +2136,11 @@
     "from": "inspection:fda-inspection:995337",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:10:01.242Z",
+    "validFrom": "2026-10-22T12:49:42.094Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:10:01.242Z"
+     "at": "2026-10-22T12:49:42.094Z"
     }
    },
    {
@@ -2066,11 +2148,11 @@
     "from": "inspection:fda-inspection:1110509",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:10:01.242Z",
+    "validFrom": "2026-10-22T12:49:42.094Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:10:01.242Z"
+     "at": "2026-10-22T12:49:42.094Z"
     }
    },
    {
@@ -2078,11 +2160,11 @@
     "from": "inspection:fda-inspection:1165537",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:10:01.242Z",
+    "validFrom": "2026-10-22T12:49:42.094Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:10:01.242Z"
+     "at": "2026-10-22T12:49:42.094Z"
     }
    },
    {
@@ -2090,11 +2172,11 @@
     "from": "inspection:fda-inspection:1228907",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:10:01.242Z",
+    "validFrom": "2026-10-22T12:49:42.094Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:10:01.242Z"
+     "at": "2026-10-22T12:49:42.094Z"
     }
    },
    {
@@ -2102,11 +2184,11 @@
     "from": "inspection:fda-inspection:1326578",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:10:01.242Z",
+    "validFrom": "2026-10-22T12:49:42.095Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:10:01.242Z"
+     "at": "2026-10-22T12:49:42.095Z"
     }
    },
    {
@@ -2114,11 +2196,11 @@
     "from": "warning-letter:fda-warning-letter:72525",
     "to": "site:fei:1000519407",
     "type": "issued-to",
-    "validFrom": "2026-10-22T09:10:01.242Z",
+    "validFrom": "2026-10-22T12:49:42.094Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:10:01.242Z"
+     "at": "2026-10-22T12:49:42.094Z"
     }
    }
   ],

@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-c139c0",
+ "id": "case-2026-10-22-36cc4e",
  "question": "Why is enoxaparin sodium short, and what do we do?",
- "askedAt": "2026-10-22T07:43:32.249Z",
+ "askedAt": "2026-10-22T11:55:14.254Z",
  "asOf": "2026-10-21",
  "molecule": "enoxaparin sodium",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H9131Z4F39HQV534P2W2BF",
+  "contractId": "01M5HQE0QRQ7FV0XP20AVYG00B",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-9b1e46"
+    "Q-562219"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2899,
+   "ms": 3395,
    "rows": 3,
-   "finding": "3 stock lines across 2 hospitals.",
+   "finding": "3 stock lines across 2 hospitals, 2 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-9b490a"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 887,
+   "ms": 426,
    "rows": 1,
    "finding": "1 plant links on 2 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-c7d8dd",
-    "Q-ddbd55"
+    "Q-4f945b",
+    "Q-9a213c"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 522,
+   "ms": 244,
    "rows": 25,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-d0d644"
+    "Q-7c37e7"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1908,
+   "ms": 1204,
    "rows": 172,
    "finding": "18 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-eb30af",
     "Q-1c8a07",
     "Q-c38f78",
-    "Q-238917"
+    "Q-d76bde"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 973,
+   "ms": 646,
    "rows": 3,
    "finding": "3 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1141,
+   "ms": 645,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-3e105d"
+    "Q-b39108"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1228,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1332,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -153,8 +164,11 @@
    "onHand": 87,
    "dailyUse": 7.988,
    "days": 10.9,
-   "unit": "package",
+   "unit": "syringe",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "enoxaparin sodium|60mg/0.6ml|injection|0.6ml|syringe",
+   "presentationLabel": "60 mg/0.6 mL injection, 0.6 mL syringe",
    "evidence": "E1"
   },
   {
@@ -166,22 +180,88 @@
    "onHand": 246,
    "dailyUse": 10.036,
    "days": 24.5,
-   "unit": "package",
+   "unit": "syringe",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "enoxaparin sodium|100mg/ml|injection|0.8ml|syringe",
+   "presentationLabel": "100 mg/mL injection, 0.8 mL syringe",
    "evidence": "E2"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-206",
    "ndc11": "68001063642",
-   "description": "Enoxaparin Sodium",
+   "description": "Enoxaparin Sodium 100 mg/mL",
    "labeler": "BluePoint Laboratories",
-   "onHand": 152.99,
+   "onHand": 152,
    "dailyUse": 10.508,
-   "days": 14.6,
+   "days": 14.5,
    "unit": "syringe",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "enoxaparin sodium|100mg/ml|injection|0.8ml|syringe",
+   "presentationLabel": "100 mg/mL injection, 0.8 mL syringe",
    "evidence": "E3"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "enoxaparin sodium|60mg/0.6ml|injection|0.6ml|syringe",
+   "label": "60 mg/0.6 mL injection, 0.6 mL syringe",
+   "short": "60 mg/0.6 mL, 0.6 mL",
+   "unit": "syringe",
+   "onHand": 87,
+   "dailyUse": 7.988,
+   "days": 10.9,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 87,
+     "dailyUse": 7.988,
+     "days": 10.9,
+     "lines": [
+      "EA-E-000220"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "enoxaparin sodium|100mg/ml|injection|0.8ml|syringe",
+   "label": "100 mg/mL injection, 0.8 mL syringe",
+   "short": "100 mg/mL, 0.8 mL",
+   "unit": "syringe",
+   "onHand": 398,
+   "dailyUse": 20.544,
+   "days": 19.4,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 246,
+     "dailyUse": 10.036,
+     "days": 24.5,
+     "lines": [
+      "EA-E-000239"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 152,
+     "dailyUse": 10.508,
+     "days": 14.5,
+     "lines": [
+      "CG-206"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -414,7 +494,7 @@
    "ndc11": "00075062040",
    "dosageForm": "INJECTION",
    "plants": [],
-   "onShortageList": false,
+   "onShortageList": true,
    "inOurStock": false
   },
   {
@@ -440,15 +520,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from BE Pharmaceuticals Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Cardinal Health 107, LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -556,15 +627,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Sanofi-Aventis U.S. LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Zydus Pharmaceuticals USA Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -604,40 +666,41 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "FDA shortage list shows Sanofi-Aventis U.S. LLC enoxaparin sodium injection to be discontinued as of 2026-10-20",
+  "headline": "Enoxaparin sodium is not on FDA's shortage list as of 2026-10-21; Sanofi-Aventis U.S. LLC posted a discontinuation on 2026-10-20",
   "sentences": [
    {
-    "text": "FDA's shortage list records Sanofi-Aventis U.S. LLC enoxaparin sodium injection as To Be Discontinued with an initial posting date of 2026-10-20.",
+    "text": "FDA's drug shortage list shows enoxaparin sodium is not listed as of 2026-10-21.",
+    "cites": [
+     "D4"
+    ]
+   },
+   {
+    "text": "Sanofi-Aventis U.S. LLC posted a discontinuation of enoxaparin sodium injection for the U.S. market on 2026-10-20, stating the decision is not related to product safety or quality concerns.",
     "cites": [
      "E8"
     ]
    },
    {
-    "text": "The listed reason is discontinuation of manufacture for the U.S. market, not related to product safety or quality concerns.",
+    "text": "Corvale East holds 87 syringes of the 60 mg/0.6 mL presentation with 10.9 days on hand at 8 per day, and 246 syringes of the 100 mg/mL 0.8 mL presentation with 24.5 days on hand at 10 per day.",
     "cites": [
-     "E8"
-    ]
-   },
-   {
-    "text": "Our current supply at Corvale East provides 18 days on hand at 18 units per day.",
-    "cites": [
-     "D1"
-    ]
-   },
-   {
-    "text": "Corvale General holds 15 days on hand at 10.5 units per day.",
-    "cites": [
+     "D1",
      "D2"
     ]
    },
    {
-    "text": "The label for BluePoint Laboratories product NDC 68001063642 names Nanjing King-Friend Biochemical Pharmaceutical Co., Ltd. as the registered plant for analysis, manufacture, and pack.",
+    "text": "Corvale General holds 152 syringes of the 100 mg/mL 0.8 mL presentation with 14.5 days on hand at 10.5 per day.",
+    "cites": [
+     "D3"
+    ]
+   },
+   {
+    "text": "A label for enoxaparin sodium names Nanjing King-Friend Biochemical Pharmaceutical Co., Ltd. (FEI 3010625707) as a registered plant for analysis, manufacture, and pack, last inspected with a VAI classification on 2023-11-10.",
     "cites": [
      "E7"
     ]
    },
    {
-    "text": "FDA inspection records for that plant (FEI 3010625707) show VAI classifications in 2015, 2018, and most recently 2023-11-10.",
+    "text": "FDA inspection records for that plant show VAI classifications on 2015-05-12, 2018-04-03, and 2023-11-10.",
     "cites": [
      "E4",
      "E5",
@@ -645,9 +708,9 @@
     ]
    },
    {
-    "text": "Check whether Amphastar Pharmaceuticals, Inc. product is available for purchase and confirm its manufacturing site, as its label names no plant we could place.",
+    "text": "The rule-based best option is to buy from Amphastar Pharmaceuticals, Inc., which is not on FDA's shortage list today, though its label names no plant we could place.",
     "cites": [
-     "E7"
+     "D5"
     ]
    }
   ],
@@ -661,45 +724,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -721,80 +805,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:43:22.688Z",
+   "at": "2026-10-22T11:55:06.360Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract 34P2W2BF scope"
+   "reason": "in contract 0AVYG00B scope"
   },
   {
-   "at": "2026-10-22T07:43:22.688Z",
+   "at": "2026-10-22T11:55:06.360Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 34P2W2BF scope"
+   "reason": "in contract 0AVYG00B scope"
   },
   {
-   "at": "2026-10-22T07:43:25.587Z",
+   "at": "2026-10-22T11:55:09.755Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 34P2W2BF scope"
+   "reason": "in contract 0AVYG00B scope"
   },
   {
-   "at": "2026-10-22T07:43:26.475Z",
+   "at": "2026-10-22T11:55:10.182Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 34P2W2BF scope"
+   "reason": "in contract 0AVYG00B scope"
   },
   {
-   "at": "2026-10-22T07:43:26.996Z",
+   "at": "2026-10-22T11:55:10.425Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 34P2W2BF scope"
+   "reason": "in contract 0AVYG00B scope"
   },
   {
-   "at": "2026-10-22T07:43:28.904Z",
+   "at": "2026-10-22T11:55:11.629Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 34P2W2BF scope"
+   "reason": "in contract 0AVYG00B scope"
   },
   {
-   "at": "2026-10-22T07:43:29.877Z",
+   "at": "2026-10-22T11:55:12.276Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 34P2W2BF scope"
+   "reason": "in contract 0AVYG00B scope"
   },
   {
-   "at": "2026-10-22T07:43:31.018Z",
+   "at": "2026-10-22T11:55:12.921Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 34P2W2BF scope"
+   "reason": "in contract 0AVYG00B scope"
   },
   {
-   "at": "2026-10-22T07:43:32.247Z",
+   "at": "2026-10-22T11:55:14.253Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract 34P2W2BF scope"
+   "reason": "in contract 0AVYG00B scope"
   },
   {
-   "at": "2026-10-22T07:43:32.249Z",
+   "at": "2026-10-22T11:55:14.254Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract 34P2W2BF scope"
+   "reason": "in contract 0AVYG00B scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-9b1e46",
+   "queryId": "Q-562219",
    "row": 0,
    "label": "Corvale East: ENOXAPARIN SODIUM 60MG/0.6ML 6ML SYR",
    "fields": {
@@ -805,19 +889,24 @@
     "description": "ENOXAPARIN SODIUM 60MG/0.6ML 6ML SYR",
     "on_hand": "87.00",
     "daily_use": "7.988",
-    "unit": "package",
+    "unit": "syringe",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "enoxaparin sodium",
     "labeler_name": "Fresenius Kabi USA, LLC",
     "package_ndc": "63323-607-88",
     "spl_set_id": "21b095d1-5ade-43e9-9114-30fbfb2331c9",
     "dosage_form": "INJECTION",
-    "route": "SUBCUTANEOUS"
+    "route": "SUBCUTANEOUS",
+    "strength": "ENOXAPARIN SODIUM 60 mg/.6mL",
+    "unit_content": ".6 mL",
+    "pkg_unit": "cello"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-9b1e46",
+   "queryId": "Q-562219",
    "row": 1,
    "label": "Corvale East: ENOXAPARIN SODIUM 100MG/ML 8ML SYR",
    "fields": {
@@ -828,37 +917,47 @@
     "description": "ENOXAPARIN SODIUM 100MG/ML 8ML SYR",
     "on_hand": "246.00",
     "daily_use": "10.036",
-    "unit": "package",
+    "unit": "syringe",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Enoxaparin Sodium",
     "labeler_name": "BluePoint Laboratories",
     "package_ndc": "68001-636-42",
     "spl_set_id": "a2a8615b-a27e-4ab2-ae4c-592bbf4643c0",
     "dosage_form": "INJECTION",
-    "route": "SUBCUTANEOUS"
+    "route": "SUBCUTANEOUS",
+    "strength": "ENOXAPARIN SODIUM 100 mg/mL",
+    "unit_content": ".8 mL",
+    "pkg_unit": "syringe"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-9b1e46",
+   "queryId": "Q-562219",
    "row": 2,
-   "label": "Corvale General: Enoxaparin Sodium",
+   "label": "Corvale General: Enoxaparin Sodium 100 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-206",
     "ndc11": "68001063642",
     "ndc_as_recorded": "68001063642",
-    "description": "Enoxaparin Sodium",
-    "on_hand": "152.99",
+    "description": "Enoxaparin Sodium 100 mg/mL",
+    "on_hand": "152.00",
     "daily_use": "10.508",
     "unit": "syringe",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Enoxaparin Sodium",
     "labeler_name": "BluePoint Laboratories",
     "package_ndc": "68001-636-42",
     "spl_set_id": "a2a8615b-a27e-4ab2-ae4c-592bbf4643c0",
     "dosage_form": "INJECTION",
-    "route": "SUBCUTANEOUS"
+    "route": "SUBCUTANEOUS",
+    "strength": "ENOXAPARIN SODIUM 100 mg/mL",
+    "unit_content": ".8 mL",
+    "pkg_unit": "syringe"
    }
   },
   "E4": {
@@ -927,7 +1026,7 @@
   },
   "E8": {
    "id": "E8",
-   "queryId": "Q-c7d8dd",
+   "queryId": "Q-4f945b",
    "row": 0,
    "label": "FDA shortage list: Sanofi-Aventis U.S. LLC, To Be Discontinued",
    "fields": {
@@ -944,185 +1043,259 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 333 units of enoxaparin sodium at 18 a day: 18 days on hand",
+   "label": "Corvale East holds 87 syringes of enoxaparin sodium 60 mg/0.6 mL, 0.6 mL at 8 a day: 10.9 days on hand",
    "fields": {
     "hospital": "Corvale East",
-    "on_hand": 333,
-    "daily_use": 18,
-    "days_on_hand": 18
+    "presentation": "60 mg/0.6 mL injection, 0.6 mL syringe",
+    "on_hand": 87,
+    "daily_use": 8,
+    "days_on_hand": 10.9
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 153 units of enoxaparin sodium at 10.5 a day: 15 days on hand",
+   "label": "Corvale East holds 246 syringes of enoxaparin sodium 100 mg/mL, 0.8 mL at 10 a day: 24.5 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "100 mg/mL injection, 0.8 mL syringe",
+    "on_hand": 246,
+    "daily_use": 10,
+    "days_on_hand": 24.5
+   }
+  },
+  "D3": {
+   "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 152 syringes of enoxaparin sodium 100 mg/mL, 0.8 mL at 10.5 a day: 14.5 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 153,
+    "presentation": "100 mg/mL injection, 0.8 mL syringe",
+    "on_hand": 152,
     "daily_use": 10.5,
-    "days_on_hand": 15
+    "days_on_hand": 14.5
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "enoxaparin sodium is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Amphastar Pharmaceuticals, Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from BE Pharmaceuticals Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Civica, Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-9b1e46": {
-   "id": "Q-9b1e46",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%enoxaparin%' OR lower(s.description) LIKE '%enoxaparin%' ORDER BY s.hospital, s.item_key",
-   "ms": 2897,
+  "Q-562219": {
+   "id": "Q-562219",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*enoxaparin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*enoxaparin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3393,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:43:25.585Z",
+   "ranAt": "2026-10-22T11:55:09.753Z",
    "rows": 3
   },
   "Q-9b490a": {
    "id": "Q-9b490a",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('21b095d1-5ade-43e9-9114-30fbfb2331c9', 'a2a8615b-a27e-4ab2-ae4c-592bbf4643c0') ORDER BY ps.set_id, ps.establishment",
-   "ms": 885,
+   "ms": 425,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:43:26.472Z",
+   "ranAt": "2026-10-22T11:55:10.180Z",
    "rows": 1
   },
-  "Q-c7d8dd": {
-   "id": "Q-c7d8dd",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%enoxaparin%' ORDER BY status, company_name, package_ndc",
-   "ms": 300,
+  "Q-4f945b": {
+   "id": "Q-4f945b",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*enoxaparin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 125,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:43:26.774Z",
+   "ranAt": "2026-10-22T11:55:10.306Z",
    "rows": 24
   },
-  "Q-ddbd55": {
-   "id": "Q-ddbd55",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%enoxaparin%' ORDER BY first_posting",
-   "ms": 216,
+  "Q-9a213c": {
+   "id": "Q-9a213c",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*enoxaparin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 117,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:43:26.994Z",
+   "ranAt": "2026-10-22T11:55:10.424Z",
    "rows": 1
   },
-  "Q-d0d644": {
-   "id": "Q-d0d644",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%enoxaparin%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 1906,
+  "Q-7c37e7": {
+   "id": "Q-7c37e7",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*enoxaparin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1203,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:43:28.902Z",
+   "ranAt": "2026-10-22T11:55:11.628Z",
    "rows": 172
   },
   "Q-eb30af": {
    "id": "Q-eb30af",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3010625707') ORDER BY fei, end_date",
-   "ms": 475,
+   "ms": 238,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:43:29.379Z",
+   "ranAt": "2026-10-22T11:55:11.867Z",
    "rows": 3
   },
   "Q-1c8a07": {
    "id": "Q-1c8a07",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3010625707') ORDER BY fei, action_date",
-   "ms": 160,
+   "ms": 111,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:43:29.541Z",
+   "ranAt": "2026-10-22T11:55:11.980Z",
    "rows": 0
   },
   "Q-c38f78": {
    "id": "Q-c38f78",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3010625707') OR (fei_match <> 'name_and_city' AND firm_key IN ('nanjing king friend biochemical')) ORDER BY date_published",
-   "ms": 137,
+   "ms": 124,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:43:29.679Z",
+   "ranAt": "2026-10-22T11:55:12.104Z",
    "rows": 0
   },
-  "Q-238917": {
-   "id": "Q-238917",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('nanjing king friend biochemical', 'fresenius kabi', 'bluepoint') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%enoxaparin%' ORDER BY initiation_date",
-   "ms": 194,
+  "Q-d76bde": {
+   "id": "Q-d76bde",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('nanjing king friend biochemical', 'fresenius kabi', 'bluepoint') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*enoxaparin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 169,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:43:29.875Z",
+   "ranAt": "2026-10-22T11:55:12.274Z",
    "rows": 0
   },
   "Q-edbe36": {
    "id": "Q-edbe36",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('63323060788', '68001063642')",
-   "ms": 1138,
+   "ms": 643,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:43:31.015Z",
+   "ranAt": "2026-10-22T11:55:12.919Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-3e105d": {
-   "id": "Q-3e105d",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%enoxaparin%'",
-   "ms": 1226,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:43:32.244Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-b39108": {
+   "id": "Q-b39108",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*enoxaparin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1331,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:55:14.252Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 14905,
+  "zetarisMs": 18087,
   "modelCalls": 1,
-  "tokensIn": 1056,
-  "tokensOut": 435,
+  "tokensIn": 1541,
+  "tokensOut": 575,
   "mode": "live"
  },
  "slug": "enoxaparin",
@@ -1137,7 +1310,7 @@
     "id": "hospital-item:hospital-item:CG-206",
     "type": "HospitalItem",
     "key": "hospital-item:CG-206",
-    "label": "Corvale General: Enoxaparin Sodium",
+    "label": "Corvale General: Enoxaparin Sodium 100 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-206"
     },
@@ -1265,7 +1438,7 @@
     },
     "facts": [
      {
-      "id": "fact_14c49c695c4b7ec3",
+      "id": "fact_93e715314ea5f98f",
       "about": "inspection:fda-inspection:1048084",
       "predicate": "classification",
       "value": "VAI",
@@ -1273,9 +1446,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:43:29.877Z"
+       "at": "2026-10-22T11:55:12.275Z"
       },
-      "assertedAt": "2026-10-22T07:43:29.877Z"
+      "assertedAt": "2026-10-22T11:55:12.275Z"
      }
     ],
     "depth": 4
@@ -1291,7 +1464,7 @@
     },
     "facts": [
      {
-      "id": "fact_bd70e3d86edd7c28",
+      "id": "fact_2a6cd9df83d91b83",
       "about": "inspection:fda-inspection:1224895",
       "predicate": "classification",
       "value": "VAI",
@@ -1299,9 +1472,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:43:29.877Z"
+       "at": "2026-10-22T11:55:12.275Z"
       },
-      "assertedAt": "2026-10-22T07:43:29.877Z"
+      "assertedAt": "2026-10-22T11:55:12.275Z"
      }
     ],
     "depth": 4
@@ -1317,7 +1490,7 @@
     },
     "facts": [
      {
-      "id": "fact_6341f70cdc2ba3bf",
+      "id": "fact_38bfd44f6de47c6f",
       "about": "inspection:fda-inspection:937313",
       "predicate": "classification",
       "value": "VAI",
@@ -1325,9 +1498,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:43:29.877Z"
+       "at": "2026-10-22T11:55:12.275Z"
       },
-      "assertedAt": "2026-10-22T07:43:29.877Z"
+      "assertedAt": "2026-10-22T11:55:12.275Z"
      }
     ],
     "depth": 4
@@ -1339,11 +1512,11 @@
     "from": "hospital-item:hospital-item:CG-206",
     "to": "package:ndc-package:68001-636-42",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:43:25.587Z",
+    "validFrom": "2026-10-22T11:55:09.755Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:43:25.587Z"
+     "at": "2026-10-22T11:55:09.755Z"
     }
    },
    {
@@ -1351,11 +1524,11 @@
     "from": "hospital-item:hospital-item:EA-E-000220",
     "to": "package:ndc-package:63323-607-88",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:43:25.587Z",
+    "validFrom": "2026-10-22T11:55:09.755Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:43:25.587Z"
+     "at": "2026-10-22T11:55:09.755Z"
     }
    },
    {
@@ -1363,11 +1536,11 @@
     "from": "hospital-item:hospital-item:EA-E-000239",
     "to": "package:ndc-package:68001-636-42",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:43:25.587Z",
+    "validFrom": "2026-10-22T11:55:09.755Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:43:25.587Z"
+     "at": "2026-10-22T11:55:09.755Z"
     }
    },
    {
@@ -1375,11 +1548,11 @@
     "from": "package:ndc-package:68001-636-42",
     "to": "product:ndc-product:68001-636",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:43:25.587Z",
+    "validFrom": "2026-10-22T11:55:09.755Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:43:25.587Z"
+     "at": "2026-10-22T11:55:09.755Z"
     }
    },
    {
@@ -1387,11 +1560,11 @@
     "from": "package:ndc-package:63323-607-88",
     "to": "product:ndc-product:63323-607",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:43:25.587Z",
+    "validFrom": "2026-10-22T11:55:09.755Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:43:25.587Z"
+     "at": "2026-10-22T11:55:09.755Z"
     }
    },
    {
@@ -1399,11 +1572,11 @@
     "from": "product:ndc-product:68001-636",
     "to": "drug:generic:enoxaparin sodium",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:43:25.587Z",
+    "validFrom": "2026-10-22T11:55:09.755Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:43:25.587Z"
+     "at": "2026-10-22T11:55:09.755Z"
     }
    },
    {
@@ -1411,11 +1584,11 @@
     "from": "product:ndc-product:68001-636",
     "to": "labeler:ndc-labeler:68001",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:43:25.587Z",
+    "validFrom": "2026-10-22T11:55:09.755Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:43:25.587Z"
+     "at": "2026-10-22T11:55:09.755Z"
     }
    },
    {
@@ -1423,11 +1596,11 @@
     "from": "product:ndc-product:68001-636",
     "to": "site:fei:3010625707",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:43:29.877Z",
+    "validFrom": "2026-10-22T11:55:12.275Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:43:29.877Z"
+     "at": "2026-10-22T11:55:12.275Z"
     }
    },
    {
@@ -1435,11 +1608,11 @@
     "from": "product:ndc-product:63323-607",
     "to": "drug:generic:enoxaparin sodium",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:43:25.587Z",
+    "validFrom": "2026-10-22T11:55:09.755Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:43:25.587Z"
+     "at": "2026-10-22T11:55:09.755Z"
     }
    },
    {
@@ -1447,11 +1620,11 @@
     "from": "product:ndc-product:63323-607",
     "to": "labeler:ndc-labeler:63323",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:43:25.587Z",
+    "validFrom": "2026-10-22T11:55:09.755Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:43:25.587Z"
+     "at": "2026-10-22T11:55:09.755Z"
     }
    },
    {
@@ -1459,11 +1632,11 @@
     "from": "inspection:fda-inspection:937313",
     "to": "site:fei:3010625707",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:43:29.877Z",
+    "validFrom": "2026-10-22T11:55:12.275Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:43:29.877Z"
+     "at": "2026-10-22T11:55:12.275Z"
     }
    },
    {
@@ -1471,11 +1644,11 @@
     "from": "inspection:fda-inspection:1048084",
     "to": "site:fei:3010625707",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:43:29.877Z",
+    "validFrom": "2026-10-22T11:55:12.275Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:43:29.877Z"
+     "at": "2026-10-22T11:55:12.275Z"
     }
    },
    {
@@ -1483,11 +1656,11 @@
     "from": "inspection:fda-inspection:1224895",
     "to": "site:fei:3010625707",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:43:29.877Z",
+    "validFrom": "2026-10-22T11:55:12.275Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:43:29.877Z"
+     "at": "2026-10-22T11:55:12.275Z"
     }
    }
   ],

@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-138985",
+ "id": "case-2026-10-22-305eb3",
  "question": "Why is rifampin short, and what do we do?",
- "askedAt": "2026-10-22T08:19:59.793Z",
+ "askedAt": "2026-10-22T12:37:26.447Z",
  "asOf": "2026-10-21",
  "molecule": "rifampin",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5HB3MQPRTYNBXR7ZB5DGM3M",
+  "contractId": "01M5HSV9E5D125JB6963TPRRBP",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-964a76"
+    "Q-9ad5a0"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 4433,
+   "ms": 3102,
    "rows": 5,
-   "finding": "5 stock lines across 3 hospitals.",
+   "finding": "5 stock lines across 3 hospitals, 2 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-506e5d"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1254,
+   "ms": 439,
    "rows": 2,
    "finding": "2 plant links on 2 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-90a58e",
-    "Q-17d2e2"
+    "Q-9913b7",
+    "Q-cfbb93"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 581,
+   "ms": 295,
    "rows": 19,
    "finding": "On FDA's list as Current for 5 companies.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-1e4b25"
+    "Q-89ec25"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2359,
+   "ms": 1152,
    "rows": 3,
    "finding": "3 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-f61793",
     "Q-4b9a25",
     "Q-e0617a",
-    "Q-79ea4c"
+    "Q-8bfb26"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1674,
+   "ms": 630,
    "rows": 13,
    "finding": "13 inspections (2 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,7 +111,7 @@
    "sources": [
     "fda.citations"
    ],
-   "ms": 475,
+   "ms": 140,
    "rows": 6,
    "finding": "6 Form 483 observations recorded.",
    "status": "ok"
@@ -119,9 +126,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 3222,
+   "ms": 871,
    "rows": 2,
    "finding": "2 approved interchanges on file.",
    "status": "ok"
@@ -129,19 +136,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-c2822c"
+    "Q-85805b"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2309,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1411,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -152,7 +163,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 1,
+   "ms": 0,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -168,8 +179,11 @@
    "onHand": 60,
    "dailyUse": 3.728,
    "days": 16.1,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "rifampin|600mg|injection||vial",
+   "presentationLabel": "600 mg injection",
    "evidence": "E1"
   },
   {
@@ -181,34 +195,43 @@
    "onHand": 14,
    "dailyUse": 3.208,
    "days": 4.4,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "rifampin|600mg/10ml|injection|10ml|vial",
+   "presentationLabel": "600 mg/10 mL injection, 10 mL vial",
    "evidence": "E2"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-104",
    "ndc11": "63323035120",
-   "description": "RIFAMPIN",
+   "description": "RIFAMPIN 600 mg/1",
    "labeler": "Fresenius Kabi USA, LLC",
-   "onHand": 58.31,
+   "onHand": 58,
    "dailyUse": 4.241,
    "days": 13.7,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "rifampin|600mg|injection||vial",
+   "presentationLabel": "600 mg injection",
    "evidence": "E3"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-105",
    "ndc11": "67457044560",
-   "description": "Rifampin",
+   "description": "Rifampin 600 mg/10mL",
    "labeler": "Mylan Institutional LLC",
-   "onHand": 67.19,
+   "onHand": 67,
    "dailyUse": 4.23,
-   "days": 15.9,
+   "days": 15.8,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "rifampin|600mg/10ml|injection|10ml|vial",
+   "presentationLabel": "600 mg/10 mL injection, 10 mL vial",
    "evidence": "E4"
   },
   {
@@ -222,7 +245,94 @@
    "days": 29.5,
    "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "rifampin|600mg/10ml|injection|10ml|vial",
+   "presentationLabel": "600 mg/10 mL injection, 10 mL vial",
    "evidence": "E5"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "rifampin|600mg/10ml|injection|10ml|vial",
+   "label": "600 mg/10 mL injection, 10 mL vial",
+   "short": "600 mg/10 mL, 10 mL",
+   "unit": "vial",
+   "onHand": 114,
+   "dailyUse": 8.558,
+   "days": 13.3,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 14,
+     "dailyUse": 3.208,
+     "days": 4.4,
+     "lines": [
+      "EA-E-000236"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 67,
+     "dailyUse": 4.23,
+     "days": 15.8,
+     "lines": [
+      "CG-105"
+     ],
+     "evidence": [
+      "E4"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 33,
+     "dailyUse": 1.12,
+     "days": 29.5,
+     "lines": [
+      "LS-LS-0110"
+     ],
+     "evidence": [
+      "E5"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "rifampin|600mg|injection||vial",
+   "label": "600 mg injection",
+   "short": "600 mg",
+   "unit": "vial",
+   "onHand": 118,
+   "dailyUse": 7.969,
+   "days": 14.8,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 60,
+     "dailyUse": 3.728,
+     "days": 16.1,
+     "lines": [
+      "EA-E-000215"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 58,
+     "dailyUse": 4.241,
+     "days": 13.7,
+     "lines": [
+      "CG-104"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -454,6 +564,52 @@
  ],
  "options": [
   {
+   "kind": "transfer",
+   "rank": 1,
+   "title": "Transfer 17 vials of 600 mg/10 mL, 10 mL from Corvale Lakeside to Corvale East",
+   "detail": "Corvale Lakeside has 29 days of 600 mg/10 mL injection, 10 mL vials on hand and can spare 17 vials while keeping two weeks; Corvale East has 4.4 days and would reach 10.",
+   "why": "Same presentation, no clinical change, no new supplier.",
+   "needs": "pharmacy director (transfer request)",
+   "evidence": [
+    "E5",
+    "E2"
+   ],
+   "transfer": {
+    "qty": 17,
+    "unit": "vial",
+    "presentation": "600 mg/10 mL injection, 10 mL vial",
+    "from": "Corvale Lakeside",
+    "to": "Corvale East",
+    "fromDays": 29.5,
+    "toDays": 4.4,
+    "fromAfter": 14,
+    "toAfter": 10
+   }
+  },
+  {
+   "kind": "transfer",
+   "rank": 1,
+   "title": "Transfer 7 vials of 600 mg/10 mL, 10 mL from Corvale General to Corvale East",
+   "detail": "Corvale General has 16 days of 600 mg/10 mL injection, 10 mL vials on hand and can spare 7 vials while keeping two weeks; Corvale East has 4.4 days and would reach 7.",
+   "why": "Same presentation, no clinical change, no new supplier.",
+   "needs": "pharmacy director (transfer request)",
+   "evidence": [
+    "E4",
+    "E2"
+   ],
+   "transfer": {
+    "qty": 7,
+    "unit": "vial",
+    "presentation": "600 mg/10 mL injection, 10 mL vial",
+    "from": "Corvale General",
+    "to": "Corvale East",
+    "fromDays": 15.8,
+    "toDays": 4.4,
+    "fromAfter": 14,
+    "toAfter": 7
+   }
+  },
+  {
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Hikma Pharmaceuticals USA Inc.",
@@ -464,9 +620,9 @@
   },
   {
    "kind": "alternate_concentration",
-   "rank": 3,
+   "rank": 5,
    "title": "Same molecule, alternate concentration or vial size: Rifampin 600 mg/10mL from Mylan Institutional LLC",
-   "detail": "Recalculate dose and volume; pharmacist verification required. Approved by Casey Nguyen, MD on 2026-06-26.",
+   "detail": "Recalculate dose and volume; pharmacist verification required. Approved by Casey Nguyen, MD on 2026-06-26. FDA lists this product Current (posted 2021-02-17).",
    "why": "Already approved by the P&T committee.",
    "needs": "pharmacist",
    "evidence": [
@@ -475,9 +631,9 @@
   },
   {
    "kind": "alternate_concentration",
-   "rank": 3,
+   "rank": 5,
    "title": "Same molecule, alternate concentration or vial size: RIFAMPIN 600 mg/1 from Fresenius Kabi USA, LLC",
-   "detail": "Recalculate dose and volume; pharmacist verification required. Approved by Jordan Hale, PharmD on 2026-09-01.",
+   "detail": "Recalculate dose and volume; pharmacist verification required. Approved by Jordan Hale, PharmD on 2026-09-01. FDA lists this product Current (posted 2021-02-17).",
    "why": "Already approved by the P&T committee.",
    "needs": "pharmacist",
    "evidence": [
@@ -517,60 +673,57 @@
  ],
  "explanation": {
   "state": "confirmed",
-  "headline": "FDA's records trace our rifampin supply to a plant classified OAI 275 days before the shortage posting",
+  "headline": "FDA's records trace our supply to a plant classified OAI 275 days before the posting",
   "sentences": [
    {
-    "text": "FDA first posted the rifampin injection shortage on 2021-02-17 and it remains current as of 2026-10-21.",
+    "text": "FDA first posted the rifampin injection shortage on 2021-02-17 and it remains Current as of 2026-10-21.",
     "cites": [
      "E21",
-     "E17",
-     "D11"
+     "D10"
     ]
    },
    {
-    "text": "The product label for NDC 63323-351-20 names Fresenius Kabi USA, LLC as the manufacturing plant (FEI 1450022).",
+    "text": "The shortage entry names Fresenius Kabi USA, LLC (NDC 63323-351-20) as the company.",
     "cites": [
+     "E17"
+    ]
+   },
+   {
+    "text": "A registered plant for that labeler, Fresenius Kabi USA LLC (FEI 1450022), received an OAI classification after an inspection that ended 2020-05-18, with the classification letter dated 2024-05-22.",
+    "cites": [
+     "E11",
      "E14"
     ]
    },
    {
-    "text": "FDA inspection 1123748 at that plant ended 2020-05-18 and was classified OAI, with the classification letter dated 2024-05-22, 275 days before the shortage posting.",
+    "text": "That inspection ended 275 days before FDA posted the shortage on 2021-02-17.",
     "cites": [
-     "E11",
-     "D4"
+     "D6"
     ]
    },
    {
-    "text": "A second OAI inspection (1174894) ended 2022-06-30, 498 days after the posting, with a classification letter dated 2024-04-30.",
+    "text": "A second inspection of the same plant ended 2022-06-30 and was also classified OAI, with the letter dated 2024-04-30.",
     "cites": [
-     "E12",
-     "D5"
+     "E12"
     ]
    },
    {
-    "text": "The most recent inspection (1216183) ended 2023-08-24 and was classified VAI.",
-    "cites": [
-     "E13"
-    ]
-   },
-   {
-    "text": "Current inventory across our three sites ranges from 11 to 29 days on hand.",
+    "text": "The top-ranked mitigation is to transfer 17 vials of 600 mg/10 mL from Corvale Lakeside to Corvale East, which would raise East's supply from 4.4 days to 10 days while Lakeside retains two weeks on hand.",
     "cites": [
      "D1",
-     "D2",
-     "D3"
-    ]
-   },
-   {
-    "text": "The rule‑selected best option is to buy from Hikma Pharmaceuticals USA Inc., which is not on FDA's shortage list today.",
-    "cites": [
-     "D8"
+     "D3",
+     "D11"
     ]
    }
   ],
   "verifier": {
    "checked": 8,
-   "rejected": [],
+   "rejected": [
+    {
+     "text": "Our Corvale sites use Mylan Institutional LLC product (NDC 67457-445-60) which is interchangeable with the Fresenius Kabi product per P&T approval.",
+     "reason": "Fresenius Kabi USA, LLC is not in the cited evidence"
+    }
+   ],
    "repaired": 1
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -578,45 +731,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -631,87 +805,87 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T08:19:43.479Z",
+   "at": "2026-10-22T12:37:18.405Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract ZB5DGM3M scope"
+   "reason": "in contract 63TPRRBP scope"
   },
   {
-   "at": "2026-10-22T08:19:43.479Z",
+   "at": "2026-10-22T12:37:18.405Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract ZB5DGM3M scope"
+   "reason": "in contract 63TPRRBP scope"
   },
   {
-   "at": "2026-10-22T08:19:47.914Z",
+   "at": "2026-10-22T12:37:21.508Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract ZB5DGM3M scope"
+   "reason": "in contract 63TPRRBP scope"
   },
   {
-   "at": "2026-10-22T08:19:49.168Z",
+   "at": "2026-10-22T12:37:21.948Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract ZB5DGM3M scope"
+   "reason": "in contract 63TPRRBP scope"
   },
   {
-   "at": "2026-10-22T08:19:49.749Z",
+   "at": "2026-10-22T12:37:22.242Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract ZB5DGM3M scope"
+   "reason": "in contract 63TPRRBP scope"
   },
   {
-   "at": "2026-10-22T08:19:52.109Z",
+   "at": "2026-10-22T12:37:23.394Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract ZB5DGM3M scope"
+   "reason": "in contract 63TPRRBP scope"
   },
   {
-   "at": "2026-10-22T08:19:53.783Z",
+   "at": "2026-10-22T12:37:24.024Z",
    "action": "What FDA wrote at the OAI inspections",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract ZB5DGM3M scope"
+   "reason": "in contract 63TPRRBP scope"
   },
   {
-   "at": "2026-10-22T08:19:54.260Z",
+   "at": "2026-10-22T12:37:24.165Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract ZB5DGM3M scope"
+   "reason": "in contract 63TPRRBP scope"
   },
   {
-   "at": "2026-10-22T08:19:57.482Z",
+   "at": "2026-10-22T12:37:25.036Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract ZB5DGM3M scope"
+   "reason": "in contract 63TPRRBP scope"
   },
   {
-   "at": "2026-10-22T08:19:59.792Z",
+   "at": "2026-10-22T12:37:26.447Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract ZB5DGM3M scope"
+   "reason": "in contract 63TPRRBP scope"
   },
   {
-   "at": "2026-10-22T08:19:59.793Z",
+   "at": "2026-10-22T12:37:26.447Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract ZB5DGM3M scope"
+   "reason": "in contract 63TPRRBP scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-964a76",
+   "queryId": "Q-9ad5a0",
    "row": 0,
    "label": "Corvale East: RIFAMPIN 600MG",
    "fields": {
@@ -722,19 +896,24 @@
     "description": "RIFAMPIN 600MG",
     "on_hand": "60.00",
     "daily_use": "3.728",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "RIFAMPIN",
     "labeler_name": "Fresenius Kabi USA, LLC",
     "package_ndc": "63323-351-20",
     "spl_set_id": "a1f9f1e2-dfc0-4d31-a13b-b656d897b791",
     "dosage_form": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "RIFAMPIN 600 mg/1",
+    "unit_content": null,
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-964a76",
+   "queryId": "Q-9ad5a0",
    "row": 1,
    "label": "Corvale East: RIFAMPIN 600MG0ML 10ML SDV",
    "fields": {
@@ -745,65 +924,80 @@
     "description": "RIFAMPIN 600MG0ML 10ML SDV",
     "on_hand": "14.00",
     "daily_use": "3.208",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Rifampin",
     "labeler_name": "Mylan Institutional LLC",
     "package_ndc": "67457-445-60",
     "spl_set_id": "8be91604-d7cd-4f2b-997d-e3364e4092e5",
     "dosage_form": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "RIFAMPIN 600 mg/10mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-964a76",
+   "queryId": "Q-9ad5a0",
    "row": 2,
-   "label": "Corvale General: RIFAMPIN",
+   "label": "Corvale General: RIFAMPIN 600 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-104",
     "ndc11": "63323035120",
     "ndc_as_recorded": "63323035120",
-    "description": "RIFAMPIN",
-    "on_hand": "58.31",
+    "description": "RIFAMPIN 600 mg/1",
+    "on_hand": "58.00",
     "daily_use": "4.241",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "RIFAMPIN",
     "labeler_name": "Fresenius Kabi USA, LLC",
     "package_ndc": "63323-351-20",
     "spl_set_id": "a1f9f1e2-dfc0-4d31-a13b-b656d897b791",
     "dosage_form": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "RIFAMPIN 600 mg/1",
+    "unit_content": null,
+    "pkg_unit": "vial"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-964a76",
+   "queryId": "Q-9ad5a0",
    "row": 3,
-   "label": "Corvale General: Rifampin",
+   "label": "Corvale General: Rifampin 600 mg/10mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-105",
     "ndc11": "67457044560",
     "ndc_as_recorded": "67457044560",
-    "description": "Rifampin",
-    "on_hand": "67.19",
+    "description": "Rifampin 600 mg/10mL",
+    "on_hand": "67.00",
     "daily_use": "4.230",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Rifampin",
     "labeler_name": "Mylan Institutional LLC",
     "package_ndc": "67457-445-60",
     "spl_set_id": "8be91604-d7cd-4f2b-997d-e3364e4092e5",
     "dosage_form": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "RIFAMPIN 600 mg/10mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E5": {
    "id": "E5",
-   "queryId": "Q-964a76",
+   "queryId": "Q-9ad5a0",
    "row": 4,
    "label": "Corvale Lakeside: Rifampin 600 mg/10mL 10 mL vial",
    "fields": {
@@ -815,13 +1009,18 @@
     "on_hand": "33.00",
     "daily_use": "1.120",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Rifampin",
     "labeler_name": "Mylan Institutional LLC",
     "package_ndc": "67457-445-60",
     "spl_set_id": "8be91604-d7cd-4f2b-997d-e3364e4092e5",
     "dosage_form": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "RIFAMPIN 600 mg/10mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E6": {
@@ -983,7 +1182,7 @@
   },
   "E16": {
    "id": "E16",
-   "queryId": "Q-90a58e",
+   "queryId": "Q-9913b7",
    "row": 0,
    "label": "FDA shortage list: Epic Pharma, LLC, Current",
    "fields": {
@@ -998,7 +1197,7 @@
   },
   "E17": {
    "id": "E17",
-   "queryId": "Q-90a58e",
+   "queryId": "Q-9913b7",
    "row": 6,
    "label": "FDA shortage list: Fresenius Kabi USA, LLC, Current",
    "fields": {
@@ -1013,7 +1212,7 @@
   },
   "E18": {
    "id": "E18",
-   "queryId": "Q-90a58e",
+   "queryId": "Q-9913b7",
    "row": 7,
    "label": "FDA shortage list: Lupin Pharmaceuticals, Inc., Current",
    "fields": {
@@ -1028,7 +1227,7 @@
   },
   "E19": {
    "id": "E19",
-   "queryId": "Q-90a58e",
+   "queryId": "Q-9913b7",
    "row": 10,
    "label": "FDA shortage list: Mylan Institutional, a Viatris Company, Current",
    "fields": {
@@ -1043,7 +1242,7 @@
   },
   "E20": {
    "id": "E20",
-   "queryId": "Q-90a58e",
+   "queryId": "Q-9913b7",
    "row": 11,
    "label": "FDA shortage list: Sanofi-Aventis U.S. LLC, Current",
    "fields": {
@@ -1058,7 +1257,7 @@
   },
   "E21": {
    "id": "E21",
-   "queryId": "Q-90a58e",
+   "queryId": "Q-9913b7",
    "row": 6,
    "label": "FDA first posted the shortage 2021-02-17",
    "fields": {
@@ -1111,40 +1310,69 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 74 units of rifampin at 6.9 a day: 11 days on hand",
+   "label": "Corvale East holds 14 vials of rifampin 600 mg/10 mL, 10 mL at 3.2 a day: 4.4 days on hand",
    "fields": {
     "hospital": "Corvale East",
-    "on_hand": 74,
-    "daily_use": 6.9,
-    "days_on_hand": 11
+    "presentation": "600 mg/10 mL injection, 10 mL vial",
+    "on_hand": 14,
+    "daily_use": 3.2,
+    "days_on_hand": 4.4
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 126 units of rifampin at 8.5 a day: 15 days on hand",
+   "label": "Corvale General holds 67 vials of rifampin 600 mg/10 mL, 10 mL at 4.2 a day: 15.8 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 126,
-    "daily_use": 8.5,
-    "days_on_hand": 15
+    "presentation": "600 mg/10 mL injection, 10 mL vial",
+    "on_hand": 67,
+    "daily_use": 4.2,
+    "days_on_hand": 15.8
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 33 units of rifampin at 1.1 a day: 29 days on hand",
+   "label": "Corvale Lakeside holds 33 vials of rifampin 600 mg/10 mL, 10 mL at 1.1 a day: 29.5 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
+    "presentation": "600 mg/10 mL injection, 10 mL vial",
     "on_hand": 33,
     "daily_use": 1.1,
-    "days_on_hand": 29
+    "days_on_hand": 29.5
    }
   },
   "D4": {
    "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale East holds 60 vials of rifampin 600 mg at 3.7 a day: 16.1 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "600 mg injection",
+    "on_hand": 60,
+    "daily_use": 3.7,
+    "days_on_hand": 16.1
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 58 vials of rifampin 600 mg at 4.2 a day: 13.7 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "600 mg injection",
+    "on_hand": 58,
+    "daily_use": 4.2,
+    "days_on_hand": 13.7
+   }
+  },
+  "D6": {
+   "id": "D6",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 1123748 ended 2020-05-18, classified OAI; classification letter 2024-05-22; Form 483: Establishment of time limitations; Procedures for sterile drug products; Batch production and Batch Control Record Requirements (6 observations) — 275 days before FDA posted the shortage on 2021-02-17",
@@ -1154,8 +1382,8 @@
     "days": 275
    }
   },
-  "D5": {
-   "id": "D5",
+  "D7": {
+   "id": "D7",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 1174894 ended 2022-06-30, classified OAI; classification letter 2024-04-30 — 498 days after FDA posted the shortage on 2021-02-17",
@@ -1165,8 +1393,8 @@
     "days": 498
    }
   },
-  "D6": {
-   "id": "D6",
+  "D8": {
+   "id": "D8",
    "queryId": "derived",
    "row": -1,
    "label": "FDA's OAI classification letter to Fresenius Kabi USA, LLC is dated 2024-05-22, 1190 days after FDA posted the shortage on 2021-02-17",
@@ -1176,8 +1404,8 @@
     "days": 1190
    }
   },
-  "D7": {
-   "id": "D7",
+  "D9": {
+   "id": "D9",
    "queryId": "derived",
    "row": -1,
    "label": "FDA's OAI classification letter to Fresenius Kabi USA, LLC is dated 2024-04-30, 1168 days after FDA posted the shortage on 2021-02-17",
@@ -1187,38 +1415,8 @@
     "days": 1168
    }
   },
-  "D8": {
-   "id": "D8",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 3 by rule: Buy from Hikma Pharmaceuticals USA Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
-   }
-  },
-  "D9": {
-   "id": "D9",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 3 by rule: Same molecule, alternate concentration or vial size: Rifampin 600 mg/10mL from Mylan Institutional LLC. Recalculate dose and volume; pharmacist verification required. Approved by Casey Nguyen, MD on 2026-06-26.",
-   "fields": {
-    "kind": "alternate_concentration",
-    "needs": "pharmacist"
-   }
-  },
   "D10": {
    "id": "D10",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 3 by rule: Same molecule, alternate concentration or vial size: RIFAMPIN 600 mg/1 from Fresenius Kabi USA, LLC. Recalculate dose and volume; pharmacist verification required. Approved by Jordan Hale, PharmD on 2026-09-01.",
-   "fields": {
-    "kind": "alternate_concentration",
-    "needs": "pharmacist"
-   }
-  },
-  "D11": {
-   "id": "D11",
    "queryId": "derived",
    "row": -1,
    "label": "As of 2026-10-21 the shortage has been on FDA's list for 68 months",
@@ -1227,177 +1425,226 @@
     "posted": "2021-02-17",
     "months": 68
    }
+  },
+  "D11": {
+   "id": "D11",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 17 vials of 600 mg/10 mL, 10 mL from Corvale Lakeside to Corvale East. Corvale Lakeside has 29 days of 600 mg/10 mL injection, 10 mL vials on hand and can spare 17 vials while keeping two weeks; Corvale East has 4.4 days and would reach 10.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D12": {
+   "id": "D12",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 7 vials of 600 mg/10 mL, 10 mL from Corvale General to Corvale East. Corvale General has 16 days of 600 mg/10 mL injection, 10 mL vials on hand and can spare 7 vials while keeping two weeks; Corvale East has 4.4 days and would reach 7.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D13": {
+   "id": "D13",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Hikma Pharmaceuticals USA Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
   }
  },
  "queries": {
-  "Q-964a76": {
-   "id": "Q-964a76",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%rifampin%' OR lower(s.description) LIKE '%rifampin%' ORDER BY s.hospital, s.item_key",
-   "ms": 4431,
+  "Q-9ad5a0": {
+   "id": "Q-9ad5a0",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*rifampin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*rifampin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3101,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T08:19:47.910Z",
+   "ranAt": "2026-10-22T12:37:21.506Z",
    "rows": 5
   },
   "Q-506e5d": {
    "id": "Q-506e5d",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('a1f9f1e2-dfc0-4d31-a13b-b656d897b791', '8be91604-d7cd-4f2b-997d-e3364e4092e5') ORDER BY ps.set_id, ps.establishment",
-   "ms": 1251,
+   "ms": 438,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:19:49.166Z",
+   "ranAt": "2026-10-22T12:37:21.946Z",
    "rows": 2
   },
-  "Q-90a58e": {
-   "id": "Q-90a58e",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%rifampin%' ORDER BY status, company_name, package_ndc",
-   "ms": 283,
+  "Q-9913b7": {
+   "id": "Q-9913b7",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*rifampin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 175,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T08:19:49.451Z",
+   "ranAt": "2026-10-22T12:37:22.123Z",
    "rows": 13
   },
-  "Q-17d2e2": {
-   "id": "Q-17d2e2",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%rifampin%' ORDER BY first_posting",
-   "ms": 294,
+  "Q-cfbb93": {
+   "id": "Q-cfbb93",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*rifampin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 117,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T08:19:49.748Z",
+   "ranAt": "2026-10-22T12:37:22.241Z",
    "rows": 6
   },
-  "Q-1e4b25": {
-   "id": "Q-1e4b25",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%rifampin%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2357,
+  "Q-89ec25": {
+   "id": "Q-89ec25",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*rifampin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1151,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:19:52.106Z",
+   "ranAt": "2026-10-22T12:37:23.393Z",
    "rows": 3
   },
   "Q-f61793": {
    "id": "Q-f61793",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('1450022') ORDER BY fei, end_date",
-   "ms": 593,
+   "ms": 286,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T08:19:52.702Z",
+   "ranAt": "2026-10-22T12:37:23.681Z",
    "rows": 13
   },
   "Q-4b9a25": {
    "id": "Q-4b9a25",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('1450022') ORDER BY fei, action_date",
-   "ms": 384,
+   "ms": 119,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T08:19:53.089Z",
+   "ranAt": "2026-10-22T12:37:23.800Z",
    "rows": 0
   },
   "Q-e0617a": {
    "id": "Q-e0617a",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('1450022') OR (fei_match <> 'name_and_city' AND firm_key IN ('onesource specialty bengaluru 560076', 'fresenius kabi')) ORDER BY date_published",
-   "ms": 313,
+   "ms": 100,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T08:19:53.404Z",
+   "ranAt": "2026-10-22T12:37:23.901Z",
    "rows": 0
   },
-  "Q-79ea4c": {
-   "id": "Q-79ea4c",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('onesource specialty bengaluru 560076', 'fresenius kabi', 'mylan institutional') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%rifampin%' ORDER BY initiation_date",
-   "ms": 375,
+  "Q-8bfb26": {
+   "id": "Q-8bfb26",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('onesource specialty bengaluru 560076', 'fresenius kabi', 'mylan institutional') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*rifampin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 121,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T08:19:53.781Z",
+   "ranAt": "2026-10-22T12:37:24.023Z",
    "rows": 0
   },
   "Q-71114d": {
    "id": "Q-71114d",
    "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('1123748', '1174894') ORDER BY inspection_id, cfr",
-   "ms": 473,
+   "ms": 140,
    "mode": "live",
    "sources": [
     "fda.citations"
    ],
-   "ranAt": "2026-10-22T08:19:54.256Z",
+   "ranAt": "2026-10-22T12:37:24.164Z",
    "rows": 6
   },
   "Q-b15b2a": {
    "id": "Q-b15b2a",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('63323035120', '67457044560')",
-   "ms": 3219,
+   "ms": 870,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:19:57.479Z",
+   "ranAt": "2026-10-22T12:37:25.035Z",
    "rows": 2
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-c2822c": {
-   "id": "Q-c2822c",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%rifampin%'",
-   "ms": 2306,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:19:59.789Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-85805b": {
+   "id": "Q-85805b",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*rifampin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1410,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:37:26.446Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 15,
-  "zetarisMs": 21650,
-  "modelCalls": 1,
-  "tokensIn": 3086,
-  "tokensOut": 477,
+  "zetarisMs": 18236,
+  "modelCalls": 0,
+  "tokensIn": 0,
+  "tokensOut": 0,
   "mode": "live"
  },
  "slug": "rifampin",
@@ -1414,7 +1661,7 @@
     "id": "hospital-item:hospital-item:CG-104",
     "type": "HospitalItem",
     "key": "hospital-item:CG-104",
-    "label": "Corvale General: RIFAMPIN",
+    "label": "Corvale General: RIFAMPIN 600 mg/1",
     "attrs": {
      "key": "hospital-item:CG-104"
     },
@@ -1425,7 +1672,7 @@
     "id": "hospital-item:hospital-item:CG-105",
     "type": "HospitalItem",
     "key": "hospital-item:CG-105",
-    "label": "Corvale General: Rifampin",
+    "label": "Corvale General: Rifampin 600 mg/10mL",
     "attrs": {
      "key": "hospital-item:CG-105"
     },
@@ -1564,7 +1811,7 @@
     },
     "facts": [
      {
-      "id": "fact_61acaa154fc9a958",
+      "id": "fact_9bca9aab5cd82291",
       "about": "inspection:fda-inspection:1123748",
       "predicate": "classification",
       "value": "OAI",
@@ -1572,9 +1819,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:19:54.259Z"
+       "at": "2026-10-22T12:37:24.165Z"
       },
-      "assertedAt": "2026-10-22T08:19:54.259Z"
+      "assertedAt": "2026-10-22T12:37:24.165Z"
      }
     ],
     "depth": 4
@@ -1590,7 +1837,7 @@
     },
     "facts": [
      {
-      "id": "fact_972199a0edb74a13",
+      "id": "fact_7de1141b0ffb54cf",
       "about": "inspection:fda-inspection:1174894",
       "predicate": "classification",
       "value": "OAI",
@@ -1598,9 +1845,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:19:54.259Z"
+       "at": "2026-10-22T12:37:24.165Z"
       },
-      "assertedAt": "2026-10-22T08:19:54.259Z"
+      "assertedAt": "2026-10-22T12:37:24.165Z"
      }
     ],
     "depth": 4
@@ -1616,7 +1863,7 @@
     },
     "facts": [
      {
-      "id": "fact_78e4dd83cc0b265d",
+      "id": "fact_be4dc3fe83972bd4",
       "about": "inspection:fda-inspection:1216183",
       "predicate": "classification",
       "value": "VAI",
@@ -1624,9 +1871,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:19:54.259Z"
+       "at": "2026-10-22T12:37:24.165Z"
       },
-      "assertedAt": "2026-10-22T08:19:54.259Z"
+      "assertedAt": "2026-10-22T12:37:24.165Z"
      }
     ],
     "depth": 4
@@ -1642,7 +1889,7 @@
     },
     "facts": [
      {
-      "id": "fact_25e4227baf06a4f7",
+      "id": "fact_107c3246c5f46aeb",
       "about": "inspection:fda-inspection:558846",
       "predicate": "classification",
       "value": "VAI",
@@ -1650,9 +1897,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:19:54.259Z"
+       "at": "2026-10-22T12:37:24.165Z"
       },
-      "assertedAt": "2026-10-22T08:19:54.259Z"
+      "assertedAt": "2026-10-22T12:37:24.165Z"
      }
     ],
     "depth": 4
@@ -1668,7 +1915,7 @@
     },
     "facts": [
      {
-      "id": "fact_966e03441beb2bba",
+      "id": "fact_17cc9c57fdf58a48",
       "about": "inspection:fda-inspection:569783",
       "predicate": "classification",
       "value": "VAI",
@@ -1676,9 +1923,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:19:54.259Z"
+       "at": "2026-10-22T12:37:24.165Z"
       },
-      "assertedAt": "2026-10-22T08:19:54.259Z"
+      "assertedAt": "2026-10-22T12:37:24.165Z"
      }
     ],
     "depth": 4
@@ -1694,7 +1941,7 @@
     },
     "facts": [
      {
-      "id": "fact_8f1428972957f95d",
+      "id": "fact_da8c51ac23a4cb72",
       "about": "inspection:fda-inspection:855192",
       "predicate": "classification",
       "value": "VAI",
@@ -1702,9 +1949,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:19:54.259Z"
+       "at": "2026-10-22T12:37:24.165Z"
       },
-      "assertedAt": "2026-10-22T08:19:54.259Z"
+      "assertedAt": "2026-10-22T12:37:24.165Z"
      }
     ],
     "depth": 4
@@ -1720,7 +1967,7 @@
     },
     "facts": [
      {
-      "id": "fact_03157788f5b431f3",
+      "id": "fact_6d3e6b004112619d",
       "about": "inspection:fda-inspection:943391",
       "predicate": "classification",
       "value": "VAI",
@@ -1728,9 +1975,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:19:54.259Z"
+       "at": "2026-10-22T12:37:24.165Z"
       },
-      "assertedAt": "2026-10-22T08:19:54.259Z"
+      "assertedAt": "2026-10-22T12:37:24.165Z"
      }
     ],
     "depth": 4
@@ -1753,11 +2000,11 @@
     "from": "hospital-item:hospital-item:CG-104",
     "to": "package:ndc-package:63323-351-20",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:19:47.914Z",
+    "validFrom": "2026-10-22T12:37:21.508Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:19:47.914Z"
+     "at": "2026-10-22T12:37:21.508Z"
     }
    },
    {
@@ -1765,11 +2012,11 @@
     "from": "hospital-item:hospital-item:CG-105",
     "to": "package:ndc-package:67457-445-60",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:19:47.914Z",
+    "validFrom": "2026-10-22T12:37:21.508Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:19:47.914Z"
+     "at": "2026-10-22T12:37:21.508Z"
     }
    },
    {
@@ -1777,11 +2024,11 @@
     "from": "hospital-item:hospital-item:EA-E-000215",
     "to": "package:ndc-package:63323-351-20",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:19:47.912Z",
+    "validFrom": "2026-10-22T12:37:21.508Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:19:47.912Z"
+     "at": "2026-10-22T12:37:21.508Z"
     }
    },
    {
@@ -1789,11 +2036,11 @@
     "from": "hospital-item:hospital-item:EA-E-000236",
     "to": "package:ndc-package:67457-445-60",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:19:47.913Z",
+    "validFrom": "2026-10-22T12:37:21.508Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:19:47.913Z"
+     "at": "2026-10-22T12:37:21.508Z"
     }
    },
    {
@@ -1801,11 +2048,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0110",
     "to": "package:ndc-package:67457-445-60",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:19:47.914Z",
+    "validFrom": "2026-10-22T12:37:21.508Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:19:47.914Z"
+     "at": "2026-10-22T12:37:21.508Z"
     }
    },
    {
@@ -1813,11 +2060,11 @@
     "from": "package:ndc-package:63323-351-20",
     "to": "product:ndc-product:63323-351",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:19:47.913Z",
+    "validFrom": "2026-10-22T12:37:21.508Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:19:47.913Z"
+     "at": "2026-10-22T12:37:21.508Z"
     }
    },
    {
@@ -1825,11 +2072,11 @@
     "from": "package:ndc-package:67457-445-60",
     "to": "product:ndc-product:67457-445",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:19:47.913Z",
+    "validFrom": "2026-10-22T12:37:21.508Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:19:47.913Z"
+     "at": "2026-10-22T12:37:21.508Z"
     }
    },
    {
@@ -1837,11 +2084,11 @@
     "from": "product:ndc-product:63323-351",
     "to": "drug:generic:rifampin",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:19:47.913Z",
+    "validFrom": "2026-10-22T12:37:21.508Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:19:47.913Z"
+     "at": "2026-10-22T12:37:21.508Z"
     }
    },
    {
@@ -1849,11 +2096,11 @@
     "from": "product:ndc-product:63323-351",
     "to": "labeler:ndc-labeler:63323",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:19:47.913Z",
+    "validFrom": "2026-10-22T12:37:21.508Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:19:47.913Z"
+     "at": "2026-10-22T12:37:21.508Z"
     }
    },
    {
@@ -1861,11 +2108,11 @@
     "from": "product:ndc-product:63323-351",
     "to": "site:fei:1450022",
     "type": "made-at",
-    "validFrom": "2026-10-22T08:19:54.258Z",
+    "validFrom": "2026-10-22T12:37:24.165Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:19:54.258Z"
+     "at": "2026-10-22T12:37:24.165Z"
     }
    },
    {
@@ -1873,11 +2120,11 @@
     "from": "product:ndc-product:67457-445",
     "to": "drug:generic:rifampin",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:19:47.913Z",
+    "validFrom": "2026-10-22T12:37:21.508Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:19:47.913Z"
+     "at": "2026-10-22T12:37:21.508Z"
     }
    },
    {
@@ -1885,11 +2132,11 @@
     "from": "product:ndc-product:67457-445",
     "to": "labeler:ndc-labeler:67457",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:19:47.913Z",
+    "validFrom": "2026-10-22T12:37:21.508Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:19:47.913Z"
+     "at": "2026-10-22T12:37:21.508Z"
     }
    },
    {
@@ -1897,11 +2144,11 @@
     "from": "shortage:fda-shortage:rifampin-2021-02-17",
     "to": "drug:generic:rifampin",
     "type": "affects",
-    "validFrom": "2026-10-22T08:19:54.259Z",
+    "validFrom": "2026-10-22T12:37:24.165Z",
     "source": {
      "kind": "fda-shortage-db",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:19:54.259Z"
+     "at": "2026-10-22T12:37:24.165Z"
     }
    },
    {
@@ -1909,11 +2156,11 @@
     "from": "inspection:fda-inspection:558846",
     "to": "site:fei:1450022",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:19:54.258Z",
+    "validFrom": "2026-10-22T12:37:24.165Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:19:54.258Z"
+     "at": "2026-10-22T12:37:24.165Z"
     }
    },
    {
@@ -1921,11 +2168,11 @@
     "from": "inspection:fda-inspection:569783",
     "to": "site:fei:1450022",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:19:54.259Z",
+    "validFrom": "2026-10-22T12:37:24.165Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:19:54.259Z"
+     "at": "2026-10-22T12:37:24.165Z"
     }
    },
    {
@@ -1933,11 +2180,11 @@
     "from": "inspection:fda-inspection:855192",
     "to": "site:fei:1450022",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:19:54.259Z",
+    "validFrom": "2026-10-22T12:37:24.165Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:19:54.259Z"
+     "at": "2026-10-22T12:37:24.165Z"
     }
    },
    {
@@ -1945,11 +2192,11 @@
     "from": "inspection:fda-inspection:943391",
     "to": "site:fei:1450022",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:19:54.259Z",
+    "validFrom": "2026-10-22T12:37:24.165Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:19:54.259Z"
+     "at": "2026-10-22T12:37:24.165Z"
     }
    },
    {
@@ -1957,11 +2204,11 @@
     "from": "inspection:fda-inspection:1123748",
     "to": "site:fei:1450022",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:19:54.259Z",
+    "validFrom": "2026-10-22T12:37:24.165Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:19:54.259Z"
+     "at": "2026-10-22T12:37:24.165Z"
     }
    },
    {
@@ -1969,11 +2216,11 @@
     "from": "inspection:fda-inspection:1174894",
     "to": "site:fei:1450022",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:19:54.259Z",
+    "validFrom": "2026-10-22T12:37:24.165Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:19:54.259Z"
+     "at": "2026-10-22T12:37:24.165Z"
     }
    },
    {
@@ -1981,11 +2228,11 @@
     "from": "inspection:fda-inspection:1216183",
     "to": "site:fei:1450022",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:19:54.259Z",
+    "validFrom": "2026-10-22T12:37:24.165Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:19:54.259Z"
+     "at": "2026-10-22T12:37:24.165Z"
     }
    }
   ],

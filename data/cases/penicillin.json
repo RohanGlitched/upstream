@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-a2b607",
+ "id": "case-2026-10-22-5767b5",
  "question": "Why is penicillin g potassium short, and what do we do?",
- "askedAt": "2026-10-22T08:12:34.473Z",
+ "askedAt": "2026-10-22T12:30:41.213Z",
  "asOf": "2026-10-21",
  "molecule": "penicillin g potassium",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5HAP3GYCMTBSMZQN36P9HJT",
+  "contractId": "01M5HSEYAMCEXQGDG56WWHP68R",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-2a0ef8"
+    "Q-f97a86"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 4778,
+   "ms": 3270,
    "rows": 4,
-   "finding": "4 stock lines across 2 hospitals.",
+   "finding": "4 stock lines across 2 hospitals, 2 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-4e84eb"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1178,
+   "ms": 387,
    "rows": 2,
    "finding": "2 plant links on 2 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-07821c",
-    "Q-5f1e8d"
+    "Q-4e45c6",
+    "Q-1ef04d"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 840,
+   "ms": 210,
    "rows": 7,
    "finding": "On FDA's list as Current for 2 companies.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-e44134"
+    "Q-2b0c54"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2906,
+   "ms": 1102,
    "rows": 40,
    "finding": "15 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-9426a2",
     "Q-b24b44",
     "Q-07a201",
-    "Q-7c3f7b"
+    "Q-5aa30f"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1847,
+   "ms": 562,
    "rows": 10,
    "finding": "9 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 1 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1664,
+   "ms": 577,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-e5f820"
+    "Q-4ab540"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1378,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1291,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 2,
+   "ms": 0,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -153,8 +164,11 @@
    "onHand": 366,
    "dailyUse": 15.035,
    "days": 24.3,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "penicillin g potassium||powder||vial",
+   "presentationLabel": "powder",
    "evidence": "E1"
   },
   {
@@ -166,35 +180,116 @@
    "onHand": 162,
    "dailyUse": 13.994,
    "days": 11.6,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "penicillin g potassium||injection||vial",
+   "presentationLabel": "injection",
    "evidence": "E2"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-307",
    "ndc11": "00049052022",
-   "description": "penicillin G potassium",
+   "description": "penicillin G potassium 5000000 units/1",
    "labeler": "Roerig",
-   "onHand": 323.71,
+   "onHand": 323,
    "dailyUse": 15.661,
-   "days": 20.7,
+   "days": 20.6,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "penicillin g potassium||powder||vial",
+   "presentationLabel": "powder",
    "evidence": "E3"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-308",
    "ndc11": "00781613595",
-   "description": "Penicillin G Potassium",
+   "description": "Penicillin G Potassium 5000000 units/1",
    "labeler": "Sandoz Inc",
-   "onHand": 248.1,
+   "onHand": 248,
    "dailyUse": 16.133,
    "days": 15.4,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "penicillin g potassium||injection||vial",
+   "presentationLabel": "injection",
    "evidence": "E4"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "penicillin g potassium||injection||vial",
+   "label": "injection",
+   "short": "PENICILLIN G POTASSIUM 5000000UNITS",
+   "unit": "vial",
+   "onHand": 410,
+   "dailyUse": 30.127,
+   "days": 13.6,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 162,
+     "dailyUse": 13.994,
+     "days": 11.6,
+     "lines": [
+      "EA-E-000127"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 248,
+     "dailyUse": 16.133,
+     "days": 15.4,
+     "lines": [
+      "CG-308"
+     ],
+     "evidence": [
+      "E4"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "penicillin g potassium||powder||vial",
+   "label": "powder",
+   "short": "PENICILLIN G POTASSIUM 5000000UNITS",
+   "unit": "vial",
+   "onHand": 689,
+   "dailyUse": 30.696,
+   "days": 22.4,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 366,
+     "dailyUse": 15.035,
+     "days": 24.3,
+     "lines": [
+      "EA-E-000008"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 323,
+     "dailyUse": 15.661,
+     "days": 20.6,
+     "lines": [
+      "CG-307"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -506,15 +601,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from A-S Medication Solutions",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Athenex Pharmaceutical Division, LLC.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -561,33 +647,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from NorthStar Rx, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals,Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Preferred Pharmaceuticals, Inc",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Proficient Rx LP",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -646,52 +705,61 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "FDA's records show the shortage has been listed for 42 months and the labeled plant for our product was last inspected 51 days after the posting",
+  "headline": "FDA's records trace our supply to a plant classified VAI 51 days after the shortage posting",
   "sentences": [
    {
-    "text": "FDA first posted the penicillin G benzathine injection shortage on 2023-04-26 and it remains current as of 2026-10-21.",
+    "text": "FDA first posted the penicillin G potassium shortage on 2023-04-26 and it remains current as of 2026-10-21.",
     "cites": [
      "E18",
-     "D7"
+     "D6"
     ]
    },
    {
-    "text": "The shortage has been on FDA's list for 42 months as of today.",
-    "cites": [
-     "D7"
-    ]
-   },
-   {
-    "text": "Our product label names Pharmacia & Upjohn Company LLC (FEI 1810189) as the plant.",
+    "text": "The registered plant Pharmacia & Upjohn Company LLC (FEI 1810189) appears on a product label for this drug.",
     "cites": [
      "E13"
     ]
    },
    {
-    "text": "FDA inspection 1208260 at that plant ended 2023-06-16 with a VAI classification, and the classification letter was issued 2024-09-10 — 51 days after the shortage posting.",
+    "text": "FDA inspection 1208260 at that plant ended 2023-06-16 and was classified VAI, with the classification letter dated 2024-09-10 — 51 days after the shortage posting.",
     "cites": [
-     "D3",
+     "D5",
      "E12"
     ]
    },
    {
-    "text": "Corvale East and Corvale General each have 18 days of supply on hand at current usage rates.",
+    "text": "That plant has a history of VAI classifications from inspections ending 2009-02-18 through 2023-06-16.",
     "cites": [
-     "D1",
-     "D2"
+     "E5",
+     "E6",
+     "E7",
+     "E8",
+     "E9",
+     "E10",
+     "E11",
+     "E12"
     ]
    },
    {
-    "text": "The rule-selected alternate manufacturer is A-S Medication Solutions, which is not on FDA's shortage list today and its label names no plant we could place.",
+    "text": "Other manufacturers on FDA's shortage list include Laboratorios Atral and Pfizer Inc., with Pfizer noting a manufacturing delay and estimated recovery in 4Q 2027.",
     "cites": [
+     "E16",
+     "E17"
+    ]
+   },
+   {
+    "text": "Corvale East holds 11.6 days of injection and 24.3 days of powder; Corvale General holds 15.4 days of injection and 20.6 days of powder.",
+    "cites": [
+     "D1",
+     "D2",
+     "D3",
      "D4"
     ]
    },
    {
-    "text": "Buyer should verify availability and sourcing for A-S Medication Solutions and monitor FDA updates for Pfizer's estimated recovery in 4Q 2027.",
+    "text": "The rule-identified best option is to buy from Athenex Pharmaceutical Division, LLC, which is not on FDA's shortage list today, though its label names no plant we could place.",
     "cites": [
-     "D4",
-     "E17"
+     "D7"
     ]
    }
   ],
@@ -705,45 +773,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -758,80 +847,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T08:12:19.871Z",
+   "at": "2026-10-22T12:30:33.812Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract N36P9HJT scope"
+   "reason": "in contract 6WWHP68R scope"
   },
   {
-   "at": "2026-10-22T08:12:19.872Z",
+   "at": "2026-10-22T12:30:33.812Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract N36P9HJT scope"
+   "reason": "in contract 6WWHP68R scope"
   },
   {
-   "at": "2026-10-22T08:12:24.652Z",
+   "at": "2026-10-22T12:30:37.083Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract N36P9HJT scope"
+   "reason": "in contract 6WWHP68R scope"
   },
   {
-   "at": "2026-10-22T08:12:25.829Z",
+   "at": "2026-10-22T12:30:37.470Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract N36P9HJT scope"
+   "reason": "in contract 6WWHP68R scope"
   },
   {
-   "at": "2026-10-22T08:12:26.669Z",
+   "at": "2026-10-22T12:30:37.681Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract N36P9HJT scope"
+   "reason": "in contract 6WWHP68R scope"
   },
   {
-   "at": "2026-10-22T08:12:29.575Z",
+   "at": "2026-10-22T12:30:38.783Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract N36P9HJT scope"
+   "reason": "in contract 6WWHP68R scope"
   },
   {
-   "at": "2026-10-22T08:12:31.427Z",
+   "at": "2026-10-22T12:30:39.345Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract N36P9HJT scope"
+   "reason": "in contract 6WWHP68R scope"
   },
   {
-   "at": "2026-10-22T08:12:33.092Z",
+   "at": "2026-10-22T12:30:39.922Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract N36P9HJT scope"
+   "reason": "in contract 6WWHP68R scope"
   },
   {
-   "at": "2026-10-22T08:12:34.470Z",
+   "at": "2026-10-22T12:30:41.213Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract N36P9HJT scope"
+   "reason": "in contract 6WWHP68R scope"
   },
   {
-   "at": "2026-10-22T08:12:34.473Z",
+   "at": "2026-10-22T12:30:41.213Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract N36P9HJT scope"
+   "reason": "in contract 6WWHP68R scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-2a0ef8",
+   "queryId": "Q-f97a86",
    "row": 0,
    "label": "Corvale East: PENICILLIN G POTASSIUM 5000000UNITS",
    "fields": {
@@ -842,19 +931,24 @@
     "description": "PENICILLIN G POTASSIUM 5000000UNITS",
     "on_hand": "366.00",
     "daily_use": "15.035",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "penicillin G potassium",
     "labeler_name": "Roerig",
     "package_ndc": "0049-0520-22",
     "spl_set_id": "efef4846-9497-41af-8dd6-518f86eca7f2",
     "dosage_form": "POWDER, FOR SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAPLEURAL|INTRATHECAL|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAPLEURAL|INTRATHECAL|INTRAVENOUS",
+    "strength": "PENICILLIN G POTASSIUM 5000000 [iU]/1",
+    "unit_content": null,
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-2a0ef8",
+   "queryId": "Q-f97a86",
    "row": 1,
    "label": "Corvale East: PENICILLIN G POTASSIUM 5000000UNITS",
    "fields": {
@@ -865,60 +959,75 @@
     "description": "PENICILLIN G POTASSIUM 5000000UNITS",
     "on_hand": "162.00",
     "daily_use": "13.994",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Penicillin G Potassium",
     "labeler_name": "Sandoz Inc",
     "package_ndc": "0781-6135-95",
     "spl_set_id": "91950983-4884-40d1-abd8-bcc953d61b7f",
     "dosage_form": "INJECTION, POWDER, FOR SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "PENICILLIN G POTASSIUM 5000000 [iU]/1",
+    "unit_content": null,
+    "pkg_unit": "vial"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-2a0ef8",
+   "queryId": "Q-f97a86",
    "row": 2,
-   "label": "Corvale General: penicillin G potassium",
+   "label": "Corvale General: penicillin G potassium 5000000 units/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-307",
     "ndc11": "00049052022",
     "ndc_as_recorded": "00049052022",
-    "description": "penicillin G potassium",
-    "on_hand": "323.71",
+    "description": "penicillin G potassium 5000000 units/1",
+    "on_hand": "323.00",
     "daily_use": "15.661",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "penicillin G potassium",
     "labeler_name": "Roerig",
     "package_ndc": "0049-0520-22",
     "spl_set_id": "efef4846-9497-41af-8dd6-518f86eca7f2",
     "dosage_form": "POWDER, FOR SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAPLEURAL|INTRATHECAL|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAPLEURAL|INTRATHECAL|INTRAVENOUS",
+    "strength": "PENICILLIN G POTASSIUM 5000000 [iU]/1",
+    "unit_content": null,
+    "pkg_unit": "vial"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-2a0ef8",
+   "queryId": "Q-f97a86",
    "row": 3,
-   "label": "Corvale General: Penicillin G Potassium",
+   "label": "Corvale General: Penicillin G Potassium 5000000 units/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-308",
     "ndc11": "00781613595",
     "ndc_as_recorded": "00781613595",
-    "description": "Penicillin G Potassium",
-    "on_hand": "248.10",
+    "description": "Penicillin G Potassium 5000000 units/1",
+    "on_hand": "248.00",
     "daily_use": "16.133",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Penicillin G Potassium",
     "labeler_name": "Sandoz Inc",
     "package_ndc": "0781-6135-95",
     "spl_set_id": "91950983-4884-40d1-abd8-bcc953d61b7f",
     "dosage_form": "INJECTION, POWDER, FOR SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "PENICILLIN G POTASSIUM 5000000 [iU]/1",
+    "unit_content": null,
+    "pkg_unit": "vial"
    }
   },
   "E5": {
@@ -1083,7 +1192,7 @@
   },
   "E15": {
    "id": "E15",
-   "queryId": "Q-7c3f7b",
+   "queryId": "Q-5aa30f",
    "row": 0,
    "label": "Recall D-0570-2025",
    "fields": {
@@ -1101,7 +1210,7 @@
   },
   "E16": {
    "id": "E16",
-   "queryId": "Q-07821c",
+   "queryId": "Q-4e45c6",
    "row": 0,
    "label": "FDA shortage list: Laboratorios Atral, Current",
    "fields": {
@@ -1116,7 +1225,7 @@
   },
   "E17": {
    "id": "E17",
-   "queryId": "Q-07821c",
+   "queryId": "Q-4e45c6",
    "row": 1,
    "label": "FDA shortage list: Pfizer Inc., Current",
    "fields": {
@@ -1131,7 +1240,7 @@
   },
   "E18": {
    "id": "E18",
-   "queryId": "Q-07821c",
+   "queryId": "Q-4e45c6",
    "row": 0,
    "label": "FDA first posted the shortage 2023-04-26",
    "fields": {
@@ -1148,28 +1257,56 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 528 units of penicillin g potassium at 29 a day: 18 days on hand",
+   "label": "Corvale East holds 162 vials of penicillin g potassium PENICILLIN G POTASSIUM 5000000UNITS at 14 a day: 11.6 days on hand",
    "fields": {
     "hospital": "Corvale East",
-    "on_hand": 528,
-    "daily_use": 29,
-    "days_on_hand": 18
+    "presentation": "injection",
+    "on_hand": 162,
+    "daily_use": 14,
+    "days_on_hand": 11.6
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 572 units of penicillin g potassium at 31.8 a day: 18 days on hand",
+   "label": "Corvale General holds 248 vials of penicillin g potassium PENICILLIN G POTASSIUM 5000000UNITS at 16.1 a day: 15.4 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 572,
-    "daily_use": 31.8,
-    "days_on_hand": 18
+    "presentation": "injection",
+    "on_hand": 248,
+    "daily_use": 16.1,
+    "days_on_hand": 15.4
    }
   },
   "D3": {
    "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale East holds 366 vials of penicillin g potassium PENICILLIN G POTASSIUM 5000000UNITS at 15 a day: 24.3 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "powder",
+    "on_hand": 366,
+    "daily_use": 15,
+    "days_on_hand": 24.3
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 323 vials of penicillin g potassium PENICILLIN G POTASSIUM 5000000UNITS at 15.7 a day: 20.6 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "powder",
+    "on_hand": 323,
+    "daily_use": 15.7,
+    "days_on_hand": 20.6
+   }
+  },
+  "D5": {
+   "id": "D5",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 1208260 ended 2023-06-16, classified VAI; classification letter 2024-09-10 — 51 days after FDA posted the shortage on 2023-04-26",
@@ -1179,38 +1316,8 @@
     "days": 51
    }
   },
-  "D4": {
-   "id": "D4",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 3 by rule: Buy from A-S Medication Solutions. Not on FDA's shortage list today. Its label names no plant we could place.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
-   }
-  },
-  "D5": {
-   "id": "D5",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 3 by rule: Buy from Athenex Pharmaceutical Division, LLC.. Not on FDA's shortage list today. Its label names no plant we could place.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
-   }
-  },
   "D6": {
    "id": "D6",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 3 by rule: Buy from Avenacy Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
-   }
-  },
-  "D7": {
-   "id": "D7",
    "queryId": "derived",
    "row": -1,
    "label": "As of 2026-10-21 the shortage has been on FDA's list for 42 months",
@@ -1219,166 +1326,215 @@
     "posted": "2023-04-26",
     "months": 42
    }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Athenex Pharmaceutical Division, LLC.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D8": {
+   "id": "D8",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Avenacy Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D9": {
+   "id": "D9",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Chartwell RX, LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
   }
  },
  "queries": {
-  "Q-2a0ef8": {
-   "id": "Q-2a0ef8",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%penicillin%' OR lower(s.description) LIKE '%penicillin%' ORDER BY s.hospital, s.item_key",
-   "ms": 4773,
+  "Q-f97a86": {
+   "id": "Q-f97a86",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*penicillin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*penicillin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3269,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T08:12:24.645Z",
+   "ranAt": "2026-10-22T12:30:37.081Z",
    "rows": 4
   },
   "Q-4e84eb": {
    "id": "Q-4e84eb",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('efef4846-9497-41af-8dd6-518f86eca7f2', '91950983-4884-40d1-abd8-bcc953d61b7f') ORDER BY ps.set_id, ps.establishment",
-   "ms": 1173,
+   "ms": 386,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:12:25.825Z",
+   "ranAt": "2026-10-22T12:30:37.469Z",
    "rows": 2
   },
-  "Q-07821c": {
-   "id": "Q-07821c",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%penicillin%' ORDER BY status, company_name, package_ndc",
-   "ms": 383,
+  "Q-4e45c6": {
+   "id": "Q-4e45c6",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*penicillin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 104,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T08:12:26.212Z",
+   "ranAt": "2026-10-22T12:30:37.574Z",
    "rows": 4
   },
-  "Q-5f1e8d": {
-   "id": "Q-5f1e8d",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%penicillin%' ORDER BY first_posting",
-   "ms": 448,
+  "Q-1ef04d": {
+   "id": "Q-1ef04d",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*penicillin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 104,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T08:12:26.665Z",
+   "ranAt": "2026-10-22T12:30:37.679Z",
    "rows": 3
   },
-  "Q-e44134": {
-   "id": "Q-e44134",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%penicillin%' AND lower(p.dosage_form) LIKE '%powder%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2901,
+  "Q-2b0c54": {
+   "id": "Q-2b0c54",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*penicillin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%powder%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1101,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:12:29.571Z",
+   "ranAt": "2026-10-22T12:30:38.781Z",
    "rows": 40
   },
   "Q-9426a2": {
    "id": "Q-9426a2",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('1810189') ORDER BY fei, end_date",
-   "ms": 674,
+   "ms": 229,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T08:12:30.249Z",
+   "ranAt": "2026-10-22T12:30:39.011Z",
    "rows": 9
   },
   "Q-b24b44": {
    "id": "Q-b24b44",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('1810189') ORDER BY fei, action_date",
-   "ms": 334,
+   "ms": 108,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T08:12:30.587Z",
+   "ranAt": "2026-10-22T12:30:39.120Z",
    "rows": 0
   },
   "Q-07a201": {
    "id": "Q-07a201",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('1810189') OR (fei_match <> 'name_and_city' AND firm_key IN ('sandoz', 'pharmacia upjohn')) ORDER BY date_published",
-   "ms": 423,
+   "ms": 94,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T08:12:31.016Z",
+   "ranAt": "2026-10-22T12:30:39.216Z",
    "rows": 0
   },
-  "Q-7c3f7b": {
-   "id": "Q-7c3f7b",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('sandoz', 'pharmacia upjohn', 'roerig') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%penicillin%' ORDER BY initiation_date",
-   "ms": 395,
+  "Q-5aa30f": {
+   "id": "Q-5aa30f",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('sandoz', 'pharmacia upjohn', 'roerig') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*penicillin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 127,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T08:12:31.418Z",
+   "ranAt": "2026-10-22T12:30:39.343Z",
    "rows": 1
   },
   "Q-211155": {
    "id": "Q-211155",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('00049052022', '00781613595')",
-   "ms": 1660,
+   "ms": 576,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:12:33.088Z",
+   "ranAt": "2026-10-22T12:30:39.921Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-e5f820": {
-   "id": "Q-e5f820",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%penicillin%'",
-   "ms": 1368,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:12:34.460Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-4ab540": {
+   "id": "Q-4ab540",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*penicillin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1289,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:30:41.212Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 19903,
+  "zetarisMs": 17595,
   "modelCalls": 1,
-  "tokensIn": 2060,
-  "tokensOut": 441,
+  "tokensIn": 2432,
+  "tokensOut": 516,
   "mode": "live"
  },
  "slug": "penicillin",
@@ -1394,7 +1550,7 @@
     "id": "hospital-item:hospital-item:CG-307",
     "type": "HospitalItem",
     "key": "hospital-item:CG-307",
-    "label": "Corvale General: penicillin G potassium",
+    "label": "Corvale General: penicillin G potassium 5000000 units/1",
     "attrs": {
      "key": "hospital-item:CG-307"
     },
@@ -1405,7 +1561,7 @@
     "id": "hospital-item:hospital-item:CG-308",
     "type": "HospitalItem",
     "key": "hospital-item:CG-308",
-    "label": "Corvale General: Penicillin G Potassium",
+    "label": "Corvale General: Penicillin G Potassium 5000000 units/1",
     "attrs": {
      "key": "hospital-item:CG-308"
     },
@@ -1533,7 +1689,7 @@
     },
     "facts": [
      {
-      "id": "fact_4b877e89dd13b9f7",
+      "id": "fact_1cb1159646e32371",
       "about": "inspection:fda-inspection:1066512",
       "predicate": "classification",
       "value": "VAI",
@@ -1541,9 +1697,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:12:31.426Z"
+       "at": "2026-10-22T12:30:39.344Z"
       },
-      "assertedAt": "2026-10-22T08:12:31.426Z"
+      "assertedAt": "2026-10-22T12:30:39.344Z"
      }
     ],
     "depth": 4
@@ -1559,7 +1715,7 @@
     },
     "facts": [
      {
-      "id": "fact_3dcd036a468f85f8",
+      "id": "fact_fa2b9c2e1aa46517",
       "about": "inspection:fda-inspection:1208260",
       "predicate": "classification",
       "value": "VAI",
@@ -1567,9 +1723,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:12:31.426Z"
+       "at": "2026-10-22T12:30:39.345Z"
       },
-      "assertedAt": "2026-10-22T08:12:31.426Z"
+      "assertedAt": "2026-10-22T12:30:39.345Z"
      }
     ],
     "depth": 4
@@ -1585,7 +1741,7 @@
     },
     "facts": [
      {
-      "id": "fact_561cca4a1416483e",
+      "id": "fact_3002f1610bc446d6",
       "about": "inspection:fda-inspection:564470",
       "predicate": "classification",
       "value": "VAI",
@@ -1593,9 +1749,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:12:31.423Z"
+       "at": "2026-10-22T12:30:39.344Z"
       },
-      "assertedAt": "2026-10-22T08:12:31.423Z"
+      "assertedAt": "2026-10-22T12:30:39.344Z"
      }
     ],
     "depth": 4
@@ -1611,7 +1767,7 @@
     },
     "facts": [
      {
-      "id": "fact_e594c4a18d43a038",
+      "id": "fact_cd8efbf5a7178e6f",
       "about": "inspection:fda-inspection:682230",
       "predicate": "classification",
       "value": "VAI",
@@ -1619,9 +1775,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:12:31.424Z"
+       "at": "2026-10-22T12:30:39.344Z"
       },
-      "assertedAt": "2026-10-22T08:12:31.424Z"
+      "assertedAt": "2026-10-22T12:30:39.344Z"
      }
     ],
     "depth": 4
@@ -1637,7 +1793,7 @@
     },
     "facts": [
      {
-      "id": "fact_8471112df0cade9f",
+      "id": "fact_99bec1f5ee2f77e4",
       "about": "inspection:fda-inspection:746375",
       "predicate": "classification",
       "value": "VAI",
@@ -1645,9 +1801,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:12:31.424Z"
+       "at": "2026-10-22T12:30:39.344Z"
       },
-      "assertedAt": "2026-10-22T08:12:31.424Z"
+      "assertedAt": "2026-10-22T12:30:39.344Z"
      }
     ],
     "depth": 4
@@ -1663,7 +1819,7 @@
     },
     "facts": [
      {
-      "id": "fact_1b1a9607bdbf71b1",
+      "id": "fact_1a1fe9a786a6b180",
       "about": "inspection:fda-inspection:796422",
       "predicate": "classification",
       "value": "VAI",
@@ -1671,9 +1827,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:12:31.425Z"
+       "at": "2026-10-22T12:30:39.344Z"
       },
-      "assertedAt": "2026-10-22T08:12:31.425Z"
+      "assertedAt": "2026-10-22T12:30:39.344Z"
      }
     ],
     "depth": 4
@@ -1689,7 +1845,7 @@
     },
     "facts": [
      {
-      "id": "fact_616321a710a4af4c",
+      "id": "fact_35f2dc1d58478f70",
       "about": "inspection:fda-inspection:837169",
       "predicate": "classification",
       "value": "VAI",
@@ -1697,9 +1853,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:12:31.425Z"
+       "at": "2026-10-22T12:30:39.344Z"
       },
-      "assertedAt": "2026-10-22T08:12:31.425Z"
+      "assertedAt": "2026-10-22T12:30:39.344Z"
      }
     ],
     "depth": 4
@@ -1715,7 +1871,7 @@
     },
     "facts": [
      {
-      "id": "fact_02d6868bafcbbc7e",
+      "id": "fact_fe8742f4da209218",
       "about": "inspection:fda-inspection:933762",
       "predicate": "classification",
       "value": "VAI",
@@ -1723,9 +1879,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:12:31.425Z"
+       "at": "2026-10-22T12:30:39.344Z"
       },
-      "assertedAt": "2026-10-22T08:12:31.425Z"
+      "assertedAt": "2026-10-22T12:30:39.344Z"
      }
     ],
     "depth": 4
@@ -1748,11 +1904,11 @@
     "from": "hospital-item:hospital-item:CG-307",
     "to": "package:ndc-package:0049-0520-22",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:12:24.650Z",
+    "validFrom": "2026-10-22T12:30:37.083Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:12:24.650Z"
+     "at": "2026-10-22T12:30:37.083Z"
     }
    },
    {
@@ -1760,11 +1916,11 @@
     "from": "hospital-item:hospital-item:CG-308",
     "to": "package:ndc-package:0781-6135-95",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:12:24.651Z",
+    "validFrom": "2026-10-22T12:30:37.083Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:12:24.651Z"
+     "at": "2026-10-22T12:30:37.083Z"
     }
    },
    {
@@ -1772,11 +1928,11 @@
     "from": "hospital-item:hospital-item:EA-E-000008",
     "to": "package:ndc-package:0049-0520-22",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:12:24.649Z",
+    "validFrom": "2026-10-22T12:30:37.083Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:12:24.649Z"
+     "at": "2026-10-22T12:30:37.083Z"
     }
    },
    {
@@ -1784,11 +1940,11 @@
     "from": "hospital-item:hospital-item:EA-E-000127",
     "to": "package:ndc-package:0781-6135-95",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:12:24.650Z",
+    "validFrom": "2026-10-22T12:30:37.083Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:12:24.650Z"
+     "at": "2026-10-22T12:30:37.083Z"
     }
    },
    {
@@ -1796,11 +1952,11 @@
     "from": "package:ndc-package:0049-0520-22",
     "to": "product:ndc-product:0049-0520",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:12:24.649Z",
+    "validFrom": "2026-10-22T12:30:37.083Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:12:24.649Z"
+     "at": "2026-10-22T12:30:37.083Z"
     }
    },
    {
@@ -1808,11 +1964,11 @@
     "from": "package:ndc-package:0781-6135-95",
     "to": "product:ndc-product:0781-6135",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:12:24.650Z",
+    "validFrom": "2026-10-22T12:30:37.083Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:12:24.650Z"
+     "at": "2026-10-22T12:30:37.083Z"
     }
    },
    {
@@ -1820,11 +1976,11 @@
     "from": "product:ndc-product:0049-0520",
     "to": "drug:generic:penicillin g potassium",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:12:24.649Z",
+    "validFrom": "2026-10-22T12:30:37.083Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:12:24.649Z"
+     "at": "2026-10-22T12:30:37.083Z"
     }
    },
    {
@@ -1832,11 +1988,11 @@
     "from": "product:ndc-product:0049-0520",
     "to": "labeler:ndc-labeler:0049",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:12:24.649Z",
+    "validFrom": "2026-10-22T12:30:37.083Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:12:24.649Z"
+     "at": "2026-10-22T12:30:37.083Z"
     }
    },
    {
@@ -1844,11 +2000,11 @@
     "from": "product:ndc-product:0049-0520",
     "to": "site:fei:1810189",
     "type": "made-at",
-    "validFrom": "2026-10-22T08:12:31.423Z",
+    "validFrom": "2026-10-22T12:30:39.344Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:12:31.423Z"
+     "at": "2026-10-22T12:30:39.344Z"
     }
    },
    {
@@ -1856,11 +2012,11 @@
     "from": "product:ndc-product:0781-6135",
     "to": "drug:generic:penicillin g potassium",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:12:24.650Z",
+    "validFrom": "2026-10-22T12:30:37.083Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:12:24.650Z"
+     "at": "2026-10-22T12:30:37.083Z"
     }
    },
    {
@@ -1868,11 +2024,11 @@
     "from": "product:ndc-product:0781-6135",
     "to": "labeler:ndc-labeler:0781",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:12:24.650Z",
+    "validFrom": "2026-10-22T12:30:37.083Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:12:24.650Z"
+     "at": "2026-10-22T12:30:37.083Z"
     }
    },
    {
@@ -1880,11 +2036,11 @@
     "from": "shortage:fda-shortage:penicillin-2023-04-26",
     "to": "drug:generic:penicillin g potassium",
     "type": "affects",
-    "validFrom": "2026-10-22T08:12:31.426Z",
+    "validFrom": "2026-10-22T12:30:39.345Z",
     "source": {
      "kind": "fda-shortage-db",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:12:31.426Z"
+     "at": "2026-10-22T12:30:39.345Z"
     }
    },
    {
@@ -1892,11 +2048,11 @@
     "from": "inspection:fda-inspection:564470",
     "to": "site:fei:1810189",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:12:31.423Z",
+    "validFrom": "2026-10-22T12:30:39.344Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:12:31.423Z"
+     "at": "2026-10-22T12:30:39.344Z"
     }
    },
    {
@@ -1904,11 +2060,11 @@
     "from": "inspection:fda-inspection:682230",
     "to": "site:fei:1810189",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:12:31.424Z",
+    "validFrom": "2026-10-22T12:30:39.344Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:12:31.424Z"
+     "at": "2026-10-22T12:30:39.344Z"
     }
    },
    {
@@ -1916,11 +2072,11 @@
     "from": "inspection:fda-inspection:746375",
     "to": "site:fei:1810189",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:12:31.424Z",
+    "validFrom": "2026-10-22T12:30:39.344Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:12:31.424Z"
+     "at": "2026-10-22T12:30:39.344Z"
     }
    },
    {
@@ -1928,11 +2084,11 @@
     "from": "inspection:fda-inspection:796422",
     "to": "site:fei:1810189",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:12:31.425Z",
+    "validFrom": "2026-10-22T12:30:39.344Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:12:31.425Z"
+     "at": "2026-10-22T12:30:39.344Z"
     }
    },
    {
@@ -1940,11 +2096,11 @@
     "from": "inspection:fda-inspection:837169",
     "to": "site:fei:1810189",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:12:31.425Z",
+    "validFrom": "2026-10-22T12:30:39.344Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:12:31.425Z"
+     "at": "2026-10-22T12:30:39.344Z"
     }
    },
    {
@@ -1952,11 +2108,11 @@
     "from": "inspection:fda-inspection:933762",
     "to": "site:fei:1810189",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:12:31.425Z",
+    "validFrom": "2026-10-22T12:30:39.344Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:12:31.425Z"
+     "at": "2026-10-22T12:30:39.344Z"
     }
    },
    {
@@ -1964,11 +2120,11 @@
     "from": "inspection:fda-inspection:1066512",
     "to": "site:fei:1810189",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:12:31.425Z",
+    "validFrom": "2026-10-22T12:30:39.344Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:12:31.425Z"
+     "at": "2026-10-22T12:30:39.344Z"
     }
    },
    {
@@ -1976,11 +2132,11 @@
     "from": "inspection:fda-inspection:1208260",
     "to": "site:fei:1810189",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:12:31.426Z",
+    "validFrom": "2026-10-22T12:30:39.344Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:12:31.426Z"
+     "at": "2026-10-22T12:30:39.344Z"
     }
    }
   ],

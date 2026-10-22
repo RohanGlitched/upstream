@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-b9cf64",
+ "id": "case-2026-10-22-a81f95",
  "question": "Why is liraglutide short, and what do we do?",
- "askedAt": "2026-10-22T07:58:19.648Z",
+ "askedAt": "2026-10-22T12:16:06.899Z",
  "asOf": "2026-10-21",
  "molecule": "liraglutide",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H9W2YAR67BQ9YXA0908MHA",
+  "contractId": "01M5HRM5KBEV20MR2MYVEQ81CB",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-cb87f6"
+    "Q-04293e"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3817,
+   "ms": 4398,
    "rows": 3,
-   "finding": "3 stock lines across 2 hospitals.",
+   "finding": "3 stock lines across 2 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-d8bd5f"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1037,
+   "ms": 595,
    "rows": 2,
    "finding": "2 plant links on 2 labels; 0 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-ce7cb6",
-    "Q-bfd6a5"
+    "Q-38d0f6",
+    "Q-d7f948"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 737,
+   "ms": 347,
    "rows": 12,
    "finding": "On FDA's list as Current for 3 companies.",
    "status": "ok"
@@ -63,13 +68,15 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-7b98b0"
+    "Q-2c107f"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2314,
-   "rows": 41,
+   "ms": 1530,
+   "rows": 40,
    "finding": "13 labelers make it in this form.",
    "status": "ok"
   },
@@ -81,15 +88,15 @@
     "Q-eb30af",
     "Q-1c8a07",
     "Q-b7a46b",
-    "Q-e4b695"
+    "Q-9499cf"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1650,
+   "ms": 824,
    "rows": 3,
    "finding": "3 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1389,
+   "ms": 1077,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-e3e4a5"
+    "Q-d9374d"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1389,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1602,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 2,
+   "ms": 1,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -153,8 +164,11 @@
    "onHand": 15,
    "dailyUse": 3.395,
    "days": 4.4,
-   "unit": "package",
+   "unit": "syringe",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 2, converted to units",
+   "presentation": "liraglutide|6mg/ml|injection|3ml|syringe",
+   "presentationLabel": "6 mg/mL injection, 3 mL syringe",
    "evidence": "E1"
   },
   {
@@ -166,22 +180,67 @@
    "onHand": 49,
    "dailyUse": 4.042,
    "days": 12.1,
-   "unit": "package",
+   "unit": "syringe",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 3, converted to units",
+   "presentation": "liraglutide|6mg/ml|injection|3ml|syringe",
+   "presentationLabel": "6 mg/mL injection, 3 mL syringe",
    "evidence": "E2"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-78",
    "ndc11": "00143914402",
-   "description": "liraglutide",
+   "description": "liraglutide 6 mg/mL",
    "labeler": "Hikma Pharmaceuticals USA Inc.",
-   "onHand": 62.01,
+   "onHand": 62,
    "dailyUse": 4.438,
    "days": 14,
    "unit": "syringe",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "liraglutide|6mg/ml|injection|3ml|syringe",
+   "presentationLabel": "6 mg/mL injection, 3 mL syringe",
    "evidence": "E3"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "liraglutide|6mg/ml|injection|3ml|syringe",
+   "label": "6 mg/mL injection, 3 mL syringe",
+   "short": "6 mg/mL, 3 mL",
+   "unit": "syringe",
+   "onHand": 126,
+   "dailyUse": 11.875,
+   "days": 10.6,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 64,
+     "dailyUse": 7.437,
+     "days": 8.6,
+     "lines": [
+      "EA-E-000019",
+      "EA-E-000167"
+     ],
+     "evidence": [
+      "E1",
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 62,
+     "dailyUse": 4.438,
+     "days": 14,
+     "lines": [
+      "CG-78"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -373,8 +432,8 @@
   },
   {
    "labeler": "Novo Nordisk",
-   "ndc11": "00169291115",
-   "dosageForm": "INJECTION, SOLUTION",
+   "ndc11": "00169406012",
+   "dosageForm": "INJECTION",
    "plants": [
     {
      "name": "NOVO NORDISK INC",
@@ -432,7 +491,7 @@
    "ndc11": "00480725046",
    "dosageForm": "INJECTION, SOLUTION",
    "plants": [],
-   "onShortageList": false,
+   "onShortageList": true,
    "inOurStock": false
   }
  ],
@@ -490,15 +549,6 @@
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
    "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Teva Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
   }
  ],
  "timeline": [
@@ -519,48 +569,51 @@
  ],
  "explanation": {
   "state": "no_signal",
-  "headline": "FDA's shortage list shows liraglutide has been in shortage since 2023-07-18 with multiple manufacturers listed as Current or To Be Discontinued",
+  "headline": "FDA lists liraglutide injection as a current shortage first posted 2023-07-18; no public FDA signal at our plants",
   "sentences": [
    {
-    "text": "FDA's shortage list shows liraglutide injection has been in shortage since 2023-07-18 and remains current as of 2026-10-14 for Hikma Pharmaceuticals USA Inc., Meitheal Pharmaceuticals Inc., and Novo Nordisk Inc.",
+    "text": "FDA's shortage list shows liraglutide injection as Current with an initial posting date of 2023-07-18 and an update on 2026-10-14.",
     "cites": [
-     "E9",
-     "E5",
-     "E6",
-     "E7"
-    ]
-   },
-   {
-    "text": "Teva Pharmaceuticals USA Inc. is listed as To Be Discontinued with an initial posting date of 2026-05-14 and related information stating discontinuation of manufacture.",
-    "cites": [
-     "E8"
+     "E9"
     ]
    },
    {
     "text": "As of 2026-10-21 the shortage has been on FDA's list for 39 months.",
     "cites": [
-     "D6"
-    ]
-   },
-   {
-    "text": "Corvale East holds 64 units at 7.4 units per day providing 9 days on hand while Corvale General holds 62 units at 4.4 units per day providing 14 days on hand.",
-    "cites": [
-     "D1",
-     "D2"
-    ]
-   },
-   {
-    "text": "The best option by rule is to buy from Biocon Pharma Inc. which is not on FDA's shortage list today though its label names no plant we could place.",
-    "cites": [
      "D3"
+    ]
+   },
+   {
+    "text": "The shortage is listed for Hikma Pharmaceuticals USA, Inc., Meitheal Pharmaceuticals, Inc., Novo Nordisk, Inc., and Teva Pharmaceuticals USA, Inc. (To Be Discontinued).",
+    "cites": [
+     "E5",
+     "E6",
+     "E7",
+     "E8"
+    ]
+   },
+   {
+    "text": "Teva's related information states discontinuation of the manufacture of the drug.",
+    "cites": [
+     "E8"
+    ]
+   },
+   {
+    "text": "The rule-selected option is to buy from Biocon Pharma Inc., which is not on FDA's shortage list today and its label names no plant we could place.",
+    "cites": [
+     "D4"
     ]
    }
   ],
   "verifier": {
-   "checked": 7,
+   "checked": 8,
    "rejected": [
     {
-     "text": "No public FDA signal exists at our plants for this shortage.",
+     "text": "Novo Nordisk's related information states the product will be available until discontinuation in January 2027.",
+     "reason": "month 2027-01 is not in the cited evidence"
+    },
+    {
+     "text": "No public FDA signal exists at our plants.",
      "reason": "cites nothing"
     }
    ],
@@ -571,45 +624,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -624,80 +698,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:58:07.307Z",
+   "at": "2026-10-22T12:15:56.523Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract A0908MHA scope"
+   "reason": "in contract YVEQ81CB scope"
   },
   {
-   "at": "2026-10-22T07:58:07.307Z",
+   "at": "2026-10-22T12:15:56.524Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract A0908MHA scope"
+   "reason": "in contract YVEQ81CB scope"
   },
   {
-   "at": "2026-10-22T07:58:11.126Z",
+   "at": "2026-10-22T12:16:00.921Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract A0908MHA scope"
+   "reason": "in contract YVEQ81CB scope"
   },
   {
-   "at": "2026-10-22T07:58:12.163Z",
+   "at": "2026-10-22T12:16:01.516Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract A0908MHA scope"
+   "reason": "in contract YVEQ81CB scope"
   },
   {
-   "at": "2026-10-22T07:58:12.901Z",
+   "at": "2026-10-22T12:16:01.863Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract A0908MHA scope"
+   "reason": "in contract YVEQ81CB scope"
   },
   {
-   "at": "2026-10-22T07:58:15.215Z",
+   "at": "2026-10-22T12:16:03.394Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract A0908MHA scope"
+   "reason": "in contract YVEQ81CB scope"
   },
   {
-   "at": "2026-10-22T07:58:16.867Z",
+   "at": "2026-10-22T12:16:04.219Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract A0908MHA scope"
+   "reason": "in contract YVEQ81CB scope"
   },
   {
-   "at": "2026-10-22T07:58:18.256Z",
+   "at": "2026-10-22T12:16:05.296Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract A0908MHA scope"
+   "reason": "in contract YVEQ81CB scope"
   },
   {
-   "at": "2026-10-22T07:58:19.646Z",
+   "at": "2026-10-22T12:16:06.898Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract A0908MHA scope"
+   "reason": "in contract YVEQ81CB scope"
   },
   {
-   "at": "2026-10-22T07:58:19.649Z",
+   "at": "2026-10-22T12:16:06.899Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract A0908MHA scope"
+   "reason": "in contract YVEQ81CB scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-cb87f6",
+   "queryId": "Q-04293e",
    "row": 0,
    "label": "Corvale East: LIRAGLUTIDE 6MG/ML 3ML SYR",
    "fields": {
@@ -708,19 +782,24 @@
     "description": "LIRAGLUTIDE 6MG/ML 3ML SYR",
     "on_hand": "15.00",
     "daily_use": "3.395",
-    "unit": "package",
+    "unit": "syringe",
+    "pkg_units": "2.00",
+    "unit_basis": "packages of 2, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "liraglutide",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0143-9144-02",
     "spl_set_id": "2100ec49-57b2-4330-ab5f-057ce9b7e4d0",
     "dosage_form": "INJECTION",
-    "route": "SUBCUTANEOUS"
+    "route": "SUBCUTANEOUS",
+    "strength": "LIRAGLUTIDE 6 mg/mL",
+    "unit_content": "3 mL",
+    "pkg_unit": "syringe"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-cb87f6",
+   "queryId": "Q-04293e",
    "row": 1,
    "label": "Corvale East: LIRAGLUTIDE 6MG/ML 3ML SYR",
    "fields": {
@@ -731,37 +810,47 @@
     "description": "LIRAGLUTIDE 6MG/ML 3ML SYR",
     "on_hand": "49.00",
     "daily_use": "4.042",
-    "unit": "package",
+    "unit": "syringe",
+    "pkg_units": "3.00",
+    "unit_basis": "packages of 3, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "liraglutide",
     "labeler_name": "A-S Medication Solutions",
     "package_ndc": "50090-4503-0",
     "spl_set_id": "35e613e3-7aae-4152-b827-99d1ee7841be",
     "dosage_form": "INJECTION",
-    "route": "SUBCUTANEOUS"
+    "route": "SUBCUTANEOUS",
+    "strength": "LIRAGLUTIDE 6 mg/mL",
+    "unit_content": "3 mL",
+    "pkg_unit": "syringe"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-cb87f6",
+   "queryId": "Q-04293e",
    "row": 2,
-   "label": "Corvale General: liraglutide",
+   "label": "Corvale General: liraglutide 6 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-78",
     "ndc11": "00143914402",
     "ndc_as_recorded": "00143914402",
-    "description": "liraglutide",
-    "on_hand": "62.01",
+    "description": "liraglutide 6 mg/mL",
+    "on_hand": "62.00",
     "daily_use": "4.438",
     "unit": "syringe",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "liraglutide",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0143-9144-02",
     "spl_set_id": "2100ec49-57b2-4330-ab5f-057ce9b7e4d0",
     "dosage_form": "INJECTION",
-    "route": "SUBCUTANEOUS"
+    "route": "SUBCUTANEOUS",
+    "strength": "LIRAGLUTIDE 6 mg/mL",
+    "unit_content": "3 mL",
+    "pkg_unit": "syringe"
    }
   },
   "E4": {
@@ -782,7 +871,7 @@
   },
   "E5": {
    "id": "E5",
-   "queryId": "Q-ce7cb6",
+   "queryId": "Q-38d0f6",
    "row": 0,
    "label": "FDA shortage list: Hikma Pharmaceuticals USA, Inc., Current",
    "fields": {
@@ -797,7 +886,7 @@
   },
   "E6": {
    "id": "E6",
-   "queryId": "Q-ce7cb6",
+   "queryId": "Q-38d0f6",
    "row": 2,
    "label": "FDA shortage list: Meitheal Pharmaceuticals, Inc., Current",
    "fields": {
@@ -812,7 +901,7 @@
   },
   "E7": {
    "id": "E7",
-   "queryId": "Q-ce7cb6",
+   "queryId": "Q-38d0f6",
    "row": 4,
    "label": "FDA shortage list: Novo Nordisk, Inc., Current",
    "fields": {
@@ -827,7 +916,7 @@
   },
   "E8": {
    "id": "E8",
-   "queryId": "Q-ce7cb6",
+   "queryId": "Q-38d0f6",
    "row": 10,
    "label": "FDA shortage list: Teva Pharmaceuticals USA, Inc., To Be Discontinued",
    "fields": {
@@ -842,7 +931,7 @@
   },
   "E9": {
    "id": "E9",
-   "queryId": "Q-ce7cb6",
+   "queryId": "Q-38d0f6",
    "row": 0,
    "label": "FDA first posted the shortage 2023-07-18",
    "fields": {
@@ -859,21 +948,23 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 64 units of liraglutide at 7.4 a day: 9 days on hand",
+   "label": "Corvale East holds 64 syringes of liraglutide 6 mg/mL, 3 mL at 7.4 a day: 8.6 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "6 mg/mL injection, 3 mL syringe",
     "on_hand": 64,
     "daily_use": 7.4,
-    "days_on_hand": 9
+    "days_on_hand": 8.6
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 62 units of liraglutide at 4.4 a day: 14 days on hand",
+   "label": "Corvale General holds 62 syringes of liraglutide 6 mg/mL, 3 mL at 4.4 a day: 14 days on hand",
    "fields": {
     "hospital": "Corvale General",
+    "presentation": "6 mg/mL injection, 3 mL syringe",
     "on_hand": 62,
     "daily_use": 4.4,
     "days_on_hand": 14
@@ -883,17 +974,18 @@
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Option ranked 3 by rule: Buy from Biocon Pharma Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "label": "As of 2026-10-21 the shortage has been on FDA's list for 39 months",
    "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
+    "as_of": "2026-10-21",
+    "posted": "2023-07-18",
+    "months": 39
    }
   },
   "D4": {
    "id": "D4",
    "queryId": "derived",
    "row": -1,
-   "label": "Option ranked 3 by rule: Buy from Cipla USA Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "label": "Option ranked 3 by rule: Buy from Biocon Pharma Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
    "fields": {
     "kind": "alternate_manufacturer",
     "needs": "buyer"
@@ -903,7 +995,7 @@
    "id": "D5",
    "queryId": "derived",
    "row": -1,
-   "label": "Option ranked 3 by rule: Buy from Hybio Pharmaceutical Co., Ltd. (Pingshan Factory). Not on FDA's shortage list today. Its label names no plant we could place.",
+   "label": "Option ranked 3 by rule: Buy from Cipla USA Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
    "fields": {
     "kind": "alternate_manufacturer",
     "needs": "buyer"
@@ -913,172 +1005,190 @@
    "id": "D6",
    "queryId": "derived",
    "row": -1,
-   "label": "As of 2026-10-21 the shortage has been on FDA's list for 39 months",
+   "label": "Option ranked 3 by rule: Buy from Hybio Pharmaceutical Co., Ltd. (Pingshan Factory). Not on FDA's shortage list today. Its label names no plant we could place.",
    "fields": {
-    "as_of": "2026-10-21",
-    "posted": "2023-07-18",
-    "months": 39
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-cb87f6": {
-   "id": "Q-cb87f6",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%liraglutide%' OR lower(s.description) LIKE '%liraglutide%' ORDER BY s.hospital, s.item_key",
-   "ms": 3813,
+  "Q-04293e": {
+   "id": "Q-04293e",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*liraglutide(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*liraglutide(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 4396,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:58:11.121Z",
+   "ranAt": "2026-10-22T12:16:00.919Z",
    "rows": 3
   },
   "Q-d8bd5f": {
    "id": "Q-d8bd5f",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('2100ec49-57b2-4330-ab5f-057ce9b7e4d0', '35e613e3-7aae-4152-b827-99d1ee7841be') ORDER BY ps.set_id, ps.establishment",
-   "ms": 1033,
+   "ms": 593,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:58:12.159Z",
+   "ranAt": "2026-10-22T12:16:01.515Z",
    "rows": 2
   },
-  "Q-ce7cb6": {
-   "id": "Q-ce7cb6",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%liraglutide%' ORDER BY status, company_name, package_ndc",
-   "ms": 341,
+  "Q-38d0f6": {
+   "id": "Q-38d0f6",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*liraglutide(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 175,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:58:12.504Z",
+   "ranAt": "2026-10-22T12:16:01.691Z",
    "rows": 11
   },
-  "Q-bfd6a5": {
-   "id": "Q-bfd6a5",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%liraglutide%' ORDER BY first_posting",
-   "ms": 388,
+  "Q-d7f948": {
+   "id": "Q-d7f948",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*liraglutide(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 170,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:58:12.896Z",
+   "ranAt": "2026-10-22T12:16:01.862Z",
    "rows": 1
   },
-  "Q-7b98b0": {
-   "id": "Q-7b98b0",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%liraglutide%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2309,
+  "Q-2c107f": {
+   "id": "Q-2c107f",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*liraglutide(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1530,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:58:15.210Z",
-   "rows": 41
+   "ranAt": "2026-10-22T12:16:03.392Z",
+   "rows": 40
   },
   "Q-eb30af": {
    "id": "Q-eb30af",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3010625707') ORDER BY fei, end_date",
-   "ms": 720,
+   "ms": 320,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:58:15.935Z",
+   "ranAt": "2026-10-22T12:16:03.713Z",
    "rows": 3
   },
   "Q-1c8a07": {
    "id": "Q-1c8a07",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3010625707') ORDER BY fei, action_date",
-   "ms": 292,
+   "ms": 162,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:58:16.231Z",
+   "ranAt": "2026-10-22T12:16:03.876Z",
    "rows": 0
   },
   "Q-b7a46b": {
    "id": "Q-b7a46b",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('') OR (fei_match <> 'name_and_city' AND firm_key IN ('hybio')) ORDER BY date_published",
-   "ms": 303,
+   "ms": 149,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:58:16.537Z",
+   "ranAt": "2026-10-22T12:16:04.026Z",
    "rows": 0
   },
-  "Q-e4b695": {
-   "id": "Q-e4b695",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('hybio', 'hikma', 'a s medication solutions') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%liraglutide%' ORDER BY initiation_date",
-   "ms": 318,
+  "Q-9499cf": {
+   "id": "Q-9499cf",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('hybio', 'hikma', 'a s medication solutions') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*liraglutide(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 189,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:58:16.859Z",
+   "ranAt": "2026-10-22T12:16:04.216Z",
    "rows": 0
   },
   "Q-e16a16": {
    "id": "Q-e16a16",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('00143914402', '50090450300')",
-   "ms": 1385,
+   "ms": 1076,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:58:18.252Z",
+   "ranAt": "2026-10-22T12:16:05.294Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-e3e4a5": {
-   "id": "Q-e3e4a5",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%liraglutide%'",
-   "ms": 1385,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:58:19.642Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-d9374d": {
+   "id": "Q-d9374d",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*liraglutide(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1601,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:16:06.897Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 17658,
+  "zetarisMs": 20569,
   "modelCalls": 1,
-  "tokensIn": 1227,
-  "tokensOut": 424,
+  "tokensIn": 1393,
+  "tokensOut": 394,
   "mode": "live"
  },
  "slug": "liraglutide",
@@ -1093,7 +1203,7 @@
     "id": "hospital-item:hospital-item:CG-78",
     "type": "HospitalItem",
     "key": "hospital-item:CG-78",
-    "label": "Corvale General: liraglutide",
+    "label": "Corvale General: liraglutide 6 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-78"
     },
@@ -1217,11 +1327,11 @@
     "from": "hospital-item:hospital-item:CG-78",
     "to": "package:ndc-package:0143-9144-02",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:58:11.125Z",
+    "validFrom": "2026-10-22T12:16:00.921Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:11.125Z"
+     "at": "2026-10-22T12:16:00.921Z"
     }
    },
    {
@@ -1229,11 +1339,11 @@
     "from": "hospital-item:hospital-item:EA-E-000019",
     "to": "package:ndc-package:0143-9144-02",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:58:11.125Z",
+    "validFrom": "2026-10-22T12:16:00.921Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:11.125Z"
+     "at": "2026-10-22T12:16:00.921Z"
     }
    },
    {
@@ -1241,11 +1351,11 @@
     "from": "hospital-item:hospital-item:EA-E-000167",
     "to": "package:ndc-package:50090-4503-0",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:58:11.125Z",
+    "validFrom": "2026-10-22T12:16:00.921Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:11.125Z"
+     "at": "2026-10-22T12:16:00.921Z"
     }
    },
    {
@@ -1253,11 +1363,11 @@
     "from": "package:ndc-package:0143-9144-02",
     "to": "product:ndc-product:0143-9144",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:58:11.125Z",
+    "validFrom": "2026-10-22T12:16:00.921Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:11.125Z"
+     "at": "2026-10-22T12:16:00.921Z"
     }
    },
    {
@@ -1265,11 +1375,11 @@
     "from": "package:ndc-package:50090-4503-0",
     "to": "product:ndc-product:50090-4503",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:58:11.125Z",
+    "validFrom": "2026-10-22T12:16:00.921Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:11.125Z"
+     "at": "2026-10-22T12:16:00.921Z"
     }
    },
    {
@@ -1277,11 +1387,11 @@
     "from": "product:ndc-product:0143-9144",
     "to": "drug:generic:liraglutide",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:58:11.125Z",
+    "validFrom": "2026-10-22T12:16:00.921Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:11.125Z"
+     "at": "2026-10-22T12:16:00.921Z"
     }
    },
    {
@@ -1289,11 +1399,11 @@
     "from": "product:ndc-product:0143-9144",
     "to": "labeler:ndc-labeler:0143",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:58:11.125Z",
+    "validFrom": "2026-10-22T12:16:00.921Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:11.125Z"
+     "at": "2026-10-22T12:16:00.921Z"
     }
    },
    {
@@ -1301,11 +1411,11 @@
     "from": "product:ndc-product:50090-4503",
     "to": "drug:generic:liraglutide",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:58:11.125Z",
+    "validFrom": "2026-10-22T12:16:00.921Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:11.125Z"
+     "at": "2026-10-22T12:16:00.921Z"
     }
    },
    {
@@ -1313,11 +1423,11 @@
     "from": "product:ndc-product:50090-4503",
     "to": "labeler:ndc-labeler:50090",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:58:11.125Z",
+    "validFrom": "2026-10-22T12:16:00.921Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:11.125Z"
+     "at": "2026-10-22T12:16:00.921Z"
     }
    },
    {
@@ -1325,11 +1435,11 @@
     "from": "shortage:fda-shortage:liraglutide-2023-07-18",
     "to": "drug:generic:liraglutide",
     "type": "affects",
-    "validFrom": "2026-10-22T07:58:16.866Z",
+    "validFrom": "2026-10-22T12:16:04.218Z",
     "source": {
      "kind": "fda-shortage-db",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:16.866Z"
+     "at": "2026-10-22T12:16:04.218Z"
     }
    }
   ],

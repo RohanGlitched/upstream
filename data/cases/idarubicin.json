@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-454a3a",
+ "id": "case-2026-10-22-4f3ee5",
  "question": "Why is idarubicin hydrochloride short, and what do we do?",
- "askedAt": "2026-10-22T07:52:17.514Z",
+ "askedAt": "2026-10-22T12:07:44.754Z",
  "asOf": "2026-10-21",
  "molecule": "idarubicin hydrochloride",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H9H4EZ4K59DVN0EA18G9AJ",
+  "contractId": "01M5HR4VN45565PV13Z7NW580V",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-dfcc7b"
+    "Q-0676ce"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2954,
+   "ms": 4191,
    "rows": 1,
-   "finding": "1 stock lines across 1 hospitals.",
+   "finding": "1 stock lines across 1 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-1c48bc"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 531,
+   "ms": 1063,
    "rows": 0,
    "finding": "0 plant links on 1 labels; 0 placed in FDA's registration file.",
    "status": "empty"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-4103f3",
-    "Q-6dde5e"
+    "Q-96bb66",
+    "Q-fd0898"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 419,
+   "ms": 323,
    "rows": 1,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-aa465d"
+    "Q-d1adeb"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1701,
+   "ms": 1390,
    "rows": 9,
    "finding": "2 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-808a5c",
     "Q-de2bfd",
     "Q-4794e1",
-    "Q-d178e9"
+    "Q-afd600"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1052,
+   "ms": 771,
    "rows": 0,
    "finding": "0 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "empty"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 937,
+   "ms": 719,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-7f5be1"
+    "Q-68bb31"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1501,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1474,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 1,
+   "ms": 2,
    "rows": 2,
    "finding": "2 past decisions recalled.",
    "status": "ok"
@@ -153,9 +164,37 @@
    "onHand": 45,
    "dailyUse": 3.583,
    "days": 12.6,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "idarubicin hydrochloride|1mg/ml|injection|20ml|vial",
+   "presentationLabel": "1 mg/mL injection, 20 mL vial",
    "evidence": "E1"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "idarubicin hydrochloride|1mg/ml|injection|20ml|vial",
+   "label": "1 mg/mL injection, 20 mL vial",
+   "short": "1 mg/mL, 20 mL",
+   "unit": "vial",
+   "onHand": 45,
+   "dailyUse": 3.583,
+   "days": 12.6,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 45,
+     "dailyUse": 3.583,
+     "days": 12.6,
+     "lines": [
+      "EA-E-000280"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -217,31 +256,36 @@
  ],
  "explanation": {
   "state": "no_signal",
-  "headline": "No FDA shortage signal for idarubicin hydrochloride at our plants; Corvale East has 13 days on hand",
+  "headline": "FDA's records show idarubicin hydrochloride is not on the shortage list as of 2026-10-21",
   "sentences": [
    {
-    "text": "Corvale East holds 45 units with a daily use of 3.6, providing 13 days on hand.",
+    "text": "FDA's drug shortage list does not include idarubicin hydrochloride as of 2026-10-21.",
+    "cites": [
+     "D2"
+    ]
+   },
+   {
+    "text": "Corvale East holds 45 vials of the 1 mg/mL 20 mL presentation with a daily use of 3.6 vials, providing 12.6 days on hand.",
     "cites": [
      "D1"
+    ]
+   },
+   {
+    "text": "The rule-based best option is to buy from Hikma Pharmaceuticals USA Inc., which is also not on FDA's shortage list today.",
+    "cites": [
+     "D3"
+    ]
+   },
+   {
+    "text": "Hikma's label does not name a plant that can be placed for sourcing.",
+    "cites": [
+     "D3"
     ]
    }
   ],
   "verifier": {
    "checked": 5,
-   "rejected": [
-    {
-     "text": "FDA's shortage list shows no signal for idarubicin hydrochloride at our plants as of 2026-10-21.",
-     "reason": "cites nothing"
-    },
-    {
-     "text": "The recommended action is to buy from Hikma Pharmaceuticals USA Inc., which is not on FDA's shortage list today.",
-     "reason": "cites nothing"
-    },
-    {
-     "text": "Hikma's label does not name a plant we could place for supply tracking.",
-     "reason": "cites nothing"
-    }
-   ],
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -249,45 +293,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -309,80 +374,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:52:08.416Z",
+   "at": "2026-10-22T12:07:34.821Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract EA18G9AJ scope"
+   "reason": "in contract Z7NW580V scope"
   },
   {
-   "at": "2026-10-22T07:52:08.416Z",
+   "at": "2026-10-22T12:07:34.821Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract EA18G9AJ scope"
+   "reason": "in contract Z7NW580V scope"
   },
   {
-   "at": "2026-10-22T07:52:11.372Z",
+   "at": "2026-10-22T12:07:39.012Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract EA18G9AJ scope"
+   "reason": "in contract Z7NW580V scope"
   },
   {
-   "at": "2026-10-22T07:52:11.902Z",
+   "at": "2026-10-22T12:07:40.076Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract EA18G9AJ scope"
+   "reason": "in contract Z7NW580V scope"
   },
   {
-   "at": "2026-10-22T07:52:12.322Z",
+   "at": "2026-10-22T12:07:40.398Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract EA18G9AJ scope"
+   "reason": "in contract Z7NW580V scope"
   },
   {
-   "at": "2026-10-22T07:52:14.023Z",
+   "at": "2026-10-22T12:07:41.788Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract EA18G9AJ scope"
+   "reason": "in contract Z7NW580V scope"
   },
   {
-   "at": "2026-10-22T07:52:15.076Z",
+   "at": "2026-10-22T12:07:42.560Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract EA18G9AJ scope"
+   "reason": "in contract Z7NW580V scope"
   },
   {
-   "at": "2026-10-22T07:52:16.013Z",
+   "at": "2026-10-22T12:07:43.278Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract EA18G9AJ scope"
+   "reason": "in contract Z7NW580V scope"
   },
   {
-   "at": "2026-10-22T07:52:17.513Z",
+   "at": "2026-10-22T12:07:44.752Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract EA18G9AJ scope"
+   "reason": "in contract Z7NW580V scope"
   },
   {
-   "at": "2026-10-22T07:52:17.514Z",
+   "at": "2026-10-22T12:07:44.754Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract EA18G9AJ scope"
+   "reason": "in contract Z7NW580V scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-dfcc7b",
+   "queryId": "Q-0676ce",
    "row": 0,
    "label": "Corvale East: IDARUBICIN HYDROCHLORIDE 1MG/ML 20ML SDV",
    "fields": {
@@ -393,187 +458,232 @@
     "description": "IDARUBICIN HYDROCHLORIDE 1MG/ML 20ML SDV",
     "on_hand": "45.00",
     "daily_use": "3.583",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Idarubicin Hydrochloride",
     "labeler_name": "Meitheal Pharmaceuticals Inc.",
     "package_ndc": "71288-186-20",
     "spl_set_id": "d31254be-6bd2-4ac1-acab-bc00e2209d28",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "IDARUBICIN HYDROCHLORIDE 1 mg/mL",
+    "unit_content": "20 mL",
+    "pkg_unit": "vial"
    }
   },
   "D1": {
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 45 units of idarubicin hydrochloride at 3.6 a day: 13 days on hand",
+   "label": "Corvale East holds 45 vials of idarubicin hydrochloride 1 mg/mL, 20 mL at 3.6 a day: 12.6 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "1 mg/mL injection, 20 mL vial",
     "on_hand": 45,
     "daily_use": 3.6,
-    "days_on_hand": 13
+    "days_on_hand": 12.6
+   }
+  },
+  "D2": {
+   "id": "D2",
+   "queryId": "derived",
+   "row": -1,
+   "label": "idarubicin hydrochloride is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D3": {
+   "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Hikma Pharmaceuticals USA Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-dfcc7b": {
-   "id": "Q-dfcc7b",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%idarubicin%' OR lower(s.description) LIKE '%idarubicin%' ORDER BY s.hospital, s.item_key",
-   "ms": 2950,
+  "Q-0676ce": {
+   "id": "Q-0676ce",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*idarubicin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*idarubicin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 4190,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:52:11.366Z",
+   "ranAt": "2026-10-22T12:07:39.011Z",
    "rows": 1
   },
   "Q-1c48bc": {
    "id": "Q-1c48bc",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('d31254be-6bd2-4ac1-acab-bc00e2209d28') ORDER BY ps.set_id, ps.establishment",
-   "ms": 527,
+   "ms": 1060,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:52:11.899Z",
+   "ranAt": "2026-10-22T12:07:40.073Z",
    "rows": 0
   },
-  "Q-4103f3": {
-   "id": "Q-4103f3",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%idarubicin%' ORDER BY status, company_name, package_ndc",
-   "ms": 203,
+  "Q-96bb66": {
+   "id": "Q-96bb66",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*idarubicin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 178,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:52:12.105Z",
+   "ranAt": "2026-10-22T12:07:40.254Z",
    "rows": 0
   },
-  "Q-6dde5e": {
-   "id": "Q-6dde5e",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%idarubicin%' ORDER BY first_posting",
-   "ms": 209,
+  "Q-fd0898": {
+   "id": "Q-fd0898",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*idarubicin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 142,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:52:12.318Z",
+   "ranAt": "2026-10-22T12:07:40.396Z",
    "rows": 1
   },
-  "Q-aa465d": {
-   "id": "Q-aa465d",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%idarubicin%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 1697,
+  "Q-d1adeb": {
+   "id": "Q-d1adeb",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*idarubicin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1389,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:52:14.019Z",
+   "ranAt": "2026-10-22T12:07:41.787Z",
    "rows": 9
   },
   "Q-808a5c": {
    "id": "Q-808a5c",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('') ORDER BY fei, end_date",
-   "ms": 430,
+   "ms": 269,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:52:14.454Z",
+   "ranAt": "2026-10-22T12:07:42.057Z",
    "rows": 0
   },
   "Q-de2bfd": {
    "id": "Q-de2bfd",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('') ORDER BY fei, action_date",
-   "ms": 177,
+   "ms": 157,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:52:14.634Z",
+   "ranAt": "2026-10-22T12:07:42.217Z",
    "rows": 0
   },
   "Q-4794e1": {
    "id": "Q-4794e1",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('') OR (fei_match <> 'name_and_city' AND firm_key IN ('')) ORDER BY date_published",
-   "ms": 173,
+   "ms": 165,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:52:14.809Z",
+   "ranAt": "2026-10-22T12:07:42.382Z",
    "rows": 0
   },
-  "Q-d178e9": {
-   "id": "Q-d178e9",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('meitheal') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%idarubicin%' ORDER BY initiation_date",
-   "ms": 259,
+  "Q-afd600": {
+   "id": "Q-afd600",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('meitheal') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*idarubicin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 175,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:52:15.072Z",
+   "ranAt": "2026-10-22T12:07:42.558Z",
    "rows": 0
   },
   "Q-0af9fb": {
    "id": "Q-0af9fb",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('71288018620')",
-   "ms": 933,
+   "ms": 720,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:52:16.009Z",
+   "ranAt": "2026-10-22T12:07:43.277Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-7f5be1": {
-   "id": "Q-7f5be1",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%idarubicin%'",
-   "ms": 1497,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:52:17.510Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-68bb31": {
+   "id": "Q-68bb31",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*idarubicin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1472,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:07:44.751Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 14426,
+  "zetarisMs": 20125,
   "modelCalls": 1,
-  "tokensIn": 391,
-  "tokensOut": 211,
+  "tokensIn": 617,
+  "tokensOut": 243,
   "mode": "live"
  },
  "slug": "idarubicin",
@@ -644,11 +754,11 @@
     "from": "hospital-item:hospital-item:EA-E-000280",
     "to": "package:ndc-package:71288-186-20",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:52:11.370Z",
+    "validFrom": "2026-10-22T12:07:39.012Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:52:11.370Z"
+     "at": "2026-10-22T12:07:39.012Z"
     }
    },
    {
@@ -656,11 +766,11 @@
     "from": "package:ndc-package:71288-186-20",
     "to": "product:ndc-product:71288-186",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:52:11.371Z",
+    "validFrom": "2026-10-22T12:07:39.012Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:52:11.371Z"
+     "at": "2026-10-22T12:07:39.012Z"
     }
    },
    {
@@ -668,11 +778,11 @@
     "from": "product:ndc-product:71288-186",
     "to": "drug:generic:idarubicin hydrochloride",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:52:11.371Z",
+    "validFrom": "2026-10-22T12:07:39.012Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:52:11.371Z"
+     "at": "2026-10-22T12:07:39.012Z"
     }
    },
    {
@@ -680,11 +790,11 @@
     "from": "product:ndc-product:71288-186",
     "to": "labeler:ndc-labeler:71288",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:52:11.371Z",
+    "validFrom": "2026-10-22T12:07:39.012Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:52:11.371Z"
+     "at": "2026-10-22T12:07:39.012Z"
     }
    }
   ],

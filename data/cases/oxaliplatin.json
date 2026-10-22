@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-2758dd",
+ "id": "case-2026-10-22-dca812",
  "question": "Why is oxaliplatin short, and what do we do?",
- "askedAt": "2026-10-22T08:09:56.155Z",
+ "askedAt": "2026-10-22T12:28:14.547Z",
  "asOf": "2026-10-21",
  "molecule": "oxaliplatin",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5HAH838AY2QNBZSAVNCXBQD",
+  "contractId": "01M5HSADYGE91SPAARSG8YTNDD",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-c4e9b4"
+    "Q-9e99d0"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3789,
+   "ms": 3572,
    "rows": 2,
-   "finding": "2 stock lines across 2 hospitals.",
+   "finding": "2 stock lines across 2 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-0f09e9"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1147,
+   "ms": 427,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 0 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-2fa45c",
-    "Q-bd7775"
+    "Q-699c91",
+    "Q-9a2099"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 896,
+   "ms": 298,
    "rows": 5,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-a969d9"
+    "Q-3a0c8c"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 3370,
+   "ms": 1234,
    "rows": 51,
    "finding": "17 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-808a5c",
     "Q-de2bfd",
     "Q-462e7c",
-    "Q-191767"
+    "Q-98d504"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1667,
+   "ms": 637,
    "rows": 0,
    "finding": "0 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "empty"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1815,
+   "ms": 726,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-b2bfa7"
+    "Q-1b1b52"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2752,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1683,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 2,
+   "ms": 1,
    "rows": 2,
    "finding": "2 past decisions recalled.",
    "status": "ok"
@@ -148,13 +159,16 @@
    "hospital": "Corvale General",
    "itemKey": "CG-299",
    "ndc11": "43066001401",
-   "description": "Oxaliplatin",
+   "description": "Oxaliplatin 5 mg/mL",
    "labeler": "Baxter Healthcare Corporation",
-   "onHand": 57.38,
+   "onHand": 57,
    "dailyUse": 2.847,
-   "days": 20.2,
+   "days": 20,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "oxaliplatin|5mg/ml|injection|10ml|vial",
+   "presentationLabel": "5 mg/mL injection, 10 mL vial",
    "evidence": "E1"
   },
   {
@@ -168,7 +182,47 @@
    "days": 8.6,
    "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "oxaliplatin|5mg/ml|injection|10ml|vial",
+   "presentationLabel": "5 mg/mL injection, 10 mL vial",
    "evidence": "E2"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "oxaliplatin|5mg/ml|injection|10ml|vial",
+   "label": "5 mg/mL injection, 10 mL vial",
+   "short": "5 mg/mL, 10 mL",
+   "unit": "vial",
+   "onHand": 65,
+   "dailyUse": 3.78,
+   "days": 17.2,
+   "hospitals": [
+    {
+     "hospital": "Corvale General",
+     "onHand": 57,
+     "dailyUse": 2.847,
+     "days": 20,
+     "lines": [
+      "CG-299"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 8,
+     "dailyUse": 0.933,
+     "days": 8.6,
+     "lines": [
+      "LS-LS-0070"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -373,14 +427,25 @@
   {
    "kind": "transfer",
    "rank": 1,
-   "title": "Transfer 6 from Corvale General to Corvale Lakeside",
-   "detail": "Corvale General has 20 days on hand and can spare 6 while keeping two weeks; Corvale Lakeside has 8.6 days and would reach 15.",
-   "why": "Same product, no clinical change, no new supplier.",
+   "title": "Transfer 6 vials of 5 mg/mL, 10 mL from Corvale General to Corvale Lakeside",
+   "detail": "Corvale General has 20 days of 5 mg/mL injection, 10 mL vials on hand and can spare 6 vials while keeping two weeks; Corvale Lakeside has 8.6 days and would reach 15.",
+   "why": "Same presentation, no clinical change, no new supplier.",
    "needs": "pharmacy director (transfer request)",
    "evidence": [
     "E1",
     "E2"
-   ]
+   ],
+   "transfer": {
+    "qty": 6,
+    "unit": "vial",
+    "presentation": "5 mg/mL injection, 10 mL vial",
+    "from": "Corvale General",
+    "to": "Corvale Lakeside",
+    "fromDays": 20,
+    "toDays": 8.6,
+    "fromAfter": 18,
+    "toAfter": 15
+   }
   },
   {
    "kind": "alternate_manufacturer",
@@ -538,44 +603,49 @@
  ],
  "explanation": {
   "state": "no_signal",
-  "headline": "FDA's records show no public shortage signal for the Baxter Healthcare Corporation product (NDC 43066-014-01) used at our facilities",
+  "headline": "Oxaliplatin is not on FDA's shortage list as of 2026-10-21",
   "sentences": [
    {
-    "text": "The FDA shortage list shows discontinuations by Fresenius Kabi USA, LLC (NDC 63323-750-10) posted 2026-02-25 and Jiangsu Hengrui Pharmaceuticals Co., Ltd. (NDC 25021-233-10) posted 2026-06-29, but no entry for the Baxter product we stock.",
+    "text": "FDA's records show oxaliplatin is not on the drug shortage list as of 2026-10-21.",
     "cites": [
-     "E4",
-     "E5"
+     "D3"
     ]
    },
    {
-    "text": "Both Corvale General and Corvale Lakeside carry oxaliplatin under NDC 43066-014-01 labeled by Baxter Healthcare Corporation.",
+    "text": "Corvale General holds 57 vials of oxaliplatin 5 mg/mL, 10 mL at 2.8 per day, providing 20 days on hand.",
     "cites": [
-     "E1",
-     "E2"
+     "D1"
     ]
    },
    {
-    "text": "The product label identifies FAREVA Unterach GmbH for Sandoz Inc. as the manufacturing site for this NDC.",
+    "text": "Corvale Lakeside holds 8 vials of the same presentation at 0.9 per day, providing 8.6 days on hand.",
     "cites": [
-     "E3"
-    ]
-   },
-   {
-    "text": "Corvale General holds 57 units with 20 days on hand at current use, while Corvale Lakeside holds 8 units with 9 days on hand.",
-    "cites": [
-     "D1",
      "D2"
+    ]
+   },
+   {
+    "text": "The top-ranked option by rule is to transfer 6 vials of 5 mg/mL, 10 mL from Corvale General to Corvale Lakeside.",
+    "cites": [
+     "D4"
+    ]
+   },
+   {
+    "text": "Corvale General can spare 6 vials while keeping two weeks of supply, and Corvale Lakeside would reach 15 days after the transfer.",
+    "cites": [
+     "D4"
+    ]
+   },
+   {
+    "text": "Alternate manufacturers Accord Healthcare Inc. and Apotex Corp. are not on FDA's shortage list today, but their labels name no plant we could place.",
+    "cites": [
+     "D5",
+     "D6"
     ]
    }
   ],
   "verifier": {
-   "checked": 6,
-   "rejected": [
-    {
-     "text": "Transferring 6 units from Corvale General to Corvale Lakeside would leave the sender with about 18 days of supply and bring the receiver to roughly 15 days.",
-     "reason": "number 18 is not in the cited evidence"
-    }
-   ],
+   "checked": 7,
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -583,45 +653,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -643,103 +734,108 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T08:09:40.714Z",
+   "at": "2026-10-22T12:28:05.968Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract AVNCXBQD scope"
+   "reason": "in contract SG8YTNDD scope"
   },
   {
-   "at": "2026-10-22T08:09:40.714Z",
+   "at": "2026-10-22T12:28:05.968Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract AVNCXBQD scope"
+   "reason": "in contract SG8YTNDD scope"
   },
   {
-   "at": "2026-10-22T08:09:44.505Z",
+   "at": "2026-10-22T12:28:09.540Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract AVNCXBQD scope"
+   "reason": "in contract SG8YTNDD scope"
   },
   {
-   "at": "2026-10-22T08:09:45.651Z",
+   "at": "2026-10-22T12:28:09.967Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract AVNCXBQD scope"
+   "reason": "in contract SG8YTNDD scope"
   },
   {
-   "at": "2026-10-22T08:09:46.548Z",
+   "at": "2026-10-22T12:28:10.265Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract AVNCXBQD scope"
+   "reason": "in contract SG8YTNDD scope"
   },
   {
-   "at": "2026-10-22T08:09:49.918Z",
+   "at": "2026-10-22T12:28:11.499Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract AVNCXBQD scope"
+   "reason": "in contract SG8YTNDD scope"
   },
   {
-   "at": "2026-10-22T08:09:51.585Z",
+   "at": "2026-10-22T12:28:12.137Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract AVNCXBQD scope"
+   "reason": "in contract SG8YTNDD scope"
   },
   {
-   "at": "2026-10-22T08:09:53.400Z",
+   "at": "2026-10-22T12:28:12.862Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract AVNCXBQD scope"
+   "reason": "in contract SG8YTNDD scope"
   },
   {
-   "at": "2026-10-22T08:09:56.152Z",
+   "at": "2026-10-22T12:28:14.545Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract AVNCXBQD scope"
+   "reason": "in contract SG8YTNDD scope"
   },
   {
-   "at": "2026-10-22T08:09:56.156Z",
+   "at": "2026-10-22T12:28:14.547Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract AVNCXBQD scope"
+   "reason": "in contract SG8YTNDD scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-c4e9b4",
+   "queryId": "Q-9e99d0",
    "row": 0,
-   "label": "Corvale General: Oxaliplatin",
+   "label": "Corvale General: Oxaliplatin 5 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-299",
     "ndc11": "43066001401",
     "ndc_as_recorded": "43066001401",
-    "description": "Oxaliplatin",
-    "on_hand": "57.38",
+    "description": "Oxaliplatin 5 mg/mL",
+    "on_hand": "57.00",
     "daily_use": "2.847",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Oxaliplatin",
     "labeler_name": "Baxter Healthcare Corporation",
     "package_ndc": "43066-014-01",
     "spl_set_id": "21a2bb1d-d91d-4f99-97dd-cc67fe99a090",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "OXALIPLATIN 5 mg/mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-c4e9b4",
+   "queryId": "Q-9e99d0",
    "row": 1,
    "label": "Corvale Lakeside: Oxaliplatin 5 mg/mL 10 mL vial",
    "fields": {
@@ -751,13 +847,18 @@
     "on_hand": "8.00",
     "daily_use": "0.933",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Oxaliplatin",
     "labeler_name": "Baxter Healthcare Corporation",
     "package_ndc": "43066-014-01",
     "spl_set_id": "21a2bb1d-d91d-4f99-97dd-cc67fe99a090",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "OXALIPLATIN 5 mg/mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E3": {
@@ -778,7 +879,7 @@
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-2fa45c",
+   "queryId": "Q-699c91",
    "row": 0,
    "label": "FDA shortage list: Fresenius Kabi USA, LLC, To Be Discontinued",
    "fields": {
@@ -793,7 +894,7 @@
   },
   "E5": {
    "id": "E5",
-   "queryId": "Q-2fa45c",
+   "queryId": "Q-699c91",
    "row": 2,
    "label": "FDA shortage list: Jiangsu Hengrui Pharmaceuticals Co., Ltd., To Be Discontinued",
    "fields": {
@@ -810,9 +911,10 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 57 units of oxaliplatin at 2.8 a day: 20 days on hand",
+   "label": "Corvale General holds 57 vials of oxaliplatin 5 mg/mL, 10 mL at 2.8 a day: 20 days on hand",
    "fields": {
     "hospital": "Corvale General",
+    "presentation": "5 mg/mL injection, 10 mL vial",
     "on_hand": 57,
     "daily_use": 2.8,
     "days_on_hand": 20
@@ -822,173 +924,233 @@
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 8 units of oxaliplatin at 0.9 a day: 9 days on hand",
+   "label": "Corvale Lakeside holds 8 vials of oxaliplatin 5 mg/mL, 10 mL at 0.9 a day: 8.6 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
+    "presentation": "5 mg/mL injection, 10 mL vial",
     "on_hand": 8,
     "daily_use": 0.9,
-    "days_on_hand": 9
+    "days_on_hand": 8.6
+   }
+  },
+  "D3": {
+   "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "oxaliplatin is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 6 vials of 5 mg/mL, 10 mL from Corvale General to Corvale Lakeside. Corvale General has 20 days of 5 mg/mL injection, 10 mL vials on hand and can spare 6 vials while keeping two weeks; Corvale Lakeside has 8.6 days and would reach 15.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Accord Healthcare Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Apotex Corp.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-c4e9b4": {
-   "id": "Q-c4e9b4",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%oxaliplatin%' OR lower(s.description) LIKE '%oxaliplatin%' ORDER BY s.hospital, s.item_key",
-   "ms": 3784,
+  "Q-9e99d0": {
+   "id": "Q-9e99d0",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*oxaliplatin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*oxaliplatin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3571,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T08:09:44.499Z",
+   "ranAt": "2026-10-22T12:28:09.539Z",
    "rows": 2
   },
   "Q-0f09e9": {
    "id": "Q-0f09e9",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('21a2bb1d-d91d-4f99-97dd-cc67fe99a090') ORDER BY ps.set_id, ps.establishment",
-   "ms": 1142,
+   "ms": 426,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:09:45.647Z",
+   "ranAt": "2026-10-22T12:28:09.966Z",
    "rows": 1
   },
-  "Q-2fa45c": {
-   "id": "Q-2fa45c",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%oxaliplatin%' ORDER BY status, company_name, package_ndc",
-   "ms": 464,
+  "Q-699c91": {
+   "id": "Q-699c91",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*oxaliplatin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 147,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T08:09:46.115Z",
+   "ranAt": "2026-10-22T12:28:10.114Z",
    "rows": 4
   },
-  "Q-bd7775": {
-   "id": "Q-bd7775",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%oxaliplatin%' ORDER BY first_posting",
-   "ms": 425,
+  "Q-9a2099": {
+   "id": "Q-9a2099",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*oxaliplatin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 149,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T08:09:46.544Z",
+   "ranAt": "2026-10-22T12:28:10.264Z",
    "rows": 1
   },
-  "Q-a969d9": {
-   "id": "Q-a969d9",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%oxaliplatin%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 3363,
+  "Q-3a0c8c": {
+   "id": "Q-3a0c8c",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*oxaliplatin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1232,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:09:49.911Z",
+   "ranAt": "2026-10-22T12:28:11.497Z",
    "rows": 51
   },
   "Q-808a5c": {
    "id": "Q-808a5c",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('') ORDER BY fei, end_date",
-   "ms": 602,
+   "ms": 246,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T08:09:50.519Z",
+   "ranAt": "2026-10-22T12:28:11.744Z",
    "rows": 0
   },
   "Q-de2bfd": {
    "id": "Q-de2bfd",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('') ORDER BY fei, action_date",
-   "ms": 414,
+   "ms": 128,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T08:09:50.938Z",
+   "ranAt": "2026-10-22T12:28:11.874Z",
    "rows": 0
   },
   "Q-462e7c": {
    "id": "Q-462e7c",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('') OR (fei_match <> 'name_and_city' AND firm_key IN ('fareva unterach for sandoz')) ORDER BY date_published",
-   "ms": 258,
+   "ms": 121,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T08:09:51.198Z",
+   "ranAt": "2026-10-22T12:28:11.995Z",
    "rows": 0
   },
-  "Q-191767": {
-   "id": "Q-191767",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('fareva unterach for sandoz', 'baxter') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%oxaliplatin%' ORDER BY initiation_date",
-   "ms": 377,
+  "Q-98d504": {
+   "id": "Q-98d504",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('fareva unterach for sandoz', 'baxter') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*oxaliplatin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 139,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T08:09:51.579Z",
+   "ranAt": "2026-10-22T12:28:12.135Z",
    "rows": 0
   },
   "Q-577c92": {
    "id": "Q-577c92",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('43066001401')",
-   "ms": 1810,
+   "ms": 723,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:09:53.395Z",
+   "ranAt": "2026-10-22T12:28:12.860Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-b2bfa7": {
-   "id": "Q-b2bfa7",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%oxaliplatin%'",
-   "ms": 2748,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:09:56.148Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-1b1b52": {
+   "id": "Q-1b1b52",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*oxaliplatin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1680,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:28:14.542Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 20758,
+  "zetarisMs": 18770,
   "modelCalls": 1,
-  "tokensIn": 1201,
-  "tokensOut": 412,
+  "tokensIn": 1741,
+  "tokensOut": 361,
   "mode": "live"
  },
  "slug": "oxaliplatin",
@@ -1002,7 +1164,7 @@
     "id": "hospital-item:hospital-item:CG-299",
     "type": "HospitalItem",
     "key": "hospital-item:CG-299",
-    "label": "Corvale General: Oxaliplatin",
+    "label": "Corvale General: Oxaliplatin 5 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-299"
     },
@@ -1071,11 +1233,11 @@
     "from": "hospital-item:hospital-item:CG-299",
     "to": "package:ndc-package:43066-014-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:09:44.504Z",
+    "validFrom": "2026-10-22T12:28:09.540Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:09:44.504Z"
+     "at": "2026-10-22T12:28:09.540Z"
     }
    },
    {
@@ -1083,11 +1245,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0070",
     "to": "package:ndc-package:43066-014-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:09:44.504Z",
+    "validFrom": "2026-10-22T12:28:09.540Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:09:44.504Z"
+     "at": "2026-10-22T12:28:09.540Z"
     }
    },
    {
@@ -1095,11 +1257,11 @@
     "from": "package:ndc-package:43066-014-01",
     "to": "product:ndc-product:43066-014",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:09:44.504Z",
+    "validFrom": "2026-10-22T12:28:09.540Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:09:44.504Z"
+     "at": "2026-10-22T12:28:09.540Z"
     }
    },
    {
@@ -1107,11 +1269,11 @@
     "from": "product:ndc-product:43066-014",
     "to": "drug:generic:oxaliplatin",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:09:44.504Z",
+    "validFrom": "2026-10-22T12:28:09.540Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:09:44.504Z"
+     "at": "2026-10-22T12:28:09.540Z"
     }
    },
    {
@@ -1119,11 +1281,11 @@
     "from": "product:ndc-product:43066-014",
     "to": "labeler:ndc-labeler:43066",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:09:44.504Z",
+    "validFrom": "2026-10-22T12:28:09.540Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:09:44.504Z"
+     "at": "2026-10-22T12:28:09.540Z"
     }
    }
   ],

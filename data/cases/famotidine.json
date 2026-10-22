@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-67c531",
+ "id": "case-2026-10-22-18eb89",
  "question": "Why is famotidine short, and what do we do?",
- "askedAt": "2026-10-22T07:45:39.116Z",
+ "askedAt": "2026-10-22T11:58:09.290Z",
  "asOf": "2026-10-21",
  "molecule": "famotidine",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H94ZBZTMWFT6A6Z6ZNFZ6A",
+  "contractId": "01M5HQKBCNVKRFGRGS0T2G94P4",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-e8650a"
+    "Q-4bb6f7"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2572,
+   "ms": 3619,
    "rows": 3,
-   "finding": "3 stock lines across 3 hospitals.",
+   "finding": "3 stock lines across 3 hospitals, 2 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-2d20ff"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 730,
+   "ms": 404,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,15 +51,15 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-711095",
-    "Q-2e2337"
+    "Q-5c0497",
+    "Q-d9ff54"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 334,
-   "rows": 5,
+   "ms": 208,
+   "rows": 4,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
   },
@@ -63,14 +68,16 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-bc4c3d"
+    "Q-9cca8f"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1848,
-   "rows": 574,
-   "finding": "56 labelers make it in this form.",
+   "ms": 1141,
+   "rows": 525,
+   "finding": "51 labelers make it in this form.",
    "status": "ok"
   },
   {
@@ -81,15 +88,15 @@
     "Q-9a8aa8",
     "Q-d43b7d",
     "Q-089f4a",
-    "Q-53c6f5"
+    "Q-32b0f6"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 968,
+   "ms": 531,
    "rows": 6,
    "finding": "6 inspections (1 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,7 +111,7 @@
    "sources": [
     "fda.citations"
    ],
-   "ms": 216,
+   "ms": 147,
    "rows": 2,
    "finding": "2 Form 483 observations recorded.",
    "status": "ok"
@@ -119,9 +126,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1015,
+   "ms": 656,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -129,19 +136,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-ac3f96"
+    "Q-c22baf"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1445,
-   "rows": 7,
-   "finding": "12 stock rows across the system fail the NDC rule; 1 of them are this drug.",
+   "ms": 1471,
+   "rows": 10,
+   "finding": "11 stock rows across the system fail the NDC rule; 1 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -152,7 +163,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 2,
+   "ms": 0,
    "rows": 2,
    "finding": "2 past decisions recalled.",
    "status": "ok"
@@ -168,21 +179,27 @@
    "onHand": 229,
    "dailyUse": 9.761,
    "days": 23.5,
-   "unit": "package",
+   "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 20, converted to units",
+   "presentation": "famotidine|20mg|tablet||tablet",
+   "presentationLabel": "20 mg tablet",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-216",
    "ndc11": "51655031220",
-   "description": "Famotidine",
+   "description": "Famotidine 20 mg/1",
    "labeler": "Northwind Health Company, LLC",
-   "onHand": 256.9,
+   "onHand": 256,
    "dailyUse": 9.739,
-   "days": 26.4,
+   "days": 26.3,
    "unit": "tablet",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "famotidine|20mg|tablet||tablet",
+   "presentationLabel": "20 mg tablet",
    "evidence": "E2"
   },
   {
@@ -196,7 +213,70 @@
    "days": 8.4,
    "unit": "tablet",
    "ndcMatch": "blank in source",
+   "unitBasis": "units of use, as exported",
+   "presentation": "unplaced:LS-LS-0082",
+   "presentationLabel": "Famotidine 20 mg/1 (NDC not in FDA's file)",
    "evidence": "E3"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "unplaced:LS-LS-0082",
+   "label": "Famotidine 20 mg/1 (NDC not in FDA's file)",
+   "short": "Famotidine 20 mg/1",
+   "unit": "tablet",
+   "onHand": 14,
+   "dailyUse": 1.667,
+   "days": 8.4,
+   "hospitals": [
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 14,
+     "dailyUse": 1.667,
+     "days": 8.4,
+     "lines": [
+      "LS-LS-0082"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "famotidine|20mg|tablet||tablet",
+   "label": "20 mg tablet",
+   "short": "20 mg",
+   "unit": "tablet",
+   "onHand": 485,
+   "dailyUse": 19.5,
+   "days": 24.9,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 229,
+     "dailyUse": 9.761,
+     "days": 23.5,
+     "lines": [
+      "EA-E-000179"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 256,
+     "dailyUse": 9.739,
+     "days": 26.3,
+     "lines": [
+      "CG-216"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -299,7 +379,7 @@
   },
   {
    "labeler": "Advanced Rx of Tennessee, LLC",
-   "ndc11": "80425042201",
+   "ndc11": "80425058901",
    "dosageForm": "TABLET, FILM COATED",
    "plants": [],
    "onShortageList": false,
@@ -339,16 +419,8 @@
   },
   {
    "labeler": "Ascend Laboratories, LLC",
-   "ndc11": "67877062601",
+   "ndc11": "67877084201",
    "dosageForm": "TABLET, FILM COATED",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
-   "labeler": "Ascent Pharmaceuticals, Inc.",
-   "ndc11": "43602054405",
-   "dosageForm": "TABLET",
    "plants": [],
    "onShortageList": false,
    "inOurStock": false
@@ -363,7 +435,7 @@
   },
   {
    "labeler": "Aurobindo Pharma Limited",
-   "ndc11": "59651090890",
+   "ndc11": "65862085901",
    "dosageForm": "TABLET, FILM COATED",
    "plants": [],
    "onShortageList": false,
@@ -444,14 +516,6 @@
   {
    "labeler": "Direct_Rx",
    "ndc11": "72189054320",
-   "dosageForm": "TABLET, FILM COATED",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
-   "labeler": "Doc Rx",
-   "ndc11": "69306026630",
    "dosageForm": "TABLET, FILM COATED",
    "plants": [],
    "onShortageList": false,
@@ -570,22 +634,6 @@
    "inOurStock": false
   },
   {
-   "labeler": "PHOENIX RX LLC",
-   "ndc11": "85509101003",
-   "dosageForm": "TABLET, FILM COATED",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
-   "labeler": "Par Health USA, LLC",
-   "ndc11": "49884036609",
-   "dosageForm": "TABLET",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
    "labeler": "Preferred Pharmaceuticals Inc.",
    "ndc11": "68788402103",
    "dosageForm": "TABLET, FILM COATED",
@@ -690,14 +738,6 @@
    "inOurStock": false
   },
   {
-   "labeler": "Viona Pharmaceuticals Inc",
-   "ndc11": "72578021416",
-   "dosageForm": "TABLET",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
    "labeler": "Westminster Pharmaceuticals, LLC",
    "ndc11": "69367040010",
    "dosageForm": "TABLET, COATED",
@@ -740,39 +780,6 @@
  ],
  "options": [
   {
-   "kind": "transfer",
-   "rank": 1,
-   "title": "Transfer 10 from Corvale General to Corvale Lakeside",
-   "detail": "Corvale General has 26 days on hand and can spare 10 while keeping two weeks; Corvale Lakeside has 8.4 days and would reach 14.",
-   "why": "Same product, no clinical change, no new supplier.",
-   "needs": "pharmacy director (transfer request)",
-   "evidence": [
-    "E2",
-    "E3"
-   ]
-  },
-  {
-   "kind": "transfer",
-   "rank": 1,
-   "title": "Transfer 10 from Corvale East to Corvale Lakeside",
-   "detail": "Corvale East has 23 days on hand and can spare 10 while keeping two weeks; Corvale Lakeside has 8.4 days and would reach 14.",
-   "why": "Same product, no clinical change, no new supplier.",
-   "needs": "pharmacy director (transfer request)",
-   "evidence": [
-    "E1",
-    "E3"
-   ]
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from A-S Medication Solutions",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Advanced Rx Pharmacy of Tennessee, LLC",
@@ -811,43 +818,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from American Health Packaging",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Aphena Pharma Solutions - Tennessee, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Ascend Laboratories, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Ascent Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Asclemed USA, Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -892,25 +863,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Bryant Ranch Prepack",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Camber Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Cardinal Health 107, LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -946,24 +899,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Direct_Rx",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Doc Rx",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Dr.Reddy's Laboratories Limited",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -973,34 +908,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Golden State Medical Supply, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from HAWAII REPACK, INC.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Legacy Pharmaceutical Packaging, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Lifestar Pharma LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -1036,105 +944,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals,Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from NuCare Pharmceuticals,Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from PD-Rx Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from PHOENIX RX LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Par Health USA, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Preferred Pharmaceuticals Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Preferred Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Proficient Rx LP",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Quality Care Products, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from REMEDYREPACK INC.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Redpharm Drug",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -1154,15 +963,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from ST. MARY'S MEDICAL PARK PHARMACY",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Safecor Health, LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -1207,15 +1007,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Viona Pharmaceuticals Inc",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Westminster Pharmaceuticals, LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -1244,15 +1035,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Zydus Pharmaceuticals USA Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from direct rx",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -1297,55 +1079,57 @@
   }
  ],
  "explanation": {
-  "state": "confirmed",
-  "headline": "FDA's records trace this shortage to a plant on our own labels",
+  "state": "check",
+  "headline": "Famotidine is not on FDA's shortage list as of 2026-10-21; Corvale East has 23.5 days on hand and Corvale General has 26.3 days on hand",
   "sentences": [
    {
-    "text": "The famotidine products at Corvale East, Corvale General, and Corvale Lakeside are labeled by Northwind Health Company, LLC with NDC 51655031220 and SPL set ID ab1cdbbf-d838-020c-e053-2995a90a0f65.",
+    "text": "FDA's records show famotidine is not on the drug shortage list as of 2026-10-21.",
     "cites": [
-     "E1",
-     "E2",
-     "E9"
-    ]
-   },
-   {
-    "text": "The registered plant for this label is Northwind Health Company, LLC (FEI 1831143) in the USA performing REPACK operations.",
-    "cites": [
-     "E9"
-    ]
-   },
-   {
-    "text": "FDA inspection 952157 of Northwind Pharmaceuticals LLC (FEI 1831143) ended on 2015-12-09 and was classified OAI, with a known date of 2016-03-08.",
-    "cites": [
-     "E6"
-    ]
-   },
-   {
-    "text": "The most recent FDA inspection 1256379 ended on 2025-09-26 and was classified VAI, with a known date of 2025-12-04.",
-    "cites": [
-     "E8"
-    ]
-   },
-   {
-    "text": "Corvale Lakeside holds 14 units at 1.7 per day, giving 8 days on hand, while Corvale General holds 257 units at 9.7 per day, giving 26 days on hand.",
-    "cites": [
-     "D2",
      "D3"
+    ]
+   },
+   {
+    "text": "Corvale East holds 229 tablets of famotidine 20 mg at 9.8 a day, providing 23.5 days on hand.",
+    "cites": [
+     "D1"
+    ]
+   },
+   {
+    "text": "Corvale General holds 256 tablets of famotidine 20 mg at 9.7 a day, providing 26.3 days on hand.",
+    "cites": [
+     "D2"
+    ]
+   },
+   {
+    "text": "The top-ranked alternate manufacturer option is to buy from Advanced Rx Pharmacy of Tennessee, LLC, which is not on FDA's shortage list today and its label names no plant we could place.",
+    "cites": [
+     "D4"
+    ]
+   },
+   {
+    "text": "A second alternate option is to buy from Advanced Rx of Tennessee, LLC, also not on FDA's shortage list today with no plant identified on its label.",
+    "cites": [
+     "D5"
+    ]
+   },
+   {
+    "text": "A third alternate option is to buy from Alembic Pharmaceuticals Inc., also not on FDA's shortage list today with no plant identified on its label.",
+    "cites": [
+     "D6"
+    ]
+   },
+   {
+    "text": "Check the labeler Northwind Health Company, LLC (FEI 1831143) which has a registered plant with a VAI inspection on 2025-09-26 and a prior OAI inspection on 2015-12-09.",
+    "cites": [
+     "E9",
+     "E8",
+     "E6"
     ]
    }
   ],
   "verifier": {
-   "checked": 7,
-   "rejected": [
-    {
-     "text": "Transferring 10 units from Corvale General to Corvale Lakeside would leave Corvale General with 247 units (25 days on hand) and bring Corvale Lakeside to 24 units (14 days on hand).",
-     "reason": "number 10 is not in the cited evidence"
-    },
-    {
-     "text": "FDA's records trace our supply to a plant classified OAI 3877 days before the posting",
-     "reason": "headline: cites unknown evidence D4"
-    }
-   ],
+   "checked": 8,
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -1353,45 +1137,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
@@ -1420,87 +1225,87 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:45:29.983Z",
+   "at": "2026-10-22T11:58:01.110Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract Z6ZNFZ6A scope"
+   "reason": "in contract 0T2G94P4 scope"
   },
   {
-   "at": "2026-10-22T07:45:29.983Z",
+   "at": "2026-10-22T11:58:01.110Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract Z6ZNFZ6A scope"
+   "reason": "in contract 0T2G94P4 scope"
   },
   {
-   "at": "2026-10-22T07:45:32.556Z",
+   "at": "2026-10-22T11:58:04.729Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract Z6ZNFZ6A scope"
+   "reason": "in contract 0T2G94P4 scope"
   },
   {
-   "at": "2026-10-22T07:45:33.287Z",
+   "at": "2026-10-22T11:58:05.133Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract Z6ZNFZ6A scope"
+   "reason": "in contract 0T2G94P4 scope"
   },
   {
-   "at": "2026-10-22T07:45:33.620Z",
+   "at": "2026-10-22T11:58:05.342Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract Z6ZNFZ6A scope"
+   "reason": "in contract 0T2G94P4 scope"
   },
   {
-   "at": "2026-10-22T07:45:35.468Z",
+   "at": "2026-10-22T11:58:06.482Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract Z6ZNFZ6A scope"
+   "reason": "in contract 0T2G94P4 scope"
   },
   {
-   "at": "2026-10-22T07:45:36.436Z",
+   "at": "2026-10-22T11:58:07.013Z",
    "action": "What FDA wrote at the OAI inspections",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract Z6ZNFZ6A scope"
+   "reason": "in contract 0T2G94P4 scope"
   },
   {
-   "at": "2026-10-22T07:45:36.654Z",
+   "at": "2026-10-22T11:58:07.162Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract Z6ZNFZ6A scope"
+   "reason": "in contract 0T2G94P4 scope"
   },
   {
-   "at": "2026-10-22T07:45:37.669Z",
+   "at": "2026-10-22T11:58:07.818Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract Z6ZNFZ6A scope"
+   "reason": "in contract 0T2G94P4 scope"
   },
   {
-   "at": "2026-10-22T07:45:39.114Z",
+   "at": "2026-10-22T11:58:09.289Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract Z6ZNFZ6A scope"
+   "reason": "in contract 0T2G94P4 scope"
   },
   {
-   "at": "2026-10-22T07:45:39.116Z",
+   "at": "2026-10-22T11:58:09.290Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract Z6ZNFZ6A scope"
+   "reason": "in contract 0T2G94P4 scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-e8650a",
+   "queryId": "Q-4bb6f7",
    "row": 0,
    "label": "Corvale East: FAMOTIDINE 20MG TAB",
    "fields": {
@@ -1511,42 +1316,52 @@
     "description": "FAMOTIDINE 20MG TAB",
     "on_hand": "229.00",
     "daily_use": "9.761",
-    "unit": "package",
+    "unit": "tablet",
+    "pkg_units": "20.00",
+    "unit_basis": "packages of 20, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Famotidine",
     "labeler_name": "Northwind Health Company, LLC",
     "package_ndc": "51655-312-20",
     "spl_set_id": "ab1cdbbf-d838-020c-e053-2995a90a0f65",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "FAMOTIDINE 20 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-e8650a",
+   "queryId": "Q-4bb6f7",
    "row": 1,
-   "label": "Corvale General: Famotidine",
+   "label": "Corvale General: Famotidine 20 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-216",
     "ndc11": "51655031220",
     "ndc_as_recorded": "51655031220",
-    "description": "Famotidine",
-    "on_hand": "256.90",
+    "description": "Famotidine 20 mg/1",
+    "on_hand": "256.00",
     "daily_use": "9.739",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Famotidine",
     "labeler_name": "Northwind Health Company, LLC",
     "package_ndc": "51655-312-20",
     "spl_set_id": "ab1cdbbf-d838-020c-e053-2995a90a0f65",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "FAMOTIDINE 20 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-e8650a",
+   "queryId": "Q-4bb6f7",
    "row": 2,
    "label": "Corvale Lakeside: Famotidine 20 mg/1",
    "fields": {
@@ -1558,13 +1373,18 @@
     "on_hand": "14.00",
     "daily_use": "1.667",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "blank in source",
     "generic_name": null,
     "labeler_name": null,
     "package_ndc": null,
     "spl_set_id": null,
     "dosage_form": null,
-    "route": null
+    "route": null,
+    "strength": null,
+    "unit_content": null,
+    "pkg_unit": null
    }
   },
   "E4": {
@@ -1664,208 +1484,257 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 229 units of famotidine at 9.8 a day: 23 days on hand",
+   "label": "Corvale East holds 229 tablets of famotidine 20 mg at 9.8 a day: 23.5 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "20 mg tablet",
     "on_hand": 229,
     "daily_use": 9.8,
-    "days_on_hand": 23
+    "days_on_hand": 23.5
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 257 units of famotidine at 9.7 a day: 26 days on hand",
+   "label": "Corvale General holds 256 tablets of famotidine 20 mg at 9.7 a day: 26.3 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 257,
+    "presentation": "20 mg tablet",
+    "on_hand": 256,
     "daily_use": 9.7,
-    "days_on_hand": 26
+    "days_on_hand": 26.3
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 14 units of famotidine at 1.7 a day: 8 days on hand",
+   "label": "famotidine is not on FDA's drug shortage list as of 2026-10-21",
    "fields": {
-    "hospital": "Corvale Lakeside",
-    "on_hand": 14,
-    "daily_use": 1.7,
-    "days_on_hand": 8
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Advanced Rx Pharmacy of Tennessee, LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Advanced Rx of Tennessee, LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Alembic Pharmaceuticals Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-e8650a": {
-   "id": "Q-e8650a",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%famotidine%' OR lower(s.description) LIKE '%famotidine%' ORDER BY s.hospital, s.item_key",
-   "ms": 2568,
+  "Q-4bb6f7": {
+   "id": "Q-4bb6f7",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*famotidine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*famotidine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3617,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:45:32.552Z",
+   "ranAt": "2026-10-22T11:58:04.727Z",
    "rows": 3
   },
   "Q-2d20ff": {
    "id": "Q-2d20ff",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('ab1cdbbf-d838-020c-e053-2995a90a0f65') ORDER BY ps.set_id, ps.establishment",
-   "ms": 728,
+   "ms": 402,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:45:33.285Z",
+   "ranAt": "2026-10-22T11:58:05.132Z",
    "rows": 1
   },
-  "Q-711095": {
-   "id": "Q-711095",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%famotidine%' ORDER BY status, company_name, package_ndc",
-   "ms": 167,
+  "Q-5c0497": {
+   "id": "Q-5c0497",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*famotidine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 104,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:45:33.454Z",
+   "ranAt": "2026-10-22T11:58:05.237Z",
    "rows": 0
   },
-  "Q-2e2337": {
-   "id": "Q-2e2337",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%famotidine%' ORDER BY first_posting",
-   "ms": 163,
+  "Q-d9ff54": {
+   "id": "Q-d9ff54",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*famotidine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 103,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:45:33.619Z",
-   "rows": 5
+   "ranAt": "2026-10-22T11:58:05.340Z",
+   "rows": 4
   },
-  "Q-bc4c3d": {
-   "id": "Q-bc4c3d",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%famotidine%' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 1844,
+  "Q-9cca8f": {
+   "id": "Q-9cca8f",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*famotidine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1138,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:45:35.465Z",
-   "rows": 574
+   "ranAt": "2026-10-22T11:58:06.480Z",
+   "rows": 525
   },
   "Q-9a8aa8": {
    "id": "Q-9a8aa8",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('1831143') ORDER BY fei, end_date",
-   "ms": 387,
+   "ms": 211,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:45:35.855Z",
+   "ranAt": "2026-10-22T11:58:06.693Z",
    "rows": 6
   },
   "Q-d43b7d": {
    "id": "Q-d43b7d",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('1831143') ORDER BY fei, action_date",
-   "ms": 197,
+   "ms": 104,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:45:36.055Z",
+   "ranAt": "2026-10-22T11:58:06.799Z",
    "rows": 0
   },
   "Q-089f4a": {
    "id": "Q-089f4a",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('1831143') OR (fei_match <> 'name_and_city' AND firm_key IN ('northwind health')) ORDER BY date_published",
-   "ms": 168,
+   "ms": 90,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:45:36.225Z",
+   "ranAt": "2026-10-22T11:58:06.890Z",
    "rows": 0
   },
-  "Q-53c6f5": {
-   "id": "Q-53c6f5",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('northwind health') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%famotidine%' ORDER BY initiation_date",
-   "ms": 208,
+  "Q-32b0f6": {
+   "id": "Q-32b0f6",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('northwind health') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*famotidine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 121,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:45:36.434Z",
+   "ranAt": "2026-10-22T11:58:07.012Z",
    "rows": 0
   },
   "Q-4696e2": {
    "id": "Q-4696e2",
    "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('952157') ORDER BY inspection_id, cfr",
-   "ms": 215,
+   "ms": 146,
    "mode": "live",
    "sources": [
     "fda.citations"
    ],
-   "ranAt": "2026-10-22T07:45:36.651Z",
+   "ranAt": "2026-10-22T11:58:07.159Z",
    "rows": 2
   },
   "Q-58f4e4": {
    "id": "Q-58f4e4",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('51655031220')",
-   "ms": 1013,
+   "ms": 654,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:45:37.668Z",
+   "ranAt": "2026-10-22T11:58:07.817Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-ac3f96": {
-   "id": "Q-ac3f96",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%famotidine%'",
-   "ms": 1444,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:45:39.113Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-c22baf": {
+   "id": "Q-c22baf",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*famotidine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1470,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:58:09.288Z",
    "rows": 1
   }
  },
  "usage": {
   "zetarisQueries": 15,
-  "zetarisMs": 14473,
+  "zetarisMs": 18368,
   "modelCalls": 1,
-  "tokensIn": 1541,
-  "tokensOut": 506,
+  "tokensIn": 1321,
+  "tokensOut": 482,
   "mode": "live"
  },
  "slug": "famotidine",
@@ -1879,7 +1748,7 @@
     "id": "hospital-item:hospital-item:CG-216",
     "type": "HospitalItem",
     "key": "hospital-item:CG-216",
-    "label": "Corvale General: Famotidine",
+    "label": "Corvale General: Famotidine 20 mg/1",
     "attrs": {
      "key": "hospital-item:CG-216"
     },
@@ -1963,7 +1832,7 @@
     },
     "facts": [
      {
-      "id": "fact_4adfbd92a4e5e55d",
+      "id": "fact_92f475a6b7629e9d",
       "about": "inspection:fda-inspection:1073148",
       "predicate": "classification",
       "value": "VAI",
@@ -1971,9 +1840,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:45:36.653Z"
+       "at": "2026-10-22T11:58:07.161Z"
       },
-      "assertedAt": "2026-10-22T07:45:36.653Z"
+      "assertedAt": "2026-10-22T11:58:07.161Z"
      }
     ],
     "depth": 4
@@ -1989,7 +1858,7 @@
     },
     "facts": [
      {
-      "id": "fact_2779e2f02a55e134",
+      "id": "fact_d073e29fd5b39ca2",
       "about": "inspection:fda-inspection:1256379",
       "predicate": "classification",
       "value": "VAI",
@@ -1997,9 +1866,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:45:36.653Z"
+       "at": "2026-10-22T11:58:07.162Z"
       },
-      "assertedAt": "2026-10-22T07:45:36.653Z"
+      "assertedAt": "2026-10-22T11:58:07.162Z"
      }
     ],
     "depth": 4
@@ -2015,7 +1884,7 @@
     },
     "facts": [
      {
-      "id": "fact_015b2309e8a118ac",
+      "id": "fact_fa349fd2e862cff1",
       "about": "inspection:fda-inspection:944649",
       "predicate": "classification",
       "value": "VAI",
@@ -2023,9 +1892,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:45:36.653Z"
+       "at": "2026-10-22T11:58:07.161Z"
       },
-      "assertedAt": "2026-10-22T07:45:36.653Z"
+      "assertedAt": "2026-10-22T11:58:07.161Z"
      }
     ],
     "depth": 4
@@ -2041,7 +1910,7 @@
     },
     "facts": [
      {
-      "id": "fact_59301931e0863f74",
+      "id": "fact_fdbd01a83671c469",
       "about": "inspection:fda-inspection:952157",
       "predicate": "classification",
       "value": "OAI",
@@ -2049,9 +1918,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:45:36.653Z"
+       "at": "2026-10-22T11:58:07.161Z"
       },
-      "assertedAt": "2026-10-22T07:45:36.653Z"
+      "assertedAt": "2026-10-22T11:58:07.161Z"
      }
     ],
     "depth": 4
@@ -2063,11 +1932,11 @@
     "from": "hospital-item:hospital-item:CG-216",
     "to": "package:ndc-package:51655-312-20",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:45:32.555Z",
+    "validFrom": "2026-10-22T11:58:04.729Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:45:32.555Z"
+     "at": "2026-10-22T11:58:04.729Z"
     }
    },
    {
@@ -2075,11 +1944,11 @@
     "from": "hospital-item:hospital-item:EA-E-000179",
     "to": "package:ndc-package:51655-312-20",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:45:32.555Z",
+    "validFrom": "2026-10-22T11:58:04.729Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:45:32.555Z"
+     "at": "2026-10-22T11:58:04.729Z"
     }
    },
    {
@@ -2087,11 +1956,11 @@
     "from": "package:ndc-package:51655-312-20",
     "to": "product:ndc-product:51655-312",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:45:32.555Z",
+    "validFrom": "2026-10-22T11:58:04.729Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:45:32.555Z"
+     "at": "2026-10-22T11:58:04.729Z"
     }
    },
    {
@@ -2099,11 +1968,11 @@
     "from": "product:ndc-product:51655-312",
     "to": "drug:generic:famotidine",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:45:32.555Z",
+    "validFrom": "2026-10-22T11:58:04.729Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:45:32.555Z"
+     "at": "2026-10-22T11:58:04.729Z"
     }
    },
    {
@@ -2111,11 +1980,11 @@
     "from": "product:ndc-product:51655-312",
     "to": "labeler:ndc-labeler:51655",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:45:32.555Z",
+    "validFrom": "2026-10-22T11:58:04.729Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:45:32.555Z"
+     "at": "2026-10-22T11:58:04.729Z"
     }
    },
    {
@@ -2123,11 +1992,11 @@
     "from": "product:ndc-product:51655-312",
     "to": "site:fei:1831143",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:45:36.653Z",
+    "validFrom": "2026-10-22T11:58:07.161Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:45:36.653Z"
+     "at": "2026-10-22T11:58:07.161Z"
     }
    },
    {
@@ -2135,11 +2004,11 @@
     "from": "inspection:fda-inspection:944649",
     "to": "site:fei:1831143",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:45:36.653Z",
+    "validFrom": "2026-10-22T11:58:07.161Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:45:36.653Z"
+     "at": "2026-10-22T11:58:07.161Z"
     }
    },
    {
@@ -2147,11 +2016,11 @@
     "from": "inspection:fda-inspection:952157",
     "to": "site:fei:1831143",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:45:36.653Z",
+    "validFrom": "2026-10-22T11:58:07.161Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:45:36.653Z"
+     "at": "2026-10-22T11:58:07.161Z"
     }
    },
    {
@@ -2159,11 +2028,11 @@
     "from": "inspection:fda-inspection:1073148",
     "to": "site:fei:1831143",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:45:36.653Z",
+    "validFrom": "2026-10-22T11:58:07.161Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:45:36.653Z"
+     "at": "2026-10-22T11:58:07.161Z"
     }
    },
    {
@@ -2171,11 +2040,11 @@
     "from": "inspection:fda-inspection:1256379",
     "to": "site:fei:1831143",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:45:36.653Z",
+    "validFrom": "2026-10-22T11:58:07.162Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:45:36.653Z"
+     "at": "2026-10-22T11:58:07.162Z"
     }
    }
   ],

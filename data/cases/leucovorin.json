@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-584941",
+ "id": "case-2026-10-22-0572b6",
  "question": "Why is leucovorin calcium short, and what do we do?",
- "askedAt": "2026-10-22T07:56:53.285Z",
+ "askedAt": "2026-10-22T12:13:39.969Z",
  "asOf": "2026-10-21",
  "molecule": "leucovorin calcium",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H9SB688DQ4VZWSP3A19Z4W",
+  "contractId": "01M5HRFMX431PJ9QFB6S31QZME",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-6c2e49"
+    "Q-aceef5"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 4386,
+   "ms": 5919,
    "rows": 7,
-   "finding": "7 stock lines across 3 hospitals.",
+   "finding": "7 stock lines across 3 hospitals, 3 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-409d33"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1232,
+   "ms": 646,
    "rows": 4,
    "finding": "4 plant links on 3 labels; 2 placed in FDA's registration file.",
    "status": "ok"
@@ -46,15 +51,15 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-fa78bc",
-    "Q-7f6560"
+    "Q-83b16d",
+    "Q-d06e8c"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 740,
-   "rows": 5,
+   "ms": 326,
+   "rows": 3,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
   },
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-53094a"
+    "Q-abe10d"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 3170,
+   "ms": 1371,
    "rows": 43,
    "finding": "8 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-bf8df3",
     "Q-4c3a3c",
     "Q-05433a",
-    "Q-c0219e"
+    "Q-82569e"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1591,
+   "ms": 852,
    "rows": 34,
    "finding": "31 inspections (0 OAI at our plants), 2 compliance actions, 0 import-alert listings, 1 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 2824,
+   "ms": 989,
    "rows": 2,
    "finding": "2 approved interchanges on file.",
    "status": "ok"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-4c7139"
+    "Q-99a178"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1881,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1505,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -153,8 +164,11 @@
    "onHand": 53,
    "dailyUse": 3.86,
    "days": 13.7,
-   "unit": "package",
+   "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 12, converted to units",
+   "presentation": "leucovorin calcium|10mg|tablet||tablet",
+   "presentationLabel": "10 mg tablet",
    "evidence": "E1"
   },
   {
@@ -166,8 +180,11 @@
    "onHand": 9,
    "dailyUse": 3.106,
    "days": 2.9,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "leucovorin calcium|350mg/17.5ml|injection|17.5ml|vial",
+   "presentationLabel": "350 mg/17.5 mL injection, 17.5 mL vial",
    "evidence": "E2"
   },
   {
@@ -179,47 +196,59 @@
    "onHand": 8,
    "dailyUse": 3.008,
    "days": 2.7,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "leucovorin calcium|50mg/5ml|injection|5ml|vial",
+   "presentationLabel": "50 mg/5 mL injection, 5 mL vial",
    "evidence": "E3"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-256",
    "ndc11": "00054449705",
-   "description": "Leucovorin Calcium",
+   "description": "Leucovorin Calcium 10 mg/1",
    "labeler": "Hikma Pharmaceuticals USA Inc.",
-   "onHand": 74.96,
+   "onHand": 74,
    "dailyUse": 2.707,
-   "days": 27.7,
+   "days": 27.3,
    "unit": "tablet",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "leucovorin calcium|10mg|tablet||tablet",
+   "presentationLabel": "10 mg tablet",
    "evidence": "E4"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-71",
    "ndc11": "00143955201",
-   "description": "Leucovorin Calcium",
+   "description": "Leucovorin Calcium 350 mg/17.5mL",
    "labeler": "Hikma Pharmaceuticals USA Inc.",
-   "onHand": 51.56,
+   "onHand": 51,
    "dailyUse": 2.763,
-   "days": 18.7,
+   "days": 18.5,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "leucovorin calcium|350mg/17.5ml|injection|17.5ml|vial",
+   "presentationLabel": "350 mg/17.5 mL injection, 17.5 mL vial",
    "evidence": "E5"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-72",
    "ndc11": "25021081310",
-   "description": "leucovorin calcium",
+   "description": "leucovorin calcium 50 mg/5mL",
    "labeler": "Sagent Pharmaceuticals",
-   "onHand": 66.35,
+   "onHand": 66,
    "dailyUse": 2.84,
-   "days": 23.4,
+   "days": 23.2,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "leucovorin calcium|50mg/5ml|injection|5ml|vial",
+   "presentationLabel": "50 mg/5 mL injection, 5 mL vial",
    "evidence": "E6"
   },
   {
@@ -233,7 +262,129 @@
    "days": 24.5,
    "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "leucovorin calcium|50mg/5ml|injection|5ml|vial",
+   "presentationLabel": "50 mg/5 mL injection, 5 mL vial",
    "evidence": "E7"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "leucovorin calcium|50mg/5ml|injection|5ml|vial",
+   "label": "50 mg/5 mL injection, 5 mL vial",
+   "short": "50 mg/5 mL, 5 mL",
+   "unit": "vial",
+   "onHand": 93,
+   "dailyUse": 6.625,
+   "days": 14,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 8,
+     "dailyUse": 3.008,
+     "days": 2.7,
+     "lines": [
+      "EA-E-000148"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 66,
+     "dailyUse": 2.84,
+     "days": 23.2,
+     "lines": [
+      "CG-72"
+     ],
+     "evidence": [
+      "E6"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 19,
+     "dailyUse": 0.777,
+     "days": 24.5,
+     "lines": [
+      "LS-LS-0063"
+     ],
+     "evidence": [
+      "E7"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "leucovorin calcium|350mg/17.5ml|injection|17.5ml|vial",
+   "label": "350 mg/17.5 mL injection, 17.5 mL vial",
+   "short": "350 mg/17.5 mL, 17.5 mL",
+   "unit": "vial",
+   "onHand": 60,
+   "dailyUse": 5.869,
+   "days": 10.2,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 9,
+     "dailyUse": 3.106,
+     "days": 2.9,
+     "lines": [
+      "EA-E-000038"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 51,
+     "dailyUse": 2.763,
+     "days": 18.5,
+     "lines": [
+      "CG-71"
+     ],
+     "evidence": [
+      "E5"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "leucovorin calcium|10mg|tablet||tablet",
+   "label": "10 mg tablet",
+   "short": "10 mg",
+   "unit": "tablet",
+   "onHand": 127,
+   "dailyUse": 6.567,
+   "days": 19.3,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 53,
+     "dailyUse": 3.86,
+     "days": 13.7,
+     "lines": [
+      "EA-E-000009"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 74,
+     "dailyUse": 2.707,
+     "days": 27.3,
+     "lines": [
+      "CG-256"
+     ],
+     "evidence": [
+      "E4"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -504,41 +655,71 @@
   {
    "kind": "transfer",
    "rank": 1,
-   "title": "Transfer 8 from Corvale Lakeside to Corvale East",
-   "detail": "Corvale Lakeside has 24 days on hand and can spare 8 while keeping two weeks; Corvale East has 7 days and would reach 8.",
-   "why": "Same product, no clinical change, no new supplier.",
+   "title": "Transfer 8 vials of 50 mg/5 mL, 5 mL from Corvale Lakeside to Corvale East",
+   "detail": "Corvale Lakeside has 24 days of 50 mg/5 mL injection, 5 mL vials on hand and can spare 8 vials while keeping two weeks; Corvale East has 2.7 days and would reach 5.",
+   "why": "Same presentation, no clinical change, no new supplier.",
    "needs": "pharmacy director (transfer request)",
    "evidence": [
     "E7",
-    "E1",
-    "E2",
     "E3"
-   ]
+   ],
+   "transfer": {
+    "qty": 8,
+    "unit": "vial",
+    "presentation": "50 mg/5 mL injection, 5 mL vial",
+    "from": "Corvale Lakeside",
+    "to": "Corvale East",
+    "fromDays": 24.5,
+    "toDays": 2.7,
+    "fromAfter": 14,
+    "toAfter": 5
+   }
   },
   {
    "kind": "transfer",
    "rank": 1,
-   "title": "Transfer 70 from Corvale General to Corvale East",
-   "detail": "Corvale General has 23 days on hand and can spare 70 while keeping two weeks; Corvale East has 7 days and would reach 14.",
-   "why": "Same product, no clinical change, no new supplier.",
+   "title": "Transfer 26 vials of 50 mg/5 mL, 5 mL from Corvale General to Corvale East",
+   "detail": "Corvale General has 23 days of 50 mg/5 mL injection, 5 mL vials on hand and can spare 26 vials while keeping two weeks; Corvale East has 2.7 days and would reach 11.",
+   "why": "Same presentation, no clinical change, no new supplier.",
    "needs": "pharmacy director (transfer request)",
    "evidence": [
-    "E4",
-    "E5",
     "E6",
-    "E1",
-    "E2",
     "E3"
-   ]
+   ],
+   "transfer": {
+    "qty": 26,
+    "unit": "vial",
+    "presentation": "50 mg/5 mL injection, 5 mL vial",
+    "from": "Corvale General",
+    "to": "Corvale East",
+    "fromDays": 23.2,
+    "toDays": 2.7,
+    "fromAfter": 14,
+    "toAfter": 11
+   }
   },
   {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from American Health Packaging",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
+   "kind": "transfer",
+   "rank": 1,
+   "title": "Transfer 12 vials of 350 mg/17.5 mL, 17.5 mL from Corvale General to Corvale East",
+   "detail": "Corvale General has 18 days of 350 mg/17.5 mL injection, 17.5 mL vials on hand and can spare 12 vials while keeping two weeks; Corvale East has 2.9 days and would reach 7.",
+   "why": "Same presentation, no clinical change, no new supplier.",
+   "needs": "pharmacy director (transfer request)",
+   "evidence": [
+    "E5",
+    "E2"
+   ],
+   "transfer": {
+    "qty": 12,
+    "unit": "vial",
+    "presentation": "350 mg/17.5 mL injection, 17.5 mL vial",
+    "from": "Corvale General",
+    "to": "Corvale East",
+    "fromDays": 18.5,
+    "toDays": 2.9,
+    "fromAfter": 14,
+    "toAfter": 7
+   }
   },
   {
    "kind": "alternate_manufacturer",
@@ -571,15 +752,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Major Pharmaceuticals",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Proficient Rx LP",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -648,57 +820,73 @@
   }
  ],
  "explanation": {
-  "state": "confirmed",
-  "headline": "FDA's records trace our supply to a plant classified VAI 346 days before the shortage posting and a Warning Letter 1007 days before the posting",
+  "state": "check",
+  "headline": "The public record is incomplete; check the flagged links",
   "sentences": [
    {
-    "text": "FDA posted the leucovorin calcium shortage on 2012-01-01 and as of 2026-10-21 it has been on the list for 178 months.",
+    "text": "FDA's shortage database lists leucovorin calcium with a first posting date of 2012-01-01, which is the earliest date the database holds.",
     "cites": [
-     "D9"
+     "D8"
     ]
    },
    {
-    "text": "A Warning Letter was issued to Hikma Pharmaceuticals USA Inc. (FEI 1510690) on 2009-03-30, which was 1007 days before the shortage posting.",
+    "text": "The 50 mg/5 mL, 5 mL vial used at Corvale East, Corvale General, and Corvale Lakeside carries NDC 25021081310 and is labeled by Sagent Pharmaceuticals with manufacture by SAGENT PHARMS.",
     "cites": [
-     "D4",
-     "E13",
-     "E14"
+     "E3",
+     "E6",
+     "E7",
+     "E17"
     ]
    },
    {
-    "text": "An FDA inspection of the same plant ended 2011-01-20 and was classified VAI, 346 days before the shortage posting.",
+    "text": "The 350 mg/17.5 mL, 17.5 mL vial used at Corvale East and Corvale General carries NDC 00143955201 and is labeled by Hikma Pharmaceuticals USA Inc. with API manufacture by Cerbios-Pharma SA (FEI 3002808250) and drug product manufacture by West-Ward Columbus Inc. (FEI 1510690).",
     "cites": [
-     "D5",
-     "E10"
-    ]
-   },
-   {
-    "text": "Subsequent inspections of that plant in 2014, 2018, and 2026 were also classified VAI or NAI.",
-    "cites": [
-     "E11",
-     "E12",
+     "E2",
+     "E5",
+     "E9",
      "E15"
     ]
    },
    {
-    "text": "Another registered plant for this product, Cerbios-Pharma SA (FEI 3002808250), received a VAI classification on 2024-03-07.",
+    "text": "FDA inspected Cerbios-Pharma SA and classified it VAI on 2024-03-07, with the classification known to FDA by 2024-06-05.",
     "cites": [
      "E8",
      "E9"
     ]
    },
    {
-    "text": "The rule-based transfer option ranked 1 moves 8 units from Corvale Lakeside (24 days on hand) to Corvale East (7 days on hand), raising East to 8 days on hand.",
+    "text": "FDA inspected West-Ward Columbus Inc. most recently on 2026-04-30 and classified it NAI.",
+    "cites": [
+     "E15"
+    ]
+   },
+   {
+    "text": "Hikma Pharmaceuticals USA Inc. (FEI 1510690) received Warning Letters on 2009-03-30 and has a history of VAI inspections in 2011, 2014, and 2018.",
+    "cites": [
+     "E10",
+     "E11",
+     "E12",
+     "E13",
+     "E14"
+    ]
+   },
+   {
+    "text": "The highest-ranked transfer option is to move 8 vials of the 50 mg/5 mL, 5 mL presentation from Corvale Lakeside to Corvale East, which would raise Corvale East from 2.7 days to 5 days on hand while Corvale Lakeside retains about two weeks of supply.",
     "cites": [
      "D1",
      "D3",
-     "D6"
+     "D9"
     ]
    }
   ],
   "verifier": {
-   "checked": 7,
-   "rejected": [],
+   "checked": 8,
+   "rejected": [
+    {
+     "text": "FDA's shortage list shows leucovorin calcium posted 2012-01-01; supply for the 50 mg/5 mL vial traces to Sagent Pharmaceuticals (SAGENT PHARMS) and the 350 mg/17.5 mL vial traces to Hikma with API from Cerbios-Pharma SA (VAI 2024-03-07) and manufacture at West-Ward Columbus Inc. (NAI 2026-04-30)",
+     "reason": "headline: number 350 is not in the cited evidence"
+    }
+   ],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -706,45 +894,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -759,80 +968,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:56:37.450Z",
+   "at": "2026-10-22T12:13:28.356Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract P3A19Z4W scope"
+   "reason": "in contract 6S31QZME scope"
   },
   {
-   "at": "2026-10-22T07:56:37.450Z",
+   "at": "2026-10-22T12:13:28.356Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract P3A19Z4W scope"
+   "reason": "in contract 6S31QZME scope"
   },
   {
-   "at": "2026-10-22T07:56:41.839Z",
+   "at": "2026-10-22T12:13:34.278Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract P3A19Z4W scope"
+   "reason": "in contract 6S31QZME scope"
   },
   {
-   "at": "2026-10-22T07:56:43.071Z",
+   "at": "2026-10-22T12:13:34.923Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract P3A19Z4W scope"
+   "reason": "in contract 6S31QZME scope"
   },
   {
-   "at": "2026-10-22T07:56:43.812Z",
+   "at": "2026-10-22T12:13:35.249Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract P3A19Z4W scope"
+   "reason": "in contract 6S31QZME scope"
   },
   {
-   "at": "2026-10-22T07:56:46.981Z",
+   "at": "2026-10-22T12:13:36.620Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract P3A19Z4W scope"
+   "reason": "in contract 6S31QZME scope"
   },
   {
-   "at": "2026-10-22T07:56:48.578Z",
+   "at": "2026-10-22T12:13:37.473Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract P3A19Z4W scope"
+   "reason": "in contract 6S31QZME scope"
   },
   {
-   "at": "2026-10-22T07:56:51.402Z",
+   "at": "2026-10-22T12:13:38.463Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract P3A19Z4W scope"
+   "reason": "in contract 6S31QZME scope"
   },
   {
-   "at": "2026-10-22T07:56:53.283Z",
+   "at": "2026-10-22T12:13:39.967Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract P3A19Z4W scope"
+   "reason": "in contract 6S31QZME scope"
   },
   {
-   "at": "2026-10-22T07:56:53.286Z",
+   "at": "2026-10-22T12:13:39.969Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract P3A19Z4W scope"
+   "reason": "in contract 6S31QZME scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-6c2e49",
+   "queryId": "Q-aceef5",
    "row": 0,
    "label": "Corvale East: LEUCOVORIN CALCIUM 10MG TAB",
    "fields": {
@@ -843,19 +1052,24 @@
     "description": "LEUCOVORIN CALCIUM 10MG TAB",
     "on_hand": "53.00",
     "daily_use": "3.860",
-    "unit": "package",
+    "unit": "tablet",
+    "pkg_units": "12.00",
+    "unit_basis": "packages of 12, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Leucovorin Calcium",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0054-4497-05",
     "spl_set_id": "33663425-4731-4977-9127-9e59b6b91497",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "LEUCOVORIN CALCIUM 10 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-6c2e49",
+   "queryId": "Q-aceef5",
    "row": 1,
    "label": "Corvale East: LEUCOVORIN CALCIUM 350MG7.5ML 17.5ML SDV",
    "fields": {
@@ -866,19 +1080,24 @@
     "description": "LEUCOVORIN CALCIUM 350MG7.5ML 17.5ML SDV",
     "on_hand": "9.00",
     "daily_use": "3.106",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Leucovorin Calcium",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0143-9552-01",
     "spl_set_id": "cc52077f-5663-4f79-a273-0aecf655e038",
     "dosage_form": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "LEUCOVORIN CALCIUM 350 mg/17.5mL",
+    "unit_content": "17.5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-6c2e49",
+   "queryId": "Q-aceef5",
    "row": 2,
    "label": "Corvale East: LEUCOVORIN CALCIUM 50MG/5ML 5ML SDV",
    "fields": {
@@ -889,88 +1108,108 @@
     "description": "LEUCOVORIN CALCIUM 50MG/5ML 5ML SDV",
     "on_hand": "8.00",
     "daily_use": "3.008",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "leucovorin calcium",
     "labeler_name": "Sagent Pharmaceuticals",
     "package_ndc": "25021-813-10",
     "spl_set_id": "9d0e5356-ff39-4a8e-944c-e808a21ef4b2",
     "dosage_form": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "LEUCOVORIN CALCIUM 50 mg/5mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-6c2e49",
+   "queryId": "Q-aceef5",
    "row": 3,
-   "label": "Corvale General: Leucovorin Calcium",
+   "label": "Corvale General: Leucovorin Calcium 10 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-256",
     "ndc11": "00054449705",
     "ndc_as_recorded": "00054449705",
-    "description": "Leucovorin Calcium",
-    "on_hand": "74.96",
+    "description": "Leucovorin Calcium 10 mg/1",
+    "on_hand": "74.00",
     "daily_use": "2.707",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Leucovorin Calcium",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0054-4497-05",
     "spl_set_id": "33663425-4731-4977-9127-9e59b6b91497",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "LEUCOVORIN CALCIUM 10 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E5": {
    "id": "E5",
-   "queryId": "Q-6c2e49",
+   "queryId": "Q-aceef5",
    "row": 4,
-   "label": "Corvale General: Leucovorin Calcium",
+   "label": "Corvale General: Leucovorin Calcium 350 mg/17.5mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-71",
     "ndc11": "00143955201",
     "ndc_as_recorded": "00143955201",
-    "description": "Leucovorin Calcium",
-    "on_hand": "51.56",
+    "description": "Leucovorin Calcium 350 mg/17.5mL",
+    "on_hand": "51.00",
     "daily_use": "2.763",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Leucovorin Calcium",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0143-9552-01",
     "spl_set_id": "cc52077f-5663-4f79-a273-0aecf655e038",
     "dosage_form": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "LEUCOVORIN CALCIUM 350 mg/17.5mL",
+    "unit_content": "17.5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E6": {
    "id": "E6",
-   "queryId": "Q-6c2e49",
+   "queryId": "Q-aceef5",
    "row": 5,
-   "label": "Corvale General: leucovorin calcium",
+   "label": "Corvale General: leucovorin calcium 50 mg/5mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-72",
     "ndc11": "25021081310",
     "ndc_as_recorded": "25021081310",
-    "description": "leucovorin calcium",
-    "on_hand": "66.35",
+    "description": "leucovorin calcium 50 mg/5mL",
+    "on_hand": "66.00",
     "daily_use": "2.840",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "leucovorin calcium",
     "labeler_name": "Sagent Pharmaceuticals",
     "package_ndc": "25021-813-10",
     "spl_set_id": "9d0e5356-ff39-4a8e-944c-e808a21ef4b2",
     "dosage_form": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "LEUCOVORIN CALCIUM 50 mg/5mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E7": {
    "id": "E7",
-   "queryId": "Q-6c2e49",
+   "queryId": "Q-aceef5",
    "row": 6,
    "label": "Corvale Lakeside: leucovorin calcium 50 mg/5mL 5 mL vial",
    "fields": {
@@ -982,13 +1221,18 @@
     "on_hand": "19.00",
     "daily_use": "0.777",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "leucovorin calcium",
     "labeler_name": "Sagent Pharmaceuticals",
     "package_ndc": "25021-813-10",
     "spl_set_id": "9d0e5356-ff39-4a8e-944c-e808a21ef4b2",
     "dosage_form": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "LEUCOVORIN CALCIUM 50 mg/5mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E8": {
@@ -1149,7 +1393,7 @@
   },
   "E18": {
    "id": "E18",
-   "queryId": "Q-c0219e",
+   "queryId": "Q-82569e",
    "row": 0,
    "label": "Recall D-1490-2020",
    "fields": {
@@ -1205,260 +1449,311 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 70 units of leucovorin calcium at 10 a day: 7 days on hand",
+   "label": "Corvale East holds 8 vials of leucovorin calcium 50 mg/5 mL, 5 mL at 3 a day: 2.7 days on hand",
    "fields": {
     "hospital": "Corvale East",
-    "on_hand": 70,
-    "daily_use": 10,
-    "days_on_hand": 7
+    "presentation": "50 mg/5 mL injection, 5 mL vial",
+    "on_hand": 8,
+    "daily_use": 3,
+    "days_on_hand": 2.7
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 193 units of leucovorin calcium at 8.3 a day: 23 days on hand",
+   "label": "Corvale General holds 66 vials of leucovorin calcium 50 mg/5 mL, 5 mL at 2.8 a day: 23.2 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 193,
-    "daily_use": 8.3,
-    "days_on_hand": 23
+    "presentation": "50 mg/5 mL injection, 5 mL vial",
+    "on_hand": 66,
+    "daily_use": 2.8,
+    "days_on_hand": 23.2
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 19 units of leucovorin calcium at 0.8 a day: 24 days on hand",
+   "label": "Corvale Lakeside holds 19 vials of leucovorin calcium 50 mg/5 mL, 5 mL at 0.8 a day: 24.5 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
+    "presentation": "50 mg/5 mL injection, 5 mL vial",
     "on_hand": 19,
     "daily_use": 0.8,
-    "days_on_hand": 24
+    "days_on_hand": 24.5
    }
   },
   "D4": {
    "id": "D4",
    "queryId": "derived",
    "row": -1,
-   "label": "Warning Letter issued 2009-03-30 (case 53122) — 1007 days before FDA posted the shortage on 2012-01-01",
+   "label": "Corvale East holds 9 vials of leucovorin calcium 350 mg/17.5 mL, 17.5 mL at 3.1 a day: 2.9 days on hand",
    "fields": {
-    "date": "2009-03-30",
-    "posted": "2012-01-01",
-    "days": 1007
+    "hospital": "Corvale East",
+    "presentation": "350 mg/17.5 mL injection, 17.5 mL vial",
+    "on_hand": 9,
+    "daily_use": 3.1,
+    "days_on_hand": 2.9
    }
   },
   "D5": {
    "id": "D5",
    "queryId": "derived",
    "row": -1,
-   "label": "FDA inspection 709567 ended 2011-01-20, classified VAI — 346 days before FDA posted the shortage on 2012-01-01",
+   "label": "Corvale General holds 51 vials of leucovorin calcium 350 mg/17.5 mL, 17.5 mL at 2.8 a day: 18.5 days on hand",
    "fields": {
-    "date": "2011-01-20",
-    "posted": "2012-01-01",
-    "days": 346
+    "hospital": "Corvale General",
+    "presentation": "350 mg/17.5 mL injection, 17.5 mL vial",
+    "on_hand": 51,
+    "daily_use": 2.8,
+    "days_on_hand": 18.5
    }
   },
   "D6": {
    "id": "D6",
    "queryId": "derived",
    "row": -1,
-   "label": "Option ranked 1 by rule: Transfer 8 from Corvale Lakeside to Corvale East. Corvale Lakeside has 24 days on hand and can spare 8 while keeping two weeks; Corvale East has 7 days and would reach 8.",
+   "label": "Corvale East holds 53 tablets of leucovorin calcium 10 mg at 3.9 a day: 13.7 days on hand",
    "fields": {
-    "kind": "transfer",
-    "needs": "pharmacy director (transfer request)"
+    "hospital": "Corvale East",
+    "presentation": "10 mg tablet",
+    "on_hand": 53,
+    "daily_use": 3.9,
+    "days_on_hand": 13.7
    }
   },
   "D7": {
    "id": "D7",
    "queryId": "derived",
    "row": -1,
-   "label": "Option ranked 1 by rule: Transfer 70 from Corvale General to Corvale East. Corvale General has 23 days on hand and can spare 70 while keeping two weeks; Corvale East has 7 days and would reach 14.",
+   "label": "Corvale General holds 74 tablets of leucovorin calcium 10 mg at 2.7 a day: 27.3 days on hand",
    "fields": {
-    "kind": "transfer",
-    "needs": "pharmacy director (transfer request)"
+    "hospital": "Corvale General",
+    "presentation": "10 mg tablet",
+    "on_hand": 74,
+    "daily_use": 2.7,
+    "days_on_hand": 27.3
    }
   },
   "D8": {
    "id": "D8",
    "queryId": "derived",
    "row": -1,
-   "label": "Option ranked 3 by rule: Buy from American Health Packaging. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "label": "FDA's shortage list gives 2012-01-01 as the first posting, the earliest date its database holds: the shortage began on or before then, so no gap is measured from it",
    "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
+    "posted": "2012-01-01",
+    "note": "database start date"
    }
   },
   "D9": {
    "id": "D9",
    "queryId": "derived",
    "row": -1,
-   "label": "As of 2026-10-21 the shortage has been on FDA's list for 178 months",
+   "label": "Option ranked 1 by rule: Transfer 8 vials of 50 mg/5 mL, 5 mL from Corvale Lakeside to Corvale East. Corvale Lakeside has 24 days of 50 mg/5 mL injection, 5 mL vials on hand and can spare 8 vials while keeping two weeks; Corvale East has 2.7 days and would reach 5.",
    "fields": {
-    "as_of": "2026-10-21",
-    "posted": "2012-01-01",
-    "months": 178
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D10": {
+   "id": "D10",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 26 vials of 50 mg/5 mL, 5 mL from Corvale General to Corvale East. Corvale General has 23 days of 50 mg/5 mL injection, 5 mL vials on hand and can spare 26 vials while keeping two weeks; Corvale East has 2.7 days and would reach 11.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D11": {
+   "id": "D11",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 12 vials of 350 mg/17.5 mL, 17.5 mL from Corvale General to Corvale East. Corvale General has 18 days of 350 mg/17.5 mL injection, 17.5 mL vials on hand and can spare 12 vials while keeping two weeks; Corvale East has 2.9 days and would reach 7.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
    }
   }
  },
  "queries": {
-  "Q-6c2e49": {
-   "id": "Q-6c2e49",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%leucovorin%' OR lower(s.description) LIKE '%leucovorin%' ORDER BY s.hospital, s.item_key",
-   "ms": 4383,
+  "Q-aceef5": {
+   "id": "Q-aceef5",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*leucovorin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*leucovorin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 5917,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:56:41.833Z",
+   "ranAt": "2026-10-22T12:13:34.273Z",
    "rows": 7
   },
   "Q-409d33": {
    "id": "Q-409d33",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('33663425-4731-4977-9127-9e59b6b91497', 'cc52077f-5663-4f79-a273-0aecf655e038', '9d0e5356-ff39-4a8e-944c-e808a21ef4b2') ORDER BY ps.set_id, ps.establishment",
-   "ms": 1228,
+   "ms": 644,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:56:43.067Z",
+   "ranAt": "2026-10-22T12:13:34.922Z",
    "rows": 4
   },
-  "Q-fa78bc": {
-   "id": "Q-fa78bc",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%leucovorin%' ORDER BY status, company_name, package_ndc",
-   "ms": 292,
+  "Q-83b16d": {
+   "id": "Q-83b16d",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*leucovorin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 152,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:56:43.364Z",
+   "ranAt": "2026-10-22T12:13:35.075Z",
    "rows": 0
   },
-  "Q-7f6560": {
-   "id": "Q-7f6560",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%leucovorin%' ORDER BY first_posting",
-   "ms": 441,
+  "Q-d06e8c": {
+   "id": "Q-d06e8c",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*leucovorin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 171,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:56:43.809Z",
-   "rows": 5
+   "ranAt": "2026-10-22T12:13:35.248Z",
+   "rows": 3
   },
-  "Q-53094a": {
-   "id": "Q-53094a",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%leucovorin%' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 3165,
+  "Q-abe10d": {
+   "id": "Q-abe10d",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*leucovorin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1370,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:56:46.977Z",
+   "ranAt": "2026-10-22T12:13:36.619Z",
    "rows": 43
   },
   "Q-bf8df3": {
    "id": "Q-bf8df3",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3002808250', '1510690') ORDER BY fei, end_date",
-   "ms": 513,
+   "ms": 311,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:56:47.494Z",
+   "ranAt": "2026-10-22T12:13:36.932Z",
    "rows": 31
   },
   "Q-4c3a3c": {
    "id": "Q-4c3a3c",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3002808250', '1510690') ORDER BY fei, action_date",
-   "ms": 296,
+   "ms": 146,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:56:47.793Z",
+   "ranAt": "2026-10-22T12:13:37.078Z",
    "rows": 2
   },
   "Q-05433a": {
    "id": "Q-05433a",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3002808250', '1510690') OR (fei_match <> 'name_and_city' AND firm_key IN ('cerbios', 'west ward columbus', 'sagent pharms', 'hikma farmaceutica')) ORDER BY date_published",
-   "ms": 197,
+   "ms": 150,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:56:47.993Z",
+   "ranAt": "2026-10-22T12:13:37.230Z",
    "rows": 0
   },
-  "Q-c0219e": {
-   "id": "Q-c0219e",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('cerbios', 'west ward columbus', 'sagent pharms', 'hikma farmaceutica', 'hikma', 'sagent') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%leucovorin%' ORDER BY initiation_date",
-   "ms": 572,
+  "Q-82569e": {
+   "id": "Q-82569e",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('cerbios', 'west ward columbus', 'sagent pharms', 'hikma farmaceutica', 'hikma', 'sagent') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*leucovorin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 240,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:56:48.569Z",
+   "ranAt": "2026-10-22T12:13:37.471Z",
    "rows": 1
   },
   "Q-0b3718": {
    "id": "Q-0b3718",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('00054449705', '00143955201', '25021081310')",
-   "ms": 2821,
+   "ms": 987,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:56:51.399Z",
+   "ranAt": "2026-10-22T12:13:38.460Z",
    "rows": 2
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-4c7139": {
-   "id": "Q-4c7139",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%leucovorin%'",
-   "ms": 1878,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:56:53.280Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-99a178": {
+   "id": "Q-99a178",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*leucovorin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1502,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:13:39.965Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 21157,
+  "zetarisMs": 21798,
   "modelCalls": 1,
-  "tokensIn": 2808,
-  "tokensOut": 469,
+  "tokensIn": 4205,
+  "tokensOut": 595,
   "mode": "live"
  },
  "slug": "leucovorin",
@@ -1477,7 +1772,7 @@
     "id": "hospital-item:hospital-item:CG-256",
     "type": "HospitalItem",
     "key": "hospital-item:CG-256",
-    "label": "Corvale General: Leucovorin Calcium",
+    "label": "Corvale General: Leucovorin Calcium 10 mg/1",
     "attrs": {
      "key": "hospital-item:CG-256"
     },
@@ -1488,7 +1783,7 @@
     "id": "hospital-item:hospital-item:CG-71",
     "type": "HospitalItem",
     "key": "hospital-item:CG-71",
-    "label": "Corvale General: Leucovorin Calcium",
+    "label": "Corvale General: Leucovorin Calcium 350 mg/17.5mL",
     "attrs": {
      "key": "hospital-item:CG-71"
     },
@@ -1499,7 +1794,7 @@
     "id": "hospital-item:hospital-item:CG-72",
     "type": "HospitalItem",
     "key": "hospital-item:CG-72",
-    "label": "Corvale General: leucovorin calcium",
+    "label": "Corvale General: leucovorin calcium 50 mg/5mL",
     "attrs": {
      "key": "hospital-item:CG-72"
     },
@@ -1693,7 +1988,7 @@
     },
     "facts": [
      {
-      "id": "fact_3b0684ed470fd634",
+      "id": "fact_2e8951f427f656a6",
       "about": "inspection:fda-inspection:1049821",
       "predicate": "classification",
       "value": "VAI",
@@ -1701,9 +1996,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:56:48.577Z"
+       "at": "2026-10-22T12:13:37.473Z"
       },
-      "assertedAt": "2026-10-22T07:56:48.577Z"
+      "assertedAt": "2026-10-22T12:13:37.473Z"
      }
     ],
     "depth": 4
@@ -1719,7 +2014,7 @@
     },
     "facts": [
      {
-      "id": "fact_505c0eb91319f11c",
+      "id": "fact_b13811d87f20a2b8",
       "about": "inspection:fda-inspection:1282964",
       "predicate": "classification",
       "value": "VAI",
@@ -1727,9 +2022,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:56:48.573Z"
+       "at": "2026-10-22T12:13:37.472Z"
       },
-      "assertedAt": "2026-10-22T07:56:48.573Z"
+      "assertedAt": "2026-10-22T12:13:37.472Z"
      }
     ],
     "depth": 4
@@ -1745,7 +2040,7 @@
     },
     "facts": [
      {
-      "id": "fact_fc1d7fe12dad32cb",
+      "id": "fact_62aacac751ab84e9",
       "about": "inspection:fda-inspection:709567",
       "predicate": "classification",
       "value": "VAI",
@@ -1753,9 +2048,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:56:48.575Z"
+       "at": "2026-10-22T12:13:37.472Z"
       },
-      "assertedAt": "2026-10-22T07:56:48.575Z"
+      "assertedAt": "2026-10-22T12:13:37.472Z"
      }
     ],
     "depth": 4
@@ -1771,7 +2066,7 @@
     },
     "facts": [
      {
-      "id": "fact_bb5ee1e3b78384ff",
+      "id": "fact_22f27ed7c897afbf",
       "about": "inspection:fda-inspection:885328",
       "predicate": "classification",
       "value": "VAI",
@@ -1779,9 +2074,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:56:48.576Z"
+       "at": "2026-10-22T12:13:37.473Z"
       },
-      "assertedAt": "2026-10-22T07:56:48.576Z"
+      "assertedAt": "2026-10-22T12:13:37.473Z"
      }
     ],
     "depth": 4
@@ -1815,11 +2110,11 @@
     "from": "hospital-item:hospital-item:CG-256",
     "to": "package:ndc-package:0054-4497-05",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:56:41.838Z",
+    "validFrom": "2026-10-22T12:13:34.277Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:41.838Z"
+     "at": "2026-10-22T12:13:34.277Z"
     }
    },
    {
@@ -1827,11 +2122,11 @@
     "from": "hospital-item:hospital-item:CG-71",
     "to": "package:ndc-package:0143-9552-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:56:41.838Z",
+    "validFrom": "2026-10-22T12:13:34.277Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:41.838Z"
+     "at": "2026-10-22T12:13:34.277Z"
     }
    },
    {
@@ -1839,11 +2134,11 @@
     "from": "hospital-item:hospital-item:CG-72",
     "to": "package:ndc-package:25021-813-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:56:41.839Z",
+    "validFrom": "2026-10-22T12:13:34.277Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:41.839Z"
+     "at": "2026-10-22T12:13:34.277Z"
     }
    },
    {
@@ -1851,11 +2146,11 @@
     "from": "hospital-item:hospital-item:EA-E-000009",
     "to": "package:ndc-package:0054-4497-05",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:56:41.837Z",
+    "validFrom": "2026-10-22T12:13:34.276Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:41.837Z"
+     "at": "2026-10-22T12:13:34.276Z"
     }
    },
    {
@@ -1863,11 +2158,11 @@
     "from": "hospital-item:hospital-item:EA-E-000038",
     "to": "package:ndc-package:0143-9552-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:56:41.837Z",
+    "validFrom": "2026-10-22T12:13:34.276Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:41.837Z"
+     "at": "2026-10-22T12:13:34.276Z"
     }
    },
    {
@@ -1875,11 +2170,11 @@
     "from": "hospital-item:hospital-item:EA-E-000148",
     "to": "package:ndc-package:25021-813-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:56:41.838Z",
+    "validFrom": "2026-10-22T12:13:34.276Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:41.838Z"
+     "at": "2026-10-22T12:13:34.276Z"
     }
    },
    {
@@ -1887,11 +2182,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0063",
     "to": "package:ndc-package:25021-813-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:56:41.839Z",
+    "validFrom": "2026-10-22T12:13:34.277Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:41.839Z"
+     "at": "2026-10-22T12:13:34.277Z"
     }
    },
    {
@@ -1899,11 +2194,11 @@
     "from": "package:ndc-package:0054-4497-05",
     "to": "product:ndc-product:0054-4497",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:56:41.837Z",
+    "validFrom": "2026-10-22T12:13:34.276Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:41.837Z"
+     "at": "2026-10-22T12:13:34.276Z"
     }
    },
    {
@@ -1911,11 +2206,11 @@
     "from": "package:ndc-package:0143-9552-01",
     "to": "product:ndc-product:0143-9552",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:56:41.837Z",
+    "validFrom": "2026-10-22T12:13:34.276Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:41.837Z"
+     "at": "2026-10-22T12:13:34.276Z"
     }
    },
    {
@@ -1923,11 +2218,11 @@
     "from": "package:ndc-package:25021-813-10",
     "to": "product:ndc-product:25021-813",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:56:41.838Z",
+    "validFrom": "2026-10-22T12:13:34.276Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:41.838Z"
+     "at": "2026-10-22T12:13:34.276Z"
     }
    },
    {
@@ -1935,11 +2230,11 @@
     "from": "product:ndc-product:0054-4497",
     "to": "drug:generic:leucovorin calcium",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:56:41.837Z",
+    "validFrom": "2026-10-22T12:13:34.276Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:41.837Z"
+     "at": "2026-10-22T12:13:34.276Z"
     }
    },
    {
@@ -1947,11 +2242,11 @@
     "from": "product:ndc-product:0054-4497",
     "to": "labeler:ndc-labeler:0054",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:56:41.837Z",
+    "validFrom": "2026-10-22T12:13:34.276Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:41.837Z"
+     "at": "2026-10-22T12:13:34.276Z"
     }
    },
    {
@@ -1959,11 +2254,11 @@
     "from": "product:ndc-product:0054-4497",
     "to": "site:fei:3002808250",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:56:48.573Z",
+    "validFrom": "2026-10-22T12:13:37.472Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:48.573Z"
+     "at": "2026-10-22T12:13:37.472Z"
     }
    },
    {
@@ -1971,11 +2266,11 @@
     "from": "product:ndc-product:0054-4497",
     "to": "site:fei:1510690",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:56:48.574Z",
+    "validFrom": "2026-10-22T12:13:37.472Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:48.574Z"
+     "at": "2026-10-22T12:13:37.472Z"
     }
    },
    {
@@ -1983,11 +2278,11 @@
     "from": "product:ndc-product:0143-9552",
     "to": "drug:generic:leucovorin calcium",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:56:41.837Z",
+    "validFrom": "2026-10-22T12:13:34.276Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:41.837Z"
+     "at": "2026-10-22T12:13:34.276Z"
     }
    },
    {
@@ -1995,11 +2290,11 @@
     "from": "product:ndc-product:0143-9552",
     "to": "labeler:ndc-labeler:0143",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:56:41.837Z",
+    "validFrom": "2026-10-22T12:13:34.276Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:41.837Z"
+     "at": "2026-10-22T12:13:34.276Z"
     }
    },
    {
@@ -2007,11 +2302,11 @@
     "from": "product:ndc-product:25021-813",
     "to": "drug:generic:leucovorin calcium",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:56:41.838Z",
+    "validFrom": "2026-10-22T12:13:34.277Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:41.838Z"
+     "at": "2026-10-22T12:13:34.277Z"
     }
    },
    {
@@ -2019,11 +2314,11 @@
     "from": "product:ndc-product:25021-813",
     "to": "labeler:ndc-labeler:25021",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:56:41.838Z",
+    "validFrom": "2026-10-22T12:13:34.277Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:41.838Z"
+     "at": "2026-10-22T12:13:34.277Z"
     }
    },
    {
@@ -2031,11 +2326,11 @@
     "from": "inspection:fda-inspection:1282964",
     "to": "site:fei:3002808250",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:56:48.573Z",
+    "validFrom": "2026-10-22T12:13:37.472Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:48.573Z"
+     "at": "2026-10-22T12:13:37.472Z"
     }
    },
    {
@@ -2043,11 +2338,11 @@
     "from": "inspection:fda-inspection:709567",
     "to": "site:fei:1510690",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:56:48.575Z",
+    "validFrom": "2026-10-22T12:13:37.472Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:48.575Z"
+     "at": "2026-10-22T12:13:37.472Z"
     }
    },
    {
@@ -2055,11 +2350,11 @@
     "from": "inspection:fda-inspection:885328",
     "to": "site:fei:1510690",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:56:48.576Z",
+    "validFrom": "2026-10-22T12:13:37.472Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:48.576Z"
+     "at": "2026-10-22T12:13:37.472Z"
     }
    },
    {
@@ -2067,11 +2362,11 @@
     "from": "inspection:fda-inspection:1049821",
     "to": "site:fei:1510690",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:56:48.577Z",
+    "validFrom": "2026-10-22T12:13:37.473Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:48.577Z"
+     "at": "2026-10-22T12:13:37.473Z"
     }
    },
    {
@@ -2079,11 +2374,11 @@
     "from": "warning-letter:fda-warning-letter:53122",
     "to": "site:fei:1510690",
     "type": "issued-to",
-    "validFrom": "2026-10-22T07:56:48.575Z",
+    "validFrom": "2026-10-22T12:13:37.472Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:48.575Z"
+     "at": "2026-10-22T12:13:37.472Z"
     }
    },
    {
@@ -2091,11 +2386,11 @@
     "from": "warning-letter:fda-warning-letter:61545",
     "to": "site:fei:1510690",
     "type": "issued-to",
-    "validFrom": "2026-10-22T07:56:48.575Z",
+    "validFrom": "2026-10-22T12:13:37.472Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:56:48.575Z"
+     "at": "2026-10-22T12:13:37.472Z"
     }
    }
   ],

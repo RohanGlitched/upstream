@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-65511a",
+ "id": "case-2026-10-22-3f10d6",
  "question": "Why is methylprednisolone short, and what do we do?",
- "askedAt": "2026-10-22T08:01:13.637Z",
+ "askedAt": "2026-10-22T12:20:58.243Z",
  "asOf": "2026-10-21",
  "molecule": "methylprednisolone acetate",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5HA115VMAMV9XEFVCGRXMXQ",
+  "contractId": "01M5HRX2538EPJFSDTVVXGVFNK",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-1e26d5"
+    "Q-d2ce92"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 9952,
+   "ms": 4177,
    "rows": 9,
-   "finding": "9 stock lines across 3 hospitals.",
+   "finding": "9 stock lines across 3 hospitals, 4 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-91dde4"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2107,
+   "ms": 621,
    "rows": 3,
    "finding": "3 plant links on 4 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-2e3278",
-    "Q-8eaa41"
+    "Q-a8440e",
+    "Q-d27e5c"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 1146,
+   "ms": 310,
    "rows": 28,
    "finding": "On FDA's list as Current for 5 companies.",
    "status": "ok"
@@ -63,14 +68,16 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-09c871"
+    "Q-96f8e4"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 4514,
-   "rows": 108,
-   "finding": "20 labelers make it in this form.",
+   "ms": 1466,
+   "rows": 107,
+   "finding": "19 labelers make it in this form.",
    "status": "ok"
   },
   {
@@ -81,15 +88,15 @@
     "Q-baf492",
     "Q-94d03c",
     "Q-5b3cb1",
-    "Q-dddbca"
+    "Q-c9bde8"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 2065,
+   "ms": 856,
    "rows": 21,
    "finding": "19 inspections (0 OAI at our plants), 1 compliance actions, 0 import-alert listings, 1 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 2574,
+   "ms": 1105,
    "rows": 2,
    "finding": "2 approved interchanges on file.",
    "status": "ok"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-c45afb"
+    "Q-3f66b6"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1877,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1797,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 3,
+   "ms": 1,
    "rows": 2,
    "finding": "2 past decisions recalled.",
    "status": "ok"
@@ -153,8 +164,11 @@
    "onHand": 16,
    "dailyUse": 5.997,
    "days": 2.7,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "methylprednisolone acetate|20mg/ml|injection|5ml|vial",
+   "presentationLabel": "20 mg/mL injection, 5 mL vial",
    "evidence": "E1"
   },
   {
@@ -166,8 +180,11 @@
    "onHand": 99,
    "dailyUse": 7.289,
    "days": 13.6,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "methylprednisolone sodium succinate|500mg/ml|injection|8ml|vial",
+   "presentationLabel": "500 mg/mL injection, 8 mL vial",
    "evidence": "E2"
   },
   {
@@ -179,8 +196,11 @@
    "onHand": 78,
    "dailyUse": 6.336,
    "days": 12.3,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "methylprednisolone acetate|40mg/ml|injection|5ml|vial",
+   "presentationLabel": "40 mg/mL injection, 5 mL vial",
    "evidence": "E3"
   },
   {
@@ -192,47 +212,59 @@
    "onHand": 87,
    "dailyUse": 5.615,
    "days": 15.5,
-   "unit": "package",
+   "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 100, converted to units",
+   "presentation": "methylprednisolone|4mg|tablet||tablet",
+   "presentationLabel": "4 mg tablet",
    "evidence": "E4"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-271",
    "ndc11": "62135076001",
-   "description": "Methylprednisolone",
+   "description": "Methylprednisolone 4 mg/1",
    "labeler": "Chartwell RX, LLC",
-   "onHand": 214.24,
+   "onHand": 214,
    "dailyUse": 7.315,
    "days": 29.3,
    "unit": "tablet",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "methylprednisolone|4mg|tablet||tablet",
+   "presentationLabel": "4 mg tablet",
    "evidence": "E5"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-85",
    "ndc11": "00009027401",
-   "description": "methylprednisolone acetate",
+   "description": "methylprednisolone acetate 20 mg/mL",
    "labeler": "Pharmacia & Upjohn Company LLC",
-   "onHand": 158.3,
+   "onHand": 158,
    "dailyUse": 6.924,
-   "days": 22.9,
+   "days": 22.8,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "methylprednisolone acetate|20mg/ml|injection|5ml|vial",
+   "presentationLabel": "20 mg/mL injection, 5 mL vial",
    "evidence": "E6"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-86",
    "ndc11": "25021082005",
-   "description": "methylprednisolone acetate",
+   "description": "methylprednisolone acetate 40 mg/mL",
    "labeler": "Sagent Pharmaceuticals",
-   "onHand": 101.86,
+   "onHand": 101,
    "dailyUse": 6.842,
-   "days": 14.9,
+   "days": 14.8,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "methylprednisolone acetate|40mg/ml|injection|5ml|vial",
+   "presentationLabel": "40 mg/mL injection, 5 mL vial",
    "evidence": "E7"
   },
   {
@@ -246,6 +278,9 @@
    "days": 5.9,
    "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "methylprednisolone acetate|40mg/ml|injection|5ml|vial",
+   "presentationLabel": "40 mg/mL injection, 5 mL vial",
    "evidence": "E8"
   },
   {
@@ -259,7 +294,164 @@
    "days": 8,
    "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "methylprednisolone|4mg|tablet||tablet",
+   "presentationLabel": "4 mg tablet",
    "evidence": "E9"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "methylprednisolone acetate|20mg/ml|injection|5ml|vial",
+   "label": "20 mg/mL injection, 5 mL vial",
+   "short": "20 mg/mL, 5 mL",
+   "unit": "vial",
+   "onHand": 174,
+   "dailyUse": 12.921,
+   "days": 13.5,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 16,
+     "dailyUse": 5.997,
+     "days": 2.7,
+     "lines": [
+      "EA-E-000005"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 158,
+     "dailyUse": 6.924,
+     "days": 22.8,
+     "lines": [
+      "CG-85"
+     ],
+     "evidence": [
+      "E6"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "methylprednisolone acetate|40mg/ml|injection|5ml|vial",
+   "label": "40 mg/mL injection, 5 mL vial",
+   "short": "40 mg/mL, 5 mL",
+   "unit": "vial",
+   "onHand": 190,
+   "dailyUse": 15.028,
+   "days": 12.6,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 78,
+     "dailyUse": 6.336,
+     "days": 12.3,
+     "lines": [
+      "EA-E-000149"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 101,
+     "dailyUse": 6.842,
+     "days": 14.8,
+     "lines": [
+      "CG-86"
+     ],
+     "evidence": [
+      "E7"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 11,
+     "dailyUse": 1.85,
+     "days": 5.9,
+     "lines": [
+      "LS-LS-0064"
+     ],
+     "evidence": [
+      "E8"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "methylprednisolone|4mg|tablet||tablet",
+   "label": "4 mg tablet",
+   "short": "4 mg",
+   "unit": "tablet",
+   "onHand": 316,
+   "dailyUse": 14.807,
+   "days": 21.3,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 87,
+     "dailyUse": 5.615,
+     "days": 15.5,
+     "lines": [
+      "EA-E-000204"
+     ],
+     "evidence": [
+      "E4"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 214,
+     "dailyUse": 7.315,
+     "days": 29.3,
+     "lines": [
+      "CG-271"
+     ],
+     "evidence": [
+      "E5"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 15,
+     "dailyUse": 1.877,
+     "days": 8,
+     "lines": [
+      "LS-LS-0094"
+     ],
+     "evidence": [
+      "E9"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "methylprednisolone sodium succinate|500mg/ml|injection|8ml|vial",
+   "label": "500 mg/mL injection, 8 mL vial",
+   "short": "500 mg/mL, 8 mL",
+   "unit": "vial",
+   "onHand": 99,
+   "dailyUse": 7.289,
+   "days": 13.6,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 99,
+     "dailyUse": 7.289,
+     "days": 13.6,
+     "lines": [
+      "EA-E-000006"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -589,14 +781,6 @@
    "inOurStock": false
   },
   {
-   "labeler": "HF Acquisition Co LLC, DBA HealthFirst",
-   "ndc11": "51662148301",
-   "dosageForm": "INJECTION, POWDER, FOR SOLUTION",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
    "labeler": "Henry Schein, Inc.",
    "ndc11": "00404995702",
    "dosageForm": "INJECTION, POWDER, FOR SOLUTION",
@@ -696,49 +880,99 @@
   {
    "kind": "transfer",
    "rank": 1,
-   "title": "Transfer 27 from Corvale General to Corvale Lakeside",
-   "detail": "Corvale General has 23 days on hand and can spare 27 while keeping two weeks; Corvale Lakeside has 7 days and would reach 14.",
-   "why": "Same product, no clinical change, no new supplier.",
+   "title": "Transfer 61 vials of 20 mg/mL, 5 mL from Corvale General to Corvale East",
+   "detail": "Corvale General has 23 days of 20 mg/mL injection, 5 mL vials on hand and can spare 61 vials while keeping two weeks; Corvale East has 2.7 days and would reach 13.",
+   "why": "Same presentation, no clinical change, no new supplier.",
+   "needs": "pharmacy director (transfer request)",
+   "evidence": [
+    "E6",
+    "E1"
+   ],
+   "transfer": {
+    "qty": 61,
+    "unit": "vial",
+    "presentation": "20 mg/mL injection, 5 mL vial",
+    "from": "Corvale General",
+    "to": "Corvale East",
+    "fromDays": 22.8,
+    "toDays": 2.7,
+    "fromAfter": 14,
+    "toAfter": 13
+   }
+  },
+  {
+   "kind": "transfer",
+   "rank": 1,
+   "title": "Transfer 5 vials of 40 mg/mL, 5 mL from Corvale General to Corvale Lakeside",
+   "detail": "Corvale General has 15 days of 40 mg/mL injection, 5 mL vials on hand and can spare 5 vials while keeping two weeks; Corvale Lakeside has 5.9 days and would reach 9.",
+   "why": "Same presentation, no clinical change, no new supplier.",
+   "needs": "pharmacy director (transfer request)",
+   "evidence": [
+    "E7",
+    "E8"
+   ],
+   "transfer": {
+    "qty": 5,
+    "unit": "vial",
+    "presentation": "40 mg/mL injection, 5 mL vial",
+    "from": "Corvale General",
+    "to": "Corvale Lakeside",
+    "fromDays": 14.8,
+    "toDays": 5.9,
+    "fromAfter": 14,
+    "toAfter": 9
+   }
+  },
+  {
+   "kind": "transfer",
+   "rank": 1,
+   "title": "Transfer 12 tablets of 4 mg from Corvale General to Corvale Lakeside",
+   "detail": "Corvale General has 29 days of 4 mg tablets on hand and can spare 12 tablets while keeping two weeks; Corvale Lakeside has 8 days and would reach 14.",
+   "why": "Same presentation, no clinical change, no new supplier.",
    "needs": "pharmacy director (transfer request)",
    "evidence": [
     "E5",
-    "E6",
-    "E7",
-    "E8",
     "E9"
-   ]
+   ],
+   "transfer": {
+    "qty": 12,
+    "unit": "tablet",
+    "presentation": "4 mg tablet",
+    "from": "Corvale General",
+    "to": "Corvale Lakeside",
+    "fromDays": 29.3,
+    "toDays": 8,
+    "fromAfter": 28,
+    "toAfter": 14
+   }
   },
   {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from A-S Medication Solutions",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Asclemed USA, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
+   "kind": "transfer",
+   "rank": 1,
+   "title": "Transfer 8 tablets of 4 mg from Corvale East to Corvale Lakeside",
+   "detail": "Corvale East has 15 days of 4 mg tablets on hand and can spare 8 tablets while keeping two weeks; Corvale Lakeside has 8 days and would reach 12.",
+   "why": "Same presentation, no clinical change, no new supplier.",
+   "needs": "pharmacy director (transfer request)",
+   "evidence": [
+    "E4",
+    "E9"
+   ],
+   "transfer": {
+    "qty": 8,
+    "unit": "tablet",
+    "presentation": "4 mg tablet",
+    "from": "Corvale East",
+    "to": "Corvale Lakeside",
+    "fromDays": 15.5,
+    "toDays": 8,
+    "fromAfter": 14,
+    "toAfter": 12
+   }
   },
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Caplin Steriles Limited",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Cardinal Health 107, LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -774,24 +1008,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from HF Acquisition Co LLC, DBA HealthFirst",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Henry Schein, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Hikma Pharmaceuticals USA Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -819,15 +1035,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from REMEDYREPACK INC.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Sportpharm LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -845,9 +1052,9 @@
   },
   {
    "kind": "alternate_concentration",
-   "rank": 3,
+   "rank": 5,
    "title": "Same molecule, alternate concentration or vial size: methylPREDNISolone acetate 20 mg/mL from Pharmacia & Upjohn Company LLC",
-   "detail": "Recalculate dose and volume; pharmacist verification required. Approved by Jordan Hale, PharmD on 2026-02-11.",
+   "detail": "Recalculate dose and volume; pharmacist verification required. Approved by Jordan Hale, PharmD on 2026-02-11. FDA lists this product Current (posted 2021-12-15).",
    "why": "Already approved by the P&T committee.",
    "needs": "pharmacist",
    "evidence": [
@@ -856,9 +1063,9 @@
   },
   {
    "kind": "alternate_concentration",
-   "rank": 3,
+   "rank": 5,
    "title": "Same molecule, alternate concentration or vial size: methylPREDNISolone acetate 40 mg/mL from Sagent Pharmaceuticals",
-   "detail": "Recalculate dose and volume; pharmacist verification required. Approved by Sam Rivera, MD on 2026-06-18.",
+   "detail": "Recalculate dose and volume; pharmacist verification required. Approved by Sam Rivera, MD on 2026-06-18. FDA lists this product Current (posted 2021-12-15).",
    "why": "Already approved by the P&T committee.",
    "needs": "pharmacist",
    "evidence": [
@@ -891,17 +1098,10 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "FDA's records show the methylprednisolone acetate shortage has been listed since 2021-12-15 and remains current as of 2026-10-21",
+  "headline": "FDA's shortage list shows methylprednisolone acetate injection current since 2021-12-15 with multiple manufacturers; the 20 mg/mL 5 mL vial at Corvale East has 2.7 days on hand and Corvale General has 22.8 days",
   "sentences": [
    {
-    "text": "FDA first posted the methylprednisolone acetate injection shortage on 2021-12-15 and it remains current as of 2026-10-21.",
-    "cites": [
-     "E27",
-     "D8"
-    ]
-   },
-   {
-    "text": "Multiple manufacturers including Amneal Pharmaceuticals, Eugia US LLC, Par Health USA LLC, Pfizer Inc., and Sagent Pharmaceuticals are listed with current shortage status.",
+    "text": "FDA's shortage list for methylprednisolone acetate injection shows Current status first posted 2021-12-15 for Amneal Pharmaceuticals, Eugia US LLC, Par Health USA LLC, Pfizer Inc., and Sagent Pharmaceuticals.",
     "cites": [
      "E22",
      "E23",
@@ -911,35 +1111,43 @@
     ]
    },
    {
-    "text": "Eugia US LLC updated 2026-10-19 with recovery TBD and advises checking wholesalers for inventory.",
+    "text": "As of 2026-10-21 the shortage has been on FDA's list for 58 months.",
     "cites": [
-     "E23"
+     "D11"
     ]
    },
    {
-    "text": "Pfizer Inc. updated 2026-09-21 and Sagent Pharmaceuticals updated 2026-10-08, both remain current.",
+    "text": "The 20 mg/mL 5 mL vial (NDC 0009-0274-01) used at Corvale East and Corvale General is labeled by Pharmacia & Upjohn Company LLC (FEI 1810189).",
     "cites": [
-     "E25",
-     "E26"
+     "E1",
+     "E6",
+     "E18"
     ]
    },
    {
-    "text": "The rule-based transfer option ranked 1 moves 27 units from Corvale General (23 days on hand) to Corvale Lakeside (7 days on hand) which would reach 14 days.",
+    "text": "FDA inspection 1208260 at that plant ended 2023-06-16 and was classified VAI; the classification letter was issued 2024-09-10, 548 days after the shortage posting.",
     "cites": [
-     "D5",
-     "D2",
-     "D3"
+     "D10",
+     "E17"
+    ]
+   },
+   {
+    "text": "Corvale East holds 16 vials of the 20 mg/mL 5 mL presentation at 6 vials per day, giving 2.7 days on hand; Corvale General holds 158 vials at 6.9 per day, giving 22.8 days on hand.",
+    "cites": [
+     "D1",
+     "D2"
+    ]
+   },
+   {
+    "text": "The top-ranked transfer option moves 61 vials of 20 mg/mL 5 mL from Corvale General to Corvale East, which would leave Corvale General with two weeks of supply and bring Corvale East to 13 days.",
+    "cites": [
+     "D12"
     ]
    }
   ],
   "verifier": {
    "checked": 7,
-   "rejected": [
-    {
-     "text": "The most recent FDA update for Amneal Pharmaceuticals was 2026-10-06 with estimated recovery late October 2026/November 2026.",
-     "reason": "month 2026-11 is not in the cited evidence"
-    }
-   ],
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -947,45 +1155,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -1007,80 +1236,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T08:00:49.340Z",
+   "at": "2026-10-22T12:20:47.907Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract VCGRXMXQ scope"
+   "reason": "in contract VVXGVFNK scope"
   },
   {
-   "at": "2026-10-22T08:00:49.340Z",
+   "at": "2026-10-22T12:20:47.907Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract VCGRXMXQ scope"
+   "reason": "in contract VVXGVFNK scope"
   },
   {
-   "at": "2026-10-22T08:00:59.347Z",
+   "at": "2026-10-22T12:20:52.086Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract VCGRXMXQ scope"
+   "reason": "in contract VVXGVFNK scope"
   },
   {
-   "at": "2026-10-22T08:01:01.453Z",
+   "at": "2026-10-22T12:20:52.707Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract VCGRXMXQ scope"
+   "reason": "in contract VVXGVFNK scope"
   },
   {
-   "at": "2026-10-22T08:01:02.600Z",
+   "at": "2026-10-22T12:20:53.017Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract VCGRXMXQ scope"
+   "reason": "in contract VVXGVFNK scope"
   },
   {
-   "at": "2026-10-22T08:01:07.114Z",
+   "at": "2026-10-22T12:20:54.483Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract VCGRXMXQ scope"
+   "reason": "in contract VVXGVFNK scope"
   },
   {
-   "at": "2026-10-22T08:01:09.182Z",
+   "at": "2026-10-22T12:20:55.340Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract VCGRXMXQ scope"
+   "reason": "in contract VVXGVFNK scope"
   },
   {
-   "at": "2026-10-22T08:01:11.757Z",
+   "at": "2026-10-22T12:20:56.446Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract VCGRXMXQ scope"
+   "reason": "in contract VVXGVFNK scope"
   },
   {
-   "at": "2026-10-22T08:01:13.634Z",
+   "at": "2026-10-22T12:20:58.242Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract VCGRXMXQ scope"
+   "reason": "in contract VVXGVFNK scope"
   },
   {
-   "at": "2026-10-22T08:01:13.638Z",
+   "at": "2026-10-22T12:20:58.243Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract VCGRXMXQ scope"
+   "reason": "in contract VVXGVFNK scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-1e26d5",
+   "queryId": "Q-d2ce92",
    "row": 0,
    "label": "Corvale East: METHYLPREDNISOLONE ACETATE 20MG/ML 5ML MDV",
    "fields": {
@@ -1091,19 +1320,24 @@
     "description": "METHYLPREDNISOLONE ACETATE 20MG/ML 5ML MDV",
     "on_hand": "16.00",
     "daily_use": "5.997",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "methylprednisolone acetate",
     "labeler_name": "Pharmacia & Upjohn Company LLC",
     "package_ndc": "0009-0274-01",
     "spl_set_id": "823b0010-2b57-4e76-b5ac-4a8c2963438f",
     "dosage_form": "INJECTION, SUSPENSION",
-    "route": "INTRALESIONAL|INTRAMUSCULAR|INTRASYNOVIAL|SOFT TISSUE"
+    "route": "INTRALESIONAL|INTRAMUSCULAR|INTRASYNOVIAL|SOFT TISSUE",
+    "strength": "METHYLPREDNISOLONE ACETATE 20 mg/mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-1e26d5",
+   "queryId": "Q-d2ce92",
    "row": 1,
    "label": "Corvale East: METHYLPREDNISOLONE SODIUM SUCCINATE 500MG/ML 8ML SDV",
    "fields": {
@@ -1114,19 +1348,24 @@
     "description": "METHYLPREDNISOLONE SODIUM SUCCINATE 500MG/ML 8ML SDV",
     "on_hand": "99.00",
     "daily_use": "7.289",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "methylprednisolone sodium succinate",
     "labeler_name": "Pharmacia & Upjohn Company LLC",
     "package_ndc": "0009-0758-01",
     "spl_set_id": "cd99be87-c8d9-48d6-a8e5-e081052e3f19",
     "dosage_form": "INJECTION, POWDER, FOR SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "METHYLPREDNISOLONE SODIUM SUCCINATE 500 mg/mL",
+    "unit_content": "8 mL",
+    "pkg_unit": "vial"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-1e26d5",
+   "queryId": "Q-d2ce92",
    "row": 2,
    "label": "Corvale East: METHYLPREDNISOLONE ACETATE 40MG/ML 5ML SDV",
    "fields": {
@@ -1137,19 +1376,24 @@
     "description": "METHYLPREDNISOLONE ACETATE 40MG/ML 5ML SDV",
     "on_hand": "78.00",
     "daily_use": "6.336",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "methylprednisolone acetate",
     "labeler_name": "Sagent Pharmaceuticals",
     "package_ndc": "25021-820-05",
     "spl_set_id": "f98314ea-a4e4-4f78-987b-3e9b45a08bb4",
     "dosage_form": "INJECTION, SUSPENSION",
-    "route": "INTRA-ARTICULAR|INTRALESIONAL|INTRAMUSCULAR|INTRASYNOVIAL|SOFT TISSUE"
+    "route": "INTRA-ARTICULAR|INTRALESIONAL|INTRAMUSCULAR|INTRASYNOVIAL|SOFT TISSUE",
+    "strength": "METHYLPREDNISOLONE ACETATE 40 mg/mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-1e26d5",
+   "queryId": "Q-d2ce92",
    "row": 3,
    "label": "Corvale East: METHYLPREDNISOLONE 4MG TAB",
    "fields": {
@@ -1160,88 +1404,108 @@
     "description": "METHYLPREDNISOLONE 4MG TAB",
     "on_hand": "87.00",
     "daily_use": "5.615",
-    "unit": "package",
+    "unit": "tablet",
+    "pkg_units": "100.00",
+    "unit_basis": "packages of 100, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Methylprednisolone",
     "labeler_name": "Chartwell RX, LLC",
     "package_ndc": "62135-760-01",
     "spl_set_id": "bdd048bb-7e6c-45c7-b51a-075e83ca9f5b",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "METHYLPREDNISOLONE 4 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E5": {
    "id": "E5",
-   "queryId": "Q-1e26d5",
+   "queryId": "Q-d2ce92",
    "row": 4,
-   "label": "Corvale General: Methylprednisolone",
+   "label": "Corvale General: Methylprednisolone 4 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-271",
     "ndc11": "62135076001",
     "ndc_as_recorded": "62135076001",
-    "description": "Methylprednisolone",
-    "on_hand": "214.24",
+    "description": "Methylprednisolone 4 mg/1",
+    "on_hand": "214.00",
     "daily_use": "7.315",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Methylprednisolone",
     "labeler_name": "Chartwell RX, LLC",
     "package_ndc": "62135-760-01",
     "spl_set_id": "bdd048bb-7e6c-45c7-b51a-075e83ca9f5b",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "METHYLPREDNISOLONE 4 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E6": {
    "id": "E6",
-   "queryId": "Q-1e26d5",
+   "queryId": "Q-d2ce92",
    "row": 5,
-   "label": "Corvale General: methylprednisolone acetate",
+   "label": "Corvale General: methylprednisolone acetate 20 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-85",
     "ndc11": "00009027401",
     "ndc_as_recorded": "00009027401",
-    "description": "methylprednisolone acetate",
-    "on_hand": "158.30",
+    "description": "methylprednisolone acetate 20 mg/mL",
+    "on_hand": "158.00",
     "daily_use": "6.924",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "methylprednisolone acetate",
     "labeler_name": "Pharmacia & Upjohn Company LLC",
     "package_ndc": "0009-0274-01",
     "spl_set_id": "823b0010-2b57-4e76-b5ac-4a8c2963438f",
     "dosage_form": "INJECTION, SUSPENSION",
-    "route": "INTRALESIONAL|INTRAMUSCULAR|INTRASYNOVIAL|SOFT TISSUE"
+    "route": "INTRALESIONAL|INTRAMUSCULAR|INTRASYNOVIAL|SOFT TISSUE",
+    "strength": "METHYLPREDNISOLONE ACETATE 20 mg/mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E7": {
    "id": "E7",
-   "queryId": "Q-1e26d5",
+   "queryId": "Q-d2ce92",
    "row": 6,
-   "label": "Corvale General: methylprednisolone acetate",
+   "label": "Corvale General: methylprednisolone acetate 40 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-86",
     "ndc11": "25021082005",
     "ndc_as_recorded": "25021082005",
-    "description": "methylprednisolone acetate",
-    "on_hand": "101.86",
+    "description": "methylprednisolone acetate 40 mg/mL",
+    "on_hand": "101.00",
     "daily_use": "6.842",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "methylprednisolone acetate",
     "labeler_name": "Sagent Pharmaceuticals",
     "package_ndc": "25021-820-05",
     "spl_set_id": "f98314ea-a4e4-4f78-987b-3e9b45a08bb4",
     "dosage_form": "INJECTION, SUSPENSION",
-    "route": "INTRA-ARTICULAR|INTRALESIONAL|INTRAMUSCULAR|INTRASYNOVIAL|SOFT TISSUE"
+    "route": "INTRA-ARTICULAR|INTRALESIONAL|INTRAMUSCULAR|INTRASYNOVIAL|SOFT TISSUE",
+    "strength": "METHYLPREDNISOLONE ACETATE 40 mg/mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E8": {
    "id": "E8",
-   "queryId": "Q-1e26d5",
+   "queryId": "Q-d2ce92",
    "row": 7,
    "label": "Corvale Lakeside: methylprednisoLONE acetate 40 mg/mL 5 mL vial",
    "fields": {
@@ -1253,18 +1517,23 @@
     "on_hand": "11.00",
     "daily_use": "1.850",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "methylprednisolone acetate",
     "labeler_name": "Sagent Pharmaceuticals",
     "package_ndc": "25021-820-05",
     "spl_set_id": "f98314ea-a4e4-4f78-987b-3e9b45a08bb4",
     "dosage_form": "INJECTION, SUSPENSION",
-    "route": "INTRA-ARTICULAR|INTRALESIONAL|INTRAMUSCULAR|INTRASYNOVIAL|SOFT TISSUE"
+    "route": "INTRA-ARTICULAR|INTRALESIONAL|INTRAMUSCULAR|INTRASYNOVIAL|SOFT TISSUE",
+    "strength": "METHYLPREDNISOLONE ACETATE 40 mg/mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E9": {
    "id": "E9",
-   "queryId": "Q-1e26d5",
+   "queryId": "Q-d2ce92",
    "row": 8,
    "label": "Corvale Lakeside: MethylprednisoLONE 4 mg/1",
    "fields": {
@@ -1276,13 +1545,18 @@
     "on_hand": "15.00",
     "daily_use": "1.877",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Methylprednisolone",
     "labeler_name": "Chartwell RX, LLC",
     "package_ndc": "62135-760-01",
     "spl_set_id": "bdd048bb-7e6c-45c7-b51a-075e83ca9f5b",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "METHYLPREDNISOLONE 4 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E10": {
@@ -1463,7 +1737,7 @@
   },
   "E21": {
    "id": "E21",
-   "queryId": "Q-dddbca",
+   "queryId": "Q-c9bde8",
    "row": 0,
    "label": "Recall D-0499-2024",
    "fields": {
@@ -1481,7 +1755,7 @@
   },
   "E22": {
    "id": "E22",
-   "queryId": "Q-2e3278",
+   "queryId": "Q-a8440e",
    "row": 0,
    "label": "FDA shortage list: Amneal Pharmaceuticals, Current",
    "fields": {
@@ -1496,7 +1770,7 @@
   },
   "E23": {
    "id": "E23",
-   "queryId": "Q-2e3278",
+   "queryId": "Q-a8440e",
    "row": 4,
    "label": "FDA shortage list: Eugia US LLC, Current",
    "fields": {
@@ -1511,7 +1785,7 @@
   },
   "E24": {
    "id": "E24",
-   "queryId": "Q-2e3278",
+   "queryId": "Q-a8440e",
    "row": 6,
    "label": "FDA shortage list: Par Health, USA LLC, Current",
    "fields": {
@@ -1526,7 +1800,7 @@
   },
   "E25": {
    "id": "E25",
-   "queryId": "Q-2e3278",
+   "queryId": "Q-a8440e",
    "row": 7,
    "label": "FDA shortage list: Pfizer Inc., Current",
    "fields": {
@@ -1541,7 +1815,7 @@
   },
   "E26": {
    "id": "E26",
-   "queryId": "Q-2e3278",
+   "queryId": "Q-a8440e",
    "row": 20,
    "label": "FDA shortage list: Sagent Pharmaceuticals, Current",
    "fields": {
@@ -1556,7 +1830,7 @@
   },
   "E27": {
    "id": "E27",
-   "queryId": "Q-2e3278",
+   "queryId": "Q-a8440e",
    "row": 0,
    "label": "FDA first posted the shortage 2021-12-15",
    "fields": {
@@ -1609,40 +1883,121 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 280 units of methylprednisolone acetate at 25.2 a day: 11 days on hand",
+   "label": "Corvale East holds 16 vials of methylprednisolone acetate 20 mg/mL, 5 mL at 6 a day: 2.7 days on hand",
    "fields": {
     "hospital": "Corvale East",
-    "on_hand": 280,
-    "daily_use": 25.2,
-    "days_on_hand": 11
+    "presentation": "20 mg/mL injection, 5 mL vial",
+    "on_hand": 16,
+    "daily_use": 6,
+    "days_on_hand": 2.7
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 474 units of methylprednisolone acetate at 21.1 a day: 23 days on hand",
+   "label": "Corvale General holds 158 vials of methylprednisolone acetate 20 mg/mL, 5 mL at 6.9 a day: 22.8 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 474,
-    "daily_use": 21.1,
-    "days_on_hand": 23
+    "presentation": "20 mg/mL injection, 5 mL vial",
+    "on_hand": 158,
+    "daily_use": 6.9,
+    "days_on_hand": 22.8
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 26 units of methylprednisolone acetate at 3.7 a day: 7 days on hand",
+   "label": "Corvale East holds 78 vials of methylprednisolone acetate 40 mg/mL, 5 mL at 6.3 a day: 12.3 days on hand",
    "fields": {
-    "hospital": "Corvale Lakeside",
-    "on_hand": 26,
-    "daily_use": 3.7,
-    "days_on_hand": 7
+    "hospital": "Corvale East",
+    "presentation": "40 mg/mL injection, 5 mL vial",
+    "on_hand": 78,
+    "daily_use": 6.3,
+    "days_on_hand": 12.3
    }
   },
   "D4": {
    "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 101 vials of methylprednisolone acetate 40 mg/mL, 5 mL at 6.8 a day: 14.8 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "40 mg/mL injection, 5 mL vial",
+    "on_hand": 101,
+    "daily_use": 6.8,
+    "days_on_hand": 14.8
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale Lakeside holds 11 vials of methylprednisolone acetate 40 mg/mL, 5 mL at 1.9 a day: 5.9 days on hand",
+   "fields": {
+    "hospital": "Corvale Lakeside",
+    "presentation": "40 mg/mL injection, 5 mL vial",
+    "on_hand": 11,
+    "daily_use": 1.9,
+    "days_on_hand": 5.9
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale East holds 87 tablets of methylprednisolone acetate 4 mg at 5.6 a day: 15.5 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "4 mg tablet",
+    "on_hand": 87,
+    "daily_use": 5.6,
+    "days_on_hand": 15.5
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 214 tablets of methylprednisolone acetate 4 mg at 7.3 a day: 29.3 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "4 mg tablet",
+    "on_hand": 214,
+    "daily_use": 7.3,
+    "days_on_hand": 29.3
+   }
+  },
+  "D8": {
+   "id": "D8",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale Lakeside holds 15 tablets of methylprednisolone acetate 4 mg at 1.9 a day: 8 days on hand",
+   "fields": {
+    "hospital": "Corvale Lakeside",
+    "presentation": "4 mg tablet",
+    "on_hand": 15,
+    "daily_use": 1.9,
+    "days_on_hand": 8
+   }
+  },
+  "D9": {
+   "id": "D9",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale East holds 99 vials of methylprednisolone acetate 500 mg/mL, 8 mL at 7.3 a day: 13.6 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "500 mg/mL injection, 8 mL vial",
+    "on_hand": 99,
+    "daily_use": 7.3,
+    "days_on_hand": 13.6
+   }
+  },
+  "D10": {
+   "id": "D10",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 1208260 ended 2023-06-16, classified VAI; classification letter 2024-09-10 — 548 days after FDA posted the shortage on 2021-12-15",
@@ -1652,38 +2007,8 @@
     "days": 548
    }
   },
-  "D5": {
-   "id": "D5",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 1 by rule: Transfer 27 from Corvale General to Corvale Lakeside. Corvale General has 23 days on hand and can spare 27 while keeping two weeks; Corvale Lakeside has 7 days and would reach 14.",
-   "fields": {
-    "kind": "transfer",
-    "needs": "pharmacy director (transfer request)"
-   }
-  },
-  "D6": {
-   "id": "D6",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 3 by rule: Buy from A-S Medication Solutions. Not on FDA's shortage list today. Its label names no plant we could place.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
-   }
-  },
-  "D7": {
-   "id": "D7",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 3 by rule: Buy from Asclemed USA, Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
-   }
-  },
-  "D8": {
-   "id": "D8",
+  "D11": {
+   "id": "D11",
    "queryId": "derived",
    "row": -1,
    "label": "As of 2026-10-21 the shortage has been on FDA's list for 58 months",
@@ -1692,166 +2017,215 @@
     "posted": "2021-12-15",
     "months": 58
    }
+  },
+  "D12": {
+   "id": "D12",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 61 vials of 20 mg/mL, 5 mL from Corvale General to Corvale East. Corvale General has 23 days of 20 mg/mL injection, 5 mL vials on hand and can spare 61 vials while keeping two weeks; Corvale East has 2.7 days and would reach 13.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D13": {
+   "id": "D13",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 5 vials of 40 mg/mL, 5 mL from Corvale General to Corvale Lakeside. Corvale General has 15 days of 40 mg/mL injection, 5 mL vials on hand and can spare 5 vials while keeping two weeks; Corvale Lakeside has 5.9 days and would reach 9.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D14": {
+   "id": "D14",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 12 tablets of 4 mg from Corvale General to Corvale Lakeside. Corvale General has 29 days of 4 mg tablets on hand and can spare 12 tablets while keeping two weeks; Corvale Lakeside has 8 days and would reach 14.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
   }
  },
  "queries": {
-  "Q-1e26d5": {
-   "id": "Q-1e26d5",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%methylprednisolone%' OR lower(s.description) LIKE '%methylprednisolone%' ORDER BY s.hospital, s.item_key",
-   "ms": 9945,
+  "Q-d2ce92": {
+   "id": "Q-d2ce92",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*methylprednisolone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*methylprednisolone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 4176,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T08:00:59.286Z",
+   "ranAt": "2026-10-22T12:20:52.083Z",
    "rows": 9
   },
   "Q-91dde4": {
    "id": "Q-91dde4",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('823b0010-2b57-4e76-b5ac-4a8c2963438f', 'cd99be87-c8d9-48d6-a8e5-e081052e3f19', 'f98314ea-a4e4-4f78-987b-3e9b45a08bb4', 'bdd048bb-7e6c-45c7-b51a-075e83ca9f5b') ORDER BY ps.set_id, ps.establishment",
-   "ms": 2102,
+   "ms": 619,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:01:01.449Z",
+   "ranAt": "2026-10-22T12:20:52.706Z",
    "rows": 3
   },
-  "Q-2e3278": {
-   "id": "Q-2e3278",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%methylprednisolone%' ORDER BY status, company_name, package_ndc",
-   "ms": 569,
+  "Q-a8440e": {
+   "id": "Q-a8440e",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*methylprednisolone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 141,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T08:01:02.023Z",
+   "ranAt": "2026-10-22T12:20:52.848Z",
    "rows": 23
   },
-  "Q-8eaa41": {
-   "id": "Q-8eaa41",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%methylprednisolone%' ORDER BY first_posting",
-   "ms": 565,
+  "Q-d27e5c": {
+   "id": "Q-d27e5c",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*methylprednisolone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 167,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T08:01:02.596Z",
+   "ranAt": "2026-10-22T12:20:53.016Z",
    "rows": 5
   },
-  "Q-09c871": {
-   "id": "Q-09c871",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%methylprednisolone%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 4511,
+  "Q-96f8e4": {
+   "id": "Q-96f8e4",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*methylprednisolone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1464,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:01:07.110Z",
-   "rows": 108
+   "ranAt": "2026-10-22T12:20:54.481Z",
+   "rows": 107
   },
   "Q-baf492": {
    "id": "Q-baf492",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('1810189', '3008461619', '3002807111') ORDER BY fei, end_date",
-   "ms": 684,
+   "ms": 302,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T08:01:07.798Z",
+   "ranAt": "2026-10-22T12:20:54.785Z",
    "rows": 19
   },
   "Q-94d03c": {
    "id": "Q-94d03c",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('1810189', '3008461619', '3002807111') ORDER BY fei, action_date",
-   "ms": 498,
+   "ms": 192,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T08:01:08.300Z",
+   "ranAt": "2026-10-22T12:20:54.978Z",
    "rows": 1
   },
   "Q-5b3cb1": {
    "id": "Q-5b3cb1",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('1810189') OR (fei_match <> 'name_and_city' AND firm_key IN ('pharmacia upjohn', 'chartwell rx', 'sagent pharms')) ORDER BY date_published",
-   "ms": 408,
+   "ms": 154,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T08:01:08.711Z",
+   "ranAt": "2026-10-22T12:20:55.133Z",
    "rows": 0
   },
-  "Q-dddbca": {
-   "id": "Q-dddbca",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('pharmacia upjohn', 'chartwell rx', 'sagent pharms', 'sagent') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%methylprednisolone%' ORDER BY initiation_date",
-   "ms": 457,
+  "Q-c9bde8": {
+   "id": "Q-c9bde8",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('pharmacia upjohn', 'chartwell rx', 'sagent pharms', 'sagent') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*methylprednisolone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 204,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T08:01:09.175Z",
+   "ranAt": "2026-10-22T12:20:55.337Z",
    "rows": 1
   },
   "Q-296c7e": {
    "id": "Q-296c7e",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('00009027401', '00009075801', '25021082005', '62135076001')",
-   "ms": 2570,
+   "ms": 1104,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:01:11.753Z",
+   "ranAt": "2026-10-22T12:20:56.444Z",
    "rows": 2
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-c45afb": {
-   "id": "Q-c45afb",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%methylprednisolone%'",
-   "ms": 1872,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:01:13.629Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-3f66b6": {
+   "id": "Q-3f66b6",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*methylprednisolone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1795,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:20:58.241Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 29552,
+  "zetarisMs": 20526,
   "modelCalls": 1,
-  "tokensIn": 3034,
-  "tokensOut": 454,
+  "tokensIn": 5455,
+  "tokensOut": 572,
   "mode": "live"
  },
  "slug": "methylprednisolone",
@@ -1872,7 +2246,7 @@
     "id": "hospital-item:hospital-item:CG-271",
     "type": "HospitalItem",
     "key": "hospital-item:CG-271",
-    "label": "Corvale General: Methylprednisolone",
+    "label": "Corvale General: Methylprednisolone 4 mg/1",
     "attrs": {
      "key": "hospital-item:CG-271"
     },
@@ -1883,7 +2257,7 @@
     "id": "hospital-item:hospital-item:CG-85",
     "type": "HospitalItem",
     "key": "hospital-item:CG-85",
-    "label": "Corvale General: methylprednisolone acetate",
+    "label": "Corvale General: methylprednisolone acetate 20 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-85"
     },
@@ -1894,7 +2268,7 @@
     "id": "hospital-item:hospital-item:CG-86",
     "type": "HospitalItem",
     "key": "hospital-item:CG-86",
-    "label": "Corvale General: methylprednisolone acetate",
+    "label": "Corvale General: methylprednisolone acetate 40 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-86"
     },
@@ -2121,7 +2495,7 @@
     },
     "facts": [
      {
-      "id": "fact_8555713ccbcc166b",
+      "id": "fact_c65ef4d1acd5c1d8",
       "about": "inspection:fda-inspection:1066512",
       "predicate": "classification",
       "value": "VAI",
@@ -2129,9 +2503,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:01:09.180Z"
+       "at": "2026-10-22T12:20:55.339Z"
       },
-      "assertedAt": "2026-10-22T08:01:09.180Z"
+      "assertedAt": "2026-10-22T12:20:55.339Z"
      }
     ],
     "depth": 4
@@ -2147,7 +2521,7 @@
     },
     "facts": [
      {
-      "id": "fact_7228e4736e87aa9c",
+      "id": "fact_23e55e83d77af5ab",
       "about": "inspection:fda-inspection:1208260",
       "predicate": "classification",
       "value": "VAI",
@@ -2155,9 +2529,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:01:09.181Z"
+       "at": "2026-10-22T12:20:55.339Z"
       },
-      "assertedAt": "2026-10-22T08:01:09.181Z"
+      "assertedAt": "2026-10-22T12:20:55.339Z"
      }
     ],
     "depth": 4
@@ -2173,7 +2547,7 @@
     },
     "facts": [
      {
-      "id": "fact_9313f13cf16eaf93",
+      "id": "fact_2802c659acb51462",
       "about": "inspection:fda-inspection:564470",
       "predicate": "classification",
       "value": "VAI",
@@ -2181,9 +2555,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:01:09.179Z"
+       "at": "2026-10-22T12:20:55.339Z"
       },
-      "assertedAt": "2026-10-22T08:01:09.179Z"
+      "assertedAt": "2026-10-22T12:20:55.339Z"
      }
     ],
     "depth": 4
@@ -2199,7 +2573,7 @@
     },
     "facts": [
      {
-      "id": "fact_5a0d6e44980f72b9",
+      "id": "fact_36a883e841e43ab9",
       "about": "inspection:fda-inspection:682230",
       "predicate": "classification",
       "value": "VAI",
@@ -2207,9 +2581,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:01:09.179Z"
+       "at": "2026-10-22T12:20:55.339Z"
       },
-      "assertedAt": "2026-10-22T08:01:09.179Z"
+      "assertedAt": "2026-10-22T12:20:55.339Z"
      }
     ],
     "depth": 4
@@ -2225,7 +2599,7 @@
     },
     "facts": [
      {
-      "id": "fact_890cc13dbd967d8f",
+      "id": "fact_9462bb9cc2d0dd83",
       "about": "inspection:fda-inspection:746375",
       "predicate": "classification",
       "value": "VAI",
@@ -2233,9 +2607,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:01:09.179Z"
+       "at": "2026-10-22T12:20:55.339Z"
       },
-      "assertedAt": "2026-10-22T08:01:09.179Z"
+      "assertedAt": "2026-10-22T12:20:55.339Z"
      }
     ],
     "depth": 4
@@ -2251,7 +2625,7 @@
     },
     "facts": [
      {
-      "id": "fact_5a7c2f3a7b66bcb7",
+      "id": "fact_2309cddb53498edc",
       "about": "inspection:fda-inspection:796422",
       "predicate": "classification",
       "value": "VAI",
@@ -2259,9 +2633,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:01:09.180Z"
+       "at": "2026-10-22T12:20:55.339Z"
       },
-      "assertedAt": "2026-10-22T08:01:09.180Z"
+      "assertedAt": "2026-10-22T12:20:55.339Z"
      }
     ],
     "depth": 4
@@ -2277,7 +2651,7 @@
     },
     "facts": [
      {
-      "id": "fact_2dd8740d9d3eceb8",
+      "id": "fact_f35889be5997a0da",
       "about": "inspection:fda-inspection:837169",
       "predicate": "classification",
       "value": "VAI",
@@ -2285,9 +2659,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:01:09.180Z"
+       "at": "2026-10-22T12:20:55.339Z"
       },
-      "assertedAt": "2026-10-22T08:01:09.180Z"
+      "assertedAt": "2026-10-22T12:20:55.339Z"
      }
     ],
     "depth": 4
@@ -2303,7 +2677,7 @@
     },
     "facts": [
      {
-      "id": "fact_3976397d359decc9",
+      "id": "fact_0702efef6d79e605",
       "about": "inspection:fda-inspection:933762",
       "predicate": "classification",
       "value": "VAI",
@@ -2311,9 +2685,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:01:09.180Z"
+       "at": "2026-10-22T12:20:55.339Z"
       },
-      "assertedAt": "2026-10-22T08:01:09.180Z"
+      "assertedAt": "2026-10-22T12:20:55.339Z"
      }
     ],
     "depth": 4
@@ -2336,11 +2710,11 @@
     "from": "hospital-item:hospital-item:CG-271",
     "to": "package:ndc-package:62135-760-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:00:59.324Z",
+    "validFrom": "2026-10-22T12:20:52.086Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:00:59.324Z"
+     "at": "2026-10-22T12:20:52.086Z"
     }
    },
    {
@@ -2348,11 +2722,11 @@
     "from": "hospital-item:hospital-item:CG-85",
     "to": "package:ndc-package:0009-0274-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:00:59.324Z",
+    "validFrom": "2026-10-22T12:20:52.086Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:00:59.324Z"
+     "at": "2026-10-22T12:20:52.086Z"
     }
    },
    {
@@ -2360,11 +2734,11 @@
     "from": "hospital-item:hospital-item:CG-86",
     "to": "package:ndc-package:25021-820-05",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:00:59.324Z",
+    "validFrom": "2026-10-22T12:20:52.086Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:00:59.324Z"
+     "at": "2026-10-22T12:20:52.086Z"
     }
    },
    {
@@ -2372,11 +2746,11 @@
     "from": "hospital-item:hospital-item:EA-E-000005",
     "to": "package:ndc-package:0009-0274-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:00:59.301Z",
+    "validFrom": "2026-10-22T12:20:52.085Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:00:59.301Z"
+     "at": "2026-10-22T12:20:52.085Z"
     }
    },
    {
@@ -2384,11 +2758,11 @@
     "from": "hospital-item:hospital-item:EA-E-000006",
     "to": "package:ndc-package:0009-0758-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:00:59.315Z",
+    "validFrom": "2026-10-22T12:20:52.085Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:00:59.315Z"
+     "at": "2026-10-22T12:20:52.085Z"
     }
    },
    {
@@ -2396,11 +2770,11 @@
     "from": "hospital-item:hospital-item:EA-E-000149",
     "to": "package:ndc-package:25021-820-05",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:00:59.316Z",
+    "validFrom": "2026-10-22T12:20:52.085Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:00:59.316Z"
+     "at": "2026-10-22T12:20:52.085Z"
     }
    },
    {
@@ -2408,11 +2782,11 @@
     "from": "hospital-item:hospital-item:EA-E-000204",
     "to": "package:ndc-package:62135-760-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:00:59.317Z",
+    "validFrom": "2026-10-22T12:20:52.085Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:00:59.317Z"
+     "at": "2026-10-22T12:20:52.085Z"
     }
    },
    {
@@ -2420,11 +2794,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0064",
     "to": "package:ndc-package:25021-820-05",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:00:59.326Z",
+    "validFrom": "2026-10-22T12:20:52.086Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:00:59.326Z"
+     "at": "2026-10-22T12:20:52.086Z"
     }
    },
    {
@@ -2432,11 +2806,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0094",
     "to": "package:ndc-package:62135-760-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:00:59.346Z",
+    "validFrom": "2026-10-22T12:20:52.086Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:00:59.346Z"
+     "at": "2026-10-22T12:20:52.086Z"
     }
    },
    {
@@ -2444,11 +2818,11 @@
     "from": "package:ndc-package:62135-760-01",
     "to": "product:ndc-product:62135-760",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:00:59.323Z",
+    "validFrom": "2026-10-22T12:20:52.085Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:00:59.323Z"
+     "at": "2026-10-22T12:20:52.085Z"
     }
    },
    {
@@ -2456,11 +2830,11 @@
     "from": "package:ndc-package:0009-0274-01",
     "to": "product:ndc-product:0009-0274",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:00:59.301Z",
+    "validFrom": "2026-10-22T12:20:52.085Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:00:59.301Z"
+     "at": "2026-10-22T12:20:52.085Z"
     }
    },
    {
@@ -2468,11 +2842,11 @@
     "from": "package:ndc-package:25021-820-05",
     "to": "product:ndc-product:25021-820",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:00:59.316Z",
+    "validFrom": "2026-10-22T12:20:52.085Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:00:59.316Z"
+     "at": "2026-10-22T12:20:52.085Z"
     }
    },
    {
@@ -2480,11 +2854,11 @@
     "from": "package:ndc-package:0009-0758-01",
     "to": "product:ndc-product:0009-0758",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:00:59.316Z",
+    "validFrom": "2026-10-22T12:20:52.085Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:00:59.316Z"
+     "at": "2026-10-22T12:20:52.085Z"
     }
    },
    {
@@ -2492,11 +2866,11 @@
     "from": "product:ndc-product:62135-760",
     "to": "drug:generic:methylprednisolone acetate",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:00:59.324Z",
+    "validFrom": "2026-10-22T12:20:52.085Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:00:59.324Z"
+     "at": "2026-10-22T12:20:52.085Z"
     }
    },
    {
@@ -2504,11 +2878,11 @@
     "from": "product:ndc-product:62135-760",
     "to": "labeler:ndc-labeler:62135",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:00:59.324Z",
+    "validFrom": "2026-10-22T12:20:52.085Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:00:59.324Z"
+     "at": "2026-10-22T12:20:52.085Z"
     }
    },
    {
@@ -2516,11 +2890,11 @@
     "from": "product:ndc-product:0009-0274",
     "to": "drug:generic:methylprednisolone acetate",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:00:59.301Z",
+    "validFrom": "2026-10-22T12:20:52.085Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:00:59.301Z"
+     "at": "2026-10-22T12:20:52.085Z"
     }
    },
    {
@@ -2528,11 +2902,11 @@
     "from": "product:ndc-product:0009-0274",
     "to": "labeler:ndc-labeler:0009",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:00:59.315Z",
+    "validFrom": "2026-10-22T12:20:52.085Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:00:59.315Z"
+     "at": "2026-10-22T12:20:52.085Z"
     }
    },
    {
@@ -2540,11 +2914,11 @@
     "from": "product:ndc-product:0009-0274",
     "to": "site:fei:1810189",
     "type": "made-at",
-    "validFrom": "2026-10-22T08:01:09.179Z",
+    "validFrom": "2026-10-22T12:20:55.339Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:01:09.179Z"
+     "at": "2026-10-22T12:20:55.339Z"
     }
    },
    {
@@ -2552,11 +2926,11 @@
     "from": "product:ndc-product:25021-820",
     "to": "drug:generic:methylprednisolone acetate",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:00:59.316Z",
+    "validFrom": "2026-10-22T12:20:52.085Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:00:59.316Z"
+     "at": "2026-10-22T12:20:52.085Z"
     }
    },
    {
@@ -2564,11 +2938,11 @@
     "from": "product:ndc-product:25021-820",
     "to": "labeler:ndc-labeler:25021",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:00:59.316Z",
+    "validFrom": "2026-10-22T12:20:52.085Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:00:59.316Z"
+     "at": "2026-10-22T12:20:52.085Z"
     }
    },
    {
@@ -2576,11 +2950,11 @@
     "from": "product:ndc-product:0009-0758",
     "to": "drug:generic:methylprednisolone acetate",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:00:59.316Z",
+    "validFrom": "2026-10-22T12:20:52.085Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:00:59.316Z"
+     "at": "2026-10-22T12:20:52.085Z"
     }
    },
    {
@@ -2588,11 +2962,11 @@
     "from": "product:ndc-product:0009-0758",
     "to": "labeler:ndc-labeler:0009",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:00:59.316Z",
+    "validFrom": "2026-10-22T12:20:52.085Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:00:59.316Z"
+     "at": "2026-10-22T12:20:52.085Z"
     }
    },
    {
@@ -2600,11 +2974,11 @@
     "from": "shortage:fda-shortage:methylprednisolone-2021-12-15",
     "to": "drug:generic:methylprednisolone acetate",
     "type": "affects",
-    "validFrom": "2026-10-22T08:01:09.181Z",
+    "validFrom": "2026-10-22T12:20:55.339Z",
     "source": {
      "kind": "fda-shortage-db",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:01:09.181Z"
+     "at": "2026-10-22T12:20:55.339Z"
     }
    },
    {
@@ -2612,11 +2986,11 @@
     "from": "inspection:fda-inspection:564470",
     "to": "site:fei:1810189",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:01:09.179Z",
+    "validFrom": "2026-10-22T12:20:55.339Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:01:09.179Z"
+     "at": "2026-10-22T12:20:55.339Z"
     }
    },
    {
@@ -2624,11 +2998,11 @@
     "from": "inspection:fda-inspection:682230",
     "to": "site:fei:1810189",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:01:09.179Z",
+    "validFrom": "2026-10-22T12:20:55.339Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:01:09.179Z"
+     "at": "2026-10-22T12:20:55.339Z"
     }
    },
    {
@@ -2636,11 +3010,11 @@
     "from": "inspection:fda-inspection:746375",
     "to": "site:fei:1810189",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:01:09.179Z",
+    "validFrom": "2026-10-22T12:20:55.339Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:01:09.179Z"
+     "at": "2026-10-22T12:20:55.339Z"
     }
    },
    {
@@ -2648,11 +3022,11 @@
     "from": "inspection:fda-inspection:796422",
     "to": "site:fei:1810189",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:01:09.180Z",
+    "validFrom": "2026-10-22T12:20:55.339Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:01:09.180Z"
+     "at": "2026-10-22T12:20:55.339Z"
     }
    },
    {
@@ -2660,11 +3034,11 @@
     "from": "inspection:fda-inspection:837169",
     "to": "site:fei:1810189",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:01:09.180Z",
+    "validFrom": "2026-10-22T12:20:55.339Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:01:09.180Z"
+     "at": "2026-10-22T12:20:55.339Z"
     }
    },
    {
@@ -2672,11 +3046,11 @@
     "from": "inspection:fda-inspection:933762",
     "to": "site:fei:1810189",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:01:09.180Z",
+    "validFrom": "2026-10-22T12:20:55.339Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:01:09.180Z"
+     "at": "2026-10-22T12:20:55.339Z"
     }
    },
    {
@@ -2684,11 +3058,11 @@
     "from": "inspection:fda-inspection:1066512",
     "to": "site:fei:1810189",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:01:09.180Z",
+    "validFrom": "2026-10-22T12:20:55.339Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:01:09.180Z"
+     "at": "2026-10-22T12:20:55.339Z"
     }
    },
    {
@@ -2696,11 +3070,11 @@
     "from": "inspection:fda-inspection:1208260",
     "to": "site:fei:1810189",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:01:09.181Z",
+    "validFrom": "2026-10-22T12:20:55.339Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:01:09.181Z"
+     "at": "2026-10-22T12:20:55.339Z"
     }
    }
   ],

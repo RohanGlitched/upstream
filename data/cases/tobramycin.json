@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-27cc8b",
+ "id": "case-2026-10-22-ad0a21",
  "question": "Why is tobramycin short, and what do we do?",
- "askedAt": "2026-10-22T09:05:11.066Z",
+ "askedAt": "2026-10-22T12:46:14.278Z",
  "asOf": "2026-10-21",
  "molecule": "tobramycin",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5HDPH642P6NYVPNQ7P26PHV",
+  "contractId": "01M5HTBDNXRPQHVX082T65STE9",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-7303be"
+    "Q-b1305e"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3265,
+   "ms": 3174,
    "rows": 4,
-   "finding": "4 stock lines across 2 hospitals.",
+   "finding": "4 stock lines across 2 hospitals, 2 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-cd462b"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 977,
+   "ms": 485,
    "rows": 2,
    "finding": "2 plant links on 2 labels; 0 placed in FDA's registration file.",
    "status": "ok"
@@ -46,15 +51,15 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-c3d9dc",
-    "Q-1ff4a7"
+    "Q-68bba4",
+    "Q-259e7d"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 553,
-   "rows": 5,
+   "ms": 213,
+   "rows": 4,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
   },
@@ -63,14 +68,16 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-51134a"
+    "Q-9481ae"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2254,
-   "rows": 66,
-   "finding": "42 labelers make it in this form.",
+   "ms": 1111,
+   "rows": 64,
+   "finding": "41 labelers make it in this form.",
    "status": "ok"
   },
   {
@@ -81,15 +88,15 @@
     "Q-808a5c",
     "Q-de2bfd",
     "Q-873665",
-    "Q-b2bcbc"
+    "Q-ab0aba"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1360,
+   "ms": 515,
    "rows": 0,
    "finding": "0 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "empty"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1423,
+   "ms": 596,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-ef683e"
+    "Q-8cf654"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1643,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1146,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 1,
+   "ms": 0,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -153,8 +164,11 @@
    "onHand": 354,
    "dailyUse": 14.448,
    "days": 24.5,
-   "unit": "package",
+   "unit": "each",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 56, converted to units",
+   "presentation": "tobramycin|300mg/5ml|solution|5ml|each",
+   "presentationLabel": "300 mg/5 mL solution, 5 mL each",
    "evidence": "E1"
   },
   {
@@ -166,35 +180,116 @@
    "onHand": 539,
    "dailyUse": 15.381,
    "days": 35,
-   "unit": "package",
+   "unit": "each",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 14, converted to units",
+   "presentation": "tobramycin|300mg/4ml|solution|4ml|each",
+   "presentationLabel": "300 mg/4 mL solution, 4 mL each",
    "evidence": "E2"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-344",
    "ndc11": "00093408563",
-   "description": "Tobramycin",
+   "description": "Tobramycin 300 mg/5mL",
    "labeler": "Teva Pharmaceuticals USA, Inc.",
-   "onHand": 293.83,
+   "onHand": 293,
    "dailyUse": 15.975,
-   "days": 18.4,
+   "days": 18.3,
    "unit": "each",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "tobramycin|300mg/5ml|solution|5ml|each",
+   "presentationLabel": "300 mg/5 mL solution, 5 mL each",
    "evidence": "E3"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-345",
    "ndc11": "10122082056",
-   "description": "tobramycin",
+   "description": "tobramycin 300 mg/4mL",
    "labeler": "Chiesi USA, Inc.",
-   "onHand": 257.14,
+   "onHand": 257,
    "dailyUse": 16.519,
    "days": 15.6,
    "unit": "each",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "tobramycin|300mg/4ml|solution|4ml|each",
+   "presentationLabel": "300 mg/4 mL solution, 4 mL each",
    "evidence": "E4"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "tobramycin|300mg/4ml|solution|4ml|each",
+   "label": "300 mg/4 mL solution, 4 mL each",
+   "short": "300 mg/4 mL, 4 mL",
+   "unit": "each",
+   "onHand": 796,
+   "dailyUse": 31.9,
+   "days": 25,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 539,
+     "dailyUse": 15.381,
+     "days": 35,
+     "lines": [
+      "EA-E-000132"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 257,
+     "dailyUse": 16.519,
+     "days": 15.6,
+     "lines": [
+      "CG-345"
+     ],
+     "evidence": [
+      "E4"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "tobramycin|300mg/5ml|solution|5ml|each",
+   "label": "300 mg/5 mL solution, 5 mL each",
+   "short": "300 mg/5 mL, 5 mL",
+   "unit": "each",
+   "onHand": 647,
+   "dailyUse": 30.423,
+   "days": 21.3,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 354,
+     "dailyUse": 14.448,
+     "days": 24.5,
+     "lines": [
+      "EA-E-000013"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 293,
+     "dailyUse": 15.975,
+     "days": 18.3,
+     "lines": [
+      "CG-344"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -343,14 +438,6 @@
    "inOurStock": false
   },
   {
-   "labeler": "Bausch & Lomb Americas Inc.",
-   "ndc11": "82260035805",
-   "dosageForm": "SOLUTION/ DROPS",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
    "labeler": "Bausch & Lomb Incorporated",
    "ndc11": "24208029005",
    "dosageForm": "SOLUTION",
@@ -435,7 +522,7 @@
    "ndc11": "00409357801",
    "dosageForm": "INJECTION, SOLUTION",
    "plants": [],
-   "onShortageList": false,
+   "onShortageList": true,
    "inOurStock": false
   },
   {
@@ -627,15 +714,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from A-S Medication Solutions",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Advanced Rx Pharmacy of Tennessee, LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -663,15 +741,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from American Health Packaging",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Amneal Pharmaceuticals LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -690,25 +759,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Asclemed USA, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Aurobindo Pharma Limited",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Bausch & Lomb Americas Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -727,15 +778,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Belcher Pharmaceuticals, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from DirectRX",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -789,25 +831,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Hospira, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from JVET PHARMACEUTICALS LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Lifestar Pharma LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -843,15 +867,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals,Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Pari Respiratory Equipment, Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -862,33 +877,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Prasco, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Preferred Pharmaceuticals Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Proficient Rx LP",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from REMEDYREPACK INC.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -996,42 +984,49 @@
  ],
  "explanation": {
   "state": "no_signal",
-  "headline": "FDA's records show Hospira discontinued tobramycin sulfate injection on 2026-07-17; no current FDA shortage signal at our plants",
+  "headline": "Tobramycin is not on FDA's shortage list as of 2026-10-21",
   "sentences": [
    {
-    "text": "FDA's shortage list records that Hospira, Inc., a Pfizer Company, discontinued manufacture of tobramycin sulfate injection with an initial posting date of 2026-07-17.",
+    "text": "FDA's records show tobramycin is not on the drug shortage list as of 2026-10-21.",
     "cites": [
-     "E7"
+     "D5"
     ]
    },
    {
-    "text": "There is no current FDA shortage signal for tobramycin at the plants supplying Corvale East or Corvale General.",
-    "cites": [
-     "E5",
-     "E6"
-    ]
-   },
-   {
-    "text": "Corvale East holds 893 units at 29.8 units per day, providing 30 days on hand.",
+    "text": "Corvale East holds 539 eachs of the 300 mg/4 mL presentation with 35 days on hand at 15.4 eachs per day.",
     "cites": [
      "D1"
     ]
    },
    {
-    "text": "Corvale General holds 551 units at 32.5 units per day, providing 17 days on hand.",
+    "text": "Corvale General holds 257 eachs of the same presentation with 15.6 days on hand at 16.5 eachs per day.",
     "cites": [
      "D2"
+    ]
+   },
+   {
+    "text": "For the 300 mg/5 mL presentation, Corvale East has 354 eachs lasting 24.5 days and Corvale General has 293 eachs lasting 18.3 days.",
+    "cites": [
+     "D3",
+     "D4"
+    ]
+   },
+   {
+    "text": "FDA's shortage list notes Hospira, Inc., a Pfizer Company, to be discontinued as of 2026-07-17 for tobramycin sulfate injection.",
+    "cites": [
+     "E7"
+    ]
+   },
+   {
+    "text": "The rule-based best option is to buy from Advanced Rx Pharmacy of Tennessee, LLC, which is not on FDA's shortage list today and its label names no plant we could place.",
+    "cites": [
+     "D6"
     ]
    }
   ],
   "verifier": {
-   "checked": 6,
-   "rejected": [
-    {
-     "text": "The best option by rule is to buy from A-S Medication Solutions, which is not on FDA's shortage list today.",
-     "reason": "cites nothing"
-    }
-   ],
+   "checked": 7,
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -1039,45 +1034,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -1092,80 +1108,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T09:04:59.588Z",
+   "at": "2026-10-22T12:46:07.037Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract Q7P26PHV scope"
+   "reason": "in contract 2T65STE9 scope"
   },
   {
-   "at": "2026-10-22T09:04:59.588Z",
+   "at": "2026-10-22T12:46:07.037Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract Q7P26PHV scope"
+   "reason": "in contract 2T65STE9 scope"
   },
   {
-   "at": "2026-10-22T09:05:02.855Z",
+   "at": "2026-10-22T12:46:10.211Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract Q7P26PHV scope"
+   "reason": "in contract 2T65STE9 scope"
   },
   {
-   "at": "2026-10-22T09:05:03.832Z",
+   "at": "2026-10-22T12:46:10.696Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract Q7P26PHV scope"
+   "reason": "in contract 2T65STE9 scope"
   },
   {
-   "at": "2026-10-22T09:05:04.384Z",
+   "at": "2026-10-22T12:46:10.909Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract Q7P26PHV scope"
+   "reason": "in contract 2T65STE9 scope"
   },
   {
-   "at": "2026-10-22T09:05:06.638Z",
+   "at": "2026-10-22T12:46:12.020Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract Q7P26PHV scope"
+   "reason": "in contract 2T65STE9 scope"
   },
   {
-   "at": "2026-10-22T09:05:07.999Z",
+   "at": "2026-10-22T12:46:12.535Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract Q7P26PHV scope"
+   "reason": "in contract 2T65STE9 scope"
   },
   {
-   "at": "2026-10-22T09:05:09.422Z",
+   "at": "2026-10-22T12:46:13.132Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract Q7P26PHV scope"
+   "reason": "in contract 2T65STE9 scope"
   },
   {
-   "at": "2026-10-22T09:05:11.065Z",
+   "at": "2026-10-22T12:46:14.277Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract Q7P26PHV scope"
+   "reason": "in contract 2T65STE9 scope"
   },
   {
-   "at": "2026-10-22T09:05:11.067Z",
+   "at": "2026-10-22T12:46:14.278Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract Q7P26PHV scope"
+   "reason": "in contract 2T65STE9 scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-7303be",
+   "queryId": "Q-b1305e",
    "row": 0,
    "label": "Corvale East: TOBRAMYCIN 300MG/5ML 5ML AMP",
    "fields": {
@@ -1176,19 +1192,24 @@
     "description": "TOBRAMYCIN 300MG/5ML 5ML AMP",
     "on_hand": "354.00",
     "daily_use": "14.448",
-    "unit": "package",
+    "unit": "each",
+    "pkg_units": "56.00",
+    "unit_basis": "packages of 56, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Tobramycin",
     "labeler_name": "Teva Pharmaceuticals USA, Inc.",
     "package_ndc": "0093-4085-63",
     "spl_set_id": "c5f65e5b-c851-45da-a0e8-215d9a4e6ad3",
     "dosage_form": "SOLUTION",
-    "route": "RESPIRATORY (INHALATION)"
+    "route": "RESPIRATORY (INHALATION)",
+    "strength": "TOBRAMYCIN 300 mg/5mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "ampule"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-7303be",
+   "queryId": "Q-b1305e",
    "row": 1,
    "label": "Corvale East: TOBRAMYCIN 300MG/4ML 4ML AMP",
    "fields": {
@@ -1199,60 +1220,75 @@
     "description": "TOBRAMYCIN 300MG/4ML 4ML AMP",
     "on_hand": "539.00",
     "daily_use": "15.381",
-    "unit": "package",
+    "unit": "each",
+    "pkg_units": "14.00",
+    "unit_basis": "packages of 14, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "tobramycin",
     "labeler_name": "Chiesi USA, Inc.",
     "package_ndc": "10122-820-56",
     "spl_set_id": "1cd3d47b-025f-4705-9daf-cf07725ec223",
     "dosage_form": "SOLUTION",
-    "route": "RESPIRATORY (INHALATION)"
+    "route": "RESPIRATORY (INHALATION)",
+    "strength": "TOBRAMYCIN 300 mg/4mL",
+    "unit_content": "4 mL",
+    "pkg_unit": "pouch"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-7303be",
+   "queryId": "Q-b1305e",
    "row": 2,
-   "label": "Corvale General: Tobramycin",
+   "label": "Corvale General: Tobramycin 300 mg/5mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-344",
     "ndc11": "00093408563",
     "ndc_as_recorded": "00093408563",
-    "description": "Tobramycin",
-    "on_hand": "293.83",
+    "description": "Tobramycin 300 mg/5mL",
+    "on_hand": "293.00",
     "daily_use": "15.975",
     "unit": "each",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Tobramycin",
     "labeler_name": "Teva Pharmaceuticals USA, Inc.",
     "package_ndc": "0093-4085-63",
     "spl_set_id": "c5f65e5b-c851-45da-a0e8-215d9a4e6ad3",
     "dosage_form": "SOLUTION",
-    "route": "RESPIRATORY (INHALATION)"
+    "route": "RESPIRATORY (INHALATION)",
+    "strength": "TOBRAMYCIN 300 mg/5mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "ampule"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-7303be",
+   "queryId": "Q-b1305e",
    "row": 3,
-   "label": "Corvale General: tobramycin",
+   "label": "Corvale General: tobramycin 300 mg/4mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-345",
     "ndc11": "10122082056",
     "ndc_as_recorded": "10122082056",
-    "description": "tobramycin",
-    "on_hand": "257.14",
+    "description": "tobramycin 300 mg/4mL",
+    "on_hand": "257.00",
     "daily_use": "16.519",
     "unit": "each",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "tobramycin",
     "labeler_name": "Chiesi USA, Inc.",
     "package_ndc": "10122-820-56",
     "spl_set_id": "1cd3d47b-025f-4705-9daf-cf07725ec223",
     "dosage_form": "SOLUTION",
-    "route": "RESPIRATORY (INHALATION)"
+    "route": "RESPIRATORY (INHALATION)",
+    "strength": "TOBRAMYCIN 300 mg/4mL",
+    "unit_content": "4 mL",
+    "pkg_unit": "pouch"
    }
   },
   "E5": {
@@ -1289,7 +1325,7 @@
   },
   "E7": {
    "id": "E7",
-   "queryId": "Q-c3d9dc",
+   "queryId": "Q-68bba4",
    "row": 0,
    "label": "FDA shortage list: Hospira, Inc., a Pfizer Company, To Be Discontinued",
    "fields": {
@@ -1306,185 +1342,272 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 893 units of tobramycin at 29.8 a day: 30 days on hand",
+   "label": "Corvale East holds 539 eachs of tobramycin 300 mg/4 mL, 4 mL at 15.4 a day: 35 days on hand",
    "fields": {
     "hospital": "Corvale East",
-    "on_hand": 893,
-    "daily_use": 29.8,
-    "days_on_hand": 30
+    "presentation": "300 mg/4 mL solution, 4 mL each",
+    "on_hand": 539,
+    "daily_use": 15.4,
+    "days_on_hand": 35
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 551 units of tobramycin at 32.5 a day: 17 days on hand",
+   "label": "Corvale General holds 257 eachs of tobramycin 300 mg/4 mL, 4 mL at 16.5 a day: 15.6 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 551,
-    "daily_use": 32.5,
-    "days_on_hand": 17
+    "presentation": "300 mg/4 mL solution, 4 mL each",
+    "on_hand": 257,
+    "daily_use": 16.5,
+    "days_on_hand": 15.6
+   }
+  },
+  "D3": {
+   "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale East holds 354 eachs of tobramycin 300 mg/5 mL, 5 mL at 14.4 a day: 24.5 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "300 mg/5 mL solution, 5 mL each",
+    "on_hand": 354,
+    "daily_use": 14.4,
+    "days_on_hand": 24.5
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 293 eachs of tobramycin 300 mg/5 mL, 5 mL at 16 a day: 18.3 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "300 mg/5 mL solution, 5 mL each",
+    "on_hand": 293,
+    "daily_use": 16,
+    "days_on_hand": 18.3
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "tobramycin is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Advanced Rx Pharmacy of Tennessee, LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Alembic Pharmaceuticals Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D8": {
+   "id": "D8",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Alembic Pharmaceuticals Limited. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-7303be": {
-   "id": "Q-7303be",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%tobramycin%' OR lower(s.description) LIKE '%tobramycin%' ORDER BY s.hospital, s.item_key",
-   "ms": 3264,
+  "Q-b1305e": {
+   "id": "Q-b1305e",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*tobramycin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*tobramycin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3172,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T09:05:02.852Z",
+   "ranAt": "2026-10-22T12:46:10.210Z",
    "rows": 4
   },
   "Q-cd462b": {
    "id": "Q-cd462b",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('c5f65e5b-c851-45da-a0e8-215d9a4e6ad3', '1cd3d47b-025f-4705-9daf-cf07725ec223') ORDER BY ps.set_id, ps.establishment",
-   "ms": 976,
+   "ms": 483,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T09:05:03.830Z",
+   "ranAt": "2026-10-22T12:46:10.695Z",
    "rows": 2
   },
-  "Q-c3d9dc": {
-   "id": "Q-c3d9dc",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%tobramycin%' ORDER BY status, company_name, package_ndc",
-   "ms": 277,
+  "Q-68bba4": {
+   "id": "Q-68bba4",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*tobramycin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 107,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T09:05:04.108Z",
+   "ranAt": "2026-10-22T12:46:10.803Z",
    "rows": 1
   },
-  "Q-1ff4a7": {
-   "id": "Q-1ff4a7",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%tobramycin%' ORDER BY first_posting",
-   "ms": 272,
+  "Q-259e7d": {
+   "id": "Q-259e7d",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*tobramycin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 104,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T09:05:04.382Z",
-   "rows": 4
+   "ranAt": "2026-10-22T12:46:10.908Z",
+   "rows": 3
   },
-  "Q-51134a": {
-   "id": "Q-51134a",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%tobramycin%' AND lower(p.dosage_form) LIKE '%solution%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2251,
+  "Q-9481ae": {
+   "id": "Q-9481ae",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*tobramycin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%solution%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1110,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T09:05:06.635Z",
-   "rows": 66
+   "ranAt": "2026-10-22T12:46:12.019Z",
+   "rows": 64
   },
   "Q-808a5c": {
    "id": "Q-808a5c",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('') ORDER BY fei, end_date",
-   "ms": 503,
+   "ms": 203,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T09:05:07.141Z",
+   "ranAt": "2026-10-22T12:46:12.223Z",
    "rows": 0
   },
   "Q-de2bfd": {
    "id": "Q-de2bfd",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('') ORDER BY fei, action_date",
-   "ms": 327,
+   "ms": 101,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T09:05:07.470Z",
+   "ranAt": "2026-10-22T12:46:12.324Z",
    "rows": 0
   },
   "Q-873665": {
    "id": "Q-873665",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('') OR (fei_match <> 'name_and_city' AND firm_key IN ('chiesi', 'teva pharms')) ORDER BY date_published",
-   "ms": 226,
+   "ms": 91,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T09:05:07.698Z",
+   "ranAt": "2026-10-22T12:46:12.416Z",
    "rows": 0
   },
-  "Q-b2bcbc": {
-   "id": "Q-b2bcbc",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('chiesi', 'teva pharms', 'teva') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%tobramycin%' ORDER BY initiation_date",
-   "ms": 296,
+  "Q-ab0aba": {
+   "id": "Q-ab0aba",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('chiesi', 'teva pharms', 'teva') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*tobramycin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 117,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T09:05:07.997Z",
+   "ranAt": "2026-10-22T12:46:12.534Z",
    "rows": 0
   },
   "Q-ee68be": {
    "id": "Q-ee68be",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('00093408563', '10122082056')",
-   "ms": 1420,
+   "ms": 595,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T09:05:09.419Z",
+   "ranAt": "2026-10-22T12:46:13.130Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2522,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T09:00:21.184Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 2080,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T09:00:23.265Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 2458,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T09:00:25.725Z",
-   "rows": 2
-  },
-  "Q-ef683e": {
-   "id": "Q-ef683e",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%tobramycin%'",
-   "ms": 1641,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T09:05:11.063Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-8cf654": {
+   "id": "Q-8cf654",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*tobramycin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1144,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:46:14.276Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 18513,
+  "zetarisMs": 17435,
   "modelCalls": 1,
-  "tokensIn": 709,
-  "tokensOut": 297,
+  "tokensIn": 1272,
+  "tokensOut": 391,
   "mode": "live"
  },
  "slug": "tobramycin",
@@ -1500,7 +1623,7 @@
     "id": "hospital-item:hospital-item:CG-344",
     "type": "HospitalItem",
     "key": "hospital-item:CG-344",
-    "label": "Corvale General: Tobramycin",
+    "label": "Corvale General: Tobramycin 300 mg/5mL",
     "attrs": {
      "key": "hospital-item:CG-344"
     },
@@ -1511,7 +1634,7 @@
     "id": "hospital-item:hospital-item:CG-345",
     "type": "HospitalItem",
     "key": "hospital-item:CG-345",
-    "label": "Corvale General: tobramycin",
+    "label": "Corvale General: tobramycin 300 mg/4mL",
     "attrs": {
      "key": "hospital-item:CG-345"
     },
@@ -1624,11 +1747,11 @@
     "from": "hospital-item:hospital-item:CG-344",
     "to": "package:ndc-package:0093-4085-63",
     "type": "stocks",
-    "validFrom": "2026-10-22T09:05:02.854Z",
+    "validFrom": "2026-10-22T12:46:10.211Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:05:02.854Z"
+     "at": "2026-10-22T12:46:10.211Z"
     }
    },
    {
@@ -1636,11 +1759,11 @@
     "from": "hospital-item:hospital-item:CG-345",
     "to": "package:ndc-package:10122-820-56",
     "type": "stocks",
-    "validFrom": "2026-10-22T09:05:02.854Z",
+    "validFrom": "2026-10-22T12:46:10.211Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:05:02.854Z"
+     "at": "2026-10-22T12:46:10.211Z"
     }
    },
    {
@@ -1648,11 +1771,11 @@
     "from": "hospital-item:hospital-item:EA-E-000013",
     "to": "package:ndc-package:0093-4085-63",
     "type": "stocks",
-    "validFrom": "2026-10-22T09:05:02.854Z",
+    "validFrom": "2026-10-22T12:46:10.211Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:05:02.854Z"
+     "at": "2026-10-22T12:46:10.211Z"
     }
    },
    {
@@ -1660,11 +1783,11 @@
     "from": "hospital-item:hospital-item:EA-E-000132",
     "to": "package:ndc-package:10122-820-56",
     "type": "stocks",
-    "validFrom": "2026-10-22T09:05:02.854Z",
+    "validFrom": "2026-10-22T12:46:10.211Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:05:02.854Z"
+     "at": "2026-10-22T12:46:10.211Z"
     }
    },
    {
@@ -1672,11 +1795,11 @@
     "from": "package:ndc-package:0093-4085-63",
     "to": "product:ndc-product:0093-4085",
     "type": "package-of",
-    "validFrom": "2026-10-22T09:05:02.854Z",
+    "validFrom": "2026-10-22T12:46:10.211Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:05:02.854Z"
+     "at": "2026-10-22T12:46:10.211Z"
     }
    },
    {
@@ -1684,11 +1807,11 @@
     "from": "package:ndc-package:10122-820-56",
     "to": "product:ndc-product:10122-820",
     "type": "package-of",
-    "validFrom": "2026-10-22T09:05:02.854Z",
+    "validFrom": "2026-10-22T12:46:10.211Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:05:02.854Z"
+     "at": "2026-10-22T12:46:10.211Z"
     }
    },
    {
@@ -1696,11 +1819,11 @@
     "from": "product:ndc-product:0093-4085",
     "to": "drug:generic:tobramycin",
     "type": "of-drug",
-    "validFrom": "2026-10-22T09:05:02.854Z",
+    "validFrom": "2026-10-22T12:46:10.211Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:05:02.854Z"
+     "at": "2026-10-22T12:46:10.211Z"
     }
    },
    {
@@ -1708,11 +1831,11 @@
     "from": "product:ndc-product:0093-4085",
     "to": "labeler:ndc-labeler:0093",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T09:05:02.854Z",
+    "validFrom": "2026-10-22T12:46:10.211Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:05:02.854Z"
+     "at": "2026-10-22T12:46:10.211Z"
     }
    },
    {
@@ -1720,11 +1843,11 @@
     "from": "product:ndc-product:10122-820",
     "to": "drug:generic:tobramycin",
     "type": "of-drug",
-    "validFrom": "2026-10-22T09:05:02.854Z",
+    "validFrom": "2026-10-22T12:46:10.211Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:05:02.854Z"
+     "at": "2026-10-22T12:46:10.211Z"
     }
    },
    {
@@ -1732,11 +1855,11 @@
     "from": "product:ndc-product:10122-820",
     "to": "labeler:ndc-labeler:10122",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T09:05:02.854Z",
+    "validFrom": "2026-10-22T12:46:10.211Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:05:02.854Z"
+     "at": "2026-10-22T12:46:10.211Z"
     }
    }
   ],

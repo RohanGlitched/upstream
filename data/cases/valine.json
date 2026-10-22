@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-0c52dd",
+ "id": "case-2026-10-22-8a59ee",
  "question": "Why is valine, lysine, histidine, isoleucine, leucine, phenylalanine, threonine, methionine, tryptophan, alanine, glycine, arginine, proline, glutamic acid, serine, aspartic acid and tyrosine short, and what do we do?",
- "askedAt": "2026-10-22T09:06:38.742Z",
+ "askedAt": "2026-10-22T12:47:19.351Z",
  "asOf": "2026-10-21",
- "molecule": "isoleucine, leucine, lysine acetate, methionine, phenylalanine, threonine, tryptophan, valine, cysteine hydrochloride, histidine, tyrosine, n-acetyl-tyrosine, alanine, arginine, proline, serine, glycine, aspartic acid, glutamic acid, and taurine",
+ "molecule": "valine, lysine, histidine, isoleucine, leucine, phenylalanine, threonine, methionine, tryptophan, alanine, glycine, arginine, proline, glutamic acid, serine, aspartic acid and tyrosine",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5HDS65Y3RSMYTS5SY7E5SZQ",
+  "contractId": "01M5HTDDC62RW8B0AYJPJ2FDG3",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-a30fcc"
+    "Q-27602a"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3372,
-   "rows": 5,
-   "finding": "5 stock lines across 3 hospitals.",
+   "ms": 3106,
+   "rows": 2,
+   "finding": "2 stock lines across 2 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -31,29 +35,30 @@
    "title": "Where our supply is made",
    "purpose": "Follow each product's label to the plants it names, and place each plant in FDA's registration file.",
    "queryIds": [
-    "Q-ebfe81"
+    "Q-85ae4a"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 871,
-   "rows": 1,
-   "finding": "1 plant links on 1 labels; 0 placed in FDA's registration file.",
-   "status": "ok"
+   "ms": 227,
+   "rows": 0,
+   "finding": "0 plant links on 0 labels; 0 placed in FDA's registration file.",
+   "status": "empty"
   },
   {
    "key": "fda_shortage",
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-5614d7",
-    "Q-80b001"
+    "Q-4b55f6",
+    "Q-303e4b"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 437,
+   "ms": 209,
    "rows": 0,
    "finding": "Not on FDA's current shortage list.",
    "status": "empty"
@@ -63,14 +68,16 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-c98df6"
+    "Q-7f98ec"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2175,
-   "rows": 16,
-   "finding": "4 labelers make it in this form.",
+   "ms": 1113,
+   "rows": 1,
+   "finding": "1 labelers make it in this form.",
    "status": "ok"
   },
   {
@@ -78,35 +85,35 @@
    "title": "What FDA found at those plants",
    "purpose": "Read every FDA drug inspection, warning letter, import alert and recall for these plants.",
    "queryIds": [
-    "Q-586933",
-    "Q-c2b930",
-    "Q-b1afb5",
-    "Q-55bbd9"
+    "Q-808a5c",
+    "Q-de2bfd",
+    "Q-4794e1",
+    "Q-46a1d0"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1367,
-   "rows": 33,
-   "finding": "30 inspections (0 OAI at our plants), 3 compliance actions, 0 import-alert listings, 0 recalls.",
-   "status": "ok"
+   "ms": 543,
+   "rows": 0,
+   "finding": "0 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
+   "status": "empty"
   },
   {
    "key": "interchange",
    "title": "What our P&T committee already approved",
    "purpose": "Read Corvale General's approved interchanges for these items.",
    "queryIds": [
-    "Q-c7ce36"
+    "Q-360495"
    ],
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1863,
+   "ms": 649,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-030b23"
+    "Q-44a29a"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2033,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1241,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,26 +148,13 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 1,
+   "ms": 0,
    "rows": 0,
    "finding": "No past decisions on this drug.",
    "status": "empty"
   }
  ],
  "stock": [
-  {
-   "hospital": "Corvale East",
-   "itemKey": "EA-E-000048",
-   "ndc11": "00264193310",
-   "description": "ISOLEUCINE, LEUCINE, LYSINE ACETATE, METHIONINE, PHENYLALANI",
-   "labeler": "B. Braun Medical Inc.",
-   "onHand": 10,
-   "dailyUse": 4.06,
-   "days": 2.5,
-   "unit": "package",
-   "ndcMatch": "dashed 10-digit, converted",
-   "evidence": "E1"
-  },
   {
    "hospital": "Corvale East",
    "itemKey": "EA-E-000064",
@@ -166,78 +164,68 @@
    "onHand": 21,
    "dailyUse": 4.419,
    "days": 4.8,
-   "unit": "package",
+   "unit": "bag",
    "ndcMatch": "dashed 10-digit, converted",
-   "evidence": "E2"
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "valine, lysine, histidine, isoleucine, leucine, phenylalanine, threonine, methionine, tryptophan, alanine, glycine, arginine, proline, glutamic acid, serine, aspartic acid and tyrosine|1.44g/100ml+1.35g/100ml+1.18g/100ml+1.08g/100ml+1.08g/100ml+1g/100ml+980mg/100ml+760mg/100ml+320mg/100ml+2.76g/100ml+2.06g/100ml+1.96g/100ml+1.34g/100ml+1.02g/100ml+1.02g/100ml+600mg/100ml+50mg/100ml|injection|2000ml|bag",
+   "presentationLabel": "1.44 g/100 mL + 1.35 g/100 mL + 1.18 g/100 mL + 1.08 g/100 mL + 1.08 g/100 mL + 1 g/100 mL + 980 mg/100 mL + 760 mg/100 mL + 320 mg/100 mL + 2.76 g/100 mL + 2.06 g/100 mL + 1.96 g/100 mL + 1.34 g/100 mL + 1.02 g/100 mL + 1.02 g/100 mL + 600 mg/100 mL + 50 mg/100 mL injection, 2000 mL bag",
+   "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-125",
    "ndc11": "00338049906",
-   "description": "Valine, Lysine, Histidine, Isoleucine, Leucine, Phenylalanine, Threonine, Methionine, Tryptophan, Alanine, Glycine, Arginine, Proline, Glutamic Acid, Serine, Aspartic Acid and Tyrosine",
+   "description": "Valine, Lysine, Histidine, Isoleucine, Leucine, Phenylalanine, Threonine, Methionine, Tryptophan, Alanine, Glycine, Arginine, Proline, Glutamic Acid, Serine, Aspartic Acid and Tyrosine 1.44 g/100mL",
    "labeler": "Baxter Healthcare Corporation",
-   "onHand": 63.87,
+   "onHand": 63,
    "dailyUse": 4.503,
-   "days": 14.2,
+   "days": 14,
    "unit": "bag",
    "ndcMatch": "11-digit as recorded",
-   "evidence": "E3"
-  },
+   "unitBasis": "units of use, whole units only",
+   "presentation": "valine, lysine, histidine, isoleucine, leucine, phenylalanine, threonine, methionine, tryptophan, alanine, glycine, arginine, proline, glutamic acid, serine, aspartic acid and tyrosine|1.44g/100ml+1.35g/100ml+1.18g/100ml+1.08g/100ml+1.08g/100ml+1g/100ml+980mg/100ml+760mg/100ml+320mg/100ml+2.76g/100ml+2.06g/100ml+1.96g/100ml+1.34g/100ml+1.02g/100ml+1.02g/100ml+600mg/100ml+50mg/100ml|injection|2000ml|bag",
+   "presentationLabel": "1.44 g/100 mL + 1.35 g/100 mL + 1.18 g/100 mL + 1.08 g/100 mL + 1.08 g/100 mL + 1 g/100 mL + 980 mg/100 mL + 760 mg/100 mL + 320 mg/100 mL + 2.76 g/100 mL + 2.06 g/100 mL + 1.96 g/100 mL + 1.34 g/100 mL + 1.02 g/100 mL + 1.02 g/100 mL + 600 mg/100 mL + 50 mg/100 mL injection, 2000 mL bag",
+   "evidence": "E2"
+  }
+ ],
+ "presentations": [
   {
-   "hospital": "Corvale General",
-   "itemKey": "CG-66",
-   "ndc11": "00264193310",
-   "description": "ISOLEUCINE, LEUCINE, LYSINE ACETATE, METHIONINE, PHENYLALANINE, THREONINE, TRYPTOPHAN, VALINE, CYSTEINE HYDROCHLORIDE, HISTIDINE, TYROSINE, N-ACETYL-TYROSINE, ALANINE, ARGININE, PROLINE, SERINE, GLYCINE, ASPARTIC ACID, GLUTAMIC ACID, and TAURINE",
-   "labeler": "B. Braun Medical Inc.",
-   "onHand": 64.44,
-   "dailyUse": 4.387,
-   "days": 14.7,
-   "unit": "each",
-   "ndcMatch": "11-digit as recorded",
-   "evidence": "E4"
-  },
-  {
-   "hospital": "Corvale Lakeside",
-   "itemKey": "LS-LS-0021",
-   "ndc11": "00264193310",
-   "description": "ISOLEUCINE, LEUCINE, LYSINE ACETATE, METHIONINE, PHENYLALANINE, THREONINE, TRYPTOPHAN, VALINE, CYSTEINE HYDROCHLORIDE, HISTIDINE, TYROSINE, N-ACETYL-TYROSINE, ALANINE, ARGININE, PROLINE, SERINE, GLYCINE, ASPARTIC ACID, GLUTAMIC ACID, and TAURINE 0.82 g/100mL",
-   "labeler": "B. Braun Medical Inc.",
-   "onHand": 30,
-   "dailyUse": 1.157,
-   "days": 25.9,
-   "unit": "each",
-   "ndcMatch": "dashed 10-digit, converted",
-   "evidence": "E5"
+   "key": "valine, lysine, histidine, isoleucine, leucine, phenylalanine, threonine, methionine, tryptophan, alanine, glycine, arginine, proline, glutamic acid, serine, aspartic acid and tyrosine|1.44g/100ml+1.35g/100ml+1.18g/100ml+1.08g/100ml+1.08g/100ml+1g/100ml+980mg/100ml+760mg/100ml+320mg/100ml+2.76g/100ml+2.06g/100ml+1.96g/100ml+1.34g/100ml+1.02g/100ml+1.02g/100ml+600mg/100ml+50mg/100ml|injection|2000ml|bag",
+   "label": "1.44 g/100 mL + 1.35 g/100 mL + 1.18 g/100 mL + 1.08 g/100 mL + 1.08 g/100 mL + 1 g/100 mL + 980 mg/100 mL + 760 mg/100 mL + 320 mg/100 mL + 2.76 g/100 mL + 2.06 g/100 mL + 1.96 g/100 mL + 1.34 g/100 mL + 1.02 g/100 mL + 1.02 g/100 mL + 600 mg/100 mL + 50 mg/100 mL injection, 2000 mL bag",
+   "short": "1.44 g/100 mL + 1.35 g/100 mL + 1.18 g/100 mL + 1.08 g/100 mL + 1.08 g/100 mL + 1 g/100 mL + 980 mg/100 mL + 760 mg/100 mL + 320 mg/100 mL + 2.76 g/100 mL + 2.06 g/100 mL + 1.96 g/100 mL + 1.34 g/100 mL + 1.02 g/100 mL + 1.02 g/100 mL + 600 mg/100 mL + 50 mg/100 mL, 2000 mL",
+   "unit": "bag",
+   "onHand": 84,
+   "dailyUse": 8.922,
+   "days": 9.4,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 21,
+     "dailyUse": 4.419,
+     "days": 4.8,
+     "lines": [
+      "EA-E-000064"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 63,
+     "dailyUse": 4.503,
+     "days": 14,
+     "lines": [
+      "CG-125"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
-  {
-   "ndc11": "00264193310",
-   "packageNdc": "0264-1933-10",
-   "labeler": "B. Braun Medical Inc.",
-   "generic": "ISOLEUCINE, LEUCINE, LYSINE ACETATE, METHIONINE, PHENYLALANINE, THREONINE, TRYPTOPHAN, VALINE, CYSTEINE HYDROCHLORIDE, HISTIDINE, TYROSINE, N-ACETYL-TYROSINE, ALANINE, ARGININE, PROLINE, SERINE, GLYCINE, ASPARTIC ACID, GLUTAMIC ACID, and TAURINE",
-   "setId": "cb6d23ff-3ec5-445a-acbe-f88fd57949bf",
-   "plants": [
-    {
-     "key": "b braun",
-     "name": "B BRAUN",
-     "duns": null,
-     "fei": null,
-     "country": null,
-     "address": null,
-     "operations": "MANUFACTURE",
-     "linkSource": "drugsfda_sponsor",
-     "linkQuality": "sponsor only",
-     "health": "unknown",
-     "lastClassification": null,
-     "signals": [],
-     "evidence": [
-      "E6"
-     ]
-    }
-   ],
-   "evidence": "E1"
-  },
   {
    "ndc11": "00338049906",
    "packageNdc": "0338-0499-06",
@@ -245,7 +233,7 @@
    "generic": "Valine, Lysine, Histidine, Isoleucine, Leucine, Phenylalanine, Threonine, Methionine, Tryptophan, Alanine, Glycine, Arginine, Proline, Glutamic Acid, Serine, Aspartic Acid and Tyrosine",
    "setId": null,
    "plants": [],
-   "evidence": "E2"
+   "evidence": "E1"
   }
  ],
  "shortage": {
@@ -258,100 +246,15 @@
  },
  "market": [
   {
-   "labeler": "B. Braun Medical Inc.",
-   "ndc11": "00264193310",
-   "dosageForm": "SOLUTION",
-   "plants": [
-    {
-     "name": "B BRAUN",
-     "fei": null,
-     "country": null,
-     "health": "unknown",
-     "last": null
-    }
-   ],
-   "onShortageList": false,
-   "inOurStock": true
-  },
-  {
-   "labeler": "Baxter Healthcare Company",
-   "ndc11": "00338113003",
-   "dosageForm": "INJECTION, SOLUTION",
-   "plants": [
-    {
-     "name": "Baxter Healthcare Corporation",
-     "fei": "1416980",
-     "country": "USA",
-     "health": "signal",
-     "last": "OAI 2026-04-02"
-    }
-   ],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
    "labeler": "Baxter Healthcare Corporation",
    "ndc11": "00338049906",
    "dosageForm": "INJECTION, SOLUTION",
    "plants": [],
    "onShortageList": false,
    "inOurStock": true
-  },
-  {
-   "labeler": "ICU Medical Inc.",
-   "ndc11": "00990417803",
-   "dosageForm": "INJECTION, SOLUTION",
-   "plants": [
-    {
-     "name": "OTSUKA ICU MEDCL",
-     "fei": null,
-     "country": null,
-     "health": "unknown",
-     "last": null
-    }
-   ],
-   "onShortageList": false,
-   "inOurStock": false
   }
  ],
- "options": [
-  {
-   "kind": "transfer",
-   "rank": 1,
-   "title": "Transfer 13 from Corvale Lakeside to Corvale East",
-   "detail": "Corvale Lakeside has 26 days on hand and can spare 13 while keeping two weeks; Corvale East has 3.7 days and would reach 5.",
-   "why": "Same product, no clinical change, no new supplier.",
-   "needs": "pharmacy director (transfer request)",
-   "evidence": [
-    "E5",
-    "E1",
-    "E2"
-   ]
-  },
-  {
-   "kind": "transfer",
-   "rank": 1,
-   "title": "Transfer 3 from Corvale General to Corvale East",
-   "detail": "Corvale General has 14 days on hand and can spare 3 while keeping two weeks; Corvale East has 3.7 days and would reach 4.",
-   "why": "Same product, no clinical change, no new supplier.",
-   "needs": "pharmacy director (transfer request)",
-   "evidence": [
-    "E3",
-    "E4",
-    "E1",
-    "E2"
-   ]
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 2,
-   "title": "Buy from ICU Medical Inc.",
-   "detail": "Not on FDA's shortage list today. Plants: OTSUKA ICU MEDCL.",
-   "why": "Same product, no clinical change, plant record clear.",
-   "needs": "buyer",
-   "evidence": []
-  }
- ],
+ "options": [],
  "timeline": [
   {
    "date": "2026-10-21",
@@ -363,54 +266,43 @@
  ],
  "explanation": {
   "state": "no_signal",
-  "headline": "No public FDA signal at our plants; Corvale East has 4 days on hand and Corvale Lakeside has 26 days on hand",
+  "headline": "FDA's records show the amino acid injection is not on the drug shortage list as of 2026-10-21",
   "sentences": [
    {
-    "text": "Corvale East holds 31 units at 8.5 per day, giving 4 days on hand.",
-    "cites": [
-     "D1"
-    ]
-   },
-   {
-    "text": "Corvale Lakeside holds 30 units at 1.2 per day, giving 26 days on hand.",
+    "text": "FDA's drug shortage list does not include valine, lysine, histidine, isoleucine, leucine, phenylalanine, threonine, methionine, tryptophan, alanine, glycine, arginine, proline, glutamic acid, serine, aspartic acid and tyrosine as of 2026-10-21.",
     "cites": [
      "D3"
     ]
    },
    {
-    "text": "Corvale General holds 128 units at 8.9 per day, giving 14 days on hand.",
+    "text": "Corvale East holds 21 bags with 4.8 days on hand at a daily use of 4.4 bags.",
+    "cites": [
+     "D1"
+    ]
+   },
+   {
+    "text": "Corvale General holds 63 bags with 14 days on hand at a daily use of 4.5 bags.",
     "cites": [
      "D2"
     ]
    },
    {
-    "text": "Both Corvale East and Corvale Lakeside use the same B. Braun product (NDC 00264193310) manufactured by B. Braun Medical Inc.",
+    "text": "No public FDA shortage signal exists for this product at our facilities.",
     "cites": [
-     "E1",
-     "E5",
-     "E6"
+     "D3"
     ]
    },
    {
-    "text": "Corvale General also uses a Baxter product (NDC 00338049906) in addition to the B. Braun product.",
+    "text": "Continue standard procurement and monitor inventory levels at both sites.",
     "cites": [
-     "E3",
-     "E4"
+     "D1",
+     "D2"
     ]
    }
   ],
   "verifier": {
-   "checked": 8,
-   "rejected": [
-    {
-     "text": "FDA's public shortage database shows no signal for the amino acid injection products used at Corvale facilities.",
-     "reason": "cites nothing"
-    },
-    {
-     "text": "Transferring 13 units from Corvale Lakeside to Corvale East would leave Lakeside with 17 units (14 days) and raise East to 44 units (5 days).",
-     "reason": "number 13 is not in the cited evidence"
-    }
-   ],
+   "checked": 6,
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -418,149 +310,147 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [],
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T09:06:26.622Z",
+   "at": "2026-10-22T12:47:12.262Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract SY7E5SZQ scope"
+   "reason": "in contract JPJ2FDG3 scope"
   },
   {
-   "at": "2026-10-22T09:06:26.623Z",
+   "at": "2026-10-22T12:47:12.263Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract SY7E5SZQ scope"
+   "reason": "in contract JPJ2FDG3 scope"
   },
   {
-   "at": "2026-10-22T09:06:29.995Z",
+   "at": "2026-10-22T12:47:15.369Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract SY7E5SZQ scope"
+   "reason": "in contract JPJ2FDG3 scope"
   },
   {
-   "at": "2026-10-22T09:06:30.866Z",
+   "at": "2026-10-22T12:47:15.596Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract SY7E5SZQ scope"
+   "reason": "in contract JPJ2FDG3 scope"
   },
   {
-   "at": "2026-10-22T09:06:31.303Z",
+   "at": "2026-10-22T12:47:15.805Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract SY7E5SZQ scope"
+   "reason": "in contract JPJ2FDG3 scope"
   },
   {
-   "at": "2026-10-22T09:06:33.477Z",
+   "at": "2026-10-22T12:47:16.919Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract SY7E5SZQ scope"
+   "reason": "in contract JPJ2FDG3 scope"
   },
   {
-   "at": "2026-10-22T09:06:34.845Z",
+   "at": "2026-10-22T12:47:17.461Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract SY7E5SZQ scope"
+   "reason": "in contract JPJ2FDG3 scope"
   },
   {
-   "at": "2026-10-22T09:06:36.709Z",
+   "at": "2026-10-22T12:47:18.110Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract SY7E5SZQ scope"
+   "reason": "in contract JPJ2FDG3 scope"
   },
   {
-   "at": "2026-10-22T09:06:38.741Z",
+   "at": "2026-10-22T12:47:19.351Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract SY7E5SZQ scope"
+   "reason": "in contract JPJ2FDG3 scope"
   },
   {
-   "at": "2026-10-22T09:06:38.743Z",
+   "at": "2026-10-22T12:47:19.351Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract SY7E5SZQ scope"
+   "reason": "in contract JPJ2FDG3 scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-a30fcc",
+   "queryId": "Q-27602a",
    "row": 0,
-   "label": "Corvale East: ISOLEUCINE, LEUCINE, LYSINE ACETATE, METHIONINE, PHENYLALANI",
-   "fields": {
-    "hospital": "Corvale East",
-    "item_key": "EA-E-000048",
-    "ndc11": "00264193310",
-    "ndc_as_recorded": "0264-1933-10",
-    "description": "ISOLEUCINE, LEUCINE, LYSINE ACETATE, METHIONINE, PHENYLALANI",
-    "on_hand": "10.00",
-    "daily_use": "4.060",
-    "unit": "package",
-    "ndc_match": "dashed 10-digit, converted",
-    "generic_name": "ISOLEUCINE, LEUCINE, LYSINE ACETATE, METHIONINE, PHENYLALANINE, THREONINE, TRYPTOPHAN, VALINE, CYSTEINE HYDROCHLORIDE, HISTIDINE, TYROSINE, N-ACETYL-TYROSINE, ALANINE, ARGININE, PROLINE, SERINE, GLYCINE, ASPARTIC ACID, GLUTAMIC ACID, and TAURINE",
-    "labeler_name": "B. Braun Medical Inc.",
-    "package_ndc": "0264-1933-10",
-    "spl_set_id": "cb6d23ff-3ec5-445a-acbe-f88fd57949bf",
-    "dosage_form": "SOLUTION",
-    "route": "INTRAVENOUS"
-   }
-  },
-  "E2": {
-   "id": "E2",
-   "queryId": "Q-a30fcc",
-   "row": 1,
    "label": "Corvale East: VALINE, LYSINE, HISTIDINE, ISOLEUCINE, LEUCINE, PHENYLALANIN",
    "fields": {
     "hospital": "Corvale East",
@@ -570,122 +460,72 @@
     "description": "VALINE, LYSINE, HISTIDINE, ISOLEUCINE, LEUCINE, PHENYLALANIN",
     "on_hand": "21.00",
     "daily_use": "4.419",
-    "unit": "package",
+    "unit": "bag",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Valine, Lysine, Histidine, Isoleucine, Leucine, Phenylalanine, Threonine, Methionine, Tryptophan, Alanine, Glycine, Arginine, Proline, Glutamic Acid, Serine, Aspartic Acid and Tyrosine",
     "labeler_name": "Baxter Healthcare Corporation",
     "package_ndc": "0338-0499-06",
     "spl_set_id": null,
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "VALINE 1.44 g/100mL; LYSINE ACETATE 1.35 g/100mL; HISTIDINE 1.18 g/100mL; ISOLEUCINE 1.08 g/100mL; LEUCINE 1.08 g/100mL; PHENYLALANINE 1 g/100mL; THREONINE 980 mg/100mL; METHIONINE 760 mg/100mL; TRYPTOPHAN 320 mg/100mL; ALANINE 2.76 g/100mL; GLYCINE 2.06 g/100mL; ARGININE 1.96 g/100mL; PROLINE 1.34 g/100mL; GLUTAMIC ACID 1.02 g/100mL; SERINE 1.02 g/100mL; ASPARTIC ACID 600 mg/100mL; TYROSINE 50 mg/100mL",
+    "unit_content": "2000 mL",
+    "pkg_unit": "bag"
    }
   },
-  "E3": {
-   "id": "E3",
-   "queryId": "Q-a30fcc",
-   "row": 2,
+  "E2": {
+   "id": "E2",
+   "queryId": "Q-27602a",
+   "row": 1,
    "label": "Corvale General: Valine, Lysine, Histidine, Isoleucine, Leucine, Phenylalanine, Threonine,",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-125",
     "ndc11": "00338049906",
     "ndc_as_recorded": "00338049906",
-    "description": "Valine, Lysine, Histidine, Isoleucine, Leucine, Phenylalanine, Threonine, Methionine, Tryptophan, Alanine, Glycine, Arginine, Proline, Glutamic Acid, Serine, Aspartic Acid and Tyrosine",
-    "on_hand": "63.87",
+    "description": "Valine, Lysine, Histidine, Isoleucine, Leucine, Phenylalanine, Threonine, Methionine, Tryptophan, Alanine, Glycine, Arginine, Proline, Glutamic Acid, Serine, Aspartic Acid and Tyrosine 1.44 g/100mL",
+    "on_hand": "63.00",
     "daily_use": "4.503",
     "unit": "bag",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Valine, Lysine, Histidine, Isoleucine, Leucine, Phenylalanine, Threonine, Methionine, Tryptophan, Alanine, Glycine, Arginine, Proline, Glutamic Acid, Serine, Aspartic Acid and Tyrosine",
     "labeler_name": "Baxter Healthcare Corporation",
     "package_ndc": "0338-0499-06",
     "spl_set_id": null,
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
-   }
-  },
-  "E4": {
-   "id": "E4",
-   "queryId": "Q-a30fcc",
-   "row": 3,
-   "label": "Corvale General: ISOLEUCINE, LEUCINE, LYSINE ACETATE, METHIONINE, PHENYLALANINE, THREONINE",
-   "fields": {
-    "hospital": "Corvale General",
-    "item_key": "CG-66",
-    "ndc11": "00264193310",
-    "ndc_as_recorded": "00264193310",
-    "description": "ISOLEUCINE, LEUCINE, LYSINE ACETATE, METHIONINE, PHENYLALANINE, THREONINE, TRYPTOPHAN, VALINE, CYSTEINE HYDROCHLORIDE, HISTIDINE, TYROSINE, N-ACETYL-TYROSINE, ALANINE, ARGININE, PROLINE, SERINE, GLYCINE, ASPARTIC ACID, GLUTAMIC ACID, and TAURINE",
-    "on_hand": "64.44",
-    "daily_use": "4.387",
-    "unit": "each",
-    "ndc_match": "11-digit as recorded",
-    "generic_name": "ISOLEUCINE, LEUCINE, LYSINE ACETATE, METHIONINE, PHENYLALANINE, THREONINE, TRYPTOPHAN, VALINE, CYSTEINE HYDROCHLORIDE, HISTIDINE, TYROSINE, N-ACETYL-TYROSINE, ALANINE, ARGININE, PROLINE, SERINE, GLYCINE, ASPARTIC ACID, GLUTAMIC ACID, and TAURINE",
-    "labeler_name": "B. Braun Medical Inc.",
-    "package_ndc": "0264-1933-10",
-    "spl_set_id": "cb6d23ff-3ec5-445a-acbe-f88fd57949bf",
-    "dosage_form": "SOLUTION",
-    "route": "INTRAVENOUS"
-   }
-  },
-  "E5": {
-   "id": "E5",
-   "queryId": "Q-a30fcc",
-   "row": 4,
-   "label": "Corvale Lakeside: ISOLEUCINE, LEUCINE, LYSINE ACETATE, METHIONINE, PHENYLALANINE, THREONIN",
-   "fields": {
-    "hospital": "Corvale Lakeside",
-    "item_key": "LS-LS-0021",
-    "ndc11": "00264193310",
-    "ndc_as_recorded": "0264-1933-10",
-    "description": "ISOLEUCINE, LEUCINE, LYSINE ACETATE, METHIONINE, PHENYLALANINE, THREONINE, TRYPTOPHAN, VALINE, CYSTEINE HYDROCHLORIDE, HISTIDINE, TYROSINE, N-ACETYL-TYROSINE, ALANINE, ARGININE, PROLINE, SERINE, GLYCINE, ASPARTIC ACID, GLUTAMIC ACID, and TAURINE 0.82 g/100mL",
-    "on_hand": "30.00",
-    "daily_use": "1.157",
-    "unit": "each",
-    "ndc_match": "dashed 10-digit, converted",
-    "generic_name": "ISOLEUCINE, LEUCINE, LYSINE ACETATE, METHIONINE, PHENYLALANINE, THREONINE, TRYPTOPHAN, VALINE, CYSTEINE HYDROCHLORIDE, HISTIDINE, TYROSINE, N-ACETYL-TYROSINE, ALANINE, ARGININE, PROLINE, SERINE, GLYCINE, ASPARTIC ACID, GLUTAMIC ACID, and TAURINE",
-    "labeler_name": "B. Braun Medical Inc.",
-    "package_ndc": "0264-1933-10",
-    "spl_set_id": "cb6d23ff-3ec5-445a-acbe-f88fd57949bf",
-    "dosage_form": "SOLUTION",
-    "route": "INTRAVENOUS"
-   }
-  },
-  "E6": {
-   "id": "E6",
-   "queryId": "Q-ebfe81",
-   "row": 0,
-   "label": "Label cb6d23ff names B BRAUN",
-   "fields": {
-    "product_labeler": "B. Braun Medical Inc.",
-    "ndc11": "00264193310",
-    "plant": "B BRAUN",
-    "fei": null,
-    "country": null,
-    "operations": "MANUFACTURE",
-    "link": "sponsor only",
-    "last_inspection": null
+    "route": "INTRAVENOUS",
+    "strength": "VALINE 1.44 g/100mL; LYSINE ACETATE 1.35 g/100mL; HISTIDINE 1.18 g/100mL; ISOLEUCINE 1.08 g/100mL; LEUCINE 1.08 g/100mL; PHENYLALANINE 1 g/100mL; THREONINE 980 mg/100mL; METHIONINE 760 mg/100mL; TRYPTOPHAN 320 mg/100mL; ALANINE 2.76 g/100mL; GLYCINE 2.06 g/100mL; ARGININE 1.96 g/100mL; PROLINE 1.34 g/100mL; GLUTAMIC ACID 1.02 g/100mL; SERINE 1.02 g/100mL; ASPARTIC ACID 600 mg/100mL; TYROSINE 50 mg/100mL",
+    "unit_content": "2000 mL",
+    "pkg_unit": "bag"
    }
   },
   "D1": {
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 31 units of isoleucine, leucine, lysine acetate, methionine, phenylalanine, threonine, tryptophan, valine, cysteine hydrochloride, histidine, tyrosine, n-acetyl-tyrosine, alanine, arginine, proline, serine, glycine, aspartic acid, glutamic acid, and taurine at 8.5 a day: 4 days on hand",
+   "label": "Corvale East holds 21 bags of valine, lysine, histidine, isoleucine, leucine, phenylalanine, threonine, methionine, tryptophan, alanine, glycine, arginine, proline, glutamic acid, serine, aspartic acid and tyrosine 1.44 g/100 mL + 1.35 g/100 mL + 1.18 g/100 mL + 1.08 g/100 mL + 1.08 g/100 mL + 1 g/100 mL + 980 mg/100 mL + 760 mg/100 mL + 320 mg/100 mL + 2.76 g/100 mL + 2.06 g/100 mL + 1.96 g/100 mL + 1.34 g/100 mL + 1.02 g/100 mL + 1.02 g/100 mL + 600 mg/100 mL + 50 mg/100 mL, 2000 mL at 4.4 a day: 4.8 days on hand",
    "fields": {
     "hospital": "Corvale East",
-    "on_hand": 31,
-    "daily_use": 8.5,
-    "days_on_hand": 4
+    "presentation": "1.44 g/100 mL + 1.35 g/100 mL + 1.18 g/100 mL + 1.08 g/100 mL + 1.08 g/100 mL + 1 g/100 mL + 980 mg/100 mL + 760 mg/100 mL + 320 mg/100 mL + 2.76 g/100 mL + 2.06 g/100 mL + 1.96 g/100 mL + 1.34 g/100 mL + 1.02 g/100 mL + 1.02 g/100 mL + 600 mg/100 mL + 50 mg/100 mL injection, 2000 mL bag",
+    "on_hand": 21,
+    "daily_use": 4.4,
+    "days_on_hand": 4.8
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 128 units of isoleucine, leucine, lysine acetate, methionine, phenylalanine, threonine, tryptophan, valine, cysteine hydrochloride, histidine, tyrosine, n-acetyl-tyrosine, alanine, arginine, proline, serine, glycine, aspartic acid, glutamic acid, and taurine at 8.9 a day: 14 days on hand",
+   "label": "Corvale General holds 63 bags of valine, lysine, histidine, isoleucine, leucine, phenylalanine, threonine, methionine, tryptophan, alanine, glycine, arginine, proline, glutamic acid, serine, aspartic acid and tyrosine 1.44 g/100 mL + 1.35 g/100 mL + 1.18 g/100 mL + 1.08 g/100 mL + 1.08 g/100 mL + 1 g/100 mL + 980 mg/100 mL + 760 mg/100 mL + 320 mg/100 mL + 2.76 g/100 mL + 2.06 g/100 mL + 1.96 g/100 mL + 1.34 g/100 mL + 1.02 g/100 mL + 1.02 g/100 mL + 600 mg/100 mL + 50 mg/100 mL, 2000 mL at 4.5 a day: 14 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 128,
-    "daily_use": 8.9,
+    "presentation": "1.44 g/100 mL + 1.35 g/100 mL + 1.18 g/100 mL + 1.08 g/100 mL + 1.08 g/100 mL + 1 g/100 mL + 980 mg/100 mL + 760 mg/100 mL + 320 mg/100 mL + 2.76 g/100 mL + 2.06 g/100 mL + 1.96 g/100 mL + 1.34 g/100 mL + 1.02 g/100 mL + 1.02 g/100 mL + 600 mg/100 mL + 50 mg/100 mL injection, 2000 mL bag",
+    "on_hand": 63,
+    "daily_use": 4.5,
     "days_on_hand": 14
    }
   },
@@ -693,183 +533,197 @@
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 30 units of isoleucine, leucine, lysine acetate, methionine, phenylalanine, threonine, tryptophan, valine, cysteine hydrochloride, histidine, tyrosine, n-acetyl-tyrosine, alanine, arginine, proline, serine, glycine, aspartic acid, glutamic acid, and taurine at 1.2 a day: 26 days on hand",
+   "label": "valine, lysine, histidine, isoleucine, leucine, phenylalanine, threonine, methionine, tryptophan, alanine, glycine, arginine, proline, glutamic acid, serine, aspartic acid and tyrosine is not on FDA's drug shortage list as of 2026-10-21",
    "fields": {
-    "hospital": "Corvale Lakeside",
-    "on_hand": 30,
-    "daily_use": 1.2,
-    "days_on_hand": 26
+    "as_of": "2026-10-21",
+    "listed": "no"
    }
   }
  },
  "queries": {
-  "Q-a30fcc": {
-   "id": "Q-a30fcc",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%valine%' OR lower(s.description) LIKE '%valine%' ORDER BY s.hospital, s.item_key",
-   "ms": 3369,
+  "Q-27602a": {
+   "id": "Q-27602a",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*valine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*valine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3105,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T09:06:29.991Z",
-   "rows": 5
+   "ranAt": "2026-10-22T12:47:15.368Z",
+   "rows": 2
   },
-  "Q-ebfe81": {
-   "id": "Q-ebfe81",
-   "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('cb6d23ff-3ec5-445a-acbe-f88fd57949bf') ORDER BY ps.set_id, ps.establishment",
-   "ms": 869,
+  "Q-85ae4a": {
+   "id": "Q-85ae4a",
+   "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('') ORDER BY ps.set_id, ps.establishment",
+   "ms": 226,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T09:06:30.863Z",
-   "rows": 1
+   "ranAt": "2026-10-22T12:47:15.595Z",
+   "rows": 0
   },
-  "Q-5614d7": {
-   "id": "Q-5614d7",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%isoleucine,%' ORDER BY status, company_name, package_ndc",
-   "ms": 224,
+  "Q-4b55f6": {
+   "id": "Q-4b55f6",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*valine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 101,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T09:06:31.090Z",
+   "ranAt": "2026-10-22T12:47:15.697Z",
    "rows": 0
   },
-  "Q-80b001": {
-   "id": "Q-80b001",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%isoleucine,%' ORDER BY first_posting",
-   "ms": 210,
+  "Q-303e4b": {
+   "id": "Q-303e4b",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*valine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 106,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T09:06:31.301Z",
+   "ranAt": "2026-10-22T12:47:15.804Z",
    "rows": 0
   },
-  "Q-c98df6": {
-   "id": "Q-c98df6",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%isoleucine,%' AND lower(p.dosage_form) LIKE '%solution%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2172,
+  "Q-7f98ec": {
+   "id": "Q-7f98ec",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*valine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1112,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T09:06:33.475Z",
-   "rows": 16
+   "ranAt": "2026-10-22T12:47:16.917Z",
+   "rows": 1
   },
-  "Q-586933": {
-   "id": "Q-586933",
-   "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('1416980', '2618677') ORDER BY fei, end_date",
-   "ms": 496,
+  "Q-808a5c": {
+   "id": "Q-808a5c",
+   "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('') ORDER BY fei, end_date",
+   "ms": 208,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T09:06:33.974Z",
-   "rows": 30
+   "ranAt": "2026-10-22T12:47:17.127Z",
+   "rows": 0
   },
-  "Q-c2b930": {
-   "id": "Q-c2b930",
-   "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('1416980', '2618677') ORDER BY fei, action_date",
-   "ms": 266,
+  "Q-de2bfd": {
+   "id": "Q-de2bfd",
+   "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('') ORDER BY fei, action_date",
+   "ms": 128,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T09:06:34.241Z",
-   "rows": 3
+   "ranAt": "2026-10-22T12:47:17.256Z",
+   "rows": 0
   },
-  "Q-b1afb5": {
-   "id": "Q-b1afb5",
-   "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('') OR (fei_match <> 'name_and_city' AND firm_key IN ('b braun')) ORDER BY date_published",
-   "ms": 277,
+  "Q-4794e1": {
+   "id": "Q-4794e1",
+   "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('') OR (fei_match <> 'name_and_city' AND firm_key IN ('')) ORDER BY date_published",
+   "ms": 87,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T09:06:34.519Z",
+   "ranAt": "2026-10-22T12:47:17.344Z",
    "rows": 0
   },
-  "Q-55bbd9": {
-   "id": "Q-55bbd9",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('b braun', 'b braun medical', 'baxter') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%isoleucine,%' ORDER BY initiation_date",
-   "ms": 321,
+  "Q-46a1d0": {
+   "id": "Q-46a1d0",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('baxter') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*valine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 115,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T09:06:34.843Z",
+   "ranAt": "2026-10-22T12:47:17.460Z",
    "rows": 0
   },
-  "Q-c7ce36": {
-   "id": "Q-c7ce36",
-   "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('00264193310', '00338049906')",
-   "ms": 1860,
+  "Q-360495": {
+   "id": "Q-360495",
+   "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('00338049906')",
+   "ms": 648,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T09:06:36.705Z",
+   "ranAt": "2026-10-22T12:47:18.109Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2522,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T09:00:21.184Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 2080,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T09:00:23.265Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 2458,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T09:00:25.725Z",
-   "rows": 2
-  },
-  "Q-030b23": {
-   "id": "Q-030b23",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%isoleucine,%'",
-   "ms": 2031,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T09:06:38.739Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-44a29a": {
+   "id": "Q-44a29a",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*valine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1240,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:47:19.350Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 19155,
+  "zetarisMs": 17284,
   "modelCalls": 1,
-  "tokensIn": 2129,
-  "tokensOut": 409,
+  "tokensIn": 1447,
+  "tokensOut": 297,
   "mode": "live"
  },
  "slug": "valine",
  "graph": {
   "roots": [
    "hospital-item:hospital-item:CG-125",
-   "hospital-item:hospital-item:CG-66",
-   "hospital-item:hospital-item:EA-E-000048",
-   "hospital-item:hospital-item:EA-E-000064",
-   "hospital-item:hospital-item:LS-LS-0021"
+   "hospital-item:hospital-item:EA-E-000064"
   ],
   "nodes": [
    {
@@ -879,28 +733,6 @@
     "label": "Corvale General: Valine, Lysine, Histidine, Isoleucine, Leucine, Phenylalanine, Threonine, Methionine, Tryptophan, Alani",
     "attrs": {
      "key": "hospital-item:CG-125"
-    },
-    "facts": [],
-    "depth": 0
-   },
-   {
-    "id": "hospital-item:hospital-item:CG-66",
-    "type": "HospitalItem",
-    "key": "hospital-item:CG-66",
-    "label": "Corvale General: ISOLEUCINE, LEUCINE, LYSINE ACETATE, METHIONINE, PHENYLALANINE, THREONINE, TRYPTOPHAN, VALINE, CYSTEINE",
-    "attrs": {
-     "key": "hospital-item:CG-66"
-    },
-    "facts": [],
-    "depth": 0
-   },
-   {
-    "id": "hospital-item:hospital-item:EA-E-000048",
-    "type": "HospitalItem",
-    "key": "hospital-item:EA-E-000048",
-    "label": "Corvale East: ISOLEUCINE, LEUCINE, LYSINE ACETATE, METHIONINE, PHENYLALANI",
-    "attrs": {
-     "key": "hospital-item:EA-E-000048"
     },
     "facts": [],
     "depth": 0
@@ -917,28 +749,6 @@
     "depth": 0
    },
    {
-    "id": "hospital-item:hospital-item:LS-LS-0021",
-    "type": "HospitalItem",
-    "key": "hospital-item:LS-LS-0021",
-    "label": "Corvale Lakeside: ISOLEUCINE, LEUCINE, LYSINE ACETATE, METHIONINE, PHENYLALANINE, THREONINE, TRYPTOPHAN, VALINE, CYSTEIN",
-    "attrs": {
-     "key": "hospital-item:LS-LS-0021"
-    },
-    "facts": [],
-    "depth": 0
-   },
-   {
-    "id": "package:ndc-package:0264-1933-10",
-    "type": "Package",
-    "key": "ndc-package:0264-1933-10",
-    "label": "ndc-package:0264-1933-10",
-    "attrs": {
-     "key": "ndc-package:0264-1933-10"
-    },
-    "facts": [],
-    "depth": 1
-   },
-   {
     "id": "package:ndc-package:0338-0499-06",
     "type": "Package",
     "key": "ndc-package:0338-0499-06",
@@ -948,17 +758,6 @@
     },
     "facts": [],
     "depth": 1
-   },
-   {
-    "id": "product:ndc-product:0264-1933",
-    "type": "Product",
-    "key": "ndc-product:0264-1933",
-    "label": "ISOLEUCINE, LEUCINE, LYSINE ACETATE, METHIONINE, PHENYLALANINE, THREONINE, TRYPTOPHAN, VALINE, CYSTEINE HYDROCHLORIDE, HISTIDINE, TYROSINE, N-ACETYL-TYROSINE, ALANINE, ARGININE, PROLINE, SERINE, GLYCINE, ASPARTIC ACID, GLUTAMIC ACID, and TAURINE",
-    "attrs": {
-     "key": "ndc-product:0264-1933"
-    },
-    "facts": [],
-    "depth": 2
    },
    {
     "id": "product:ndc-product:0338-0499",
@@ -972,23 +771,12 @@
     "depth": 2
    },
    {
-    "id": "drug:generic:isoleucine, leucine, lysine acetate, methionine, phenylalanine, threonine, tryptophan, val",
+    "id": "drug:generic:valine, lysine, histidine, isoleucine, leucine, phenylalanine, threonine, methionine, tryp",
     "type": "Drug",
-    "key": "generic:isoleucine, leucine, lysine acetate, methionine, phenylalanine, threonine, tryptophan, val",
-    "label": "isoleucine, leucine, lysine acetate, methionine, phenylalanine, threonine, tryptophan, valine, cysteine hydrochloride, histidine, tyrosine, n-acetyl-tyrosine, alanine, arginine, proline, serine, glycine, aspartic acid, glutamic acid, and taurine",
+    "key": "generic:valine, lysine, histidine, isoleucine, leucine, phenylalanine, threonine, methionine, tryp",
+    "label": "valine, lysine, histidine, isoleucine, leucine, phenylalanine, threonine, methionine, tryptophan, alanine, glycine, arginine, proline, glutamic acid, serine, aspartic acid and tyrosine",
     "attrs": {
-     "key": "generic:isoleucine, leucine, lysine acetate, methionine, phenylalanine, threonine, tryptophan, val"
-    },
-    "facts": [],
-    "depth": 3
-   },
-   {
-    "id": "labeler:ndc-labeler:0264",
-    "type": "Labeler",
-    "key": "ndc-labeler:0264",
-    "label": "B. Braun Medical Inc.",
-    "attrs": {
-     "key": "ndc-labeler:0264"
+     "key": "generic:valine, lysine, histidine, isoleucine, leucine, phenylalanine, threonine, methionine, tryp"
     },
     "facts": [],
     "depth": 3
@@ -1011,35 +799,11 @@
     "from": "hospital-item:hospital-item:CG-125",
     "to": "package:ndc-package:0338-0499-06",
     "type": "stocks",
-    "validFrom": "2026-10-22T09:06:29.994Z",
+    "validFrom": "2026-10-22T12:47:15.369Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:29.994Z"
-    }
-   },
-   {
-    "id": "rel_d6b052a266d28a48",
-    "from": "hospital-item:hospital-item:CG-66",
-    "to": "package:ndc-package:0264-1933-10",
-    "type": "stocks",
-    "validFrom": "2026-10-22T09:06:29.994Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:29.994Z"
-    }
-   },
-   {
-    "id": "rel_1438bf41f99d0c48",
-    "from": "hospital-item:hospital-item:EA-E-000048",
-    "to": "package:ndc-package:0264-1933-10",
-    "type": "stocks",
-    "validFrom": "2026-10-22T09:06:29.994Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:29.994Z"
+     "at": "2026-10-22T12:47:15.369Z"
     }
    },
    {
@@ -1047,23 +811,11 @@
     "from": "hospital-item:hospital-item:EA-E-000064",
     "to": "package:ndc-package:0338-0499-06",
     "type": "stocks",
-    "validFrom": "2026-10-22T09:06:29.994Z",
+    "validFrom": "2026-10-22T12:47:15.369Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:29.994Z"
-    }
-   },
-   {
-    "id": "rel_07e90e17ed058c8c",
-    "from": "hospital-item:hospital-item:LS-LS-0021",
-    "to": "package:ndc-package:0264-1933-10",
-    "type": "stocks",
-    "validFrom": "2026-10-22T09:06:29.994Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:29.994Z"
+     "at": "2026-10-22T12:47:15.369Z"
     }
    },
    {
@@ -1071,35 +823,23 @@
     "from": "package:ndc-package:0338-0499-06",
     "to": "product:ndc-product:0338-0499",
     "type": "package-of",
-    "validFrom": "2026-10-22T09:06:29.994Z",
+    "validFrom": "2026-10-22T12:47:15.369Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:29.994Z"
+     "at": "2026-10-22T12:47:15.369Z"
     }
    },
    {
-    "id": "rel_6836bac2defae56b",
-    "from": "package:ndc-package:0264-1933-10",
-    "to": "product:ndc-product:0264-1933",
-    "type": "package-of",
-    "validFrom": "2026-10-22T09:06:29.994Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:29.994Z"
-    }
-   },
-   {
-    "id": "rel_d05be793aeb03f3f",
+    "id": "rel_9953dcf0c25db511",
     "from": "product:ndc-product:0338-0499",
-    "to": "drug:generic:isoleucine, leucine, lysine acetate, methionine, phenylalanine, threonine, tryptophan, val",
+    "to": "drug:generic:valine, lysine, histidine, isoleucine, leucine, phenylalanine, threonine, methionine, tryp",
     "type": "of-drug",
-    "validFrom": "2026-10-22T09:06:29.994Z",
+    "validFrom": "2026-10-22T12:47:15.369Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:29.994Z"
+     "at": "2026-10-22T12:47:15.369Z"
     }
    },
    {
@@ -1107,44 +847,20 @@
     "from": "product:ndc-product:0338-0499",
     "to": "labeler:ndc-labeler:0338",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T09:06:29.994Z",
+    "validFrom": "2026-10-22T12:47:15.369Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:29.994Z"
-    }
-   },
-   {
-    "id": "rel_15f22048477f2a69",
-    "from": "product:ndc-product:0264-1933",
-    "to": "drug:generic:isoleucine, leucine, lysine acetate, methionine, phenylalanine, threonine, tryptophan, val",
-    "type": "of-drug",
-    "validFrom": "2026-10-22T09:06:29.994Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:29.994Z"
-    }
-   },
-   {
-    "id": "rel_80d79d1bbb995528",
-    "from": "product:ndc-product:0264-1933",
-    "to": "labeler:ndc-labeler:0264",
-    "type": "labeled-by",
-    "validFrom": "2026-10-22T09:06:29.994Z",
-    "source": {
-     "kind": "zetaris",
-     "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:29.994Z"
+     "at": "2026-10-22T12:47:15.369Z"
     }
    }
   ],
   "counts": {
-   "HospitalItem": 5,
-   "Package": 2,
-   "Product": 2,
+   "HospitalItem": 2,
+   "Package": 1,
+   "Product": 1,
    "Drug": 1,
-   "Labeler": 2
+   "Labeler": 1
   }
  }
 }

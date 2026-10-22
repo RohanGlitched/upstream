@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-958b07",
+ "id": "case-2026-10-22-dbdf81",
  "question": "Why is hydroxocobalamin short, and what do we do?",
- "askedAt": "2026-10-22T07:51:28.935Z",
+ "askedAt": "2026-10-22T12:51:37.133Z",
  "asOf": "2026-10-21",
  "molecule": "hydroxocobalamin",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H9FK9ZNA5NER13CVBTMTWG",
+  "contractId": "01M5HTN0A2E2MD2VJKMQHREQE3",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-53a8c9"
+    "Q-d3ebdd"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3227,
+   "ms": 2897,
    "rows": 2,
-   "finding": "2 stock lines across 2 hospitals.",
+   "finding": "2 stock lines across 2 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-323497"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 772,
+   "ms": 450,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 0 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-83e0b2",
-    "Q-e88f48"
+    "Q-efe04f",
+    "Q-d4e928"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 605,
+   "ms": 302,
    "rows": 3,
    "finding": "On FDA's list as Current for 2 companies.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-c9c437"
+    "Q-dc5b3d"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2256,
+   "ms": 1241,
    "rows": 3,
    "finding": "3 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-2a4ea9",
     "Q-498bf4",
     "Q-482d62",
-    "Q-00231c"
+    "Q-4191e6"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1193,
+   "ms": 566,
    "rows": 4,
    "finding": "4 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1368,
+   "ms": 601,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-80bdd8"
+    "Q-617879"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1428,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 10040,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 4,
+   "ms": 1,
    "rows": 0,
    "finding": "No past decisions on this drug.",
    "status": "empty"
@@ -153,22 +164,65 @@
    "onHand": 20,
    "dailyUse": 3.932,
    "days": 5.1,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "hydroxocobalamin|1000ug/ml|injection|30ml|vial",
+   "presentationLabel": "1000 ug/mL injection, 30 mL vial",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-61",
    "ndc11": "00591288830",
-   "description": "Hydroxocobalamin",
+   "description": "Hydroxocobalamin 1000 mcg/mL",
    "labeler": "Actavis Pharma, Inc.",
-   "onHand": 75.3,
+   "onHand": 75,
    "dailyUse": 4.018,
    "days": 18.7,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "hydroxocobalamin|1000ug/ml|injection|30ml|vial",
+   "presentationLabel": "1000 ug/mL injection, 30 mL vial",
    "evidence": "E2"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "hydroxocobalamin|1000ug/ml|injection|30ml|vial",
+   "label": "1000 ug/mL injection, 30 mL vial",
+   "short": "1000 ug/mL, 30 mL",
+   "unit": "vial",
+   "onHand": 95,
+   "dailyUse": 7.95,
+   "days": 11.9,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 20,
+     "dailyUse": 3.932,
+     "days": 5.1,
+     "lines": [
+      "EA-E-000105"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 75,
+     "dailyUse": 4.018,
+     "days": 18.7,
+     "lines": [
+      "CG-61"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -275,14 +329,25 @@
   {
    "kind": "transfer",
    "rank": 1,
-   "title": "Transfer 19 from Corvale General to Corvale East",
-   "detail": "Corvale General has 19 days on hand and can spare 19 while keeping two weeks; Corvale East has 5.1 days and would reach 10.",
-   "why": "Same product, no clinical change, no new supplier.",
+   "title": "Transfer 18 vials of 1000 ug/mL, 30 mL from Corvale General to Corvale East",
+   "detail": "Corvale General has 19 days of 1000 ug/mL injection, 30 mL vials on hand and can spare 18 vials while keeping two weeks; Corvale East has 5.1 days and would reach 10.",
+   "why": "Same presentation, no clinical change, no new supplier.",
    "needs": "pharmacy director (transfer request)",
    "evidence": [
     "E2",
     "E1"
-   ]
+   ],
+   "transfer": {
+    "qty": 18,
+    "unit": "vial",
+    "presentation": "1000 ug/mL injection, 30 mL vial",
+    "from": "Corvale General",
+    "to": "Corvale East",
+    "fromDays": 18.7,
+    "toDays": 5.1,
+    "fromAfter": 14,
+    "toAfter": 10
+   }
   },
   {
    "kind": "alternate_manufacturer",
@@ -312,17 +377,23 @@
  ],
  "explanation": {
   "state": "no_signal",
-  "headline": "FDA's records show hydroxocobalamin shortage listed since 2024-11-04 with no signal at our plants",
+  "headline": "FDA's shortage list shows hydroxocobalamin injection from BTG International Inc. and Teva Pharmaceuticals USA, Inc. as Current since 2024-11-04",
   "sentences": [
    {
-    "text": "FDA first posted the hydroxocobalamin shortage on 2024-11-04 and it has remained on the list for 24 months as of 2026-10-21.",
+    "text": "FDA's shortage list includes hydroxocobalamin injection from BTG International Inc. and Teva Pharmaceuticals USA, Inc., both listed as Current with initial posting on 2024-11-04.",
     "cites": [
-     "E6",
-     "D5"
+     "E4",
+     "E5"
     ]
    },
    {
-    "text": "Our supply at both Corvale East and Corvale General carries NDC 00591288830 labeled by Actavis Pharma, Inc. with the product label naming Hikma Farmaceutica (Portugal) S.A. as the manufacturing plant.",
+    "text": "As of 2026-10-21 the shortage has been on FDA's list for 24 months.",
+    "cites": [
+     "D3"
+    ]
+   },
+   {
+    "text": "Our supply at both Corvale East and Corvale General is labeled by Actavis Pharma, Inc. (NDC 00591288830) and names Hikma Farmaceutica (Portugal) S.A. as the manufacturing plant on the label.",
     "cites": [
      "E1",
      "E2",
@@ -330,31 +401,30 @@
     ]
    },
    {
-    "text": "No FDA signal has been posted for the Hikma Farmaceutica (Portugal) S.A. plant associated with our supply.",
+    "text": "Corvale East has 20 vials on hand at 3.9 vials per day, giving 5.1 days of supply.",
     "cites": [
-     "E3"
+     "D1"
     ]
    },
    {
-    "text": "Corvale East has 5 days on hand while Corvale General has 19 days on hand.",
+    "text": "Corvale General has 75 vials on hand at 4 vials per day, giving 18.7 days of supply.",
     "cites": [
-     "D1",
      "D2"
     ]
    },
    {
-    "text": "The best option by rule is to transfer 19 units from Corvale General to Corvale East, which would bring Corvale East to 10 days on hand while Corvale General maintains two weeks of supply.",
+    "text": "The rule‑ranked best option is to transfer 18 vials of 1000 ug/mL, 30 mL from Corvale General to Corvale East, which would leave Corvale General with about two weeks of supply and bring Corvale East to roughly 10 days.",
     "cites": [
-     "D3"
+     "D4"
     ]
    }
   ],
   "verifier": {
-   "checked": 7,
+   "checked": 8,
    "rejected": [
     {
-     "text": "The shortage lists BTG International Inc. and Teva Pharmaceuticals USA, Inc. as current with estimated recovery for Teva in mid-November 2026.",
-     "reason": "month 2026-11 is not in the cited evidence"
+     "text": "There is no public FDA inspection signal (OAI, VAI, or NAI) for that plant in the evidence provided.",
+     "reason": "classification NAI is not in the cited evidence"
     }
    ],
    "repaired": 0
@@ -364,125 +434,146 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [],
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:51:18.079Z",
+   "at": "2026-10-22T12:51:21.027Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract CVBTMTWG scope"
+   "reason": "in contract MQHREQE3 scope"
   },
   {
-   "at": "2026-10-22T07:51:18.080Z",
+   "at": "2026-10-22T12:51:21.028Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract CVBTMTWG scope"
+   "reason": "in contract MQHREQE3 scope"
   },
   {
-   "at": "2026-10-22T07:51:21.309Z",
+   "at": "2026-10-22T12:51:23.929Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract CVBTMTWG scope"
+   "reason": "in contract MQHREQE3 scope"
   },
   {
-   "at": "2026-10-22T07:51:22.081Z",
+   "at": "2026-10-22T12:51:24.379Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract CVBTMTWG scope"
+   "reason": "in contract MQHREQE3 scope"
   },
   {
-   "at": "2026-10-22T07:51:22.685Z",
+   "at": "2026-10-22T12:51:24.680Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract CVBTMTWG scope"
+   "reason": "in contract MQHREQE3 scope"
   },
   {
-   "at": "2026-10-22T07:51:24.941Z",
+   "at": "2026-10-22T12:51:25.922Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract CVBTMTWG scope"
+   "reason": "in contract MQHREQE3 scope"
   },
   {
-   "at": "2026-10-22T07:51:26.136Z",
+   "at": "2026-10-22T12:51:26.490Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract CVBTMTWG scope"
+   "reason": "in contract MQHREQE3 scope"
   },
   {
-   "at": "2026-10-22T07:51:27.504Z",
+   "at": "2026-10-22T12:51:27.091Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract CVBTMTWG scope"
+   "reason": "in contract MQHREQE3 scope"
   },
   {
-   "at": "2026-10-22T07:51:28.931Z",
+   "at": "2026-10-22T12:51:37.130Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract CVBTMTWG scope"
+   "reason": "in contract MQHREQE3 scope"
   },
   {
-   "at": "2026-10-22T07:51:28.936Z",
+   "at": "2026-10-22T12:51:37.133Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract CVBTMTWG scope"
+   "reason": "in contract MQHREQE3 scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-53a8c9",
+   "queryId": "Q-d3ebdd",
    "row": 0,
    "label": "Corvale East: HYDROXOCOBALAMIN 1000MCG/ML 30ML MDV",
    "fields": {
@@ -493,37 +584,47 @@
     "description": "HYDROXOCOBALAMIN 1000MCG/ML 30ML MDV",
     "on_hand": "20.00",
     "daily_use": "3.932",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Hydroxocobalamin",
     "labeler_name": "Actavis Pharma, Inc.",
     "package_ndc": "0591-2888-30",
     "spl_set_id": "a3087a39-f218-4f16-a1e7-17c39bb2eb69",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAMUSCULAR"
+    "route": "INTRAMUSCULAR",
+    "strength": "HYDROXOCOBALAMIN ACETATE 1000 ug/mL",
+    "unit_content": "30 mL",
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-53a8c9",
+   "queryId": "Q-d3ebdd",
    "row": 1,
-   "label": "Corvale General: Hydroxocobalamin",
+   "label": "Corvale General: Hydroxocobalamin 1000 mcg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-61",
     "ndc11": "00591288830",
     "ndc_as_recorded": "00591288830",
-    "description": "Hydroxocobalamin",
-    "on_hand": "75.30",
+    "description": "Hydroxocobalamin 1000 mcg/mL",
+    "on_hand": "75.00",
     "daily_use": "4.018",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Hydroxocobalamin",
     "labeler_name": "Actavis Pharma, Inc.",
     "package_ndc": "0591-2888-30",
     "spl_set_id": "a3087a39-f218-4f16-a1e7-17c39bb2eb69",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAMUSCULAR"
+    "route": "INTRAMUSCULAR",
+    "strength": "HYDROXOCOBALAMIN ACETATE 1000 ug/mL",
+    "unit_content": "30 mL",
+    "pkg_unit": "vial"
    }
   },
   "E3": {
@@ -544,7 +645,7 @@
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-83e0b2",
+   "queryId": "Q-efe04f",
    "row": 0,
    "label": "FDA shortage list: BTG International Inc., Current",
    "fields": {
@@ -559,7 +660,7 @@
   },
   "E5": {
    "id": "E5",
-   "queryId": "Q-83e0b2",
+   "queryId": "Q-efe04f",
    "row": 1,
    "label": "FDA shortage list: Teva Pharmaceuticals USA, Inc., Current",
    "fields": {
@@ -574,7 +675,7 @@
   },
   "E6": {
    "id": "E6",
-   "queryId": "Q-83e0b2",
+   "queryId": "Q-efe04f",
    "row": 0,
    "label": "FDA first posted the shortage 2024-11-04",
    "fields": {
@@ -591,48 +692,30 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 20 units of hydroxocobalamin at 3.9 a day: 5 days on hand",
+   "label": "Corvale East holds 20 vials of hydroxocobalamin 1000 ug/mL, 30 mL at 3.9 a day: 5.1 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "1000 ug/mL injection, 30 mL vial",
     "on_hand": 20,
     "daily_use": 3.9,
-    "days_on_hand": 5
+    "days_on_hand": 5.1
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 75 units of hydroxocobalamin at 4 a day: 19 days on hand",
+   "label": "Corvale General holds 75 vials of hydroxocobalamin 1000 ug/mL, 30 mL at 4 a day: 18.7 days on hand",
    "fields": {
     "hospital": "Corvale General",
+    "presentation": "1000 ug/mL injection, 30 mL vial",
     "on_hand": 75,
     "daily_use": 4,
-    "days_on_hand": 19
+    "days_on_hand": 18.7
    }
   },
   "D3": {
    "id": "D3",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 1 by rule: Transfer 19 from Corvale General to Corvale East. Corvale General has 19 days on hand and can spare 19 while keeping two weeks; Corvale East has 5.1 days and would reach 10.",
-   "fields": {
-    "kind": "transfer",
-    "needs": "pharmacy director (transfer request)"
-   }
-  },
-  "D4": {
-   "id": "D4",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 3 by rule: Buy from Xseer Pharmaceuticals. Not on FDA's shortage list today. Its label names no plant we could place.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
-   }
-  },
-  "D5": {
-   "id": "D5",
    "queryId": "derived",
    "row": -1,
    "label": "As of 2026-10-21 the shortage has been on FDA's list for 24 months",
@@ -641,166 +724,205 @@
     "posted": "2024-11-04",
     "months": 24
    }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 18 vials of 1000 ug/mL, 30 mL from Corvale General to Corvale East. Corvale General has 19 days of 1000 ug/mL injection, 30 mL vials on hand and can spare 18 vials while keeping two weeks; Corvale East has 5.1 days and would reach 10.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Xseer Pharmaceuticals. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
   }
  },
  "queries": {
-  "Q-53a8c9": {
-   "id": "Q-53a8c9",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%hydroxocobalamin%' OR lower(s.description) LIKE '%hydroxocobalamin%' ORDER BY s.hospital, s.item_key",
-   "ms": 3224,
+  "Q-d3ebdd": {
+   "id": "Q-d3ebdd",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*hydroxocobalamin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*hydroxocobalamin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 2895,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:51:21.304Z",
+   "ranAt": "2026-10-22T12:51:23.923Z",
    "rows": 2
   },
   "Q-323497": {
    "id": "Q-323497",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('a3087a39-f218-4f16-a1e7-17c39bb2eb69') ORDER BY ps.set_id, ps.establishment",
-   "ms": 768,
+   "ms": 448,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:51:22.077Z",
+   "ranAt": "2026-10-22T12:51:24.377Z",
    "rows": 1
   },
-  "Q-83e0b2": {
-   "id": "Q-83e0b2",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%hydroxocobalamin%' ORDER BY status, company_name, package_ndc",
-   "ms": 280,
+  "Q-efe04f": {
+   "id": "Q-efe04f",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*hydroxocobalamin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 153,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:51:22.361Z",
+   "ranAt": "2026-10-22T12:51:24.531Z",
    "rows": 2
   },
-  "Q-e88f48": {
-   "id": "Q-e88f48",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%hydroxocobalamin%' ORDER BY first_posting",
-   "ms": 316,
+  "Q-d4e928": {
+   "id": "Q-d4e928",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*hydroxocobalamin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 147,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:51:22.681Z",
+   "ranAt": "2026-10-22T12:51:24.679Z",
    "rows": 1
   },
-  "Q-c9c437": {
-   "id": "Q-c9c437",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%hydroxocobalamin%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2252,
+  "Q-dc5b3d": {
+   "id": "Q-dc5b3d",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*hydroxocobalamin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1239,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:51:24.938Z",
+   "ranAt": "2026-10-22T12:51:25.919Z",
    "rows": 3
   },
   "Q-2a4ea9": {
    "id": "Q-2a4ea9",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3002807504') ORDER BY fei, end_date",
-   "ms": 453,
+   "ms": 251,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:51:25.395Z",
+   "ranAt": "2026-10-22T12:51:26.173Z",
    "rows": 4
   },
   "Q-498bf4": {
    "id": "Q-498bf4",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3002807504') ORDER BY fei, action_date",
-   "ms": 240,
+   "ms": 107,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:51:25.638Z",
+   "ranAt": "2026-10-22T12:51:26.281Z",
    "rows": 0
   },
   "Q-482d62": {
    "id": "Q-482d62",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('') OR (fei_match <> 'name_and_city' AND firm_key IN ('hikma farmaceutica s a 2705 906 terrugem snt')) ORDER BY date_published",
-   "ms": 198,
+   "ms": 90,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:51:25.840Z",
+   "ranAt": "2026-10-22T12:51:26.372Z",
    "rows": 0
   },
-  "Q-00231c": {
-   "id": "Q-00231c",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('hikma farmaceutica s a 2705 906 terrugem snt', 'actavis') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%hydroxocobalamin%' ORDER BY initiation_date",
-   "ms": 288,
+  "Q-4191e6": {
+   "id": "Q-4191e6",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('hikma farmaceutica s a 2705 906 terrugem snt', 'actavis') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*hydroxocobalamin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 114,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:51:26.131Z",
+   "ranAt": "2026-10-22T12:51:26.487Z",
    "rows": 0
   },
   "Q-ab7761": {
    "id": "Q-ab7761",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('00591288830')",
-   "ms": 1364,
+   "ms": 599,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:51:27.500Z",
+   "ranAt": "2026-10-22T12:51:27.089Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1773,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:51:28.863Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 3506,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:51:32.371Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-80bdd8": {
-   "id": "Q-80bdd8",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%hydroxocobalamin%'",
-   "ms": 1424,
+   "ms": 3866,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:51:28.927Z",
+   "ranAt": "2026-10-22T12:51:36.237Z",
+   "rows": 3
+  },
+  "Q-617879": {
+   "id": "Q-617879",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*hydroxocobalamin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 891,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:51:37.129Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 16178,
+  "zetarisMs": 16079,
   "modelCalls": 1,
-  "tokensIn": 1580,
-  "tokensOut": 424,
+  "tokensIn": 1973,
+  "tokensOut": 490,
   "mode": "live"
  },
  "slug": "hydroxocobalamin",
@@ -814,7 +936,7 @@
     "id": "hospital-item:hospital-item:CG-61",
     "type": "HospitalItem",
     "key": "hospital-item:CG-61",
-    "label": "Corvale General: Hydroxocobalamin",
+    "label": "Corvale General: Hydroxocobalamin 1000 mcg/mL",
     "attrs": {
      "key": "hospital-item:CG-61"
     },
@@ -894,11 +1016,11 @@
     "from": "hospital-item:hospital-item:CG-61",
     "to": "package:ndc-package:0591-2888-30",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:51:21.308Z",
+    "validFrom": "2026-10-22T12:51:23.928Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:51:21.308Z"
+     "at": "2026-10-22T12:51:23.928Z"
     }
    },
    {
@@ -906,11 +1028,11 @@
     "from": "hospital-item:hospital-item:EA-E-000105",
     "to": "package:ndc-package:0591-2888-30",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:51:21.308Z",
+    "validFrom": "2026-10-22T12:51:23.926Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:51:21.308Z"
+     "at": "2026-10-22T12:51:23.926Z"
     }
    },
    {
@@ -918,11 +1040,11 @@
     "from": "package:ndc-package:0591-2888-30",
     "to": "product:ndc-product:0591-2888",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:51:21.308Z",
+    "validFrom": "2026-10-22T12:51:23.927Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:51:21.308Z"
+     "at": "2026-10-22T12:51:23.927Z"
     }
    },
    {
@@ -930,11 +1052,11 @@
     "from": "product:ndc-product:0591-2888",
     "to": "drug:generic:hydroxocobalamin",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:51:21.308Z",
+    "validFrom": "2026-10-22T12:51:23.927Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:51:21.308Z"
+     "at": "2026-10-22T12:51:23.927Z"
     }
    },
    {
@@ -942,11 +1064,11 @@
     "from": "product:ndc-product:0591-2888",
     "to": "labeler:ndc-labeler:0591",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:51:21.308Z",
+    "validFrom": "2026-10-22T12:51:23.928Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:51:21.308Z"
+     "at": "2026-10-22T12:51:23.928Z"
     }
    },
    {
@@ -954,11 +1076,11 @@
     "from": "shortage:fda-shortage:hydroxocobalamin-2024-11-04",
     "to": "drug:generic:hydroxocobalamin",
     "type": "affects",
-    "validFrom": "2026-10-22T07:51:26.135Z",
+    "validFrom": "2026-10-22T12:51:26.489Z",
     "source": {
      "kind": "fda-shortage-db",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:51:26.135Z"
+     "at": "2026-10-22T12:51:26.489Z"
     }
    }
   ],

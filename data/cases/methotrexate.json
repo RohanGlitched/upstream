@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-7a698d",
- "question": "Methotrexate injection is on allocation. Why?",
- "askedAt": "2026-10-22T06:37:13.126Z",
+ "id": "case-2026-10-22-61674b",
+ "question": "Why is methotrexate short, and what do we do?",
+ "askedAt": "2026-10-22T12:20:40.801Z",
  "asOf": "2026-10-21",
  "molecule": "methotrexate",
  "intent": {
   "name": "shortage.investigate",
-  "risk": "medium",
-  "contractId": "01M5H57MKN5PADN5F7XZPKN0EK",
+  "risk": "low",
+  "contractId": "01M5HRWHDR4N18B923ZNPCF5EK",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-d10262"
+    "Q-f6c042"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2050,
+   "ms": 4266,
    "rows": 9,
-   "finding": "9 stock lines across 3 hospitals.",
+   "finding": "9 stock lines across 3 hospitals, 4 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-b62fc9"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 428,
+   "ms": 556,
    "rows": 4,
    "finding": "4 plant links on 4 labels; 2 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-7cf611",
-    "Q-4e231a"
+    "Q-39c807",
+    "Q-927c9f"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 210,
+   "ms": 297,
    "rows": 17,
    "finding": "On FDA's list as Current for 5 companies.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-332495"
+    "Q-bfef42"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1115,
+   "ms": 1535,
    "rows": 70,
    "finding": "11 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-9321f2",
     "Q-e2d9b6",
     "Q-f5226e",
-    "Q-446393"
+    "Q-126ea9"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 606,
+   "ms": 802,
    "rows": 38,
    "finding": "36 inspections (1 OAI at our plants), 2 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,7 +111,7 @@
    "sources": [
     "fda.citations"
    ],
-   "ms": 191,
+   "ms": 170,
    "rows": 0,
    "finding": "0 Form 483 observations recorded.",
    "status": "empty"
@@ -119,9 +126,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 601,
+   "ms": 819,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -129,19 +136,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-b81fb0"
+    "Q-2733af"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 4942,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1575,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -152,7 +163,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 3,
+   "ms": 1,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -168,8 +179,11 @@
    "onHand": 18,
    "dailyUse": 3.03,
    "days": 5.9,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "methotrexate|25mg/ml|solution|2ml|vial",
+   "presentationLabel": "25 mg/mL solution, 2 mL vial",
    "evidence": "E1"
   },
   {
@@ -181,8 +195,11 @@
    "onHand": 29,
    "dailyUse": 3.109,
    "days": 9.3,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "methotrexate|25mg/ml|injection|2ml|vial",
+   "presentationLabel": "25 mg/mL injection, 2 mL vial",
    "evidence": "E2"
   },
   {
@@ -194,8 +211,11 @@
    "onHand": 77,
    "dailyUse": 2.9,
    "days": 26.6,
-   "unit": "package",
+   "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 100, converted to units",
+   "presentation": "methotrexate sodium|2.5mg|tablet||tablet",
+   "presentationLabel": "2.5 mg tablet",
    "evidence": "E3"
   },
   {
@@ -205,62 +225,77 @@
    "description": "METHOTREXATE 2.5MG TAB",
    "labeler": "Zydus Lifesciences Limited",
    "onHand": 78,
-   "dailyUse": 3.427,
+   "dailyUse": 3.425,
    "days": 22.8,
-   "unit": "package",
+   "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 500, converted to units",
+   "presentation": "methotrexate|2.5mg|tablet||tablet",
+   "presentationLabel": "2.5 mg tablet",
    "evidence": "E4"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-269",
    "ndc11": "70771105805",
-   "description": "Methotrexate",
+   "description": "Methotrexate 2.5 mg/1",
    "labeler": "Zydus Lifesciences Limited",
-   "onHand": 34.18,
+   "onHand": 34,
    "dailyUse": 2.849,
-   "days": 12,
+   "days": 11.9,
    "unit": "tablet",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "methotrexate|2.5mg|tablet||tablet",
+   "presentationLabel": "2.5 mg tablet",
    "evidence": "E5"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-270",
    "ndc11": "64850033001",
-   "description": "Methotrexate Sodium",
+   "description": "Methotrexate Sodium 2.5 mg/1",
    "labeler": "Elite Laboratories, Inc.",
-   "onHand": 66.37,
+   "onHand": 66,
    "dailyUse": 2.875,
-   "days": 23.1,
+   "days": 23,
    "unit": "tablet",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "methotrexate sodium|2.5mg|tablet||tablet",
+   "presentationLabel": "2.5 mg tablet",
    "evidence": "E6"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-83",
    "ndc11": "00143951910",
-   "description": "Methotrexate",
+   "description": "Methotrexate 25 mg/mL",
    "labeler": "Hikma Pharmaceuticals USA Inc.",
-   "onHand": 36.16,
+   "onHand": 36,
    "dailyUse": 3.014,
-   "days": 12,
+   "days": 11.9,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "methotrexate|25mg/ml|solution|2ml|vial",
+   "presentationLabel": "25 mg/mL solution, 2 mL vial",
    "evidence": "E7"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-84",
    "ndc11": "00703367101",
-   "description": "Methotrexate",
+   "description": "Methotrexate 25 mg/mL",
    "labeler": "Teva Parenteral Medicines, Inc.",
-   "onHand": 36.21,
+   "onHand": 36,
    "dailyUse": 3.016,
-   "days": 12,
+   "days": 11.9,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "methotrexate|25mg/ml|injection|2ml|vial",
+   "presentationLabel": "25 mg/mL injection, 2 mL vial",
    "evidence": "E8"
   },
   {
@@ -274,7 +309,164 @@
    "days": 19,
    "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "methotrexate|2.5mg|tablet||tablet",
+   "presentationLabel": "2.5 mg tablet",
    "evidence": "E9"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "methotrexate|25mg/ml|solution|2ml|vial",
+   "label": "25 mg/mL solution, 2 mL vial",
+   "short": "25 mg/mL, 2 mL",
+   "unit": "vial",
+   "onHand": 54,
+   "dailyUse": 6.044,
+   "days": 8.9,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 18,
+     "dailyUse": 3.03,
+     "days": 5.9,
+     "lines": [
+      "EA-E-000035"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 36,
+     "dailyUse": 3.014,
+     "days": 11.9,
+     "lines": [
+      "CG-83"
+     ],
+     "evidence": [
+      "E7"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "methotrexate|25mg/ml|injection|2ml|vial",
+   "label": "25 mg/mL injection, 2 mL vial",
+   "short": "25 mg/mL, 2 mL",
+   "unit": "vial",
+   "onHand": 65,
+   "dailyUse": 6.125,
+   "days": 10.6,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 29,
+     "dailyUse": 3.109,
+     "days": 9.3,
+     "lines": [
+      "EA-E-000121"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 36,
+     "dailyUse": 3.016,
+     "days": 11.9,
+     "lines": [
+      "CG-84"
+     ],
+     "evidence": [
+      "E8"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "methotrexate|2.5mg|tablet||tablet",
+   "label": "2.5 mg tablet",
+   "short": "2.5 mg",
+   "unit": "tablet",
+   "onHand": 128,
+   "dailyUse": 7.114,
+   "days": 18,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 78,
+     "dailyUse": 3.425,
+     "days": 22.8,
+     "lines": [
+      "EA-E-000272"
+     ],
+     "evidence": [
+      "E4"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 34,
+     "dailyUse": 2.849,
+     "days": 11.9,
+     "lines": [
+      "CG-269"
+     ],
+     "evidence": [
+      "E5"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 16,
+     "dailyUse": 0.84,
+     "days": 19,
+     "lines": [
+      "LS-LS-0118"
+     ],
+     "evidence": [
+      "E9"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "methotrexate sodium|2.5mg|tablet||tablet",
+   "label": "2.5 mg tablet",
+   "short": "2.5 mg",
+   "unit": "tablet",
+   "onHand": 143,
+   "dailyUse": 5.775,
+   "days": 24.8,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 77,
+     "dailyUse": 2.9,
+     "days": 26.6,
+     "lines": [
+      "EA-E-000224"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 66,
+     "dailyUse": 2.875,
+     "days": 23,
+     "lines": [
+      "CG-270"
+     ],
+     "evidence": [
+      "E6"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -826,106 +1018,132 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "FDA's shortage list shows methotrexate injection on allocation since 2023-03-13 with multiple manufacturers reporting current shortages and estimated recovery in October 2026",
+  "headline": "The public record is incomplete; check the flagged links",
   "sentences": [
    {
-    "text": "FDA first posted the methotrexate sodium injection shortage on 2023-03-13 and it remains current as of 2026-10-17.",
+    "text": "FDA first posted the methotrexate sodium injection shortage on 2023-03-13 and it remains Current as of 2026-10-21.",
     "cites": [
-     "E34"
-    ]
-   },
-   {
-    "text": "As of 2026-10-21 the shortage has been on FDA's list for 43 months.",
-    "cites": [
-     "D9"
-    ]
-   },
-   {
-    "text": "Accord Healthcare Inc., Fresenius Kabi USA LLC, Hikma Pharmaceuticals USA Inc., Hospira Inc. (a Pfizer Company), and Teva Pharmaceuticals USA Inc. all show current shortage status with various package NDCs.",
-    "cites": [
+     "E34",
      "E29",
      "E30",
      "E31",
      "E32",
-     "E33"
+     "E33",
+     "D12"
     ]
    },
    {
-    "text": "Hikma Pharmaceuticals USA Inc. indicates additional lots will be available in the October 2026 timeframe.",
+    "text": "The shortage has been on FDA's list for 43 months.",
     "cites": [
-     "E31"
+     "D12"
     ]
    },
    {
-    "text": "Teva Pharmaceuticals USA Inc. estimates recovery in October 2026.",
+    "text": "An FDA inspection of Elite Laboratories Inc. (FEI 3002644678) ended 2016-02-02 and was classified OAI.",
     "cites": [
-     "E33"
+     "E15"
     ]
    },
    {
-    "text": "Fresenius Kabi USA LLC advises checking wholesaler for inventory.",
+    "text": "A later inspection of the same plant ended 2020-03-13 and was classified VAI, 1095 days before the posting.",
     "cites": [
-     "E30"
+     "D10",
+     "E18"
     ]
    },
    {
-    "text": "Corvale East, General, and Lakeside hospitals hold 16-19 days of supply at current usage rates.",
+    "text": "Zydus Lifesciences Limited (FEI 3007938603) had a VAI inspection ending 2023-03-24, 11 days after the posting.",
     "cites": [
-     "D1",
-     "D2",
-     "D3"
+     "D11",
+     "E27"
+    ]
+   },
+   {
+    "text": "The rule‑based best option is to buy from Alembic Pharmaceuticals Inc., which is not on FDA's shortage list today.",
+    "cites": [
+     "D13"
     ]
    }
   ],
   "verifier": {
    "checked": 8,
-   "rejected": [],
-   "repaired": 0
+   "rejected": [
+    {
+     "text": "That OAI classification was 2621 days before the shortage posting on 2023-03-13.",
+     "reason": "number 2621 is not in the cited evidence"
+    },
+    {
+     "text": "FDA's records trace our supply to a plant classified OAI 2621 days before the posting",
+     "reason": "headline: number 2621 is not in the cited evidence"
+    }
+   ],
+   "repaired": 1
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
  },
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -940,87 +1158,87 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T06:37:02.966Z",
+   "at": "2026-10-22T12:20:30.776Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract XZPKN0EK scope"
+   "reason": "in contract ZNPCF5EK scope"
   },
   {
-   "at": "2026-10-22T06:37:02.966Z",
+   "at": "2026-10-22T12:20:30.776Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XZPKN0EK scope"
+   "reason": "in contract ZNPCF5EK scope"
   },
   {
-   "at": "2026-10-22T06:37:05.024Z",
+   "at": "2026-10-22T12:20:35.044Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XZPKN0EK scope"
+   "reason": "in contract ZNPCF5EK scope"
   },
   {
-   "at": "2026-10-22T06:37:05.453Z",
+   "at": "2026-10-22T12:20:35.599Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XZPKN0EK scope"
+   "reason": "in contract ZNPCF5EK scope"
   },
   {
-   "at": "2026-10-22T06:37:05.662Z",
+   "at": "2026-10-22T12:20:35.897Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XZPKN0EK scope"
+   "reason": "in contract ZNPCF5EK scope"
   },
   {
-   "at": "2026-10-22T06:37:06.778Z",
+   "at": "2026-10-22T12:20:37.432Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XZPKN0EK scope"
+   "reason": "in contract ZNPCF5EK scope"
   },
   {
-   "at": "2026-10-22T06:37:07.384Z",
+   "at": "2026-10-22T12:20:38.235Z",
    "action": "What FDA wrote at the OAI inspections",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XZPKN0EK scope"
+   "reason": "in contract ZNPCF5EK scope"
   },
   {
-   "at": "2026-10-22T06:37:07.580Z",
+   "at": "2026-10-22T12:20:38.406Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XZPKN0EK scope"
+   "reason": "in contract ZNPCF5EK scope"
   },
   {
-   "at": "2026-10-22T06:37:08.181Z",
+   "at": "2026-10-22T12:20:39.225Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XZPKN0EK scope"
+   "reason": "in contract ZNPCF5EK scope"
   },
   {
-   "at": "2026-10-22T06:37:13.123Z",
+   "at": "2026-10-22T12:20:40.800Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract XZPKN0EK scope"
+   "reason": "in contract ZNPCF5EK scope"
   },
   {
-   "at": "2026-10-22T06:37:13.126Z",
+   "at": "2026-10-22T12:20:40.801Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract XZPKN0EK scope"
+   "reason": "in contract ZNPCF5EK scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-d10262",
+   "queryId": "Q-f6c042",
    "row": 0,
    "label": "Corvale East: METHOTREXATE 25MG/ML 2ML SDV",
    "fields": {
@@ -1031,19 +1249,24 @@
     "description": "METHOTREXATE 25MG/ML 2ML SDV",
     "on_hand": "18.00",
     "daily_use": "3.030",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Methotrexate",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0143-9519-10",
     "spl_set_id": "3989d30d-56e5-4e8d-9379-c30fecc894f2",
     "dosage_form": "SOLUTION",
-    "route": "INTRA-ARTERIAL|INTRAMUSCULAR|INTRATHECAL|INTRAVENOUS"
+    "route": "INTRA-ARTERIAL|INTRAMUSCULAR|INTRATHECAL|INTRAVENOUS",
+    "strength": "METHOTREXATE 25 mg/mL",
+    "unit_content": "2 mL",
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-d10262",
+   "queryId": "Q-f6c042",
    "row": 1,
    "label": "Corvale East: METHOTREXATE 25MG/ML 2ML SDV",
    "fields": {
@@ -1054,19 +1277,24 @@
     "description": "METHOTREXATE 25MG/ML 2ML SDV",
     "on_hand": "29.00",
     "daily_use": "3.109",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Methotrexate",
     "labeler_name": "Teva Parenteral Medicines, Inc.",
     "package_ndc": "0703-3671-01",
     "spl_set_id": "346ec9ce-dc98-4a55-b55e-d3af11f2d703",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRA-ARTERIAL|INTRAMUSCULAR|INTRATHECAL|INTRAVENOUS"
+    "route": "INTRA-ARTERIAL|INTRAMUSCULAR|INTRATHECAL|INTRAVENOUS",
+    "strength": "METHOTREXATE SODIUM 25 mg/mL",
+    "unit_content": "2 mL",
+    "pkg_unit": "vial"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-d10262",
+   "queryId": "Q-f6c042",
    "row": 2,
    "label": "Corvale East: METHOTREXATE SODIUM 2.5MG TAB",
    "fields": {
@@ -1077,19 +1305,24 @@
     "description": "METHOTREXATE SODIUM 2.5MG TAB",
     "on_hand": "77.00",
     "daily_use": "2.900",
-    "unit": "package",
+    "unit": "tablet",
+    "pkg_units": "100.00",
+    "unit_basis": "packages of 100, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Methotrexate Sodium",
     "labeler_name": "Elite Laboratories, Inc.",
     "package_ndc": "64850-330-01",
     "spl_set_id": "89c05ea3-3be1-46dd-b112-29c436fd7289",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "METHOTREXATE SODIUM 2.5 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-d10262",
+   "queryId": "Q-f6c042",
    "row": 3,
    "label": "Corvale East: METHOTREXATE 2.5MG TAB",
    "fields": {
@@ -1099,112 +1332,137 @@
     "ndc_as_recorded": "70771-1058-5",
     "description": "METHOTREXATE 2.5MG TAB",
     "on_hand": "78.00",
-    "daily_use": "3.427",
-    "unit": "package",
+    "daily_use": "3.425",
+    "unit": "tablet",
+    "pkg_units": "500.00",
+    "unit_basis": "packages of 500, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Methotrexate",
     "labeler_name": "Zydus Lifesciences Limited",
     "package_ndc": "70771-1058-5",
     "spl_set_id": "59ea7b32-2b6d-4197-92c3-015936f04ebe",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "METHOTREXATE 2.5 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E5": {
    "id": "E5",
-   "queryId": "Q-d10262",
+   "queryId": "Q-f6c042",
    "row": 4,
-   "label": "Corvale General: Methotrexate",
+   "label": "Corvale General: Methotrexate 2.5 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-269",
     "ndc11": "70771105805",
     "ndc_as_recorded": "70771105805",
-    "description": "Methotrexate",
-    "on_hand": "34.18",
+    "description": "Methotrexate 2.5 mg/1",
+    "on_hand": "34.00",
     "daily_use": "2.849",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Methotrexate",
     "labeler_name": "Zydus Lifesciences Limited",
     "package_ndc": "70771-1058-5",
     "spl_set_id": "59ea7b32-2b6d-4197-92c3-015936f04ebe",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "METHOTREXATE 2.5 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E6": {
    "id": "E6",
-   "queryId": "Q-d10262",
+   "queryId": "Q-f6c042",
    "row": 5,
-   "label": "Corvale General: Methotrexate Sodium",
+   "label": "Corvale General: Methotrexate Sodium 2.5 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-270",
     "ndc11": "64850033001",
     "ndc_as_recorded": "64850033001",
-    "description": "Methotrexate Sodium",
-    "on_hand": "66.37",
+    "description": "Methotrexate Sodium 2.5 mg/1",
+    "on_hand": "66.00",
     "daily_use": "2.875",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Methotrexate Sodium",
     "labeler_name": "Elite Laboratories, Inc.",
     "package_ndc": "64850-330-01",
     "spl_set_id": "89c05ea3-3be1-46dd-b112-29c436fd7289",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "METHOTREXATE SODIUM 2.5 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E7": {
    "id": "E7",
-   "queryId": "Q-d10262",
+   "queryId": "Q-f6c042",
    "row": 6,
-   "label": "Corvale General: Methotrexate",
+   "label": "Corvale General: Methotrexate 25 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-83",
     "ndc11": "00143951910",
     "ndc_as_recorded": "00143951910",
-    "description": "Methotrexate",
-    "on_hand": "36.16",
+    "description": "Methotrexate 25 mg/mL",
+    "on_hand": "36.00",
     "daily_use": "3.014",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Methotrexate",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0143-9519-10",
     "spl_set_id": "3989d30d-56e5-4e8d-9379-c30fecc894f2",
     "dosage_form": "SOLUTION",
-    "route": "INTRA-ARTERIAL|INTRAMUSCULAR|INTRATHECAL|INTRAVENOUS"
+    "route": "INTRA-ARTERIAL|INTRAMUSCULAR|INTRATHECAL|INTRAVENOUS",
+    "strength": "METHOTREXATE 25 mg/mL",
+    "unit_content": "2 mL",
+    "pkg_unit": "vial"
    }
   },
   "E8": {
    "id": "E8",
-   "queryId": "Q-d10262",
+   "queryId": "Q-f6c042",
    "row": 7,
-   "label": "Corvale General: Methotrexate",
+   "label": "Corvale General: Methotrexate 25 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-84",
     "ndc11": "00703367101",
     "ndc_as_recorded": "00703367101",
-    "description": "Methotrexate",
-    "on_hand": "36.21",
+    "description": "Methotrexate 25 mg/mL",
+    "on_hand": "36.00",
     "daily_use": "3.016",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Methotrexate",
     "labeler_name": "Teva Parenteral Medicines, Inc.",
     "package_ndc": "0703-3671-01",
     "spl_set_id": "346ec9ce-dc98-4a55-b55e-d3af11f2d703",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRA-ARTERIAL|INTRAMUSCULAR|INTRATHECAL|INTRAVENOUS"
+    "route": "INTRA-ARTERIAL|INTRAMUSCULAR|INTRATHECAL|INTRAVENOUS",
+    "strength": "METHOTREXATE SODIUM 25 mg/mL",
+    "unit_content": "2 mL",
+    "pkg_unit": "vial"
    }
   },
   "E9": {
    "id": "E9",
-   "queryId": "Q-d10262",
+   "queryId": "Q-f6c042",
    "row": 8,
    "label": "Corvale Lakeside: Methotrexate 2.5 mg/1",
    "fields": {
@@ -1216,13 +1474,18 @@
     "on_hand": "16.00",
     "daily_use": "0.840",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Methotrexate",
     "labeler_name": "Zydus Lifesciences Limited",
     "package_ndc": "70771-1058-5",
     "spl_set_id": "59ea7b32-2b6d-4197-92c3-015936f04ebe",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "METHOTREXATE 2.5 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E10": {
@@ -1529,7 +1792,7 @@
   },
   "E29": {
    "id": "E29",
-   "queryId": "Q-7cf611",
+   "queryId": "Q-39c807",
    "row": 0,
    "label": "FDA shortage list: Accord Healthcare Inc., Current",
    "fields": {
@@ -1544,7 +1807,7 @@
   },
   "E30": {
    "id": "E30",
-   "queryId": "Q-7cf611",
+   "queryId": "Q-39c807",
    "row": 2,
    "label": "FDA shortage list: Fresenius Kabi USA, LLC, Current",
    "fields": {
@@ -1559,7 +1822,7 @@
   },
   "E31": {
    "id": "E31",
-   "queryId": "Q-7cf611",
+   "queryId": "Q-39c807",
    "row": 4,
    "label": "FDA shortage list: Hikma Pharmaceuticals USA, Inc., Current",
    "fields": {
@@ -1574,7 +1837,7 @@
   },
   "E32": {
    "id": "E32",
-   "queryId": "Q-7cf611",
+   "queryId": "Q-39c807",
    "row": 6,
    "label": "FDA shortage list: Hospira, Inc., a Pfizer Company, Current",
    "fields": {
@@ -1589,7 +1852,7 @@
   },
   "E33": {
    "id": "E33",
-   "queryId": "Q-7cf611",
+   "queryId": "Q-39c807",
    "row": 11,
    "label": "FDA shortage list: Teva Pharmaceuticals USA, Inc., Current",
    "fields": {
@@ -1604,7 +1867,7 @@
   },
   "E34": {
    "id": "E34",
-   "queryId": "Q-7cf611",
+   "queryId": "Q-39c807",
    "row": 0,
    "label": "FDA first posted the shortage 2023-03-13",
    "fields": {
@@ -1621,40 +1884,121 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 202 units of methotrexate at 12.5 a day: 16 days on hand",
+   "label": "Corvale East holds 18 vials of methotrexate 25 mg/mL, 2 mL at 3 a day: 5.9 days on hand",
    "fields": {
     "hospital": "Corvale East",
-    "on_hand": 202,
-    "daily_use": 12.5,
-    "days_on_hand": 16
+    "presentation": "25 mg/mL solution, 2 mL vial",
+    "on_hand": 18,
+    "daily_use": 3,
+    "days_on_hand": 5.9
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 173 units of methotrexate at 11.8 a day: 15 days on hand",
+   "label": "Corvale General holds 36 vials of methotrexate 25 mg/mL, 2 mL at 3 a day: 11.9 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 173,
-    "daily_use": 11.8,
-    "days_on_hand": 15
+    "presentation": "25 mg/mL solution, 2 mL vial",
+    "on_hand": 36,
+    "daily_use": 3,
+    "days_on_hand": 11.9
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 16 units of methotrexate at 0.8 a day: 19 days on hand",
+   "label": "Corvale East holds 29 vials of methotrexate 25 mg/mL, 2 mL at 3.1 a day: 9.3 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "25 mg/mL injection, 2 mL vial",
+    "on_hand": 29,
+    "daily_use": 3.1,
+    "days_on_hand": 9.3
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 36 vials of methotrexate 25 mg/mL, 2 mL at 3 a day: 11.9 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "25 mg/mL injection, 2 mL vial",
+    "on_hand": 36,
+    "daily_use": 3,
+    "days_on_hand": 11.9
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale East holds 78 tablets of methotrexate 2.5 mg at 3.4 a day: 22.8 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "2.5 mg tablet",
+    "on_hand": 78,
+    "daily_use": 3.4,
+    "days_on_hand": 22.8
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 34 tablets of methotrexate 2.5 mg at 2.8 a day: 11.9 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "2.5 mg tablet",
+    "on_hand": 34,
+    "daily_use": 2.8,
+    "days_on_hand": 11.9
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale Lakeside holds 16 tablets of methotrexate 2.5 mg at 0.8 a day: 19 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
+    "presentation": "2.5 mg tablet",
     "on_hand": 16,
     "daily_use": 0.8,
     "days_on_hand": 19
    }
   },
-  "D4": {
-   "id": "D4",
+  "D8": {
+   "id": "D8",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale East holds 77 tablets of methotrexate 2.5 mg at 2.9 a day: 26.6 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "2.5 mg tablet",
+    "on_hand": 77,
+    "daily_use": 2.9,
+    "days_on_hand": 26.6
+   }
+  },
+  "D9": {
+   "id": "D9",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 66 tablets of methotrexate 2.5 mg at 2.9 a day: 23 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "2.5 mg tablet",
+    "on_hand": 66,
+    "daily_use": 2.9,
+    "days_on_hand": 23
+   }
+  },
+  "D10": {
+   "id": "D10",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 1120647 ended 2020-03-13, classified VAI; classification letter 2020-07-07 — 1095 days before FDA posted the shortage on 2023-03-13",
@@ -1664,8 +2008,8 @@
     "days": 1095
    }
   },
-  "D5": {
-   "id": "D5",
+  "D11": {
+   "id": "D11",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 1204321 ended 2023-03-24, classified VAI; classification letter 2023-07-02 — 11 days after FDA posted the shortage on 2023-03-13",
@@ -1675,38 +2019,8 @@
     "days": 11
    }
   },
-  "D6": {
-   "id": "D6",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 3 by rule: Buy from Alembic Pharmaceuticals Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
-   }
-  },
-  "D7": {
-   "id": "D7",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 3 by rule: Buy from Alembic Pharmaceuticals Limited. Not on FDA's shortage list today. Its label names no plant we could place.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
-   }
-  },
-  "D8": {
-   "id": "D8",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 3 by rule: Buy from Antares Pharma, Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
-   }
-  },
-  "D9": {
-   "id": "D9",
+  "D12": {
+   "id": "D12",
    "queryId": "derived",
    "row": -1,
    "label": "As of 2026-10-21 the shortage has been on FDA's list for 43 months",
@@ -1715,179 +2029,229 @@
     "posted": "2023-03-13",
     "months": 43
    }
+  },
+  "D13": {
+   "id": "D13",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Alembic Pharmaceuticals Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D14": {
+   "id": "D14",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Alembic Pharmaceuticals Limited. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D15": {
+   "id": "D15",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Antares Pharma, Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
   }
  },
  "queries": {
-  "Q-d10262": {
-   "id": "Q-d10262",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%methotrexate%' OR lower(s.description) LIKE '%methotrexate%' ORDER BY s.hospital, s.item_key",
-   "ms": 2047,
+  "Q-f6c042": {
+   "id": "Q-f6c042",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*methotrexate(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*methotrexate(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 4265,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T06:37:05.014Z",
+   "ranAt": "2026-10-22T12:20:35.041Z",
    "rows": 9
   },
   "Q-b62fc9": {
    "id": "Q-b62fc9",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('3989d30d-56e5-4e8d-9379-c30fecc894f2', '346ec9ce-dc98-4a55-b55e-d3af11f2d703', '89c05ea3-3be1-46dd-b112-29c436fd7289', '59ea7b32-2b6d-4197-92c3-015936f04ebe') ORDER BY ps.set_id, ps.establishment",
-   "ms": 426,
+   "ms": 555,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T06:37:05.451Z",
+   "ranAt": "2026-10-22T12:20:35.598Z",
    "rows": 4
   },
-  "Q-7cf611": {
-   "id": "Q-7cf611",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%methotrexate%' ORDER BY status, company_name, package_ndc",
-   "ms": 106,
+  "Q-39c807": {
+   "id": "Q-39c807",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*methotrexate(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 143,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T06:37:05.559Z",
+   "ranAt": "2026-10-22T12:20:35.743Z",
    "rows": 14
   },
-  "Q-4e231a": {
-   "id": "Q-4e231a",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%methotrexate%' ORDER BY first_posting",
-   "ms": 101,
+  "Q-927c9f": {
+   "id": "Q-927c9f",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*methotrexate(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 152,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T06:37:05.661Z",
+   "ranAt": "2026-10-22T12:20:35.896Z",
    "rows": 3
   },
-  "Q-332495": {
-   "id": "Q-332495",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%methotrexate%' AND lower(p.dosage_form) LIKE '%solution%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 1113,
+  "Q-bfef42": {
+   "id": "Q-bfef42",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*methotrexate(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%solution%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1533,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T06:37:06.775Z",
+   "ranAt": "2026-10-22T12:20:37.431Z",
    "rows": 70
   },
   "Q-9321f2": {
    "id": "Q-9321f2",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3007938603', '3002644678', '1450022', '3001174929') ORDER BY fei, end_date",
-   "ms": 238,
+   "ms": 335,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T06:37:07.016Z",
+   "ranAt": "2026-10-22T12:20:37.768Z",
    "rows": 36
   },
   "Q-e2d9b6": {
    "id": "Q-e2d9b6",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3007938603', '3002644678', '1450022', '3001174929') ORDER BY fei, action_date",
-   "ms": 123,
+   "ms": 162,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T06:37:07.140Z",
+   "ranAt": "2026-10-22T12:20:37.931Z",
    "rows": 2
   },
   "Q-f5226e": {
    "id": "Q-f5226e",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3007938603', '3002644678') OR (fei_match <> 'name_and_city' AND firm_key IN ('pharmachemie', 'thymoorgan pharmazie', 'zydus lifesciences', 'elite')) ORDER BY date_published",
-   "ms": 101,
+   "ms": 139,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T06:37:07.242Z",
+   "ranAt": "2026-10-22T12:20:38.071Z",
    "rows": 0
   },
-  "Q-446393": {
-   "id": "Q-446393",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('pharmachemie', 'thymoorgan pharmazie', 'zydus lifesciences', 'elite', 'hikma', 'teva parenteral medicines') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%methotrexate%' ORDER BY initiation_date",
-   "ms": 139,
+  "Q-126ea9": {
+   "id": "Q-126ea9",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('pharmachemie', 'thymoorgan pharmazie', 'zydus lifesciences', 'elite', 'hikma', 'teva parenteral medicines') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*methotrexate(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 161,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T06:37:07.383Z",
+   "ranAt": "2026-10-22T12:20:38.233Z",
    "rows": 0
   },
   "Q-dc59b9": {
    "id": "Q-dc59b9",
    "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('961406') ORDER BY inspection_id, cfr",
-   "ms": 190,
+   "ms": 168,
    "mode": "live",
    "sources": [
     "fda.citations"
    ],
-   "ranAt": "2026-10-22T06:37:07.574Z",
+   "ranAt": "2026-10-22T12:20:38.403Z",
    "rows": 0
   },
   "Q-7706fc": {
    "id": "Q-7706fc",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('00143951910', '00703367101', '64850033001', '70771105805')",
-   "ms": 599,
+   "ms": 818,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T06:37:08.180Z",
+   "ranAt": "2026-10-22T12:20:39.224Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 1409,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T06:37:09.590Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1246,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T06:37:10.837Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1473,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T06:37:12.311Z",
-   "rows": 2
-  },
-  "Q-b81fb0": {
-   "id": "Q-b81fb0",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%methotrexate%'",
-   "ms": 810,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T06:37:13.122Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-2733af": {
+   "id": "Q-2733af",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*methotrexate(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1574,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:20:40.799Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 15,
-  "zetarisMs": 10121,
+  "zetarisMs": 20213,
   "modelCalls": 1,
-  "tokensIn": 0,
-  "tokensOut": 0,
+  "tokensIn": 4147,
+  "tokensOut": 454,
   "mode": "live"
  },
+ "slug": "methotrexate",
  "graph": {
   "roots": [
    "hospital-item:hospital-item:CG-269",
@@ -1905,7 +2269,7 @@
     "id": "hospital-item:hospital-item:CG-269",
     "type": "HospitalItem",
     "key": "hospital-item:CG-269",
-    "label": "Corvale General: Methotrexate",
+    "label": "Corvale General: Methotrexate 2.5 mg/1",
     "attrs": {
      "key": "hospital-item:CG-269"
     },
@@ -1916,7 +2280,7 @@
     "id": "hospital-item:hospital-item:CG-270",
     "type": "HospitalItem",
     "key": "hospital-item:CG-270",
-    "label": "Corvale General: Methotrexate Sodium",
+    "label": "Corvale General: Methotrexate Sodium 2.5 mg/1",
     "attrs": {
      "key": "hospital-item:CG-270"
     },
@@ -1927,7 +2291,7 @@
     "id": "hospital-item:hospital-item:CG-83",
     "type": "HospitalItem",
     "key": "hospital-item:CG-83",
-    "label": "Corvale General: Methotrexate",
+    "label": "Corvale General: Methotrexate 25 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-83"
     },
@@ -1938,7 +2302,7 @@
     "id": "hospital-item:hospital-item:CG-84",
     "type": "HospitalItem",
     "key": "hospital-item:CG-84",
-    "label": "Corvale General: Methotrexate",
+    "label": "Corvale General: Methotrexate 25 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-84"
     },
@@ -2176,7 +2540,7 @@
     },
     "facts": [
      {
-      "id": "fact_5c7d575fe4ef3c63",
+      "id": "fact_0d3afbc62bac9b94",
       "about": "inspection:fda-inspection:1005475",
       "predicate": "classification",
       "value": "VAI",
@@ -2184,9 +2548,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T06:37:07.579Z"
+       "at": "2026-10-22T12:20:38.405Z"
       },
-      "assertedAt": "2026-10-22T06:37:07.579Z"
+      "assertedAt": "2026-10-22T12:20:38.405Z"
      }
     ],
     "depth": 4
@@ -2202,7 +2566,7 @@
     },
     "facts": [
      {
-      "id": "fact_90353b050e3ab3fa",
+      "id": "fact_8d4809fcca3f02c2",
       "about": "inspection:fda-inspection:1014880",
       "predicate": "classification",
       "value": "VAI",
@@ -2210,9 +2574,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T06:37:07.578Z"
+       "at": "2026-10-22T12:20:38.405Z"
       },
-      "assertedAt": "2026-10-22T06:37:07.578Z"
+      "assertedAt": "2026-10-22T12:20:38.405Z"
      }
     ],
     "depth": 4
@@ -2228,7 +2592,7 @@
     },
     "facts": [
      {
-      "id": "fact_912b0125630035e9",
+      "id": "fact_9249f9ea7688e2a1",
       "about": "inspection:fda-inspection:1085026",
       "predicate": "classification",
       "value": "VAI",
@@ -2236,9 +2600,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T06:37:07.579Z"
+       "at": "2026-10-22T12:20:38.405Z"
       },
-      "assertedAt": "2026-10-22T06:37:07.579Z"
+      "assertedAt": "2026-10-22T12:20:38.405Z"
      }
     ],
     "depth": 4
@@ -2254,7 +2618,7 @@
     },
     "facts": [
      {
-      "id": "fact_e1e34bc852cbdc69",
+      "id": "fact_75914f7c9a9f9fd5",
       "about": "inspection:fda-inspection:1120647",
       "predicate": "classification",
       "value": "VAI",
@@ -2262,9 +2626,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T06:37:07.578Z"
+       "at": "2026-10-22T12:20:38.405Z"
       },
-      "assertedAt": "2026-10-22T06:37:07.578Z"
+      "assertedAt": "2026-10-22T12:20:38.405Z"
      }
     ],
     "depth": 4
@@ -2280,7 +2644,7 @@
     },
     "facts": [
      {
-      "id": "fact_8899a34af909f16b",
+      "id": "fact_94daf328295964fe",
       "about": "inspection:fda-inspection:1204321",
       "predicate": "classification",
       "value": "VAI",
@@ -2288,9 +2652,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T06:37:07.579Z"
+       "at": "2026-10-22T12:20:38.406Z"
       },
-      "assertedAt": "2026-10-22T06:37:07.579Z"
+      "assertedAt": "2026-10-22T12:20:38.406Z"
      }
     ],
     "depth": 4
@@ -2306,7 +2670,7 @@
     },
     "facts": [
      {
-      "id": "fact_c5cbb2b0cf102117",
+      "id": "fact_30e91e6b78637f88",
       "about": "inspection:fda-inspection:1269549",
       "predicate": "classification",
       "value": "VAI",
@@ -2314,9 +2678,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T06:37:07.578Z"
+       "at": "2026-10-22T12:20:38.405Z"
       },
-      "assertedAt": "2026-10-22T06:37:07.578Z"
+      "assertedAt": "2026-10-22T12:20:38.405Z"
      }
     ],
     "depth": 4
@@ -2332,7 +2696,7 @@
     },
     "facts": [
      {
-      "id": "fact_9cf827a08ab59935",
+      "id": "fact_f87fe94a1c185cb3",
       "about": "inspection:fda-inspection:723745",
       "predicate": "classification",
       "value": "VAI",
@@ -2340,9 +2704,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T06:37:07.577Z"
+       "at": "2026-10-22T12:20:38.404Z"
       },
-      "assertedAt": "2026-10-22T06:37:07.577Z"
+      "assertedAt": "2026-10-22T12:20:38.404Z"
      }
     ],
     "depth": 4
@@ -2358,7 +2722,7 @@
     },
     "facts": [
      {
-      "id": "fact_5cbe8e4d0ae61369",
+      "id": "fact_9f0090628562c918",
       "about": "inspection:fda-inspection:793775",
       "predicate": "classification",
       "value": "VAI",
@@ -2366,9 +2730,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T06:37:07.577Z"
+       "at": "2026-10-22T12:20:38.405Z"
       },
-      "assertedAt": "2026-10-22T06:37:07.577Z"
+      "assertedAt": "2026-10-22T12:20:38.405Z"
      }
     ],
     "depth": 4
@@ -2384,7 +2748,7 @@
     },
     "facts": [
      {
-      "id": "fact_201b15205f69adcc",
+      "id": "fact_6db6e3c3ca925676",
       "about": "inspection:fda-inspection:880051",
       "predicate": "classification",
       "value": "VAI",
@@ -2392,9 +2756,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T06:37:07.578Z"
+       "at": "2026-10-22T12:20:38.405Z"
       },
-      "assertedAt": "2026-10-22T06:37:07.578Z"
+      "assertedAt": "2026-10-22T12:20:38.405Z"
      }
     ],
     "depth": 4
@@ -2410,7 +2774,7 @@
     },
     "facts": [
      {
-      "id": "fact_364a691e0a508eaf",
+      "id": "fact_6ff7e49aa9ba671e",
       "about": "inspection:fda-inspection:918141",
       "predicate": "classification",
       "value": "VAI",
@@ -2418,9 +2782,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T06:37:07.579Z"
+       "at": "2026-10-22T12:20:38.405Z"
       },
-      "assertedAt": "2026-10-22T06:37:07.579Z"
+      "assertedAt": "2026-10-22T12:20:38.405Z"
      }
     ],
     "depth": 4
@@ -2436,7 +2800,7 @@
     },
     "facts": [
      {
-      "id": "fact_4b51bddda2ff16c6",
+      "id": "fact_0706a1694325390e",
       "about": "inspection:fda-inspection:958305",
       "predicate": "classification",
       "value": "VAI",
@@ -2444,9 +2808,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T06:37:07.579Z"
+       "at": "2026-10-22T12:20:38.405Z"
       },
-      "assertedAt": "2026-10-22T06:37:07.579Z"
+      "assertedAt": "2026-10-22T12:20:38.405Z"
      }
     ],
     "depth": 4
@@ -2462,7 +2826,7 @@
     },
     "facts": [
      {
-      "id": "fact_21ae16e1f3c042cb",
+      "id": "fact_705fe0ce4e7aea74",
       "about": "inspection:fda-inspection:961406",
       "predicate": "classification",
       "value": "OAI",
@@ -2470,9 +2834,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T06:37:07.578Z"
+       "at": "2026-10-22T12:20:38.405Z"
       },
-      "assertedAt": "2026-10-22T06:37:07.578Z"
+      "assertedAt": "2026-10-22T12:20:38.405Z"
      }
     ],
     "depth": 4
@@ -2506,11 +2870,11 @@
     "from": "hospital-item:hospital-item:CG-269",
     "to": "package:ndc-package:70771-1058-5",
     "type": "stocks",
-    "validFrom": "2026-10-22T06:37:05.022Z",
+    "validFrom": "2026-10-22T12:20:35.043Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:05.022Z"
+     "at": "2026-10-22T12:20:35.043Z"
     }
    },
    {
@@ -2518,11 +2882,11 @@
     "from": "hospital-item:hospital-item:CG-270",
     "to": "package:ndc-package:64850-330-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T06:37:05.022Z",
+    "validFrom": "2026-10-22T12:20:35.043Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:05.022Z"
+     "at": "2026-10-22T12:20:35.043Z"
     }
    },
    {
@@ -2530,11 +2894,11 @@
     "from": "hospital-item:hospital-item:CG-83",
     "to": "package:ndc-package:0143-9519-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T06:37:05.023Z",
+    "validFrom": "2026-10-22T12:20:35.043Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:05.023Z"
+     "at": "2026-10-22T12:20:35.043Z"
     }
    },
    {
@@ -2542,11 +2906,11 @@
     "from": "hospital-item:hospital-item:CG-84",
     "to": "package:ndc-package:0703-3671-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T06:37:05.023Z",
+    "validFrom": "2026-10-22T12:20:35.043Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:05.023Z"
+     "at": "2026-10-22T12:20:35.043Z"
     }
    },
    {
@@ -2554,11 +2918,11 @@
     "from": "hospital-item:hospital-item:EA-E-000035",
     "to": "package:ndc-package:0143-9519-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T06:37:05.018Z",
+    "validFrom": "2026-10-22T12:20:35.043Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:05.018Z"
+     "at": "2026-10-22T12:20:35.043Z"
     }
    },
    {
@@ -2566,11 +2930,11 @@
     "from": "hospital-item:hospital-item:EA-E-000121",
     "to": "package:ndc-package:0703-3671-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T06:37:05.020Z",
+    "validFrom": "2026-10-22T12:20:35.043Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:05.020Z"
+     "at": "2026-10-22T12:20:35.043Z"
     }
    },
    {
@@ -2578,11 +2942,11 @@
     "from": "hospital-item:hospital-item:EA-E-000224",
     "to": "package:ndc-package:64850-330-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T06:37:05.021Z",
+    "validFrom": "2026-10-22T12:20:35.043Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:05.021Z"
+     "at": "2026-10-22T12:20:35.043Z"
     }
    },
    {
@@ -2590,11 +2954,11 @@
     "from": "hospital-item:hospital-item:EA-E-000272",
     "to": "package:ndc-package:70771-1058-5",
     "type": "stocks",
-    "validFrom": "2026-10-22T06:37:05.022Z",
+    "validFrom": "2026-10-22T12:20:35.043Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:05.022Z"
+     "at": "2026-10-22T12:20:35.043Z"
     }
    },
    {
@@ -2602,11 +2966,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0118",
     "to": "package:ndc-package:70771-1058-5",
     "type": "stocks",
-    "validFrom": "2026-10-22T06:37:05.023Z",
+    "validFrom": "2026-10-22T12:20:35.043Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:05.023Z"
+     "at": "2026-10-22T12:20:35.043Z"
     }
    },
    {
@@ -2614,11 +2978,11 @@
     "from": "package:ndc-package:70771-1058-5",
     "to": "product:ndc-product:70771-1058",
     "type": "package-of",
-    "validFrom": "2026-10-22T06:37:05.022Z",
+    "validFrom": "2026-10-22T12:20:35.043Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:05.022Z"
+     "at": "2026-10-22T12:20:35.043Z"
     }
    },
    {
@@ -2626,11 +2990,11 @@
     "from": "package:ndc-package:64850-330-01",
     "to": "product:ndc-product:64850-330",
     "type": "package-of",
-    "validFrom": "2026-10-22T06:37:05.021Z",
+    "validFrom": "2026-10-22T12:20:35.043Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:05.021Z"
+     "at": "2026-10-22T12:20:35.043Z"
     }
    },
    {
@@ -2638,11 +3002,11 @@
     "from": "package:ndc-package:0143-9519-10",
     "to": "product:ndc-product:0143-9519",
     "type": "package-of",
-    "validFrom": "2026-10-22T06:37:05.019Z",
+    "validFrom": "2026-10-22T12:20:35.043Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:05.019Z"
+     "at": "2026-10-22T12:20:35.043Z"
     }
    },
    {
@@ -2650,11 +3014,11 @@
     "from": "package:ndc-package:0703-3671-01",
     "to": "product:ndc-product:0703-3671",
     "type": "package-of",
-    "validFrom": "2026-10-22T06:37:05.020Z",
+    "validFrom": "2026-10-22T12:20:35.043Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:05.020Z"
+     "at": "2026-10-22T12:20:35.043Z"
     }
    },
    {
@@ -2662,11 +3026,11 @@
     "from": "product:ndc-product:70771-1058",
     "to": "drug:generic:methotrexate",
     "type": "of-drug",
-    "validFrom": "2026-10-22T06:37:05.022Z",
+    "validFrom": "2026-10-22T12:20:35.043Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:05.022Z"
+     "at": "2026-10-22T12:20:35.043Z"
     }
    },
    {
@@ -2674,11 +3038,11 @@
     "from": "product:ndc-product:70771-1058",
     "to": "labeler:ndc-labeler:70771",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T06:37:05.022Z",
+    "validFrom": "2026-10-22T12:20:35.043Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:05.022Z"
+     "at": "2026-10-22T12:20:35.043Z"
     }
    },
    {
@@ -2686,11 +3050,11 @@
     "from": "product:ndc-product:70771-1058",
     "to": "site:fei:3007938603",
     "type": "made-at",
-    "validFrom": "2026-10-22T06:37:07.579Z",
+    "validFrom": "2026-10-22T12:20:38.405Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:07.579Z"
+     "at": "2026-10-22T12:20:38.405Z"
     }
    },
    {
@@ -2698,11 +3062,11 @@
     "from": "product:ndc-product:64850-330",
     "to": "drug:generic:methotrexate",
     "type": "of-drug",
-    "validFrom": "2026-10-22T06:37:05.021Z",
+    "validFrom": "2026-10-22T12:20:35.043Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:05.021Z"
+     "at": "2026-10-22T12:20:35.043Z"
     }
    },
    {
@@ -2710,11 +3074,11 @@
     "from": "product:ndc-product:64850-330",
     "to": "labeler:ndc-labeler:64850",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T06:37:05.021Z",
+    "validFrom": "2026-10-22T12:20:35.043Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:05.021Z"
+     "at": "2026-10-22T12:20:35.043Z"
     }
    },
    {
@@ -2722,11 +3086,11 @@
     "from": "product:ndc-product:64850-330",
     "to": "site:fei:3002644678",
     "type": "made-at",
-    "validFrom": "2026-10-22T06:37:07.577Z",
+    "validFrom": "2026-10-22T12:20:38.404Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:07.577Z"
+     "at": "2026-10-22T12:20:38.404Z"
     }
    },
    {
@@ -2734,11 +3098,11 @@
     "from": "product:ndc-product:0143-9519",
     "to": "drug:generic:methotrexate",
     "type": "of-drug",
-    "validFrom": "2026-10-22T06:37:05.019Z",
+    "validFrom": "2026-10-22T12:20:35.043Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:05.019Z"
+     "at": "2026-10-22T12:20:35.043Z"
     }
    },
    {
@@ -2746,11 +3110,11 @@
     "from": "product:ndc-product:0143-9519",
     "to": "labeler:ndc-labeler:0143",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T06:37:05.020Z",
+    "validFrom": "2026-10-22T12:20:35.043Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:05.020Z"
+     "at": "2026-10-22T12:20:35.043Z"
     }
    },
    {
@@ -2758,11 +3122,11 @@
     "from": "product:ndc-product:0703-3671",
     "to": "drug:generic:methotrexate",
     "type": "of-drug",
-    "validFrom": "2026-10-22T06:37:05.021Z",
+    "validFrom": "2026-10-22T12:20:35.043Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:05.021Z"
+     "at": "2026-10-22T12:20:35.043Z"
     }
    },
    {
@@ -2770,11 +3134,11 @@
     "from": "product:ndc-product:0703-3671",
     "to": "labeler:ndc-labeler:0703",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T06:37:05.021Z",
+    "validFrom": "2026-10-22T12:20:35.043Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:05.021Z"
+     "at": "2026-10-22T12:20:35.043Z"
     }
    },
    {
@@ -2782,11 +3146,11 @@
     "from": "shortage:fda-shortage:methotrexate-2023-03-13",
     "to": "drug:generic:methotrexate",
     "type": "affects",
-    "validFrom": "2026-10-22T06:37:07.580Z",
+    "validFrom": "2026-10-22T12:20:38.406Z",
     "source": {
      "kind": "fda-shortage-db",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:07.580Z"
+     "at": "2026-10-22T12:20:38.406Z"
     }
    },
    {
@@ -2794,11 +3158,11 @@
     "from": "inspection:fda-inspection:918141",
     "to": "site:fei:3007938603",
     "type": "inspected",
-    "validFrom": "2026-10-22T06:37:07.579Z",
+    "validFrom": "2026-10-22T12:20:38.405Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:07.579Z"
+     "at": "2026-10-22T12:20:38.405Z"
     }
    },
    {
@@ -2806,11 +3170,11 @@
     "from": "inspection:fda-inspection:958305",
     "to": "site:fei:3007938603",
     "type": "inspected",
-    "validFrom": "2026-10-22T06:37:07.579Z",
+    "validFrom": "2026-10-22T12:20:38.405Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:07.579Z"
+     "at": "2026-10-22T12:20:38.405Z"
     }
    },
    {
@@ -2818,11 +3182,11 @@
     "from": "inspection:fda-inspection:1005475",
     "to": "site:fei:3007938603",
     "type": "inspected",
-    "validFrom": "2026-10-22T06:37:07.579Z",
+    "validFrom": "2026-10-22T12:20:38.405Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:07.579Z"
+     "at": "2026-10-22T12:20:38.405Z"
     }
    },
    {
@@ -2830,11 +3194,11 @@
     "from": "inspection:fda-inspection:1085026",
     "to": "site:fei:3007938603",
     "type": "inspected",
-    "validFrom": "2026-10-22T06:37:07.579Z",
+    "validFrom": "2026-10-22T12:20:38.405Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:07.579Z"
+     "at": "2026-10-22T12:20:38.405Z"
     }
    },
    {
@@ -2842,11 +3206,11 @@
     "from": "inspection:fda-inspection:1204321",
     "to": "site:fei:3007938603",
     "type": "inspected",
-    "validFrom": "2026-10-22T06:37:07.579Z",
+    "validFrom": "2026-10-22T12:20:38.406Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:07.579Z"
+     "at": "2026-10-22T12:20:38.406Z"
     }
    },
    {
@@ -2854,11 +3218,11 @@
     "from": "inspection:fda-inspection:723745",
     "to": "site:fei:3002644678",
     "type": "inspected",
-    "validFrom": "2026-10-22T06:37:07.577Z",
+    "validFrom": "2026-10-22T12:20:38.404Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:07.577Z"
+     "at": "2026-10-22T12:20:38.404Z"
     }
    },
    {
@@ -2866,11 +3230,11 @@
     "from": "inspection:fda-inspection:793775",
     "to": "site:fei:3002644678",
     "type": "inspected",
-    "validFrom": "2026-10-22T06:37:07.577Z",
+    "validFrom": "2026-10-22T12:20:38.405Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:07.577Z"
+     "at": "2026-10-22T12:20:38.405Z"
     }
    },
    {
@@ -2878,11 +3242,11 @@
     "from": "inspection:fda-inspection:880051",
     "to": "site:fei:3002644678",
     "type": "inspected",
-    "validFrom": "2026-10-22T06:37:07.577Z",
+    "validFrom": "2026-10-22T12:20:38.405Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:07.577Z"
+     "at": "2026-10-22T12:20:38.405Z"
     }
    },
    {
@@ -2890,11 +3254,11 @@
     "from": "inspection:fda-inspection:961406",
     "to": "site:fei:3002644678",
     "type": "inspected",
-    "validFrom": "2026-10-22T06:37:07.578Z",
+    "validFrom": "2026-10-22T12:20:38.405Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:07.578Z"
+     "at": "2026-10-22T12:20:38.405Z"
     }
    },
    {
@@ -2902,11 +3266,11 @@
     "from": "inspection:fda-inspection:1014880",
     "to": "site:fei:3002644678",
     "type": "inspected",
-    "validFrom": "2026-10-22T06:37:07.578Z",
+    "validFrom": "2026-10-22T12:20:38.405Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:07.578Z"
+     "at": "2026-10-22T12:20:38.405Z"
     }
    },
    {
@@ -2914,11 +3278,11 @@
     "from": "inspection:fda-inspection:1120647",
     "to": "site:fei:3002644678",
     "type": "inspected",
-    "validFrom": "2026-10-22T06:37:07.578Z",
+    "validFrom": "2026-10-22T12:20:38.405Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:07.578Z"
+     "at": "2026-10-22T12:20:38.405Z"
     }
    },
    {
@@ -2926,11 +3290,11 @@
     "from": "inspection:fda-inspection:1269549",
     "to": "site:fei:3002644678",
     "type": "inspected",
-    "validFrom": "2026-10-22T06:37:07.578Z",
+    "validFrom": "2026-10-22T12:20:38.405Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:07.578Z"
+     "at": "2026-10-22T12:20:38.405Z"
     }
    },
    {
@@ -2938,11 +3302,11 @@
     "from": "warning-letter:fda-warning-letter:496551",
     "to": "site:fei:3002644678",
     "type": "issued-to",
-    "validFrom": "2026-10-22T06:37:07.578Z",
+    "validFrom": "2026-10-22T12:20:38.405Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T06:37:07.578Z"
+     "at": "2026-10-22T12:20:38.405Z"
     }
    }
   ],

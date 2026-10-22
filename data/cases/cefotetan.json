@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-292fa3",
+ "id": "case-2026-10-22-172e7d",
  "question": "Why is cefotetan short, and what do we do?",
- "askedAt": "2026-10-22T07:32:05.943Z",
+ "askedAt": "2026-10-22T11:37:05.942Z",
  "asOf": "2026-10-21",
  "molecule": "cefotetan",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H8C3EQ71H4W4205HM9PH5V",
+  "contractId": "01M5HPCRRMY45ZMGXFF0QPJ9YY",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-c6746f"
+    "Q-0fc8ef"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3001,
+   "ms": 3772,
    "rows": 6,
-   "finding": "6 stock lines across 3 hospitals.",
+   "finding": "6 stock lines across 3 hospitals, 2 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-daec27"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 769,
+   "ms": 453,
    "rows": 3,
    "finding": "3 plant links on 2 labels; 2 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-a92bef",
-    "Q-b56d8c"
+    "Q-da494b",
+    "Q-235c27"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 422,
+   "ms": 226,
    "rows": 1,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-e30bdd"
+    "Q-4953f9"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2075,
+   "ms": 1235,
    "rows": 8,
    "finding": "3 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-efa11b",
     "Q-a0277e",
     "Q-674018",
-    "Q-3a3b1e"
+    "Q-8956d8"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1115,
+   "ms": 707,
    "rows": 15,
    "finding": "14 inspections (1 OAI at our plants), 1 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,7 +111,7 @@
    "sources": [
     "fda.citations"
    ],
-   "ms": 242,
+   "ms": 146,
    "rows": 14,
    "finding": "14 Form 483 observations recorded.",
    "status": "ok"
@@ -119,9 +126,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1664,
+   "ms": 937,
    "rows": 2,
    "finding": "2 approved interchanges on file.",
    "status": "ok"
@@ -129,19 +136,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-0dc022"
+    "Q-fa8751"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1678,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1610,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -168,8 +179,11 @@
    "onHand": 51,
    "dailyUse": 3.813,
    "days": 13.4,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "cefotetan|1g/10ml|injection|10ml|vial",
+   "presentationLabel": "1 g/10 mL injection, 10 mL vial",
    "evidence": "E1"
   },
   {
@@ -181,34 +195,43 @@
    "onHand": 39,
    "dailyUse": 4.119,
    "days": 9.5,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "cefotetan disodium|1g/10ml|injection|10ml|vial",
+   "presentationLabel": "1 g/10 mL injection, 10 mL vial",
    "evidence": "E2"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-14",
    "ndc11": "00121097610",
-   "description": "Cefotetan",
+   "description": "Cefotetan 1 g/10mL",
    "labeler": "PAI Holdings, LLC dba PAI Pharma",
-   "onHand": 56.93,
+   "onHand": 56,
    "dailyUse": 4.531,
-   "days": 12.6,
+   "days": 12.4,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "cefotetan|1g/10ml|injection|10ml|vial",
+   "presentationLabel": "1 g/10 mL injection, 10 mL vial",
    "evidence": "E3"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-15",
    "ndc11": "63323038510",
-   "description": "CEFOTETAN DISODIUM",
+   "description": "CEFOTETAN DISODIUM 1 g/10mL",
    "labeler": "Fresenius Kabi USA, LLC",
-   "onHand": 45.95,
+   "onHand": 45,
    "dailyUse": 4.253,
-   "days": 10.8,
+   "days": 10.6,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "cefotetan disodium|1g/10ml|injection|10ml|vial",
+   "presentationLabel": "1 g/10 mL injection, 10 mL vial",
    "evidence": "E4"
   },
   {
@@ -222,6 +245,9 @@
    "days": 22,
    "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "cefotetan|1g/10ml|injection|10ml|vial",
+   "presentationLabel": "1 g/10 mL injection, 10 mL vial",
    "evidence": "E5"
   },
   {
@@ -235,7 +261,106 @@
    "days": 26.9,
    "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "cefotetan disodium|1g/10ml|injection|10ml|vial",
+   "presentationLabel": "1 g/10 mL injection, 10 mL vial",
    "evidence": "E6"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "cefotetan disodium|1g/10ml|injection|10ml|vial",
+   "label": "1 g/10 mL injection, 10 mL vial",
+   "short": "1 g/10 mL, 10 mL",
+   "unit": "vial",
+   "onHand": 109,
+   "dailyUse": 9.302,
+   "days": 11.7,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 39,
+     "dailyUse": 4.119,
+     "days": 9.5,
+     "lines": [
+      "EA-E-000216"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 45,
+     "dailyUse": 4.253,
+     "days": 10.6,
+     "lines": [
+      "CG-15"
+     ],
+     "evidence": [
+      "E4"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 25,
+     "dailyUse": 0.93,
+     "days": 26.9,
+     "lines": [
+      "LS-LS-0099"
+     ],
+     "evidence": [
+      "E6"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "cefotetan|1g/10ml|injection|10ml|vial",
+   "label": "1 g/10 mL injection, 10 mL vial",
+   "short": "1 g/10 mL, 10 mL",
+   "unit": "vial",
+   "onHand": 123,
+   "dailyUse": 9.071,
+   "days": 13.6,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 51,
+     "dailyUse": 3.813,
+     "days": 13.4,
+     "lines": [
+      "EA-E-000017"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 56,
+     "dailyUse": 4.531,
+     "days": 12.4,
+     "lines": [
+      "CG-14"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 16,
+     "dailyUse": 0.727,
+     "days": 22,
+     "lines": [
+      "LS-LS-0007"
+     ],
+     "evidence": [
+      "E5"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -506,26 +631,27 @@
  ],
  "options": [
   {
-   "kind": "alternate_manufacturer",
-   "rank": 2,
-   "title": "Same product, alternate manufacturer: CEFOTETAN DISODIUM 1 g/10mL from Fresenius Kabi USA, LLC",
-   "detail": "Same product from Fresenius Kabi USA, LLC; substitute NDC, no clinical change. Approved by Sam Rivera, MD on 2026-04-28.",
-   "why": "Already approved by the P&T committee.",
-   "needs": "pharmacist",
+   "kind": "transfer",
+   "rank": 1,
+   "title": "Transfer 11 vials of 1 g/10 mL, 10 mL from Corvale Lakeside to Corvale East",
+   "detail": "Corvale Lakeside has 27 days of 1 g/10 mL injection, 10 mL vials on hand and can spare 11 vials while keeping two weeks; Corvale East has 9.5 days and would reach 12.",
+   "why": "Same presentation, no clinical change, no new supplier.",
+   "needs": "pharmacy director (transfer request)",
    "evidence": [
-    "E24"
-   ]
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 2,
-   "title": "Same product, alternate manufacturer: Cefotetan 1 g/10mL from PAI Holdings, LLC dba PAI Pharma",
-   "detail": "Same product from PAI Holdings, LLC dba PAI Pharma; substitute NDC, no clinical change. Approved by Riley Brooks, PharmD on 2026-04-11.",
-   "why": "Already approved by the P&T committee.",
-   "needs": "pharmacist",
-   "evidence": [
-    "E25"
-   ]
+    "E6",
+    "E2"
+   ],
+   "transfer": {
+    "qty": 11,
+    "unit": "vial",
+    "presentation": "1 g/10 mL injection, 10 mL vial",
+    "from": "Corvale Lakeside",
+    "to": "Corvale East",
+    "fromDays": 26.9,
+    "toDays": 9.5,
+    "fromAfter": 15,
+    "toAfter": 12
+   }
   },
   {
    "kind": "alternate_manufacturer",
@@ -535,6 +661,28 @@
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
    "evidence": []
+  },
+  {
+   "kind": "alternate_concentration",
+   "rank": 3,
+   "title": "Same molecule, alternate concentration or vial size: CEFOTETAN DISODIUM 1 g/10mL from Fresenius Kabi USA, LLC",
+   "detail": "Same product from Fresenius Kabi USA, LLC; substitute NDC, no clinical change. Approved by Sam Rivera, MD on 2026-04-28.",
+   "why": "Already approved by the P&T committee.",
+   "needs": "pharmacist",
+   "evidence": [
+    "E24"
+   ]
+  },
+  {
+   "kind": "alternate_concentration",
+   "rank": 3,
+   "title": "Same molecule, alternate concentration or vial size: Cefotetan 1 g/10mL from PAI Holdings, LLC dba PAI Pharma",
+   "detail": "Same product from PAI Holdings, LLC dba PAI Pharma; substitute NDC, no clinical change. Approved by Riley Brooks, PharmD on 2026-04-11.",
+   "why": "Already approved by the P&T committee.",
+   "needs": "pharmacist",
+   "evidence": [
+    "E25"
+   ]
   }
  ],
  "timeline": [
@@ -589,38 +737,38 @@
   }
  ],
  "explanation": {
-  "state": "confirmed",
+  "state": "check",
   "headline": "FDA's records trace our supply to a plant classified OAI 523 days after the shortage posting",
   "sentences": [
    {
-    "text": "The FDA shortage posting for cefotetan dates to 2014-08-14 and has remained on the list for 146 months as of 2026-10-21.",
+    "text": "Cefotetan has been on FDA's shortage list since 2014-08-14 and remains listed as of 2026-10-21, a span of 146 months.",
     "cites": [
      "D12"
     ]
    },
    {
-    "text": "A registered plant on the Fresenius Kabi label, ACS Dobfar S.p.A. (FEI 3006028606), received an OAI classification after an inspection that ended 2016-01-19, which was 523 days after the shortage posting.",
+    "text": "The product used across Corvale sites carries NDC 63323038510 labeled by Fresenius Kabi USA, LLC and is manufactured at ACS DOBFAR SPA (FEI 3006028606) in Italy.",
     "cites": [
-     "D7",
-     "E11",
+     "E6",
      "E17"
     ]
    },
    {
-    "text": "That same plant had prior VAI inspections ending 2012-03-27, 2014-03-18, and 2014-05-23, with the last two occurring 149 and 83 days before the shortage posting.",
+    "text": "FDA inspected that plant on 2016-01-19 and classified it OAI with 14 observations on laboratory controls and documentation, 523 days after the shortage was first posted.",
     "cites": [
-     "D4",
-     "D5",
-     "D6",
-     "E8",
-     "E9",
-     "E18"
+     "D10",
+     "E11"
     ]
    },
    {
-    "text": "A Warning Letter was issued to the plant on 2017-01-13, and subsequent inspections through 2024-12-13 have been classified VAI.",
+    "text": "A Warning Letter followed on 2017-01-13 for the same facility.",
     "cites": [
-     "E16",
+     "E16"
+    ]
+   },
+   {
+    "text": "Subsequent inspections in 2017, 2018, 2022, and 2024 returned VAI classifications.",
+    "cites": [
      "E12",
      "E13",
      "E14",
@@ -628,23 +776,23 @@
     ]
    },
    {
-    "text": "The P&T-approved interchange from PAI Holdings (NDC 00121097610) to Fresenius Kabi (NDC 63323038510) was authorized by Sam Rivera, MD on 2026-04-28.",
+    "text": "An alternate manufacturer, PAI Holdings, LLC dba PAI Pharma (NDC 00121097610), is not on FDA's shortage list today.",
     "cites": [
-     "E24",
-     "D9"
+     "D14",
+     "E7"
     ]
    },
    {
-    "text": "Current inventory across three sites provides 11 to 25 days on hand at present usage rates.",
+    "text": "The highest-ranked action is to transfer 11 vials of the 1 g/10 mL presentation from Corvale Lakeside, which holds 27 days on hand, to Corvale East, which holds 9.5 days and would reach 12 days after the move.",
     "cites": [
+     "D13",
      "D1",
-     "D2",
      "D3"
     ]
    }
   ],
   "verifier": {
-   "checked": 7,
+   "checked": 8,
    "rejected": [],
    "repaired": 0
   },
@@ -653,132 +801,153 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [],
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:31:54.968Z",
+   "at": "2026-10-22T11:36:56.853Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract 5HM9PH5V scope"
+   "reason": "in contract F0QPJ9YY scope"
   },
   {
-   "at": "2026-10-22T07:31:54.969Z",
+   "at": "2026-10-22T11:36:56.853Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 5HM9PH5V scope"
+   "reason": "in contract F0QPJ9YY scope"
   },
   {
-   "at": "2026-10-22T07:31:57.972Z",
+   "at": "2026-10-22T11:37:00.626Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 5HM9PH5V scope"
+   "reason": "in contract F0QPJ9YY scope"
   },
   {
-   "at": "2026-10-22T07:31:58.741Z",
+   "at": "2026-10-22T11:37:01.079Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 5HM9PH5V scope"
+   "reason": "in contract F0QPJ9YY scope"
   },
   {
-   "at": "2026-10-22T07:31:59.164Z",
+   "at": "2026-10-22T11:37:01.304Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 5HM9PH5V scope"
+   "reason": "in contract F0QPJ9YY scope"
   },
   {
-   "at": "2026-10-22T07:32:01.238Z",
+   "at": "2026-10-22T11:37:02.539Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 5HM9PH5V scope"
+   "reason": "in contract F0QPJ9YY scope"
   },
   {
-   "at": "2026-10-22T07:32:02.354Z",
+   "at": "2026-10-22T11:37:03.246Z",
    "action": "What FDA wrote at the OAI inspections",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 5HM9PH5V scope"
+   "reason": "in contract F0QPJ9YY scope"
   },
   {
-   "at": "2026-10-22T07:32:02.599Z",
+   "at": "2026-10-22T11:37:03.394Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 5HM9PH5V scope"
+   "reason": "in contract F0QPJ9YY scope"
   },
   {
-   "at": "2026-10-22T07:32:04.264Z",
+   "at": "2026-10-22T11:37:04.331Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 5HM9PH5V scope"
+   "reason": "in contract F0QPJ9YY scope"
   },
   {
-   "at": "2026-10-22T07:32:05.942Z",
+   "at": "2026-10-22T11:37:05.941Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract 5HM9PH5V scope"
+   "reason": "in contract F0QPJ9YY scope"
   },
   {
-   "at": "2026-10-22T07:32:05.943Z",
+   "at": "2026-10-22T11:37:05.942Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract 5HM9PH5V scope"
+   "reason": "in contract F0QPJ9YY scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-c6746f",
+   "queryId": "Q-0fc8ef",
    "row": 0,
    "label": "Corvale East: CEFOTETAN 1G0ML 10ML SDV",
    "fields": {
@@ -789,19 +958,24 @@
     "description": "CEFOTETAN 1G0ML 10ML SDV",
     "on_hand": "51.00",
     "daily_use": "3.813",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Cefotetan",
     "labeler_name": "PAI Holdings, LLC dba PAI Pharma",
     "package_ndc": "0121-0976-10",
     "spl_set_id": "f1510f5e-d001-44e0-accb-27cf79fd4f9a",
     "dosage_form": "INJECTION, POWDER, FOR SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "CEFOTETAN DISODIUM 1 g/10mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-c6746f",
+   "queryId": "Q-0fc8ef",
    "row": 1,
    "label": "Corvale East: CEFOTETAN DISODIUM 1G0ML 10ML SDV",
    "fields": {
@@ -812,65 +986,80 @@
     "description": "CEFOTETAN DISODIUM 1G0ML 10ML SDV",
     "on_hand": "39.00",
     "daily_use": "4.119",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "CEFOTETAN DISODIUM",
     "labeler_name": "Fresenius Kabi USA, LLC",
     "package_ndc": "63323-385-10",
     "spl_set_id": "bd22c66b-8a1c-44c8-b5b6-3ab0ce5c800e",
     "dosage_form": "INJECTION, POWDER, FOR SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "CEFOTETAN DISODIUM 1 g/10mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-c6746f",
+   "queryId": "Q-0fc8ef",
    "row": 2,
-   "label": "Corvale General: Cefotetan",
+   "label": "Corvale General: Cefotetan 1 g/10mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-14",
     "ndc11": "00121097610",
     "ndc_as_recorded": "00121097610",
-    "description": "Cefotetan",
-    "on_hand": "56.93",
+    "description": "Cefotetan 1 g/10mL",
+    "on_hand": "56.00",
     "daily_use": "4.531",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Cefotetan",
     "labeler_name": "PAI Holdings, LLC dba PAI Pharma",
     "package_ndc": "0121-0976-10",
     "spl_set_id": "f1510f5e-d001-44e0-accb-27cf79fd4f9a",
     "dosage_form": "INJECTION, POWDER, FOR SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "CEFOTETAN DISODIUM 1 g/10mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-c6746f",
+   "queryId": "Q-0fc8ef",
    "row": 3,
-   "label": "Corvale General: CEFOTETAN DISODIUM",
+   "label": "Corvale General: CEFOTETAN DISODIUM 1 g/10mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-15",
     "ndc11": "63323038510",
     "ndc_as_recorded": "63323038510",
-    "description": "CEFOTETAN DISODIUM",
-    "on_hand": "45.95",
+    "description": "CEFOTETAN DISODIUM 1 g/10mL",
+    "on_hand": "45.00",
     "daily_use": "4.253",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "CEFOTETAN DISODIUM",
     "labeler_name": "Fresenius Kabi USA, LLC",
     "package_ndc": "63323-385-10",
     "spl_set_id": "bd22c66b-8a1c-44c8-b5b6-3ab0ce5c800e",
     "dosage_form": "INJECTION, POWDER, FOR SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "CEFOTETAN DISODIUM 1 g/10mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E5": {
    "id": "E5",
-   "queryId": "Q-c6746f",
+   "queryId": "Q-0fc8ef",
    "row": 4,
    "label": "Corvale Lakeside: Cefotetan 1 g/10mL 10 mL vial",
    "fields": {
@@ -882,18 +1071,23 @@
     "on_hand": "16.00",
     "daily_use": "0.727",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Cefotetan",
     "labeler_name": "PAI Holdings, LLC dba PAI Pharma",
     "package_ndc": "0121-0976-10",
     "spl_set_id": "f1510f5e-d001-44e0-accb-27cf79fd4f9a",
     "dosage_form": "INJECTION, POWDER, FOR SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "CEFOTETAN DISODIUM 1 g/10mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E6": {
    "id": "E6",
-   "queryId": "Q-c6746f",
+   "queryId": "Q-0fc8ef",
    "row": 5,
    "label": "Corvale Lakeside: CEFOTETAN DISODIUM 1 g/10mL 10 mL vial",
    "fields": {
@@ -905,13 +1099,18 @@
     "on_hand": "25.00",
     "daily_use": "0.930",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "CEFOTETAN DISODIUM",
     "labeler_name": "Fresenius Kabi USA, LLC",
     "package_ndc": "63323-385-10",
     "spl_set_id": "bd22c66b-8a1c-44c8-b5b6-3ab0ce5c800e",
     "dosage_form": "INJECTION, POWDER, FOR SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "CEFOTETAN DISODIUM 1 g/10mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E7": {
@@ -1221,40 +1420,82 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 90 units of cefotetan at 7.9 a day: 11 days on hand",
+   "label": "Corvale East holds 39 vials of cefotetan 1 g/10 mL, 10 mL at 4.1 a day: 9.5 days on hand",
    "fields": {
     "hospital": "Corvale East",
-    "on_hand": 90,
-    "daily_use": 7.9,
-    "days_on_hand": 11
+    "presentation": "1 g/10 mL injection, 10 mL vial",
+    "on_hand": 39,
+    "daily_use": 4.1,
+    "days_on_hand": 9.5
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 103 units of cefotetan at 8.8 a day: 12 days on hand",
+   "label": "Corvale General holds 45 vials of cefotetan 1 g/10 mL, 10 mL at 4.3 a day: 10.6 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 103,
-    "daily_use": 8.8,
-    "days_on_hand": 12
+    "presentation": "1 g/10 mL injection, 10 mL vial",
+    "on_hand": 45,
+    "daily_use": 4.3,
+    "days_on_hand": 10.6
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 41 units of cefotetan at 1.7 a day: 25 days on hand",
+   "label": "Corvale Lakeside holds 25 vials of cefotetan 1 g/10 mL, 10 mL at 0.9 a day: 26.9 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
-    "on_hand": 41,
-    "daily_use": 1.7,
-    "days_on_hand": 25
+    "presentation": "1 g/10 mL injection, 10 mL vial",
+    "on_hand": 25,
+    "daily_use": 0.9,
+    "days_on_hand": 26.9
    }
   },
   "D4": {
    "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale East holds 51 vials of cefotetan 1 g/10 mL, 10 mL at 3.8 a day: 13.4 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "1 g/10 mL injection, 10 mL vial",
+    "on_hand": 51,
+    "daily_use": 3.8,
+    "days_on_hand": 13.4
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 56 vials of cefotetan 1 g/10 mL, 10 mL at 4.5 a day: 12.4 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "1 g/10 mL injection, 10 mL vial",
+    "on_hand": 56,
+    "daily_use": 4.5,
+    "days_on_hand": 12.4
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale Lakeside holds 16 vials of cefotetan 1 g/10 mL, 10 mL at 0.7 a day: 22 days on hand",
+   "fields": {
+    "hospital": "Corvale Lakeside",
+    "presentation": "1 g/10 mL injection, 10 mL vial",
+    "on_hand": 16,
+    "daily_use": 0.7,
+    "days_on_hand": 22
+   }
+  },
+  "D7": {
+   "id": "D7",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 777346 ended 2012-03-27, classified VAI; classification letter 2012-09-10 — 870 days before FDA posted the shortage on 2014-08-14",
@@ -1264,8 +1505,8 @@
     "days": 870
    }
   },
-  "D5": {
-   "id": "D5",
+  "D8": {
+   "id": "D8",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 873439 ended 2014-03-18, classified VAI; classification letter 2014-11-17 — 149 days before FDA posted the shortage on 2014-08-14",
@@ -1275,8 +1516,8 @@
     "days": 149
    }
   },
-  "D6": {
-   "id": "D6",
+  "D9": {
+   "id": "D9",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 881223 ended 2014-05-23, classified VAI — 83 days before FDA posted the shortage on 2014-08-14",
@@ -1286,8 +1527,8 @@
     "days": 83
    }
   },
-  "D7": {
-   "id": "D7",
+  "D10": {
+   "id": "D10",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 955350 ended 2016-01-19, classified OAI; Form 483: Following/documenting laboratory controls; Written records kept in individual logs; Written procedures followed (14 observations) — 523 days after FDA posted the shortage on 2014-08-14",
@@ -1297,8 +1538,8 @@
     "days": 523
    }
   },
-  "D8": {
-   "id": "D8",
+  "D11": {
+   "id": "D11",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 973195 ended 2016-05-20, classified VAI; classification letter 2016-08-22 — 645 days after FDA posted the shortage on 2014-08-14",
@@ -1306,36 +1547,6 @@
     "date": "2016-05-20",
     "posted": "2014-08-14",
     "days": 645
-   }
-  },
-  "D9": {
-   "id": "D9",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 2 by rule: Same product, alternate manufacturer: CEFOTETAN DISODIUM 1 g/10mL from Fresenius Kabi USA, LLC. Same product from Fresenius Kabi USA, LLC; substitute NDC, no clinical change. Approved by Sam Rivera, MD on 2026-04-28.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "pharmacist"
-   }
-  },
-  "D10": {
-   "id": "D10",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 2 by rule: Same product, alternate manufacturer: Cefotetan 1 g/10mL from PAI Holdings, LLC dba PAI Pharma. Same product from PAI Holdings, LLC dba PAI Pharma; substitute NDC, no clinical change. Approved by Riley Brooks, PharmD on 2026-04-11.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "pharmacist"
-   }
-  },
-  "D11": {
-   "id": "D11",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 3 by rule: Buy from Hikma Pharmaceuticals USA Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
    }
   },
   "D12": {
@@ -1348,177 +1559,226 @@
     "posted": "2014-08-14",
     "months": 146
    }
+  },
+  "D13": {
+   "id": "D13",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 11 vials of 1 g/10 mL, 10 mL from Corvale Lakeside to Corvale East. Corvale Lakeside has 27 days of 1 g/10 mL injection, 10 mL vials on hand and can spare 11 vials while keeping two weeks; Corvale East has 9.5 days and would reach 12.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D14": {
+   "id": "D14",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Hikma Pharmaceuticals USA Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D15": {
+   "id": "D15",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Same molecule, alternate concentration or vial size: CEFOTETAN DISODIUM 1 g/10mL from Fresenius Kabi USA, LLC. Same product from Fresenius Kabi USA, LLC; substitute NDC, no clinical change. Approved by Sam Rivera, MD on 2026-04-28.",
+   "fields": {
+    "kind": "alternate_concentration",
+    "needs": "pharmacist"
+   }
   }
  },
  "queries": {
-  "Q-c6746f": {
-   "id": "Q-c6746f",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%cefotetan%' OR lower(s.description) LIKE '%cefotetan%' ORDER BY s.hospital, s.item_key",
-   "ms": 2997,
+  "Q-0fc8ef": {
+   "id": "Q-0fc8ef",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cefotetan(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cefotetan(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3771,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:31:57.966Z",
+   "ranAt": "2026-10-22T11:37:00.624Z",
    "rows": 6
   },
   "Q-daec27": {
    "id": "Q-daec27",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('f1510f5e-d001-44e0-accb-27cf79fd4f9a', 'bd22c66b-8a1c-44c8-b5b6-3ab0ce5c800e') ORDER BY ps.set_id, ps.establishment",
-   "ms": 766,
+   "ms": 452,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:31:58.738Z",
+   "ranAt": "2026-10-22T11:37:01.078Z",
    "rows": 3
   },
-  "Q-a92bef": {
-   "id": "Q-a92bef",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%cefotetan%' ORDER BY status, company_name, package_ndc",
-   "ms": 202,
+  "Q-da494b": {
+   "id": "Q-da494b",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cefotetan(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 113,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:31:58.943Z",
+   "ranAt": "2026-10-22T11:37:01.192Z",
    "rows": 0
   },
-  "Q-b56d8c": {
-   "id": "Q-b56d8c",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%cefotetan%' ORDER BY first_posting",
-   "ms": 214,
+  "Q-235c27": {
+   "id": "Q-235c27",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cefotetan(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 110,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:31:59.160Z",
+   "ranAt": "2026-10-22T11:37:01.303Z",
    "rows": 1
   },
-  "Q-e30bdd": {
-   "id": "Q-e30bdd",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%cefotetan%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2071,
+  "Q-4953f9": {
+   "id": "Q-4953f9",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cefotetan(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1233,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:32:01.234Z",
+   "ranAt": "2026-10-22T11:37:02.538Z",
    "rows": 8
   },
   "Q-efa11b": {
    "id": "Q-efa11b",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3006028606', '3002807084') ORDER BY fei, end_date",
-   "ms": 487,
+   "ms": 335,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:32:01.726Z",
+   "ranAt": "2026-10-22T11:37:02.874Z",
    "rows": 14
   },
   "Q-a0277e": {
    "id": "Q-a0277e",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3006028606', '3002807084') ORDER BY fei, action_date",
-   "ms": 209,
+   "ms": 132,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:32:01.938Z",
+   "ranAt": "2026-10-22T11:37:03.007Z",
    "rows": 1
   },
   "Q-674018": {
    "id": "Q-674018",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3006028606', '3002807084') OR (fei_match <> 'name_and_city' AND firm_key IN ('acs dobfar', 'pai pharm')) ORDER BY date_published",
-   "ms": 178,
+   "ms": 107,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:32:02.118Z",
+   "ranAt": "2026-10-22T11:37:03.115Z",
    "rows": 0
   },
-  "Q-3a3b1e": {
-   "id": "Q-3a3b1e",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('acs dobfar', 'pai pharm', 'pai dba pai', 'fresenius kabi') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%cefotetan%' ORDER BY initiation_date",
-   "ms": 227,
+  "Q-8956d8": {
+   "id": "Q-8956d8",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('acs dobfar', 'pai pharm', 'pai dba pai', 'fresenius kabi') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cefotetan(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 130,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:32:02.350Z",
+   "ranAt": "2026-10-22T11:37:03.245Z",
    "rows": 0
   },
   "Q-4aec48": {
    "id": "Q-4aec48",
    "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('955350') ORDER BY inspection_id, cfr",
-   "ms": 239,
+   "ms": 145,
    "mode": "live",
    "sources": [
     "fda.citations"
    ],
-   "ranAt": "2026-10-22T07:32:02.593Z",
+   "ranAt": "2026-10-22T11:37:03.392Z",
    "rows": 14
   },
   "Q-3b414c": {
    "id": "Q-3b414c",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('00121097610', '63323038510')",
-   "ms": 1660,
+   "ms": 936,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:32:04.260Z",
+   "ranAt": "2026-10-22T11:37:04.330Z",
    "rows": 2
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-0dc022": {
-   "id": "Q-0dc022",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%cefotetan%'",
-   "ms": 1674,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:32:05.938Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-fa8751": {
+   "id": "Q-fa8751",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cefotetan(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1609,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:37:05.940Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 15,
-  "zetarisMs": 16295,
+  "zetarisMs": 19281,
   "modelCalls": 1,
-  "tokensIn": 3341,
-  "tokensOut": 535,
+  "tokensIn": 4518,
+  "tokensOut": 527,
   "mode": "live"
  },
  "slug": "cefotetan",
@@ -1536,7 +1796,7 @@
     "id": "hospital-item:hospital-item:CG-14",
     "type": "HospitalItem",
     "key": "hospital-item:CG-14",
-    "label": "Corvale General: Cefotetan",
+    "label": "Corvale General: Cefotetan 1 g/10mL",
     "attrs": {
      "key": "hospital-item:CG-14"
     },
@@ -1547,7 +1807,7 @@
     "id": "hospital-item:hospital-item:CG-15",
     "type": "HospitalItem",
     "key": "hospital-item:CG-15",
-    "label": "Corvale General: CEFOTETAN DISODIUM",
+    "label": "Corvale General: CEFOTETAN DISODIUM 1 g/10mL",
     "attrs": {
      "key": "hospital-item:CG-15"
     },
@@ -1708,7 +1968,7 @@
     },
     "facts": [
      {
-      "id": "fact_282b43a5c160eeb4",
+      "id": "fact_64ff6d5389b45e02",
       "about": "inspection:fda-inspection:1019162",
       "predicate": "classification",
       "value": "VAI",
@@ -1716,9 +1976,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:32:02.597Z"
+       "at": "2026-10-22T11:37:03.393Z"
       },
-      "assertedAt": "2026-10-22T07:32:02.597Z"
+      "assertedAt": "2026-10-22T11:37:03.393Z"
      }
     ],
     "depth": 4
@@ -1734,7 +1994,7 @@
     },
     "facts": [
      {
-      "id": "fact_edbb330d25051fa2",
+      "id": "fact_1de03a24ffd57904",
       "about": "inspection:fda-inspection:1056132",
       "predicate": "classification",
       "value": "VAI",
@@ -1742,9 +2002,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:32:02.598Z"
+       "at": "2026-10-22T11:37:03.394Z"
       },
-      "assertedAt": "2026-10-22T07:32:02.598Z"
+      "assertedAt": "2026-10-22T11:37:03.394Z"
      }
     ],
     "depth": 4
@@ -1760,7 +2020,7 @@
     },
     "facts": [
      {
-      "id": "fact_3294db121400c551",
+      "id": "fact_3236b050503783c8",
       "about": "inspection:fda-inspection:1122752",
       "predicate": "classification",
       "value": "VAI",
@@ -1768,9 +2028,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:32:02.598Z"
+       "at": "2026-10-22T11:37:03.394Z"
       },
-      "assertedAt": "2026-10-22T07:32:02.598Z"
+      "assertedAt": "2026-10-22T11:37:03.394Z"
      }
     ],
     "depth": 4
@@ -1786,7 +2046,7 @@
     },
     "facts": [
      {
-      "id": "fact_314b8eea997d864e",
+      "id": "fact_fef3a8c4cc95d8b3",
       "about": "inspection:fda-inspection:1123735",
       "predicate": "classification",
       "value": "VAI",
@@ -1794,9 +2054,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:32:02.597Z"
+       "at": "2026-10-22T11:37:03.393Z"
       },
-      "assertedAt": "2026-10-22T07:32:02.597Z"
+      "assertedAt": "2026-10-22T11:37:03.393Z"
      }
     ],
     "depth": 4
@@ -1812,7 +2072,7 @@
     },
     "facts": [
      {
-      "id": "fact_0979904db5de5598",
+      "id": "fact_2cbfc0dc8cf82da9",
       "about": "inspection:fda-inspection:1203381",
       "predicate": "classification",
       "value": "VAI",
@@ -1820,9 +2080,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:32:02.597Z"
+       "at": "2026-10-22T11:37:03.393Z"
       },
-      "assertedAt": "2026-10-22T07:32:02.597Z"
+      "assertedAt": "2026-10-22T11:37:03.393Z"
      }
     ],
     "depth": 4
@@ -1838,7 +2098,7 @@
     },
     "facts": [
      {
-      "id": "fact_dfc310b2c88bd469",
+      "id": "fact_c7e6c21377f0a31c",
       "about": "inspection:fda-inspection:1273719",
       "predicate": "classification",
       "value": "VAI",
@@ -1846,9 +2106,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:32:02.598Z"
+       "at": "2026-10-22T11:37:03.394Z"
       },
-      "assertedAt": "2026-10-22T07:32:02.598Z"
+      "assertedAt": "2026-10-22T11:37:03.394Z"
      }
     ],
     "depth": 4
@@ -1864,7 +2124,7 @@
     },
     "facts": [
      {
-      "id": "fact_5367a8fa4a993676",
+      "id": "fact_5ed299ba4f8363e5",
       "about": "inspection:fda-inspection:1328472",
       "predicate": "classification",
       "value": "VAI",
@@ -1872,9 +2132,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:32:02.597Z"
+       "at": "2026-10-22T11:37:03.393Z"
       },
-      "assertedAt": "2026-10-22T07:32:02.597Z"
+      "assertedAt": "2026-10-22T11:37:03.393Z"
      }
     ],
     "depth": 4
@@ -1890,7 +2150,7 @@
     },
     "facts": [
      {
-      "id": "fact_50a71ab45d650b56",
+      "id": "fact_75119deb68b81d9e",
       "about": "inspection:fda-inspection:777346",
       "predicate": "classification",
       "value": "VAI",
@@ -1898,9 +2158,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:32:02.596Z"
+       "at": "2026-10-22T11:37:03.393Z"
       },
-      "assertedAt": "2026-10-22T07:32:02.596Z"
+      "assertedAt": "2026-10-22T11:37:03.393Z"
      }
     ],
     "depth": 4
@@ -1916,7 +2176,7 @@
     },
     "facts": [
      {
-      "id": "fact_0d59125127450e38",
+      "id": "fact_efd53f5adeb26d71",
       "about": "inspection:fda-inspection:873439",
       "predicate": "classification",
       "value": "VAI",
@@ -1924,9 +2184,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:32:02.598Z"
+       "at": "2026-10-22T11:37:03.393Z"
       },
-      "assertedAt": "2026-10-22T07:32:02.598Z"
+      "assertedAt": "2026-10-22T11:37:03.393Z"
      }
     ],
     "depth": 4
@@ -1942,7 +2202,7 @@
     },
     "facts": [
      {
-      "id": "fact_4ec17707666769a1",
+      "id": "fact_7a308eb4b7fe7e6c",
       "about": "inspection:fda-inspection:881223",
       "predicate": "classification",
       "value": "VAI",
@@ -1950,9 +2210,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:32:02.596Z"
+       "at": "2026-10-22T11:37:03.393Z"
       },
-      "assertedAt": "2026-10-22T07:32:02.596Z"
+      "assertedAt": "2026-10-22T11:37:03.393Z"
      }
     ],
     "depth": 4
@@ -1968,7 +2228,7 @@
     },
     "facts": [
      {
-      "id": "fact_99e360f9ad77e902",
+      "id": "fact_295c890e71f337de",
       "about": "inspection:fda-inspection:955350",
       "predicate": "classification",
       "value": "OAI",
@@ -1976,9 +2236,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:32:02.596Z"
+       "at": "2026-10-22T11:37:03.393Z"
       },
-      "assertedAt": "2026-10-22T07:32:02.596Z"
+      "assertedAt": "2026-10-22T11:37:03.393Z"
      }
     ],
     "depth": 4
@@ -1994,7 +2254,7 @@
     },
     "facts": [
      {
-      "id": "fact_5df9a148b26ed6b1",
+      "id": "fact_80c598c86fbeee19",
       "about": "inspection:fda-inspection:973195",
       "predicate": "classification",
       "value": "VAI",
@@ -2002,9 +2262,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:32:02.598Z"
+       "at": "2026-10-22T11:37:03.393Z"
       },
-      "assertedAt": "2026-10-22T07:32:02.598Z"
+      "assertedAt": "2026-10-22T11:37:03.393Z"
      }
     ],
     "depth": 4
@@ -2027,11 +2287,11 @@
     "from": "hospital-item:hospital-item:CG-14",
     "to": "package:ndc-package:0121-0976-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:31:57.970Z",
+    "validFrom": "2026-10-22T11:37:00.625Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:31:57.970Z"
+     "at": "2026-10-22T11:37:00.625Z"
     }
    },
    {
@@ -2039,11 +2299,11 @@
     "from": "hospital-item:hospital-item:CG-15",
     "to": "package:ndc-package:63323-385-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:31:57.971Z",
+    "validFrom": "2026-10-22T11:37:00.625Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:31:57.971Z"
+     "at": "2026-10-22T11:37:00.625Z"
     }
    },
    {
@@ -2051,11 +2311,11 @@
     "from": "hospital-item:hospital-item:EA-E-000017",
     "to": "package:ndc-package:0121-0976-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:31:57.970Z",
+    "validFrom": "2026-10-22T11:37:00.625Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:31:57.970Z"
+     "at": "2026-10-22T11:37:00.625Z"
     }
    },
    {
@@ -2063,11 +2323,11 @@
     "from": "hospital-item:hospital-item:EA-E-000216",
     "to": "package:ndc-package:63323-385-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:31:57.970Z",
+    "validFrom": "2026-10-22T11:37:00.625Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:31:57.970Z"
+     "at": "2026-10-22T11:37:00.625Z"
     }
    },
    {
@@ -2075,11 +2335,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0007",
     "to": "package:ndc-package:0121-0976-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:31:57.971Z",
+    "validFrom": "2026-10-22T11:37:00.625Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:31:57.971Z"
+     "at": "2026-10-22T11:37:00.625Z"
     }
    },
    {
@@ -2087,11 +2347,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0099",
     "to": "package:ndc-package:63323-385-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:31:57.971Z",
+    "validFrom": "2026-10-22T11:37:00.625Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:31:57.971Z"
+     "at": "2026-10-22T11:37:00.625Z"
     }
    },
    {
@@ -2099,11 +2359,11 @@
     "from": "package:ndc-package:0121-0976-10",
     "to": "product:ndc-product:0121-0976",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:31:57.970Z",
+    "validFrom": "2026-10-22T11:37:00.625Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:31:57.970Z"
+     "at": "2026-10-22T11:37:00.625Z"
     }
    },
    {
@@ -2111,11 +2371,11 @@
     "from": "package:ndc-package:63323-385-10",
     "to": "product:ndc-product:63323-385",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:31:57.970Z",
+    "validFrom": "2026-10-22T11:37:00.625Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:31:57.970Z"
+     "at": "2026-10-22T11:37:00.625Z"
     }
    },
    {
@@ -2123,11 +2383,11 @@
     "from": "product:ndc-product:0121-0976",
     "to": "drug:generic:cefotetan",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:31:57.970Z",
+    "validFrom": "2026-10-22T11:37:00.625Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:31:57.970Z"
+     "at": "2026-10-22T11:37:00.625Z"
     }
    },
    {
@@ -2135,11 +2395,11 @@
     "from": "product:ndc-product:0121-0976",
     "to": "labeler:ndc-labeler:0121",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:31:57.970Z",
+    "validFrom": "2026-10-22T11:37:00.625Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:31:57.970Z"
+     "at": "2026-10-22T11:37:00.625Z"
     }
    },
    {
@@ -2147,11 +2407,11 @@
     "from": "product:ndc-product:63323-385",
     "to": "drug:generic:cefotetan",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:31:57.970Z",
+    "validFrom": "2026-10-22T11:37:00.625Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:31:57.970Z"
+     "at": "2026-10-22T11:37:00.625Z"
     }
    },
    {
@@ -2159,11 +2419,11 @@
     "from": "product:ndc-product:63323-385",
     "to": "labeler:ndc-labeler:63323",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:31:57.970Z",
+    "validFrom": "2026-10-22T11:37:00.625Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:31:57.970Z"
+     "at": "2026-10-22T11:37:00.625Z"
     }
    },
    {
@@ -2171,11 +2431,11 @@
     "from": "product:ndc-product:63323-385",
     "to": "site:fei:3006028606",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:32:02.596Z",
+    "validFrom": "2026-10-22T11:37:03.392Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:32:02.596Z"
+     "at": "2026-10-22T11:37:03.392Z"
     }
    },
    {
@@ -2183,11 +2443,11 @@
     "from": "product:ndc-product:63323-385",
     "to": "site:fei:3002807084",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:32:02.597Z",
+    "validFrom": "2026-10-22T11:37:03.393Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:32:02.597Z"
+     "at": "2026-10-22T11:37:03.393Z"
     }
    },
    {
@@ -2195,11 +2455,11 @@
     "from": "inspection:fda-inspection:777346",
     "to": "site:fei:3006028606",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:32:02.596Z",
+    "validFrom": "2026-10-22T11:37:03.393Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:32:02.596Z"
+     "at": "2026-10-22T11:37:03.393Z"
     }
    },
    {
@@ -2207,11 +2467,11 @@
     "from": "inspection:fda-inspection:881223",
     "to": "site:fei:3006028606",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:32:02.596Z",
+    "validFrom": "2026-10-22T11:37:03.393Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:32:02.596Z"
+     "at": "2026-10-22T11:37:03.393Z"
     }
    },
    {
@@ -2219,11 +2479,11 @@
     "from": "inspection:fda-inspection:955350",
     "to": "site:fei:3006028606",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:32:02.596Z",
+    "validFrom": "2026-10-22T11:37:03.393Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:32:02.596Z"
+     "at": "2026-10-22T11:37:03.393Z"
     }
    },
    {
@@ -2231,11 +2491,11 @@
     "from": "inspection:fda-inspection:1019162",
     "to": "site:fei:3006028606",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:32:02.597Z",
+    "validFrom": "2026-10-22T11:37:03.393Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:32:02.597Z"
+     "at": "2026-10-22T11:37:03.393Z"
     }
    },
    {
@@ -2243,11 +2503,11 @@
     "from": "inspection:fda-inspection:1123735",
     "to": "site:fei:3006028606",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:32:02.597Z",
+    "validFrom": "2026-10-22T11:37:03.393Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:32:02.597Z"
+     "at": "2026-10-22T11:37:03.393Z"
     }
    },
    {
@@ -2255,11 +2515,11 @@
     "from": "inspection:fda-inspection:1203381",
     "to": "site:fei:3006028606",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:32:02.597Z",
+    "validFrom": "2026-10-22T11:37:03.393Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:32:02.597Z"
+     "at": "2026-10-22T11:37:03.393Z"
     }
    },
    {
@@ -2267,11 +2527,11 @@
     "from": "inspection:fda-inspection:1328472",
     "to": "site:fei:3006028606",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:32:02.597Z",
+    "validFrom": "2026-10-22T11:37:03.393Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:32:02.597Z"
+     "at": "2026-10-22T11:37:03.393Z"
     }
    },
    {
@@ -2279,11 +2539,11 @@
     "from": "warning-letter:fda-warning-letter:495986",
     "to": "site:fei:3006028606",
     "type": "issued-to",
-    "validFrom": "2026-10-22T07:32:02.597Z",
+    "validFrom": "2026-10-22T11:37:03.393Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:32:02.597Z"
+     "at": "2026-10-22T11:37:03.393Z"
     }
    },
    {
@@ -2291,11 +2551,11 @@
     "from": "inspection:fda-inspection:873439",
     "to": "site:fei:3002807084",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:32:02.598Z",
+    "validFrom": "2026-10-22T11:37:03.393Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:32:02.598Z"
+     "at": "2026-10-22T11:37:03.393Z"
     }
    },
    {
@@ -2303,11 +2563,11 @@
     "from": "inspection:fda-inspection:973195",
     "to": "site:fei:3002807084",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:32:02.598Z",
+    "validFrom": "2026-10-22T11:37:03.393Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:32:02.598Z"
+     "at": "2026-10-22T11:37:03.393Z"
     }
    },
    {
@@ -2315,11 +2575,11 @@
     "from": "inspection:fda-inspection:1056132",
     "to": "site:fei:3002807084",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:32:02.598Z",
+    "validFrom": "2026-10-22T11:37:03.393Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:32:02.598Z"
+     "at": "2026-10-22T11:37:03.393Z"
     }
    },
    {
@@ -2327,11 +2587,11 @@
     "from": "inspection:fda-inspection:1122752",
     "to": "site:fei:3002807084",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:32:02.598Z",
+    "validFrom": "2026-10-22T11:37:03.394Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:32:02.598Z"
+     "at": "2026-10-22T11:37:03.394Z"
     }
    },
    {
@@ -2339,11 +2599,11 @@
     "from": "inspection:fda-inspection:1273719",
     "to": "site:fei:3002807084",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:32:02.598Z",
+    "validFrom": "2026-10-22T11:37:03.394Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:32:02.598Z"
+     "at": "2026-10-22T11:37:03.394Z"
     }
    }
   ],

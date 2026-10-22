@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-6c2c08",
+ "id": "case-2026-10-22-ea4080",
  "question": "Why is atropine sulfate short, and what do we do?",
- "askedAt": "2026-10-22T07:26:41.952Z",
+ "askedAt": "2026-10-22T11:31:36.554Z",
  "asOf": "2026-10-21",
  "molecule": "atropine sulfate",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H82BQBXBSZMP5HD88TR172",
+  "contractId": "01M5HP2PAZK9P7NRJ9TGWKCWMY",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-53d493"
+    "Q-bcafb3"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1553,
+   "ms": 3612,
    "rows": 8,
-   "finding": "8 stock lines across 3 hospitals.",
+   "finding": "8 stock lines across 3 hospitals, 3 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-889832"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 395,
+   "ms": 475,
    "rows": 3,
    "finding": "3 plant links on 3 labels; 3 placed in FDA's registration file.",
    "status": "ok"
@@ -46,15 +51,15 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-c6b88d",
-    "Q-3dc07d"
+    "Q-d19d15",
+    "Q-c63858"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 224,
-   "rows": 23,
+   "ms": 286,
+   "rows": 21,
    "finding": "On FDA's list as Current for 8 companies.",
    "status": "ok"
   },
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-a98b5e"
+    "Q-7db0e8"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1088,
+   "ms": 1575,
    "rows": 65,
    "finding": "20 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-941f81",
     "Q-4d1cc3",
     "Q-ff38dc",
-    "Q-128934"
+    "Q-c697e1"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 609,
+   "ms": 894,
    "rows": 90,
    "finding": "84 inspections (4 OAI at our plants), 5 compliance actions, 0 import-alert listings, 1 recalls.",
    "status": "ok"
@@ -104,7 +111,7 @@
    "sources": [
     "fda.citations"
    ],
-   "ms": 189,
+   "ms": 174,
    "rows": 44,
    "finding": "44 Form 483 observations recorded.",
    "status": "ok"
@@ -119,9 +126,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 956,
+   "ms": 984,
    "rows": 2,
    "finding": "2 approved interchanges on file.",
    "status": "ok"
@@ -129,19 +136,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-4cb4df"
+    "Q-ba077d"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1179,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1862,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -168,8 +179,11 @@
    "onHand": 6,
    "dailyUse": 3.255,
    "days": 1.8,
-   "unit": "package",
+   "unit": "syringe",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "atropine sulfate|0.1mg/ml|injection|10ml|syringe",
+   "presentationLabel": "0.1 mg/mL injection, 10 mL syringe",
    "evidence": "E1"
   },
   {
@@ -181,8 +195,11 @@
    "onHand": 9,
    "dailyUse": 2.842,
    "days": 3.2,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 25, converted to units",
+   "presentation": "atropine sulfate|1mg/ml|injection|1ml|vial",
+   "presentationLabel": "1 mg/mL injection, 1 mL vial",
    "evidence": "E2"
   },
   {
@@ -194,47 +211,59 @@
    "onHand": 73,
    "dailyUse": 3.769,
    "days": 19.4,
-   "unit": "package",
+   "unit": "each",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "atropine sulfate|10mg/ml|solution/|5ml|each",
+   "presentationLabel": "10 mg/mL solution/, 5 mL each",
    "evidence": "E3"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-1",
    "ndc11": "00409163010",
-   "description": "ATROPINE SULFATE",
+   "description": "ATROPINE SULFATE 0.1 mg/mL",
    "labeler": "Hospira, Inc.",
-   "onHand": 70.35,
+   "onHand": 70,
    "dailyUse": 4.23,
-   "days": 16.6,
+   "days": 16.5,
    "unit": "syringe",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "atropine sulfate|0.1mg/ml|injection|10ml|syringe",
+   "presentationLabel": "0.1 mg/mL injection, 10 mL syringe",
    "evidence": "E4"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-152",
    "ndc11": "60219174903",
-   "description": "atropine sulfate",
+   "description": "atropine sulfate 10 mg/mL",
    "labeler": "Amneal Pharmaceuticals NY LLC",
-   "onHand": 65.5,
+   "onHand": 65,
    "dailyUse": 3.887,
-   "days": 16.9,
+   "days": 16.7,
    "unit": "each",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "atropine sulfate|10mg/ml|solution/|5ml|each",
+   "presentationLabel": "10 mg/mL solution/, 5 mL each",
    "evidence": "E5"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-2",
    "ndc11": "00517100125",
-   "description": "ATROPINE SULFATE",
+   "description": "ATROPINE SULFATE 1 mg/mL",
    "labeler": "American Regent, Inc.",
-   "onHand": 53.13,
+   "onHand": 53,
    "dailyUse": 3.939,
    "days": 13.5,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "atropine sulfate|1mg/ml|injection|1ml|vial",
+   "presentationLabel": "1 mg/mL injection, 1 mL vial",
    "evidence": "E6"
   },
   {
@@ -248,6 +277,9 @@
    "days": 13,
    "unit": "syringe",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "atropine sulfate|0.1mg/ml|injection|10ml|syringe",
+   "presentationLabel": "0.1 mg/mL injection, 10 mL syringe",
    "evidence": "E7"
   },
   {
@@ -261,7 +293,141 @@
    "days": 16.1,
    "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "atropine sulfate|1mg/ml|injection|1ml|vial",
+   "presentationLabel": "1 mg/mL injection, 1 mL vial",
    "evidence": "E8"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "atropine sulfate|0.1mg/ml|injection|10ml|syringe",
+   "label": "0.1 mg/mL injection, 10 mL syringe",
+   "short": "0.1 mg/mL, 10 mL",
+   "unit": "syringe",
+   "onHand": 91,
+   "dailyUse": 8.642,
+   "days": 10.5,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 6,
+     "dailyUse": 3.255,
+     "days": 1.8,
+     "lines": [
+      "EA-E-000079"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 70,
+     "dailyUse": 4.23,
+     "days": 16.5,
+     "lines": [
+      "CG-1"
+     ],
+     "evidence": [
+      "E4"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 15,
+     "dailyUse": 1.157,
+     "days": 13,
+     "lines": [
+      "LS-LS-0037"
+     ],
+     "evidence": [
+      "E7"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "atropine sulfate|1mg/ml|injection|1ml|vial",
+   "label": "1 mg/mL injection, 1 mL vial",
+   "short": "1 mg/mL, 1 mL",
+   "unit": "vial",
+   "onHand": 76,
+   "dailyUse": 7.651,
+   "days": 9.9,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 9,
+     "dailyUse": 2.842,
+     "days": 3.2,
+     "lines": [
+      "EA-E-000103"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 53,
+     "dailyUse": 3.939,
+     "days": 13.5,
+     "lines": [
+      "CG-2"
+     ],
+     "evidence": [
+      "E6"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 14,
+     "dailyUse": 0.87,
+     "days": 16.1,
+     "lines": [
+      "LS-LS-0044"
+     ],
+     "evidence": [
+      "E8"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "atropine sulfate|10mg/ml|solution/|5ml|each",
+   "label": "10 mg/mL solution/, 5 mL each",
+   "short": "10 mg/mL, 5 mL",
+   "unit": "each",
+   "onHand": 138,
+   "dailyUse": 7.656,
+   "days": 18,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 73,
+     "dailyUse": 3.769,
+     "days": 19.4,
+     "lines": [
+      "EA-E-000200"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 65,
+     "dailyUse": 3.887,
+     "days": 16.7,
+     "lines": [
+      "CG-152"
+     ],
+     "evidence": [
+      "E5"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -923,27 +1089,48 @@
   {
    "kind": "transfer",
    "rank": 1,
-   "title": "Transfer 20 from Corvale General to Corvale East",
-   "detail": "Corvale General has 16 days on hand and can spare 20 while keeping two weeks; Corvale East has 8.9 days and would reach 11.",
-   "why": "Same product, no clinical change, no new supplier.",
+   "title": "Transfer 10 syringes of 0.1 mg/mL, 10 mL from Corvale General to Corvale East",
+   "detail": "Corvale General has 17 days of 0.1 mg/mL injection, 10 mL syringes on hand and can spare 10 syringes while keeping two weeks; Corvale East has 1.8 days and would reach 5.",
+   "why": "Same presentation, no clinical change, no new supplier.",
    "needs": "pharmacy director (transfer request)",
    "evidence": [
     "E4",
-    "E5",
-    "E6",
-    "E1",
-    "E2",
-    "E3"
-   ]
+    "E1"
+   ],
+   "transfer": {
+    "qty": 10,
+    "unit": "syringe",
+    "presentation": "0.1 mg/mL injection, 10 mL syringe",
+    "from": "Corvale General",
+    "to": "Corvale East",
+    "fromDays": 16.5,
+    "toDays": 1.8,
+    "fromAfter": 14,
+    "toAfter": 5
+   }
   },
   {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from A-S Medication Solutions",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
+   "kind": "transfer",
+   "rank": 1,
+   "title": "Transfer 1 vial of 1 mg/mL, 1 mL from Corvale Lakeside to Corvale East",
+   "detail": "Corvale Lakeside has 16 days of 1 mg/mL injection, 1 mL vials on hand and can spare 1 vial while keeping two weeks; Corvale East has 3.2 days and would reach 4.",
+   "why": "Same presentation, no clinical change, no new supplier.",
+   "needs": "pharmacy director (transfer request)",
+   "evidence": [
+    "E8",
+    "E2"
+   ],
+   "transfer": {
+    "qty": 1,
+    "unit": "vial",
+    "presentation": "1 mg/mL injection, 1 mL vial",
+    "from": "Corvale Lakeside",
+    "to": "Corvale East",
+    "fromDays": 16.1,
+    "toDays": 3.2,
+    "fromAfter": 15,
+    "toAfter": 4
+   }
   },
   {
    "kind": "alternate_manufacturer",
@@ -984,24 +1171,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Henry Schein, Inc",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Henry Schein, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Medical Purchasing Solutions, LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -1029,15 +1198,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from REMEDYREPACK INC.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Rafa Laboratories, Ltd.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -1046,9 +1206,9 @@
   },
   {
    "kind": "alternate_concentration",
-   "rank": 3,
+   "rank": 5,
    "title": "Same molecule, alternate concentration or vial size: ATROPINE SULFATE 1 mg/mL from American Regent, Inc.",
-   "detail": "Recalculate dose and volume; pharmacist verification required. Approved by Sam Rivera, MD on 2026-09-10.",
+   "detail": "Recalculate dose and volume; pharmacist verification required. Approved by Sam Rivera, MD on 2026-09-10. FDA lists this product Current (posted 2012-01-01).",
    "why": "Already approved by the P&T committee.",
    "needs": "pharmacist",
    "evidence": [
@@ -1057,9 +1217,9 @@
   },
   {
    "kind": "alternate_concentration",
-   "rank": 3,
+   "rank": 5,
    "title": "Same molecule, alternate concentration or vial size: ATROPINE SULFATE 0.1 mg/mL from Hospira, Inc.",
-   "detail": "Recalculate dose and volume; pharmacist verification required. Approved by Sam Rivera, MD on 2026-07-01.",
+   "detail": "Recalculate dose and volume; pharmacist verification required. Approved by Sam Rivera, MD on 2026-07-01. FDA lists this product Current (posted 2012-01-01).",
    "why": "Already approved by the P&T committee.",
    "needs": "pharmacist",
    "evidence": [
@@ -1161,113 +1321,132 @@
   }
  ],
  "explanation": {
-  "state": "confirmed",
-  "headline": "FDA's records trace our supply to plants with multiple OAI inspections and Warning Letters before the shortage posting",
+  "state": "check",
+  "headline": "FDA's shortage list shows atropine sulfate injection has been in shortage since 2012-01-01 with multiple manufacturers reporting manufacturing delays and discontinuations",
   "sentences": [
    {
-    "text": "The FDA first posted the atropine sulfate shortage on 2012-01-01 and it has remained current for 178 months as of 2026-10-21.",
+    "text": "FDA's shortage database records the first posting for atropine sulfate injection on 2012-01-01, which is the earliest date its database holds, so the shortage began on or before then.",
     "cites": [
-     "E51",
-     "E18",
-     "D18"
+     "D9"
     ]
    },
    {
-    "text": "Our Corvale General supply includes product labeled by Hospira, Inc. (FEI 1021343) and Amneal Pharmaceuticals NY LLC (FEI 3010254278).",
+    "text": "Accord Healthcare Inc. reports discontinuation of manufacture for its atropine sulfate injection product.",
     "cites": [
-     "E4",
-     "E5",
-     "E21",
-     "E41"
+     "E43"
     ]
    },
    {
-    "text": "FDA records show Hospira's plant received OAI classifications on 2010-01-19 (712 days before posting), 2011-06-17 (198 days before), and 2011-08-04 (150 days before), plus Warning Letters on 2010-04-12 (629 days before) and 2011-08-31 (123 days before).",
+    "text": "American Regent, Inc., Amphastar Pharmaceuticals, Inc., Fresenius Kabi USA, LLC, Hikma Pharmaceuticals USA, Inc., Medefil, Inc., and Somerset Therapeutics, LLC all show current shortage status on FDA's list.",
+    "cites": [
+     "E44",
+     "E45",
+     "E46",
+     "E47",
+     "E49",
+     "E50"
+    ]
+   },
+   {
+    "text": "Hospira's plant (FEI 1021343) received OAI classifications in 2010 and 2011, a Warning Letter in 2010-04-12, and its most recent inspection in 2025-02-07 was NAI.",
     "cites": [
      "E11",
      "E13",
      "E15",
      "E20",
-     "E12",
-     "D6",
-     "D10",
-     "D11",
-     "D7",
-     "D12"
+     "E21"
     ]
    },
    {
-    "text": "American Regent's plant (FEI 2410375) received an OAI classification on 2011-03-15 (292 days before posting) and a Warning Letter on 2011-08-31 (123 days before posting).",
-    "cites": [
-     "E27",
-     "E34",
-     "D9",
-     "D12"
-    ]
-   },
-   {
-    "text": "Corvale East has 8.9 days on hand and Corvale General has 16 days on hand, making a transfer of 20 units from General to East the top-ranked option to extend East to 11 days while General retains two weeks.",
+    "text": "Corvale East has 1.8 days of 0.1 mg/mL 10 mL syringes on hand while Corvale General has 16.5 days and can spare 10 syringes while maintaining two weeks supply.",
     "cites": [
      "D1",
      "D2",
-     "D15"
+     "D10"
+    ]
+   },
+   {
+    "text": "The recommended action is to transfer 10 syringes of 0.1 mg/mL 10 mL from Corvale General to Corvale East, which would bring Corvale East to 5 days on hand.",
+    "cites": [
+     "D10"
     ]
    }
   ],
   "verifier": {
-   "checked": 7,
+   "checked": 8,
    "rejected": [
     {
-     "text": "The FDA shortage list shows Hospira, Inc. cites manufacturing delay with next delivery estimated December 2026, while American Regent, Inc. remains current without a recovery date.",
+     "text": "Hospira, Inc. (a Pfizer Company) lists manufacturing delay as the reason for its current shortage with next delivery and estimated recovery in December 2026.",
      "reason": "month 2026-12 is not in the cited evidence"
     }
    ],
-   "repaired": 1
+   "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
  },
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -1282,87 +1461,87 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:26:35.755Z",
+   "at": "2026-10-22T11:31:26.687Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract D88TR172 scope"
+   "reason": "in contract TGWKCWMY scope"
   },
   {
-   "at": "2026-10-22T07:26:35.755Z",
+   "at": "2026-10-22T11:31:26.687Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract D88TR172 scope"
+   "reason": "in contract TGWKCWMY scope"
   },
   {
-   "at": "2026-10-22T07:26:37.309Z",
+   "at": "2026-10-22T11:31:30.300Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract D88TR172 scope"
+   "reason": "in contract TGWKCWMY scope"
   },
   {
-   "at": "2026-10-22T07:26:37.704Z",
+   "at": "2026-10-22T11:31:30.776Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract D88TR172 scope"
+   "reason": "in contract TGWKCWMY scope"
   },
   {
-   "at": "2026-10-22T07:26:37.928Z",
+   "at": "2026-10-22T11:31:31.061Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract D88TR172 scope"
+   "reason": "in contract TGWKCWMY scope"
   },
   {
-   "at": "2026-10-22T07:26:39.016Z",
+   "at": "2026-10-22T11:31:32.636Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract D88TR172 scope"
+   "reason": "in contract TGWKCWMY scope"
   },
   {
-   "at": "2026-10-22T07:26:39.626Z",
+   "at": "2026-10-22T11:31:33.531Z",
    "action": "What FDA wrote at the OAI inspections",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract D88TR172 scope"
+   "reason": "in contract TGWKCWMY scope"
   },
   {
-   "at": "2026-10-22T07:26:39.817Z",
+   "at": "2026-10-22T11:31:33.707Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract D88TR172 scope"
+   "reason": "in contract TGWKCWMY scope"
   },
   {
-   "at": "2026-10-22T07:26:40.772Z",
+   "at": "2026-10-22T11:31:34.691Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract D88TR172 scope"
+   "reason": "in contract TGWKCWMY scope"
   },
   {
-   "at": "2026-10-22T07:26:41.951Z",
+   "at": "2026-10-22T11:31:36.553Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract D88TR172 scope"
+   "reason": "in contract TGWKCWMY scope"
   },
   {
-   "at": "2026-10-22T07:26:41.952Z",
+   "at": "2026-10-22T11:31:36.555Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract D88TR172 scope"
+   "reason": "in contract TGWKCWMY scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-53d493",
+   "queryId": "Q-bcafb3",
    "row": 0,
    "label": "Corvale East: ATROPINE SULFATE 0.1MG/ML 10ML SYR",
    "fields": {
@@ -1373,19 +1552,24 @@
     "description": "ATROPINE SULFATE 0.1MG/ML 10ML SYR",
     "on_hand": "6.00",
     "daily_use": "3.255",
-    "unit": "package",
+    "unit": "syringe",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "ATROPINE SULFATE",
     "labeler_name": "Hospira, Inc.",
     "package_ndc": "0409-1630-10",
     "spl_set_id": "ad8916e7-206e-409e-2582-30d072845dd4",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "ATROPINE SULFATE .1 mg/mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "carton"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-53d493",
+   "queryId": "Q-bcafb3",
    "row": 1,
    "label": "Corvale East: ATROPINE SULFATE 1MG/ML 1ML SDV",
    "fields": {
@@ -1396,19 +1580,24 @@
     "description": "ATROPINE SULFATE 1MG/ML 1ML SDV",
     "on_hand": "9.00",
     "daily_use": "2.842",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "25.00",
+    "unit_basis": "packages of 25, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "ATROPINE SULFATE",
     "labeler_name": "American Regent, Inc.",
     "package_ndc": "0517-1001-25",
     "spl_set_id": "6fee1727-52b7-4f73-ab45-ef47d6a1c5bb",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "ATROPINE SULFATE 1 mg/mL",
+    "unit_content": "1 mL",
+    "pkg_unit": "vial"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-53d493",
+   "queryId": "Q-bcafb3",
    "row": 2,
    "label": "Corvale East: ATROPINE SULFATE 10MG/ML 5ML BTL",
    "fields": {
@@ -1419,88 +1608,108 @@
     "description": "ATROPINE SULFATE 10MG/ML 5ML BTL",
     "on_hand": "73.00",
     "daily_use": "3.769",
-    "unit": "package",
+    "unit": "each",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "atropine sulfate",
     "labeler_name": "Amneal Pharmaceuticals NY LLC",
     "package_ndc": "60219-1749-3",
     "spl_set_id": "f8718be5-8fa4-4c36-a4fd-fac7c3953f5a",
     "dosage_form": "SOLUTION/ DROPS",
-    "route": "OPHTHALMIC"
+    "route": "OPHTHALMIC",
+    "strength": "ATROPINE SULFATE 10 mg/mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "bottle"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-53d493",
+   "queryId": "Q-bcafb3",
    "row": 3,
-   "label": "Corvale General: ATROPINE SULFATE",
+   "label": "Corvale General: ATROPINE SULFATE 0.1 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-1",
     "ndc11": "00409163010",
     "ndc_as_recorded": "00409163010",
-    "description": "ATROPINE SULFATE",
-    "on_hand": "70.35",
+    "description": "ATROPINE SULFATE 0.1 mg/mL",
+    "on_hand": "70.00",
     "daily_use": "4.230",
     "unit": "syringe",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "ATROPINE SULFATE",
     "labeler_name": "Hospira, Inc.",
     "package_ndc": "0409-1630-10",
     "spl_set_id": "ad8916e7-206e-409e-2582-30d072845dd4",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "ATROPINE SULFATE .1 mg/mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "carton"
    }
   },
   "E5": {
    "id": "E5",
-   "queryId": "Q-53d493",
+   "queryId": "Q-bcafb3",
    "row": 4,
-   "label": "Corvale General: atropine sulfate",
+   "label": "Corvale General: atropine sulfate 10 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-152",
     "ndc11": "60219174903",
     "ndc_as_recorded": "60219174903",
-    "description": "atropine sulfate",
-    "on_hand": "65.50",
+    "description": "atropine sulfate 10 mg/mL",
+    "on_hand": "65.00",
     "daily_use": "3.887",
     "unit": "each",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "atropine sulfate",
     "labeler_name": "Amneal Pharmaceuticals NY LLC",
     "package_ndc": "60219-1749-3",
     "spl_set_id": "f8718be5-8fa4-4c36-a4fd-fac7c3953f5a",
     "dosage_form": "SOLUTION/ DROPS",
-    "route": "OPHTHALMIC"
+    "route": "OPHTHALMIC",
+    "strength": "ATROPINE SULFATE 10 mg/mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "bottle"
    }
   },
   "E6": {
    "id": "E6",
-   "queryId": "Q-53d493",
+   "queryId": "Q-bcafb3",
    "row": 5,
-   "label": "Corvale General: ATROPINE SULFATE",
+   "label": "Corvale General: ATROPINE SULFATE 1 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-2",
     "ndc11": "00517100125",
     "ndc_as_recorded": "00517100125",
-    "description": "ATROPINE SULFATE",
-    "on_hand": "53.13",
+    "description": "ATROPINE SULFATE 1 mg/mL",
+    "on_hand": "53.00",
     "daily_use": "3.939",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "ATROPINE SULFATE",
     "labeler_name": "American Regent, Inc.",
     "package_ndc": "0517-1001-25",
     "spl_set_id": "6fee1727-52b7-4f73-ab45-ef47d6a1c5bb",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "ATROPINE SULFATE 1 mg/mL",
+    "unit_content": "1 mL",
+    "pkg_unit": "vial"
    }
   },
   "E7": {
    "id": "E7",
-   "queryId": "Q-53d493",
+   "queryId": "Q-bcafb3",
    "row": 6,
    "label": "Corvale Lakeside: ATROPINE SULFATE 0.1 mg/mL 10 mL syringe",
    "fields": {
@@ -1512,18 +1721,23 @@
     "on_hand": "15.00",
     "daily_use": "1.157",
     "unit": "syringe",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "ATROPINE SULFATE",
     "labeler_name": "Hospira, Inc.",
     "package_ndc": "0409-1630-10",
     "spl_set_id": "ad8916e7-206e-409e-2582-30d072845dd4",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "ATROPINE SULFATE .1 mg/mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "carton"
    }
   },
   "E8": {
    "id": "E8",
-   "queryId": "Q-53d493",
+   "queryId": "Q-bcafb3",
    "row": 7,
    "label": "Corvale Lakeside: ATROPINE SULFATE 1 mg/mL 1 mL vial",
    "fields": {
@@ -1535,13 +1749,18 @@
     "on_hand": "14.00",
     "daily_use": "0.870",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "ATROPINE SULFATE",
     "labeler_name": "American Regent, Inc.",
     "package_ndc": "0517-1001-25",
     "spl_set_id": "6fee1727-52b7-4f73-ab45-ef47d6a1c5bb",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "ATROPINE SULFATE 1 mg/mL",
+    "unit_content": "1 mL",
+    "pkg_unit": "vial"
    }
   },
   "E9": {
@@ -2058,7 +2277,7 @@
   },
   "E42": {
    "id": "E42",
-   "queryId": "Q-128934",
+   "queryId": "Q-c697e1",
    "row": 0,
    "label": "Recall D-0795-2026",
    "fields": {
@@ -2076,7 +2295,7 @@
   },
   "E43": {
    "id": "E43",
-   "queryId": "Q-c6b88d",
+   "queryId": "Q-d19d15",
    "row": 0,
    "label": "FDA shortage list: Accord Healthcare Inc., Current",
    "fields": {
@@ -2091,7 +2310,7 @@
   },
   "E44": {
    "id": "E44",
-   "queryId": "Q-c6b88d",
+   "queryId": "Q-d19d15",
    "row": 6,
    "label": "FDA shortage list: American Regent, Inc., Current",
    "fields": {
@@ -2106,7 +2325,7 @@
   },
   "E45": {
    "id": "E45",
-   "queryId": "Q-c6b88d",
+   "queryId": "Q-d19d15",
    "row": 8,
    "label": "FDA shortage list: Amphastar Pharmaceuticals, Inc., Current",
    "fields": {
@@ -2121,7 +2340,7 @@
   },
   "E46": {
    "id": "E46",
-   "queryId": "Q-c6b88d",
+   "queryId": "Q-d19d15",
    "row": 9,
    "label": "FDA shortage list: Fresenius Kabi USA, LLC, Current",
    "fields": {
@@ -2136,7 +2355,7 @@
   },
   "E47": {
    "id": "E47",
-   "queryId": "Q-c6b88d",
+   "queryId": "Q-d19d15",
    "row": 10,
    "label": "FDA shortage list: Hikma Pharmaceuticals USA, Inc., Current",
    "fields": {
@@ -2151,7 +2370,7 @@
   },
   "E48": {
    "id": "E48",
-   "queryId": "Q-c6b88d",
+   "queryId": "Q-d19d15",
    "row": 11,
    "label": "FDA shortage list: Hospira, Inc., a Pfizer Company, Current",
    "fields": {
@@ -2166,7 +2385,7 @@
   },
   "E49": {
    "id": "E49",
-   "queryId": "Q-c6b88d",
+   "queryId": "Q-d19d15",
    "row": 13,
    "label": "FDA shortage list: Medefil, Inc., Current",
    "fields": {
@@ -2181,7 +2400,7 @@
   },
   "E50": {
    "id": "E50",
-   "queryId": "Q-c6b88d",
+   "queryId": "Q-d19d15",
    "row": 14,
    "label": "FDA shortage list: Somerset Therapeutics, LLC, Current",
    "fields": {
@@ -2196,7 +2415,7 @@
   },
   "E51": {
    "id": "E51",
-   "queryId": "Q-c6b88d",
+   "queryId": "Q-d19d15",
    "row": 3,
    "label": "FDA first posted the shortage 2012-01-01",
    "fields": {
@@ -2249,181 +2468,138 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 88 units of atropine sulfate at 9.9 a day: 9 days on hand",
+   "label": "Corvale East holds 6 syringes of atropine sulfate 0.1 mg/mL, 10 mL at 3.3 a day: 1.8 days on hand",
    "fields": {
     "hospital": "Corvale East",
-    "on_hand": 88,
-    "daily_use": 9.9,
-    "days_on_hand": 9
+    "presentation": "0.1 mg/mL injection, 10 mL syringe",
+    "on_hand": 6,
+    "daily_use": 3.3,
+    "days_on_hand": 1.8
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 189 units of atropine sulfate at 12.1 a day: 16 days on hand",
+   "label": "Corvale General holds 70 syringes of atropine sulfate 0.1 mg/mL, 10 mL at 4.2 a day: 16.5 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 189,
-    "daily_use": 12.1,
-    "days_on_hand": 16
+    "presentation": "0.1 mg/mL injection, 10 mL syringe",
+    "on_hand": 70,
+    "daily_use": 4.2,
+    "days_on_hand": 16.5
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 29 units of atropine sulfate at 2 a day: 14 days on hand",
+   "label": "Corvale Lakeside holds 15 syringes of atropine sulfate 0.1 mg/mL, 10 mL at 1.2 a day: 13 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
-    "on_hand": 29,
-    "daily_use": 2,
-    "days_on_hand": 14
+    "presentation": "0.1 mg/mL injection, 10 mL syringe",
+    "on_hand": 15,
+    "daily_use": 1.2,
+    "days_on_hand": 13
    }
   },
   "D4": {
    "id": "D4",
    "queryId": "derived",
    "row": -1,
-   "label": "FDA inspection 606428 ended 2009-08-21, classified VAI — 863 days before FDA posted the shortage on 2012-01-01",
+   "label": "Corvale East holds 9 vials of atropine sulfate 1 mg/mL, 1 mL at 2.8 a day: 3.2 days on hand",
    "fields": {
-    "date": "2009-08-21",
-    "posted": "2012-01-01",
-    "days": 863
+    "hospital": "Corvale East",
+    "presentation": "1 mg/mL injection, 1 mL vial",
+    "on_hand": 9,
+    "daily_use": 2.8,
+    "days_on_hand": 3.2
    }
   },
   "D5": {
    "id": "D5",
    "queryId": "derived",
    "row": -1,
-   "label": "FDA inspection 624333 ended 2009-11-05, classified VAI — 787 days before FDA posted the shortage on 2012-01-01",
+   "label": "Corvale General holds 53 vials of atropine sulfate 1 mg/mL, 1 mL at 3.9 a day: 13.5 days on hand",
    "fields": {
-    "date": "2009-11-05",
-    "posted": "2012-01-01",
-    "days": 787
+    "hospital": "Corvale General",
+    "presentation": "1 mg/mL injection, 1 mL vial",
+    "on_hand": 53,
+    "daily_use": 3.9,
+    "days_on_hand": 13.5
    }
   },
   "D6": {
    "id": "D6",
    "queryId": "derived",
    "row": -1,
-   "label": "FDA inspection 639034 ended 2010-01-19, classified OAI; Form 483: Control procedures to monitor and validate performance; In-process materials specifications; Dissemination of problem information (6 observations) — 712 days before FDA posted the shortage on 2012-01-01",
+   "label": "Corvale Lakeside holds 14 vials of atropine sulfate 1 mg/mL, 1 mL at 0.9 a day: 16.1 days on hand",
    "fields": {
-    "date": "2010-01-19",
-    "posted": "2012-01-01",
-    "days": 712
+    "hospital": "Corvale Lakeside",
+    "presentation": "1 mg/mL injection, 1 mL vial",
+    "on_hand": 14,
+    "daily_use": 0.9,
+    "days_on_hand": 16.1
    }
   },
   "D7": {
    "id": "D7",
    "queryId": "derived",
    "row": -1,
-   "label": "Warning Letter issued 2010-04-12 (case 99787) — 629 days before FDA posted the shortage on 2012-01-01",
+   "label": "Corvale East holds 73 eachs of atropine sulfate 10 mg/mL, 5 mL at 3.8 a day: 19.4 days on hand",
    "fields": {
-    "date": "2010-04-12",
-    "posted": "2012-01-01",
-    "days": 629
+    "hospital": "Corvale East",
+    "presentation": "10 mg/mL solution/, 5 mL each",
+    "on_hand": 73,
+    "daily_use": 3.8,
+    "days_on_hand": 19.4
    }
   },
   "D8": {
    "id": "D8",
    "queryId": "derived",
    "row": -1,
-   "label": "FDA inspection 695919 ended 2010-10-29, classified VAI — 429 days before FDA posted the shortage on 2012-01-01",
+   "label": "Corvale General holds 65 eachs of atropine sulfate 10 mg/mL, 5 mL at 3.9 a day: 16.7 days on hand",
    "fields": {
-    "date": "2010-10-29",
-    "posted": "2012-01-01",
-    "days": 429
+    "hospital": "Corvale General",
+    "presentation": "10 mg/mL solution/, 5 mL each",
+    "on_hand": 65,
+    "daily_use": 3.9,
+    "days_on_hand": 16.7
    }
   },
   "D9": {
    "id": "D9",
    "queryId": "derived",
    "row": -1,
-   "label": "FDA inspection 713642 ended 2011-03-15, classified OAI; Form 483: Absence of Written Procedures; Procedure Deviations Recorded and Justified; SOPs not followed / documented (18 observations) — 292 days before FDA posted the shortage on 2012-01-01",
+   "label": "FDA's shortage list gives 2012-01-01 as the first posting, the earliest date its database holds: the shortage began on or before then, so no gap is measured from it",
    "fields": {
-    "date": "2011-03-15",
     "posted": "2012-01-01",
-    "days": 292
+    "note": "database start date"
    }
   },
   "D10": {
    "id": "D10",
    "queryId": "derived",
    "row": -1,
-   "label": "FDA inspection 732886 ended 2011-06-17, classified OAI; Form 483: Control procedures to monitor and validate performance; Deviations from laboratory control requirements; Lack of written stability program (17 observations) — 198 days before FDA posted the shortage on 2012-01-01",
+   "label": "Option ranked 1 by rule: Transfer 10 syringes of 0.1 mg/mL, 10 mL from Corvale General to Corvale East. Corvale General has 17 days of 0.1 mg/mL injection, 10 mL syringes on hand and can spare 10 syringes while keeping two weeks; Corvale East has 1.8 days and would reach 5.",
    "fields": {
-    "date": "2011-06-17",
-    "posted": "2012-01-01",
-    "days": 198
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
    }
   },
   "D11": {
    "id": "D11",
    "queryId": "derived",
    "row": -1,
-   "label": "FDA inspection 740633 ended 2011-08-04, classified OAI; Form 483: Scientifically sound laboratory controls; Investigations of discrepancies, failures; Procedures not  in writing, fully followed — 150 days before FDA posted the shortage on 2012-01-01",
-   "fields": {
-    "date": "2011-08-04",
-    "posted": "2012-01-01",
-    "days": 150
-   }
-  },
-  "D12": {
-   "id": "D12",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Warning Letter issued 2011-08-31 (case 182994) — 123 days before FDA posted the shortage on 2012-01-01",
-   "fields": {
-    "date": "2011-08-31",
-    "posted": "2012-01-01",
-    "days": 123
-   }
-  },
-  "D13": {
-   "id": "D13",
-   "queryId": "derived",
-   "row": -1,
-   "label": "FDA inspection 767250 ended 2012-03-29, classified VAI — 88 days after FDA posted the shortage on 2012-01-01",
-   "fields": {
-    "date": "2012-03-29",
-    "posted": "2012-01-01",
-    "days": 88
-   }
-  },
-  "D14": {
-   "id": "D14",
-   "queryId": "derived",
-   "row": -1,
-   "label": "FDA inspection 833823 ended 2013-03-01, classified VAI — 425 days after FDA posted the shortage on 2012-01-01",
-   "fields": {
-    "date": "2013-03-01",
-    "posted": "2012-01-01",
-    "days": 425
-   }
-  },
-  "D15": {
-   "id": "D15",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 1 by rule: Transfer 20 from Corvale General to Corvale East. Corvale General has 16 days on hand and can spare 20 while keeping two weeks; Corvale East has 8.9 days and would reach 11.",
+   "label": "Option ranked 1 by rule: Transfer 1 vial of 1 mg/mL, 1 mL from Corvale Lakeside to Corvale East. Corvale Lakeside has 16 days of 1 mg/mL injection, 1 mL vials on hand and can spare 1 vial while keeping two weeks; Corvale East has 3.2 days and would reach 4.",
    "fields": {
     "kind": "transfer",
     "needs": "pharmacy director (transfer request)"
    }
   },
-  "D16": {
-   "id": "D16",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 3 by rule: Buy from A-S Medication Solutions. Not on FDA's shortage list today. Its label names no plant we could place.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
-   }
-  },
-  "D17": {
-   "id": "D17",
+  "D12": {
+   "id": "D12",
    "queryId": "derived",
    "row": -1,
    "label": "Option ranked 3 by rule: Buy from Amneal Pharmaceuticals LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
@@ -2431,188 +2607,196 @@
     "kind": "alternate_manufacturer",
     "needs": "buyer"
    }
-  },
-  "D18": {
-   "id": "D18",
-   "queryId": "derived",
-   "row": -1,
-   "label": "As of 2026-10-21 the shortage has been on FDA's list for 178 months",
-   "fields": {
-    "as_of": "2026-10-21",
-    "posted": "2012-01-01",
-    "months": 178
-   }
   }
  },
  "queries": {
-  "Q-53d493": {
-   "id": "Q-53d493",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%atropine%' OR lower(s.description) LIKE '%atropine%' ORDER BY s.hospital, s.item_key",
-   "ms": 1551,
+  "Q-bcafb3": {
+   "id": "Q-bcafb3",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*atropine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*atropine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3611,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:26:37.306Z",
+   "ranAt": "2026-10-22T11:31:30.298Z",
    "rows": 8
   },
   "Q-889832": {
    "id": "Q-889832",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('ad8916e7-206e-409e-2582-30d072845dd4', '6fee1727-52b7-4f73-ab45-ef47d6a1c5bb', 'f8718be5-8fa4-4c36-a4fd-fac7c3953f5a') ORDER BY ps.set_id, ps.establishment",
-   "ms": 394,
+   "ms": 474,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:26:37.703Z",
+   "ranAt": "2026-10-22T11:31:30.775Z",
    "rows": 3
   },
-  "Q-c6b88d": {
-   "id": "Q-c6b88d",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%atropine%' ORDER BY status, company_name, package_ndc",
-   "ms": 112,
+  "Q-d19d15": {
+   "id": "Q-d19d15",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*atropine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 140,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:26:37.817Z",
+   "ranAt": "2026-10-22T11:31:30.916Z",
    "rows": 19
   },
-  "Q-3dc07d": {
-   "id": "Q-3dc07d",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%atropine%' ORDER BY first_posting",
-   "ms": 109,
+  "Q-c63858": {
+   "id": "Q-c63858",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*atropine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 142,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:26:37.926Z",
-   "rows": 4
+   "ranAt": "2026-10-22T11:31:31.060Z",
+   "rows": 2
   },
-  "Q-a98b5e": {
-   "id": "Q-a98b5e",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%atropine%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 1087,
+  "Q-7db0e8": {
+   "id": "Q-7db0e8",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*atropine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1573,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:26:39.014Z",
+   "ranAt": "2026-10-22T11:31:32.635Z",
    "rows": 65
   },
   "Q-941f81": {
    "id": "Q-941f81",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('2410375', '1021343', '3010254278', '3003157498', '3004011473', '1450022', '2016148', '3001677091') ORDER BY fei, end_date",
-   "ms": 251,
+   "ms": 366,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:26:39.267Z",
+   "ranAt": "2026-10-22T11:31:33.003Z",
    "rows": 84
   },
   "Q-4d1cc3": {
    "id": "Q-4d1cc3",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('2410375', '1021343', '3010254278', '3003157498', '3004011473', '1450022', '2016148', '3001677091') ORDER BY fei, action_date",
-   "ms": 111,
+   "ms": 184,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:26:39.380Z",
+   "ranAt": "2026-10-22T11:31:33.188Z",
    "rows": 5
   },
   "Q-ff38dc": {
    "id": "Q-ff38dc",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('2410375', '1021343', '3010254278') OR (fei_match <> 'name_and_city' AND firm_key IN ('american regent', 'hospira', 'amneal')) ORDER BY date_published",
-   "ms": 96,
+   "ms": 145,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:26:39.477Z",
+   "ranAt": "2026-10-22T11:31:33.334Z",
    "rows": 0
   },
-  "Q-128934": {
-   "id": "Q-128934",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('american regent', 'hospira', 'amneal', 'amneal ny') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%atropine%' ORDER BY initiation_date",
-   "ms": 147,
+  "Q-c697e1": {
+   "id": "Q-c697e1",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('american regent', 'hospira', 'amneal', 'amneal ny') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*atropine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 195,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:26:39.624Z",
+   "ranAt": "2026-10-22T11:31:33.529Z",
    "rows": 1
   },
   "Q-d31cd3": {
    "id": "Q-d31cd3",
    "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('639034', '732886', '740633', '713642') ORDER BY inspection_id, cfr",
-   "ms": 187,
+   "ms": 172,
    "mode": "live",
    "sources": [
     "fda.citations"
    ],
-   "ranAt": "2026-10-22T07:26:39.813Z",
+   "ranAt": "2026-10-22T11:31:33.703Z",
    "rows": 44
   },
   "Q-b7fd55": {
    "id": "Q-b7fd55",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('00409163010', '00517100125', '60219174903')",
-   "ms": 954,
+   "ms": 983,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:26:40.770Z",
+   "ranAt": "2026-10-22T11:31:34.690Z",
    "rows": 2
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-4cb4df": {
-   "id": "Q-4cb4df",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%atropine%'",
-   "ms": 1177,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:26:41.949Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-ba077d": {
+   "id": "Q-ba077d",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*atropine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1860,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:31:36.551Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 15,
-  "zetarisMs": 11547,
+  "zetarisMs": 20053,
   "modelCalls": 1,
-  "tokensIn": 6179,
-  "tokensOut": 664,
+  "tokensIn": 7674,
+  "tokensOut": 523,
   "mode": "live"
  },
  "slug": "atropine",
@@ -2632,7 +2816,7 @@
     "id": "hospital-item:hospital-item:CG-1",
     "type": "HospitalItem",
     "key": "hospital-item:CG-1",
-    "label": "Corvale General: ATROPINE SULFATE",
+    "label": "Corvale General: ATROPINE SULFATE 0.1 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-1"
     },
@@ -2643,7 +2827,7 @@
     "id": "hospital-item:hospital-item:CG-152",
     "type": "HospitalItem",
     "key": "hospital-item:CG-152",
-    "label": "Corvale General: atropine sulfate",
+    "label": "Corvale General: atropine sulfate 10 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-152"
     },
@@ -2654,7 +2838,7 @@
     "id": "hospital-item:hospital-item:CG-2",
     "type": "HospitalItem",
     "key": "hospital-item:CG-2",
-    "label": "Corvale General: ATROPINE SULFATE",
+    "label": "Corvale General: ATROPINE SULFATE 1 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-2"
     },
@@ -2870,7 +3054,7 @@
     },
     "facts": [
      {
-      "id": "fact_4b58cb65099304fc",
+      "id": "fact_847c1970d0e7608b",
       "about": "inspection:fda-inspection:1015639",
       "predicate": "classification",
       "value": "VAI",
@@ -2878,9 +3062,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:39.816Z"
+       "at": "2026-10-22T11:31:33.706Z"
       },
-      "assertedAt": "2026-10-22T07:26:39.816Z"
+      "assertedAt": "2026-10-22T11:31:33.706Z"
      }
     ],
     "depth": 4
@@ -2896,7 +3080,7 @@
     },
     "facts": [
      {
-      "id": "fact_0c32f74c4d512844",
+      "id": "fact_fb57e97cc5a63149",
       "about": "inspection:fda-inspection:1039547",
       "predicate": "classification",
       "value": "VAI",
@@ -2904,9 +3088,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:39.815Z"
+       "at": "2026-10-22T11:31:33.705Z"
       },
-      "assertedAt": "2026-10-22T07:26:39.815Z"
+      "assertedAt": "2026-10-22T11:31:33.705Z"
      }
     ],
     "depth": 4
@@ -2922,7 +3106,7 @@
     },
     "facts": [
      {
-      "id": "fact_1ea99fe2fe12ad79",
+      "id": "fact_81b501f5f46376ef",
       "about": "inspection:fda-inspection:1047853",
       "predicate": "classification",
       "value": "VAI",
@@ -2930,9 +3114,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:39.816Z"
+       "at": "2026-10-22T11:31:33.706Z"
       },
-      "assertedAt": "2026-10-22T07:26:39.816Z"
+      "assertedAt": "2026-10-22T11:31:33.706Z"
      }
     ],
     "depth": 4
@@ -2948,7 +3132,7 @@
     },
     "facts": [
      {
-      "id": "fact_9b1259ea66aaf0d8",
+      "id": "fact_208c930d718b82d1",
       "about": "inspection:fda-inspection:1052362",
       "predicate": "classification",
       "value": "VAI",
@@ -2956,9 +3140,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:39.816Z"
+       "at": "2026-10-22T11:31:33.706Z"
       },
-      "assertedAt": "2026-10-22T07:26:39.816Z"
+      "assertedAt": "2026-10-22T11:31:33.706Z"
      }
     ],
     "depth": 4
@@ -2974,7 +3158,7 @@
     },
     "facts": [
      {
-      "id": "fact_d55f496021930280",
+      "id": "fact_64ac40898a3f0362",
       "about": "inspection:fda-inspection:1085771",
       "predicate": "classification",
       "value": "VAI",
@@ -2982,9 +3166,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:39.816Z"
+       "at": "2026-10-22T11:31:33.706Z"
       },
-      "assertedAt": "2026-10-22T07:26:39.816Z"
+      "assertedAt": "2026-10-22T11:31:33.706Z"
      }
     ],
     "depth": 4
@@ -3000,7 +3184,7 @@
     },
     "facts": [
      {
-      "id": "fact_6bbc62a879a3aa40",
+      "id": "fact_733166547da760b9",
       "about": "inspection:fda-inspection:1110899",
       "predicate": "classification",
       "value": "VAI",
@@ -3008,9 +3192,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:39.815Z"
+       "at": "2026-10-22T11:31:33.705Z"
       },
-      "assertedAt": "2026-10-22T07:26:39.815Z"
+      "assertedAt": "2026-10-22T11:31:33.705Z"
      }
     ],
     "depth": 4
@@ -3026,7 +3210,7 @@
     },
     "facts": [
      {
-      "id": "fact_484fb814785ca9ac",
+      "id": "fact_65c19680a277bfb7",
       "about": "inspection:fda-inspection:1200654",
       "predicate": "classification",
       "value": "VAI",
@@ -3034,9 +3218,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:39.816Z"
+       "at": "2026-10-22T11:31:33.706Z"
       },
-      "assertedAt": "2026-10-22T07:26:39.816Z"
+      "assertedAt": "2026-10-22T11:31:33.706Z"
      }
     ],
     "depth": 4
@@ -3052,7 +3236,7 @@
     },
     "facts": [
      {
-      "id": "fact_7b128e4faecf333b",
+      "id": "fact_6dd25d3c54170edb",
       "about": "inspection:fda-inspection:1236810",
       "predicate": "classification",
       "value": "VAI",
@@ -3060,9 +3244,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:39.816Z"
+       "at": "2026-10-22T11:31:33.706Z"
       },
-      "assertedAt": "2026-10-22T07:26:39.816Z"
+      "assertedAt": "2026-10-22T11:31:33.706Z"
      }
     ],
     "depth": 4
@@ -3078,7 +3262,7 @@
     },
     "facts": [
      {
-      "id": "fact_93710842ef490716",
+      "id": "fact_1f00ee96bfa9605d",
       "about": "inspection:fda-inspection:555024",
       "predicate": "classification",
       "value": "VAI",
@@ -3086,9 +3270,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:39.815Z"
+       "at": "2026-10-22T11:31:33.705Z"
       },
-      "assertedAt": "2026-10-22T07:26:39.815Z"
+      "assertedAt": "2026-10-22T11:31:33.705Z"
      }
     ],
     "depth": 4
@@ -3104,7 +3288,7 @@
     },
     "facts": [
      {
-      "id": "fact_64114203fe7ff95c",
+      "id": "fact_d53f59dc23c32338",
       "about": "inspection:fda-inspection:606428",
       "predicate": "classification",
       "value": "VAI",
@@ -3112,9 +3296,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:39.814Z"
+       "at": "2026-10-22T11:31:33.704Z"
       },
-      "assertedAt": "2026-10-22T07:26:39.814Z"
+      "assertedAt": "2026-10-22T11:31:33.704Z"
      }
     ],
     "depth": 4
@@ -3130,7 +3314,7 @@
     },
     "facts": [
      {
-      "id": "fact_74286390f19abd01",
+      "id": "fact_9bd704e10d2127af",
       "about": "inspection:fda-inspection:624333",
       "predicate": "classification",
       "value": "VAI",
@@ -3138,9 +3322,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:39.815Z"
+       "at": "2026-10-22T11:31:33.705Z"
       },
-      "assertedAt": "2026-10-22T07:26:39.815Z"
+      "assertedAt": "2026-10-22T11:31:33.705Z"
      }
     ],
     "depth": 4
@@ -3156,7 +3340,7 @@
     },
     "facts": [
      {
-      "id": "fact_682845fd6a0e6026",
+      "id": "fact_73aa14e880fb914a",
       "about": "inspection:fda-inspection:639034",
       "predicate": "classification",
       "value": "OAI",
@@ -3164,9 +3348,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:39.814Z"
+       "at": "2026-10-22T11:31:33.704Z"
       },
-      "assertedAt": "2026-10-22T07:26:39.814Z"
+      "assertedAt": "2026-10-22T11:31:33.704Z"
      }
     ],
     "depth": 4
@@ -3182,7 +3366,7 @@
     },
     "facts": [
      {
-      "id": "fact_f830996da1c7c5a7",
+      "id": "fact_d2e119a61ff33ceb",
       "about": "inspection:fda-inspection:695919",
       "predicate": "classification",
       "value": "VAI",
@@ -3190,9 +3374,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:39.815Z"
+       "at": "2026-10-22T11:31:33.705Z"
       },
-      "assertedAt": "2026-10-22T07:26:39.815Z"
+      "assertedAt": "2026-10-22T11:31:33.705Z"
      }
     ],
     "depth": 4
@@ -3208,7 +3392,7 @@
     },
     "facts": [
      {
-      "id": "fact_9993d4b121b71d01",
+      "id": "fact_6e695d3abb0d213d",
       "about": "inspection:fda-inspection:713642",
       "predicate": "classification",
       "value": "OAI",
@@ -3216,9 +3400,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:39.815Z"
+       "at": "2026-10-22T11:31:33.705Z"
       },
-      "assertedAt": "2026-10-22T07:26:39.815Z"
+      "assertedAt": "2026-10-22T11:31:33.705Z"
      }
     ],
     "depth": 4
@@ -3234,7 +3418,7 @@
     },
     "facts": [
      {
-      "id": "fact_05583798f4880e51",
+      "id": "fact_dbb38c9553cecd1e",
       "about": "inspection:fda-inspection:732886",
       "predicate": "classification",
       "value": "OAI",
@@ -3242,9 +3426,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:39.814Z"
+       "at": "2026-10-22T11:31:33.704Z"
       },
-      "assertedAt": "2026-10-22T07:26:39.814Z"
+      "assertedAt": "2026-10-22T11:31:33.704Z"
      }
     ],
     "depth": 4
@@ -3260,7 +3444,7 @@
     },
     "facts": [
      {
-      "id": "fact_c531d0acb8d682c2",
+      "id": "fact_7d1745eff5634a21",
       "about": "inspection:fda-inspection:740633",
       "predicate": "classification",
       "value": "OAI",
@@ -3268,9 +3452,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:39.814Z"
+       "at": "2026-10-22T11:31:33.705Z"
       },
-      "assertedAt": "2026-10-22T07:26:39.814Z"
+      "assertedAt": "2026-10-22T11:31:33.705Z"
      }
     ],
     "depth": 4
@@ -3286,7 +3470,7 @@
     },
     "facts": [
      {
-      "id": "fact_2a5cff6763dd7bf9",
+      "id": "fact_e79c63fdcc1c7991",
       "about": "inspection:fda-inspection:767250",
       "predicate": "classification",
       "value": "VAI",
@@ -3294,9 +3478,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:39.815Z"
+       "at": "2026-10-22T11:31:33.706Z"
       },
-      "assertedAt": "2026-10-22T07:26:39.815Z"
+      "assertedAt": "2026-10-22T11:31:33.706Z"
      }
     ],
     "depth": 4
@@ -3312,7 +3496,7 @@
     },
     "facts": [
      {
-      "id": "fact_b94130c8aac7e139",
+      "id": "fact_b6ccc90d41b8e247",
       "about": "inspection:fda-inspection:833823",
       "predicate": "classification",
       "value": "VAI",
@@ -3320,9 +3504,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:39.814Z"
+       "at": "2026-10-22T11:31:33.705Z"
       },
-      "assertedAt": "2026-10-22T07:26:39.814Z"
+      "assertedAt": "2026-10-22T11:31:33.705Z"
      }
     ],
     "depth": 4
@@ -3338,7 +3522,7 @@
     },
     "facts": [
      {
-      "id": "fact_d7f4adcf5138e8aa",
+      "id": "fact_e52f3872ede62d50",
       "about": "inspection:fda-inspection:901719",
       "predicate": "classification",
       "value": "VAI",
@@ -3346,9 +3530,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:39.816Z"
+       "at": "2026-10-22T11:31:33.706Z"
       },
-      "assertedAt": "2026-10-22T07:26:39.816Z"
+      "assertedAt": "2026-10-22T11:31:33.706Z"
      }
     ],
     "depth": 4
@@ -3364,7 +3548,7 @@
     },
     "facts": [
      {
-      "id": "fact_43f96ed9620b6a90",
+      "id": "fact_dd3f4202b9274719",
       "about": "inspection:fda-inspection:942202",
       "predicate": "classification",
       "value": "VAI",
@@ -3372,9 +3556,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:39.815Z"
+       "at": "2026-10-22T11:31:33.705Z"
       },
-      "assertedAt": "2026-10-22T07:26:39.815Z"
+      "assertedAt": "2026-10-22T11:31:33.705Z"
      }
     ],
     "depth": 4
@@ -3390,7 +3574,7 @@
     },
     "facts": [
      {
-      "id": "fact_b12e954054d92d6e",
+      "id": "fact_28576c96e2652f12",
       "about": "inspection:fda-inspection:943046",
       "predicate": "classification",
       "value": "VAI",
@@ -3398,9 +3582,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:39.816Z"
+       "at": "2026-10-22T11:31:33.706Z"
       },
-      "assertedAt": "2026-10-22T07:26:39.816Z"
+      "assertedAt": "2026-10-22T11:31:33.706Z"
      }
     ],
     "depth": 4
@@ -3416,7 +3600,7 @@
     },
     "facts": [
      {
-      "id": "fact_998b1676417e7f86",
+      "id": "fact_8f7da775b3bde0ce",
       "about": "inspection:fda-inspection:963173",
       "predicate": "classification",
       "value": "VAI",
@@ -3424,9 +3608,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:39.816Z"
+       "at": "2026-10-22T11:31:33.706Z"
       },
-      "assertedAt": "2026-10-22T07:26:39.816Z"
+      "assertedAt": "2026-10-22T11:31:33.706Z"
      }
     ],
     "depth": 4
@@ -3442,7 +3626,7 @@
     },
     "facts": [
      {
-      "id": "fact_bd217107c8e8786b",
+      "id": "fact_27f500888f576554",
       "about": "inspection:fda-inspection:963315",
       "predicate": "classification",
       "value": "VAI",
@@ -3450,9 +3634,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:39.816Z"
+       "at": "2026-10-22T11:31:33.706Z"
       },
-      "assertedAt": "2026-10-22T07:26:39.816Z"
+      "assertedAt": "2026-10-22T11:31:33.706Z"
      }
     ],
     "depth": 4
@@ -3497,11 +3681,11 @@
     "from": "hospital-item:hospital-item:CG-1",
     "to": "package:ndc-package:0409-1630-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:26:37.308Z",
+    "validFrom": "2026-10-22T11:31:30.300Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:37.308Z"
+     "at": "2026-10-22T11:31:30.300Z"
     }
    },
    {
@@ -3509,11 +3693,11 @@
     "from": "hospital-item:hospital-item:CG-152",
     "to": "package:ndc-package:60219-1749-3",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:26:37.308Z",
+    "validFrom": "2026-10-22T11:31:30.300Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:37.308Z"
+     "at": "2026-10-22T11:31:30.300Z"
     }
    },
    {
@@ -3521,11 +3705,11 @@
     "from": "hospital-item:hospital-item:CG-2",
     "to": "package:ndc-package:0517-1001-25",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:26:37.308Z",
+    "validFrom": "2026-10-22T11:31:30.300Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:37.308Z"
+     "at": "2026-10-22T11:31:30.300Z"
     }
    },
    {
@@ -3533,11 +3717,11 @@
     "from": "hospital-item:hospital-item:EA-E-000079",
     "to": "package:ndc-package:0409-1630-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:26:37.308Z",
+    "validFrom": "2026-10-22T11:31:30.299Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:37.308Z"
+     "at": "2026-10-22T11:31:30.299Z"
     }
    },
    {
@@ -3545,11 +3729,11 @@
     "from": "hospital-item:hospital-item:EA-E-000103",
     "to": "package:ndc-package:0517-1001-25",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:26:37.308Z",
+    "validFrom": "2026-10-22T11:31:30.299Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:37.308Z"
+     "at": "2026-10-22T11:31:30.299Z"
     }
    },
    {
@@ -3557,11 +3741,11 @@
     "from": "hospital-item:hospital-item:EA-E-000200",
     "to": "package:ndc-package:60219-1749-3",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:26:37.308Z",
+    "validFrom": "2026-10-22T11:31:30.299Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:37.308Z"
+     "at": "2026-10-22T11:31:30.299Z"
     }
    },
    {
@@ -3569,11 +3753,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0037",
     "to": "package:ndc-package:0409-1630-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:26:37.308Z",
+    "validFrom": "2026-10-22T11:31:30.300Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:37.308Z"
+     "at": "2026-10-22T11:31:30.300Z"
     }
    },
    {
@@ -3581,11 +3765,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0044",
     "to": "package:ndc-package:0517-1001-25",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:26:37.309Z",
+    "validFrom": "2026-10-22T11:31:30.300Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:37.309Z"
+     "at": "2026-10-22T11:31:30.300Z"
     }
    },
    {
@@ -3593,11 +3777,11 @@
     "from": "package:ndc-package:0409-1630-10",
     "to": "product:ndc-product:0409-1630",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:26:37.308Z",
+    "validFrom": "2026-10-22T11:31:30.299Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:37.308Z"
+     "at": "2026-10-22T11:31:30.299Z"
     }
    },
    {
@@ -3605,11 +3789,11 @@
     "from": "package:ndc-package:60219-1749-3",
     "to": "product:ndc-product:60219-1749",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:26:37.308Z",
+    "validFrom": "2026-10-22T11:31:30.299Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:37.308Z"
+     "at": "2026-10-22T11:31:30.299Z"
     }
    },
    {
@@ -3617,11 +3801,11 @@
     "from": "package:ndc-package:0517-1001-25",
     "to": "product:ndc-product:0517-1001",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:26:37.308Z",
+    "validFrom": "2026-10-22T11:31:30.299Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:37.308Z"
+     "at": "2026-10-22T11:31:30.299Z"
     }
    },
    {
@@ -3629,11 +3813,11 @@
     "from": "product:ndc-product:0409-1630",
     "to": "drug:generic:atropine sulfate",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:26:37.308Z",
+    "validFrom": "2026-10-22T11:31:30.299Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:37.308Z"
+     "at": "2026-10-22T11:31:30.299Z"
     }
    },
    {
@@ -3641,11 +3825,11 @@
     "from": "product:ndc-product:0409-1630",
     "to": "labeler:ndc-labeler:0409",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:26:37.308Z",
+    "validFrom": "2026-10-22T11:31:30.299Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:37.308Z"
+     "at": "2026-10-22T11:31:30.299Z"
     }
    },
    {
@@ -3653,11 +3837,11 @@
     "from": "product:ndc-product:0409-1630",
     "to": "site:fei:1021343",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:26:39.814Z",
+    "validFrom": "2026-10-22T11:31:33.704Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:39.814Z"
+     "at": "2026-10-22T11:31:33.704Z"
     }
    },
    {
@@ -3665,11 +3849,11 @@
     "from": "product:ndc-product:60219-1749",
     "to": "drug:generic:atropine sulfate",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:26:37.308Z",
+    "validFrom": "2026-10-22T11:31:30.299Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:37.308Z"
+     "at": "2026-10-22T11:31:30.299Z"
     }
    },
    {
@@ -3677,11 +3861,11 @@
     "from": "product:ndc-product:60219-1749",
     "to": "labeler:ndc-labeler:60219",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:26:37.308Z",
+    "validFrom": "2026-10-22T11:31:30.299Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:37.308Z"
+     "at": "2026-10-22T11:31:30.299Z"
     }
    },
    {
@@ -3689,11 +3873,11 @@
     "from": "product:ndc-product:60219-1749",
     "to": "site:fei:3010254278",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:26:39.816Z",
+    "validFrom": "2026-10-22T11:31:33.706Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:39.816Z"
+     "at": "2026-10-22T11:31:33.706Z"
     }
    },
    {
@@ -3701,11 +3885,11 @@
     "from": "product:ndc-product:0517-1001",
     "to": "drug:generic:atropine sulfate",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:26:37.308Z",
+    "validFrom": "2026-10-22T11:31:30.299Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:37.308Z"
+     "at": "2026-10-22T11:31:30.299Z"
     }
    },
    {
@@ -3713,11 +3897,11 @@
     "from": "product:ndc-product:0517-1001",
     "to": "labeler:ndc-labeler:0517",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:26:37.308Z",
+    "validFrom": "2026-10-22T11:31:30.299Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:37.308Z"
+     "at": "2026-10-22T11:31:30.299Z"
     }
    },
    {
@@ -3725,11 +3909,11 @@
     "from": "product:ndc-product:0517-1001",
     "to": "site:fei:2410375",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:26:39.815Z",
+    "validFrom": "2026-10-22T11:31:33.705Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:39.815Z"
+     "at": "2026-10-22T11:31:33.705Z"
     }
    },
    {
@@ -3737,11 +3921,11 @@
     "from": "shortage:fda-shortage:atropine-2012-01-01",
     "to": "drug:generic:atropine sulfate",
     "type": "affects",
-    "validFrom": "2026-10-22T07:26:39.816Z",
+    "validFrom": "2026-10-22T11:31:33.707Z",
     "source": {
      "kind": "fda-shortage-db",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:39.816Z"
+     "at": "2026-10-22T11:31:33.707Z"
     }
    },
    {
@@ -3749,11 +3933,11 @@
     "from": "inspection:fda-inspection:606428",
     "to": "site:fei:1021343",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:39.814Z",
+    "validFrom": "2026-10-22T11:31:33.704Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:39.814Z"
+     "at": "2026-10-22T11:31:33.704Z"
     }
    },
    {
@@ -3761,11 +3945,11 @@
     "from": "inspection:fda-inspection:639034",
     "to": "site:fei:1021343",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:39.814Z",
+    "validFrom": "2026-10-22T11:31:33.704Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:39.814Z"
+     "at": "2026-10-22T11:31:33.704Z"
     }
    },
    {
@@ -3773,11 +3957,11 @@
     "from": "inspection:fda-inspection:732886",
     "to": "site:fei:1021343",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:39.814Z",
+    "validFrom": "2026-10-22T11:31:33.704Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:39.814Z"
+     "at": "2026-10-22T11:31:33.704Z"
     }
    },
    {
@@ -3785,11 +3969,11 @@
     "from": "inspection:fda-inspection:740633",
     "to": "site:fei:1021343",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:39.814Z",
+    "validFrom": "2026-10-22T11:31:33.705Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:39.814Z"
+     "at": "2026-10-22T11:31:33.705Z"
     }
    },
    {
@@ -3797,11 +3981,11 @@
     "from": "inspection:fda-inspection:833823",
     "to": "site:fei:1021343",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:39.814Z",
+    "validFrom": "2026-10-22T11:31:33.705Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:39.814Z"
+     "at": "2026-10-22T11:31:33.705Z"
     }
    },
    {
@@ -3809,11 +3993,11 @@
     "from": "inspection:fda-inspection:942202",
     "to": "site:fei:1021343",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:39.814Z",
+    "validFrom": "2026-10-22T11:31:33.705Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:39.814Z"
+     "at": "2026-10-22T11:31:33.705Z"
     }
    },
    {
@@ -3821,11 +4005,11 @@
     "from": "inspection:fda-inspection:1039547",
     "to": "site:fei:1021343",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:39.815Z",
+    "validFrom": "2026-10-22T11:31:33.705Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:39.815Z"
+     "at": "2026-10-22T11:31:33.705Z"
     }
    },
    {
@@ -3833,11 +4017,11 @@
     "from": "inspection:fda-inspection:1110899",
     "to": "site:fei:1021343",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:39.815Z",
+    "validFrom": "2026-10-22T11:31:33.705Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:39.815Z"
+     "at": "2026-10-22T11:31:33.705Z"
     }
    },
    {
@@ -3845,11 +4029,11 @@
     "from": "warning-letter:fda-warning-letter:99787",
     "to": "site:fei:1021343",
     "type": "issued-to",
-    "validFrom": "2026-10-22T07:26:39.814Z",
+    "validFrom": "2026-10-22T11:31:33.704Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:39.814Z"
+     "at": "2026-10-22T11:31:33.704Z"
     }
    },
    {
@@ -3857,11 +4041,11 @@
     "from": "inspection:fda-inspection:943046",
     "to": "site:fei:3010254278",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:39.816Z",
+    "validFrom": "2026-10-22T11:31:33.706Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:39.816Z"
+     "at": "2026-10-22T11:31:33.706Z"
     }
    },
    {
@@ -3869,11 +4053,11 @@
     "from": "inspection:fda-inspection:1015639",
     "to": "site:fei:3010254278",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:39.816Z",
+    "validFrom": "2026-10-22T11:31:33.706Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:39.816Z"
+     "at": "2026-10-22T11:31:33.706Z"
     }
    },
    {
@@ -3881,11 +4065,11 @@
     "from": "inspection:fda-inspection:1052362",
     "to": "site:fei:3010254278",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:39.816Z",
+    "validFrom": "2026-10-22T11:31:33.706Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:39.816Z"
+     "at": "2026-10-22T11:31:33.706Z"
     }
    },
    {
@@ -3893,11 +4077,11 @@
     "from": "inspection:fda-inspection:1085771",
     "to": "site:fei:3010254278",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:39.816Z",
+    "validFrom": "2026-10-22T11:31:33.706Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:39.816Z"
+     "at": "2026-10-22T11:31:33.706Z"
     }
    },
    {
@@ -3905,11 +4089,11 @@
     "from": "inspection:fda-inspection:1200654",
     "to": "site:fei:3010254278",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:39.816Z",
+    "validFrom": "2026-10-22T11:31:33.706Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:39.816Z"
+     "at": "2026-10-22T11:31:33.706Z"
     }
    },
    {
@@ -3917,11 +4101,11 @@
     "from": "inspection:fda-inspection:555024",
     "to": "site:fei:2410375",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:39.815Z",
+    "validFrom": "2026-10-22T11:31:33.705Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:39.815Z"
+     "at": "2026-10-22T11:31:33.705Z"
     }
    },
    {
@@ -3929,11 +4113,11 @@
     "from": "inspection:fda-inspection:624333",
     "to": "site:fei:2410375",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:39.815Z",
+    "validFrom": "2026-10-22T11:31:33.705Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:39.815Z"
+     "at": "2026-10-22T11:31:33.705Z"
     }
    },
    {
@@ -3941,11 +4125,11 @@
     "from": "inspection:fda-inspection:695919",
     "to": "site:fei:2410375",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:39.815Z",
+    "validFrom": "2026-10-22T11:31:33.705Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:39.815Z"
+     "at": "2026-10-22T11:31:33.705Z"
     }
    },
    {
@@ -3953,11 +4137,11 @@
     "from": "inspection:fda-inspection:713642",
     "to": "site:fei:2410375",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:39.815Z",
+    "validFrom": "2026-10-22T11:31:33.705Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:39.815Z"
+     "at": "2026-10-22T11:31:33.705Z"
     }
    },
    {
@@ -3965,11 +4149,11 @@
     "from": "inspection:fda-inspection:767250",
     "to": "site:fei:2410375",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:39.815Z",
+    "validFrom": "2026-10-22T11:31:33.706Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:39.815Z"
+     "at": "2026-10-22T11:31:33.706Z"
     }
    },
    {
@@ -3977,11 +4161,11 @@
     "from": "inspection:fda-inspection:901719",
     "to": "site:fei:2410375",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:39.816Z",
+    "validFrom": "2026-10-22T11:31:33.706Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:39.816Z"
+     "at": "2026-10-22T11:31:33.706Z"
     }
    },
    {
@@ -3989,11 +4173,11 @@
     "from": "inspection:fda-inspection:963315",
     "to": "site:fei:2410375",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:39.816Z",
+    "validFrom": "2026-10-22T11:31:33.706Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:39.816Z"
+     "at": "2026-10-22T11:31:33.706Z"
     }
    },
    {
@@ -4001,11 +4185,11 @@
     "from": "inspection:fda-inspection:963173",
     "to": "site:fei:2410375",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:39.816Z",
+    "validFrom": "2026-10-22T11:31:33.706Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:39.816Z"
+     "at": "2026-10-22T11:31:33.706Z"
     }
    },
    {
@@ -4013,11 +4197,11 @@
     "from": "inspection:fda-inspection:1047853",
     "to": "site:fei:2410375",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:39.816Z",
+    "validFrom": "2026-10-22T11:31:33.706Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:39.816Z"
+     "at": "2026-10-22T11:31:33.706Z"
     }
    },
    {
@@ -4025,11 +4209,11 @@
     "from": "inspection:fda-inspection:1236810",
     "to": "site:fei:2410375",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:39.816Z",
+    "validFrom": "2026-10-22T11:31:33.706Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:39.816Z"
+     "at": "2026-10-22T11:31:33.706Z"
     }
    },
    {
@@ -4037,11 +4221,11 @@
     "from": "warning-letter:fda-warning-letter:182994",
     "to": "site:fei:2410375",
     "type": "issued-to",
-    "validFrom": "2026-10-22T07:26:39.815Z",
+    "validFrom": "2026-10-22T11:31:33.706Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:39.815Z"
+     "at": "2026-10-22T11:31:33.706Z"
     }
    }
   ],

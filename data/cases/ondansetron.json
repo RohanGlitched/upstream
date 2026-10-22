@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-69457b",
+ "id": "case-2026-10-22-d12203",
  "question": "Why is ondansetron short, and what do we do?",
- "askedAt": "2026-10-22T08:08:50.291Z",
+ "askedAt": "2026-10-22T12:27:24.591Z",
  "asOf": "2026-10-21",
  "molecule": "ondansetron hydrochloride",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5HAF9KV3BZZ7WWZWTYS0AM4",
+  "contractId": "01M5HS8DT7NPW0GRC3SPTR8DW6",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-e2bbaf"
+    "Q-bd30da"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3996,
+   "ms": 9644,
    "rows": 5,
-   "finding": "5 stock lines across 3 hospitals.",
+   "finding": "5 stock lines across 3 hospitals, 2 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-6d3721"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1042,
+   "ms": 1487,
    "rows": 2,
    "finding": "2 plant links on 2 labels; 2 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-4f8200",
-    "Q-e13d39"
+    "Q-1b9bc6",
+    "Q-2c7558"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 536,
+   "ms": 881,
    "rows": 2,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-d365af"
+    "Q-aab617"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2555,
+   "ms": 4899,
    "rows": 706,
    "finding": "52 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-ac4a53",
     "Q-dcd70f",
     "Q-27e934",
-    "Q-297022"
+    "Q-78149f"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1721,
+   "ms": 2021,
    "rows": 6,
    "finding": "6 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1338,
+   "ms": 1226,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-f36b87"
+    "Q-931f11"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2358,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 4133,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 3,
+   "ms": 0,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -153,8 +164,11 @@
    "onHand": 174,
    "dailyUse": 8.284,
    "days": 21,
-   "unit": "package",
+   "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 5, converted to units",
+   "presentation": "ondansetron|4mg|tablet||tablet",
+   "presentationLabel": "4 mg tablet",
    "evidence": "E1"
   },
   {
@@ -166,34 +180,43 @@
    "onHand": 165,
    "dailyUse": 7.179,
    "days": 23,
-   "unit": "package",
+   "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 30, converted to units",
+   "presentation": "ondansetron hydrochloride|4mg|tablet||tablet",
+   "presentationLabel": "4 mg tablet",
    "evidence": "E2"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-294",
    "ndc11": "63187025605",
-   "description": "Ondansetron",
+   "description": "Ondansetron 4 mg/1",
    "labeler": "Proficient Rx LP",
-   "onHand": 132.94,
+   "onHand": 132,
    "dailyUse": 8.585,
-   "days": 15.5,
+   "days": 15.4,
    "unit": "tablet",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "ondansetron|4mg|tablet||tablet",
+   "presentationLabel": "4 mg tablet",
    "evidence": "E3"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-295",
    "ndc11": "87441008801",
-   "description": "Ondansetron Hydrochloride",
+   "description": "Ondansetron Hydrochloride 4 mg/1",
    "labeler": "Unit Dose Solutions, Inc.",
-   "onHand": 266.26,
+   "onHand": 266,
    "dailyUse": 8.905,
    "days": 29.9,
    "unit": "tablet",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "ondansetron hydrochloride|4mg|tablet||tablet",
+   "presentationLabel": "4 mg tablet",
    "evidence": "E4"
   },
   {
@@ -207,7 +230,94 @@
    "days": 28.6,
    "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "ondansetron hydrochloride|4mg|tablet||tablet",
+   "presentationLabel": "4 mg tablet",
    "evidence": "E5"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "ondansetron|4mg|tablet||tablet",
+   "label": "4 mg tablet",
+   "short": "4 mg",
+   "unit": "tablet",
+   "onHand": 306,
+   "dailyUse": 16.869,
+   "days": 18.1,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 174,
+     "dailyUse": 8.284,
+     "days": 21,
+     "lines": [
+      "EA-E-000208"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 132,
+     "dailyUse": 8.585,
+     "days": 15.4,
+     "lines": [
+      "CG-294"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "ondansetron hydrochloride|4mg|tablet||tablet",
+   "label": "4 mg tablet",
+   "short": "4 mg",
+   "unit": "tablet",
+   "onHand": 477,
+   "dailyUse": 17.691,
+   "days": 27,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 165,
+     "dailyUse": 7.179,
+     "days": 23,
+     "lines": [
+      "EA-E-000326"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 266,
+     "dailyUse": 8.905,
+     "days": 29.9,
+     "lines": [
+      "CG-295"
+     ],
+     "evidence": [
+      "E4"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 46,
+     "dailyUse": 1.607,
+     "days": 28.6,
+     "lines": [
+      "LS-LS-0140"
+     ],
+     "evidence": [
+      "E5"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -770,15 +880,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from A-S Medication Solutions",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Advanced Rx Pharmacy of Tennessee, LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -797,34 +898,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from American Health Packaging",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Aphena Pharma Solutions - Tennessee, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Ascend Laboratories, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Asclemed USA, Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -869,24 +943,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Bryant Ranch Prepack",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Cardinal Health 107, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Chartwell RX, LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -905,24 +961,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Direct Rx",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Direct_Rx",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Dr. Reddy's Laboratories Limited",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -933,24 +971,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Glenmark Pharmaceuticals Inc., USA",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Golden State Medical Supply, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from HAWAII REPACK, INC.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -1004,15 +1024,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from NUCARE PHARMACEUTICALS INC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Natco Pharma Limited",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -1032,60 +1043,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from NorthStar Rx LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Northwind Health Company, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals,Inc",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals,Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from NuCare Pharmceuticals,Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from PD-Rx Pharmaceuticals, Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -1121,52 +1078,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Preferred Pharmaceuticals Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Preferred Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from QPharma, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Quality Care Products LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Quality Care Products, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from REMEDYREPACK INC.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -1264,43 +1176,49 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "Ondansetron is not on FDA's shortage list today; three sites hold 22 to 29 days on hand and the best option by rule is A-S Medication Solutions",
+  "headline": "Ondansetron hydrochloride is not on FDA's shortage list as of 2026-10-21; on-hand supply ranges from 15.4 to 29.9 days across sites",
   "sentences": [
    {
-    "text": "Corvale East holds 339 units at 15.5 per day for 22 days on hand.",
+    "text": "FDA's records show ondansetron hydrochloride is not listed on the drug shortage list as of 2026-10-21.",
+    "cites": [
+     "D6"
+    ]
+   },
+   {
+    "text": "Corvale East holds 174 tablets of the 4 mg presentation at 8.3 tablets per day, providing 21 days on hand.",
     "cites": [
      "D1"
     ]
    },
    {
-    "text": "Corvale General holds 399 units at 17.5 per day for 23 days on hand.",
+    "text": "Corvale General holds 132 tablets at 8.6 per day for 15.4 days on hand, and a second lot of 266 tablets at 8.9 per day for 29.9 days on hand.",
     "cites": [
-     "D2"
+     "D2",
+     "D4"
     ]
    },
    {
-    "text": "Corvale Lakeside holds 46 units at 1.6 per day for 29 days on hand.",
+    "text": "Corvale Lakeside holds 46 tablets at 1.6 per day for 28.6 days on hand.",
     "cites": [
-     "D3"
+     "D5"
+    ]
+   },
+   {
+    "text": "The rule-based check finds no FDA regulatory action before a posting at a registered plant, so the buyer should verify current allocation and contract terms with existing suppliers.",
+    "cites": [
+     "D6"
+    ]
+   },
+   {
+    "text": "The best option by rule is to buy from Advanced Rx Pharmacy of Tennessee, LLC, which is not on FDA's shortage list today and whose label names no plant we could place.",
+    "cites": [
+     "D7"
     ]
    }
   ],
   "verifier": {
    "checked": 7,
-   "rejected": [
-    {
-     "text": "FDA's shortage list does not include ondansetron hydrochloride as of 2026-10-21.",
-     "reason": "cites nothing"
-    },
-    {
-     "text": "The rule-based best option is to buy from A-S Medication Solutions, which is not on FDA's shortage list today.",
-     "reason": "cites nothing"
-    },
-    {
-     "text": "A-S Medication Solutions' label names no plant we could place, so its supply chain should be verified before committing.",
-     "reason": "cites nothing"
-    }
-   ],
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -1308,45 +1226,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -1361,80 +1300,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T08:08:36.732Z",
+   "at": "2026-10-22T12:27:00.295Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract WTYS0AM4 scope"
+   "reason": "in contract SPTR8DW6 scope"
   },
   {
-   "at": "2026-10-22T08:08:36.733Z",
+   "at": "2026-10-22T12:27:00.296Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WTYS0AM4 scope"
+   "reason": "in contract SPTR8DW6 scope"
   },
   {
-   "at": "2026-10-22T08:08:40.732Z",
+   "at": "2026-10-22T12:27:09.940Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WTYS0AM4 scope"
+   "reason": "in contract SPTR8DW6 scope"
   },
   {
-   "at": "2026-10-22T08:08:41.774Z",
+   "at": "2026-10-22T12:27:11.428Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WTYS0AM4 scope"
+   "reason": "in contract SPTR8DW6 scope"
   },
   {
-   "at": "2026-10-22T08:08:42.311Z",
+   "at": "2026-10-22T12:27:12.309Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WTYS0AM4 scope"
+   "reason": "in contract SPTR8DW6 scope"
   },
   {
-   "at": "2026-10-22T08:08:44.866Z",
+   "at": "2026-10-22T12:27:17.208Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WTYS0AM4 scope"
+   "reason": "in contract SPTR8DW6 scope"
   },
   {
-   "at": "2026-10-22T08:08:46.592Z",
+   "at": "2026-10-22T12:27:19.231Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WTYS0AM4 scope"
+   "reason": "in contract SPTR8DW6 scope"
   },
   {
-   "at": "2026-10-22T08:08:47.930Z",
+   "at": "2026-10-22T12:27:20.457Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract WTYS0AM4 scope"
+   "reason": "in contract SPTR8DW6 scope"
   },
   {
-   "at": "2026-10-22T08:08:50.288Z",
+   "at": "2026-10-22T12:27:24.591Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract WTYS0AM4 scope"
+   "reason": "in contract SPTR8DW6 scope"
   },
   {
-   "at": "2026-10-22T08:08:50.292Z",
+   "at": "2026-10-22T12:27:24.592Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract WTYS0AM4 scope"
+   "reason": "in contract SPTR8DW6 scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-e2bbaf",
+   "queryId": "Q-bd30da",
    "row": 0,
    "label": "Corvale East: ONDANSETRON 4MG TAB",
    "fields": {
@@ -1445,19 +1384,24 @@
     "description": "ONDANSETRON 4MG TAB",
     "on_hand": "174.00",
     "daily_use": "8.284",
-    "unit": "package",
+    "unit": "tablet",
+    "pkg_units": "5.00",
+    "unit_basis": "packages of 5, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Ondansetron",
     "labeler_name": "Proficient Rx LP",
     "package_ndc": "63187-256-05",
     "spl_set_id": "81366c85-c6c9-4a9a-9fe5-cdd8c2d19f74",
     "dosage_form": "TABLET, ORALLY DISINTEGRATING",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "ONDANSETRON 4 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-e2bbaf",
+   "queryId": "Q-bd30da",
    "row": 1,
    "label": "Corvale East: ONDANSETRON HYDROCHLORIDE 4MG TAB",
    "fields": {
@@ -1468,65 +1412,80 @@
     "description": "ONDANSETRON HYDROCHLORIDE 4MG TAB",
     "on_hand": "165.00",
     "daily_use": "7.179",
-    "unit": "package",
+    "unit": "tablet",
+    "pkg_units": "30.00",
+    "unit_basis": "packages of 30, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Ondansetron Hydrochloride",
     "labeler_name": "Unit Dose Solutions, Inc.",
     "package_ndc": "87441-088-01",
     "spl_set_id": "561dce26-92fa-e00b-e063-6294a90a1ab2",
     "dosage_form": "TABLET, FILM COATED",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "ONDANSETRON HYDROCHLORIDE 4 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-e2bbaf",
+   "queryId": "Q-bd30da",
    "row": 2,
-   "label": "Corvale General: Ondansetron",
+   "label": "Corvale General: Ondansetron 4 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-294",
     "ndc11": "63187025605",
     "ndc_as_recorded": "63187025605",
-    "description": "Ondansetron",
-    "on_hand": "132.94",
+    "description": "Ondansetron 4 mg/1",
+    "on_hand": "132.00",
     "daily_use": "8.585",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Ondansetron",
     "labeler_name": "Proficient Rx LP",
     "package_ndc": "63187-256-05",
     "spl_set_id": "81366c85-c6c9-4a9a-9fe5-cdd8c2d19f74",
     "dosage_form": "TABLET, ORALLY DISINTEGRATING",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "ONDANSETRON 4 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-e2bbaf",
+   "queryId": "Q-bd30da",
    "row": 3,
-   "label": "Corvale General: Ondansetron Hydrochloride",
+   "label": "Corvale General: Ondansetron Hydrochloride 4 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-295",
     "ndc11": "87441008801",
     "ndc_as_recorded": "87441008801",
-    "description": "Ondansetron Hydrochloride",
-    "on_hand": "266.26",
+    "description": "Ondansetron Hydrochloride 4 mg/1",
+    "on_hand": "266.00",
     "daily_use": "8.905",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Ondansetron Hydrochloride",
     "labeler_name": "Unit Dose Solutions, Inc.",
     "package_ndc": "87441-088-01",
     "spl_set_id": "561dce26-92fa-e00b-e063-6294a90a1ab2",
     "dosage_form": "TABLET, FILM COATED",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "ONDANSETRON HYDROCHLORIDE 4 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E5": {
    "id": "E5",
-   "queryId": "Q-e2bbaf",
+   "queryId": "Q-bd30da",
    "row": 4,
    "label": "Corvale Lakeside: Ondansetron Hydrochloride 4 mg/1",
    "fields": {
@@ -1538,13 +1497,18 @@
     "on_hand": "46.00",
     "daily_use": "1.607",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Ondansetron Hydrochloride",
     "labeler_name": "Unit Dose Solutions, Inc.",
     "package_ndc": "87441-088-01",
     "spl_set_id": "561dce26-92fa-e00b-e063-6294a90a1ab2",
     "dosage_form": "TABLET, FILM COATED",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "ONDANSETRON HYDROCHLORIDE 4 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E6": {
@@ -1663,197 +1627,285 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 339 units of ondansetron hydrochloride at 15.5 a day: 22 days on hand",
+   "label": "Corvale East holds 174 tablets of ondansetron hydrochloride 4 mg at 8.3 a day: 21 days on hand",
    "fields": {
     "hospital": "Corvale East",
-    "on_hand": 339,
-    "daily_use": 15.5,
-    "days_on_hand": 22
+    "presentation": "4 mg tablet",
+    "on_hand": 174,
+    "daily_use": 8.3,
+    "days_on_hand": 21
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 399 units of ondansetron hydrochloride at 17.5 a day: 23 days on hand",
+   "label": "Corvale General holds 132 tablets of ondansetron hydrochloride 4 mg at 8.6 a day: 15.4 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 399,
-    "daily_use": 17.5,
-    "days_on_hand": 23
+    "presentation": "4 mg tablet",
+    "on_hand": 132,
+    "daily_use": 8.6,
+    "days_on_hand": 15.4
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 46 units of ondansetron hydrochloride at 1.6 a day: 29 days on hand",
+   "label": "Corvale East holds 165 tablets of ondansetron hydrochloride 4 mg at 7.2 a day: 23 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "4 mg tablet",
+    "on_hand": 165,
+    "daily_use": 7.2,
+    "days_on_hand": 23
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 266 tablets of ondansetron hydrochloride 4 mg at 8.9 a day: 29.9 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "4 mg tablet",
+    "on_hand": 266,
+    "daily_use": 8.9,
+    "days_on_hand": 29.9
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale Lakeside holds 46 tablets of ondansetron hydrochloride 4 mg at 1.6 a day: 28.6 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
+    "presentation": "4 mg tablet",
     "on_hand": 46,
     "daily_use": 1.6,
-    "days_on_hand": 29
+    "days_on_hand": 28.6
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "ondansetron hydrochloride is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Advanced Rx Pharmacy of Tennessee, LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D8": {
+   "id": "D8",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Advanced Rx of Tennessee, LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D9": {
+   "id": "D9",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Ascend Laboratories, LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-e2bbaf": {
-   "id": "Q-e2bbaf",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%ondansetron%' OR lower(s.description) LIKE '%ondansetron%' ORDER BY s.hospital, s.item_key",
-   "ms": 3992,
+  "Q-bd30da": {
+   "id": "Q-bd30da",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*ondansetron(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*ondansetron(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 9642,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T08:08:40.725Z",
+   "ranAt": "2026-10-22T12:27:09.938Z",
    "rows": 5
   },
   "Q-6d3721": {
    "id": "Q-6d3721",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('81366c85-c6c9-4a9a-9fe5-cdd8c2d19f74', '561dce26-92fa-e00b-e063-6294a90a1ab2') ORDER BY ps.set_id, ps.establishment",
-   "ms": 1037,
+   "ms": 1486,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:08:41.770Z",
+   "ranAt": "2026-10-22T12:27:11.426Z",
    "rows": 2
   },
-  "Q-4f8200": {
-   "id": "Q-4f8200",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%ondansetron%' ORDER BY status, company_name, package_ndc",
-   "ms": 259,
+  "Q-1b9bc6": {
+   "id": "Q-1b9bc6",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*ondansetron(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 426,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T08:08:42.034Z",
+   "ranAt": "2026-10-22T12:27:11.854Z",
    "rows": 0
   },
-  "Q-e13d39": {
-   "id": "Q-e13d39",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%ondansetron%' ORDER BY first_posting",
-   "ms": 271,
+  "Q-2c7558": {
+   "id": "Q-2c7558",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*ondansetron(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 452,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T08:08:42.307Z",
+   "ranAt": "2026-10-22T12:27:12.308Z",
    "rows": 2
   },
-  "Q-d365af": {
-   "id": "Q-d365af",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%ondansetron%' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2548,
+  "Q-aab617": {
+   "id": "Q-aab617",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*ondansetron(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 4894,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:08:44.859Z",
+   "ranAt": "2026-10-22T12:27:17.204Z",
    "rows": 706
   },
   "Q-ac4a53": {
    "id": "Q-ac4a53",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3005372033', '3011557028') ORDER BY fei, end_date",
-   "ms": 755,
+   "ms": 1052,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T08:08:45.621Z",
+   "ranAt": "2026-10-22T12:27:18.260Z",
    "rows": 6
   },
   "Q-dcd70f": {
    "id": "Q-dcd70f",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3005372033', '3011557028') ORDER BY fei, action_date",
-   "ms": 373,
+   "ms": 451,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T08:08:45.996Z",
+   "ranAt": "2026-10-22T12:27:18.713Z",
    "rows": 0
   },
   "Q-27e934": {
    "id": "Q-27e934",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3005372033', '3011557028') OR (fei_match <> 'name_and_city' AND firm_key IN ('dose solutions', 'proficient rx')) ORDER BY date_published",
-   "ms": 257,
+   "ms": 236,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T08:08:46.256Z",
+   "ranAt": "2026-10-22T12:27:18.951Z",
    "rows": 0
   },
-  "Q-297022": {
-   "id": "Q-297022",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('dose solutions', 'proficient rx') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%ondansetron%' ORDER BY initiation_date",
-   "ms": 323,
+  "Q-78149f": {
+   "id": "Q-78149f",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('dose solutions', 'proficient rx') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*ondansetron(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 275,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T08:08:46.583Z",
+   "ranAt": "2026-10-22T12:27:19.228Z",
    "rows": 0
   },
   "Q-24f645": {
    "id": "Q-24f645",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('63187025605', '87441008801')",
-   "ms": 1334,
+   "ms": 1224,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:08:47.925Z",
+   "ranAt": "2026-10-22T12:27:20.455Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-f36b87": {
-   "id": "Q-f36b87",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%ondansetron%'",
-   "ms": 2354,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:08:50.284Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-931f11": {
+   "id": "Q-931f11",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*ondansetron(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 4132,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:27:24.589Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 18874,
+  "zetarisMs": 34478,
   "modelCalls": 1,
-  "tokensIn": 1260,
-  "tokensOut": 324,
+  "tokensIn": 1752,
+  "tokensOut": 417,
   "mode": "live"
  },
  "slug": "ondansetron",
@@ -1870,7 +1922,7 @@
     "id": "hospital-item:hospital-item:CG-294",
     "type": "HospitalItem",
     "key": "hospital-item:CG-294",
-    "label": "Corvale General: Ondansetron",
+    "label": "Corvale General: Ondansetron 4 mg/1",
     "attrs": {
      "key": "hospital-item:CG-294"
     },
@@ -1881,7 +1933,7 @@
     "id": "hospital-item:hospital-item:CG-295",
     "type": "HospitalItem",
     "key": "hospital-item:CG-295",
-    "label": "Corvale General: Ondansetron Hydrochloride",
+    "label": "Corvale General: Ondansetron Hydrochloride 4 mg/1",
     "attrs": {
      "key": "hospital-item:CG-295"
     },
@@ -2031,7 +2083,7 @@
     },
     "facts": [
      {
-      "id": "fact_5d85a0b66b7fc586",
+      "id": "fact_0e1329e5bc940b2b",
       "about": "inspection:fda-inspection:1194148",
       "predicate": "classification",
       "value": "VAI",
@@ -2039,9 +2091,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:08:46.587Z"
+       "at": "2026-10-22T12:27:19.229Z"
       },
-      "assertedAt": "2026-10-22T08:08:46.587Z"
+      "assertedAt": "2026-10-22T12:27:19.229Z"
      }
     ],
     "depth": 4
@@ -2057,7 +2109,7 @@
     },
     "facts": [
      {
-      "id": "fact_12ca3b912754f96b",
+      "id": "fact_1ec7f099ea835295",
       "about": "inspection:fda-inspection:1319118",
       "predicate": "classification",
       "value": "VAI",
@@ -2065,9 +2117,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:08:46.587Z"
+       "at": "2026-10-22T12:27:19.230Z"
       },
-      "assertedAt": "2026-10-22T08:08:46.587Z"
+      "assertedAt": "2026-10-22T12:27:19.230Z"
      }
     ],
     "depth": 4
@@ -2083,7 +2135,7 @@
     },
     "facts": [
      {
-      "id": "fact_9085523e34a743a6",
+      "id": "fact_e5bbd8e57c32d832",
       "about": "inspection:fda-inspection:759830",
       "predicate": "classification",
       "value": "VAI",
@@ -2091,9 +2143,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:08:46.587Z"
+       "at": "2026-10-22T12:27:19.230Z"
       },
-      "assertedAt": "2026-10-22T08:08:46.587Z"
+      "assertedAt": "2026-10-22T12:27:19.230Z"
      }
     ],
     "depth": 4
@@ -2109,7 +2161,7 @@
     },
     "facts": [
      {
-      "id": "fact_decf197ca447d221",
+      "id": "fact_baa6ece6258e3ab5",
       "about": "inspection:fda-inspection:935243",
       "predicate": "classification",
       "value": "VAI",
@@ -2117,9 +2169,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:08:46.587Z"
+       "at": "2026-10-22T12:27:19.230Z"
       },
-      "assertedAt": "2026-10-22T08:08:46.587Z"
+      "assertedAt": "2026-10-22T12:27:19.230Z"
      }
     ],
     "depth": 4
@@ -2135,7 +2187,7 @@
     },
     "facts": [
      {
-      "id": "fact_9916f25be15e3153",
+      "id": "fact_f681646ffe9c5f53",
       "about": "inspection:fda-inspection:948193",
       "predicate": "classification",
       "value": "VAI",
@@ -2143,9 +2195,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:08:46.587Z"
+       "at": "2026-10-22T12:27:19.229Z"
       },
-      "assertedAt": "2026-10-22T08:08:46.587Z"
+      "assertedAt": "2026-10-22T12:27:19.229Z"
      }
     ],
     "depth": 4
@@ -2157,11 +2209,11 @@
     "from": "hospital-item:hospital-item:CG-294",
     "to": "package:ndc-package:63187-256-05",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:08:40.730Z",
+    "validFrom": "2026-10-22T12:27:09.940Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:40.730Z"
+     "at": "2026-10-22T12:27:09.940Z"
     }
    },
    {
@@ -2169,11 +2221,11 @@
     "from": "hospital-item:hospital-item:CG-295",
     "to": "package:ndc-package:87441-088-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:08:40.731Z",
+    "validFrom": "2026-10-22T12:27:09.940Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:40.731Z"
+     "at": "2026-10-22T12:27:09.940Z"
     }
    },
    {
@@ -2181,11 +2233,11 @@
     "from": "hospital-item:hospital-item:EA-E-000208",
     "to": "package:ndc-package:63187-256-05",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:08:40.729Z",
+    "validFrom": "2026-10-22T12:27:09.940Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:40.729Z"
+     "at": "2026-10-22T12:27:09.940Z"
     }
    },
    {
@@ -2193,11 +2245,11 @@
     "from": "hospital-item:hospital-item:EA-E-000326",
     "to": "package:ndc-package:87441-088-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:08:40.730Z",
+    "validFrom": "2026-10-22T12:27:09.940Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:40.730Z"
+     "at": "2026-10-22T12:27:09.940Z"
     }
    },
    {
@@ -2205,11 +2257,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0140",
     "to": "package:ndc-package:87441-088-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:08:40.732Z",
+    "validFrom": "2026-10-22T12:27:09.940Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:40.732Z"
+     "at": "2026-10-22T12:27:09.940Z"
     }
    },
    {
@@ -2217,11 +2269,11 @@
     "from": "package:ndc-package:63187-256-05",
     "to": "product:ndc-product:63187-256",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:08:40.729Z",
+    "validFrom": "2026-10-22T12:27:09.940Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:40.729Z"
+     "at": "2026-10-22T12:27:09.940Z"
     }
    },
    {
@@ -2229,11 +2281,11 @@
     "from": "package:ndc-package:87441-088-01",
     "to": "product:ndc-product:87441-088",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:08:40.730Z",
+    "validFrom": "2026-10-22T12:27:09.940Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:40.730Z"
+     "at": "2026-10-22T12:27:09.940Z"
     }
    },
    {
@@ -2241,11 +2293,11 @@
     "from": "product:ndc-product:63187-256",
     "to": "drug:generic:ondansetron hydrochloride",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:08:40.729Z",
+    "validFrom": "2026-10-22T12:27:09.940Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:40.729Z"
+     "at": "2026-10-22T12:27:09.940Z"
     }
    },
    {
@@ -2253,11 +2305,11 @@
     "from": "product:ndc-product:63187-256",
     "to": "labeler:ndc-labeler:63187",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:08:40.729Z",
+    "validFrom": "2026-10-22T12:27:09.940Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:40.729Z"
+     "at": "2026-10-22T12:27:09.940Z"
     }
    },
    {
@@ -2265,11 +2317,11 @@
     "from": "product:ndc-product:63187-256",
     "to": "site:fei:3011557028",
     "type": "made-at",
-    "validFrom": "2026-10-22T08:08:46.587Z",
+    "validFrom": "2026-10-22T12:27:19.229Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:46.587Z"
+     "at": "2026-10-22T12:27:19.229Z"
     }
    },
    {
@@ -2277,11 +2329,11 @@
     "from": "product:ndc-product:87441-088",
     "to": "drug:generic:ondansetron hydrochloride",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:08:40.730Z",
+    "validFrom": "2026-10-22T12:27:09.940Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:40.730Z"
+     "at": "2026-10-22T12:27:09.940Z"
     }
    },
    {
@@ -2289,11 +2341,11 @@
     "from": "product:ndc-product:87441-088",
     "to": "labeler:ndc-labeler:87441",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:08:40.730Z",
+    "validFrom": "2026-10-22T12:27:09.940Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:40.730Z"
+     "at": "2026-10-22T12:27:09.940Z"
     }
    },
    {
@@ -2301,11 +2353,11 @@
     "from": "product:ndc-product:87441-088",
     "to": "site:fei:3005372033",
     "type": "made-at",
-    "validFrom": "2026-10-22T08:08:46.587Z",
+    "validFrom": "2026-10-22T12:27:19.230Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:46.587Z"
+     "at": "2026-10-22T12:27:19.230Z"
     }
    },
    {
@@ -2313,11 +2365,11 @@
     "from": "inspection:fda-inspection:948193",
     "to": "site:fei:3011557028",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:08:46.587Z",
+    "validFrom": "2026-10-22T12:27:19.229Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:46.587Z"
+     "at": "2026-10-22T12:27:19.229Z"
     }
    },
    {
@@ -2325,11 +2377,11 @@
     "from": "inspection:fda-inspection:1194148",
     "to": "site:fei:3011557028",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:08:46.587Z",
+    "validFrom": "2026-10-22T12:27:19.229Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:46.587Z"
+     "at": "2026-10-22T12:27:19.229Z"
     }
    },
    {
@@ -2337,11 +2389,11 @@
     "from": "inspection:fda-inspection:759830",
     "to": "site:fei:3005372033",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:08:46.587Z",
+    "validFrom": "2026-10-22T12:27:19.230Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:46.587Z"
+     "at": "2026-10-22T12:27:19.230Z"
     }
    },
    {
@@ -2349,11 +2401,11 @@
     "from": "inspection:fda-inspection:935243",
     "to": "site:fei:3005372033",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:08:46.587Z",
+    "validFrom": "2026-10-22T12:27:19.230Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:46.587Z"
+     "at": "2026-10-22T12:27:19.230Z"
     }
    },
    {
@@ -2361,11 +2413,11 @@
     "from": "inspection:fda-inspection:1319118",
     "to": "site:fei:3005372033",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:08:46.587Z",
+    "validFrom": "2026-10-22T12:27:19.230Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:08:46.587Z"
+     "at": "2026-10-22T12:27:19.230Z"
     }
    }
   ],

@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-1e2860",
+ "id": "case-2026-10-22-705e15",
  "question": "Why is lisinopril short, and what do we do?",
- "askedAt": "2026-10-22T07:58:36.785Z",
+ "askedAt": "2026-10-22T12:16:22.630Z",
  "asOf": "2026-10-21",
  "molecule": "lisinopril",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H9WM6SRYYQEBS8152065TJ",
+  "contractId": "01M5HRMN7VDWS9NHC22H44HDC1",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-b99ec6"
+    "Q-ef4007"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3534,
+   "ms": 4285,
    "rows": 2,
-   "finding": "2 stock lines across 2 hospitals.",
+   "finding": "2 stock lines across 2 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-539850"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1040,
+   "ms": 577,
    "rows": 2,
    "finding": "2 plant links on 1 labels; 2 placed in FDA's registration file.",
    "status": "ok"
@@ -46,15 +51,15 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-08f2cb",
-    "Q-c93154"
+    "Q-4378c7",
+    "Q-a83956"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 495,
-   "rows": 2,
+   "ms": 315,
+   "rows": 1,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
   },
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-c28acf"
+    "Q-35f38b"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2362,
+   "ms": 1506,
    "rows": 1037,
    "finding": "46 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-d36c7b",
     "Q-1564c0",
     "Q-3e2025",
-    "Q-4e5b2c"
+    "Q-bca68d"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1132,
+   "ms": 850,
    "rows": 18,
    "finding": "18 inspections (1 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,7 +111,7 @@
    "sources": [
     "fda.citations"
    ],
-   "ms": 332,
+   "ms": 221,
    "rows": 0,
    "finding": "0 Form 483 observations recorded.",
    "status": "empty"
@@ -119,9 +126,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1270,
+   "ms": 740,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -129,19 +136,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-60a894"
+    "Q-e29ea8"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1622,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1594,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -152,7 +163,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 3,
+   "ms": 1,
    "rows": 2,
    "finding": "2 past decisions recalled.",
    "status": "ok"
@@ -168,22 +179,65 @@
    "onHand": 279,
    "dailyUse": 12.527,
    "days": 22.3,
-   "unit": "package",
+   "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 100, converted to units",
+   "presentation": "lisinopril|10mg|tablet||tablet",
+   "presentationLabel": "10 mg tablet",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-262",
    "ndc11": "65862003901",
-   "description": "Lisinopril",
+   "description": "Lisinopril 10 mg/1",
    "labeler": "Aurobindo Pharma Limited",
-   "onHand": 317.52,
+   "onHand": 317,
    "dailyUse": 14.06,
-   "days": 22.6,
+   "days": 22.5,
    "unit": "tablet",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "lisinopril|10mg|tablet||tablet",
+   "presentationLabel": "10 mg tablet",
    "evidence": "E2"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "lisinopril|10mg|tablet||tablet",
+   "label": "10 mg tablet",
+   "short": "10 mg",
+   "unit": "tablet",
+   "onHand": 596,
+   "dailyUse": 26.587,
+   "days": 22.4,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 279,
+     "dailyUse": 12.527,
+     "days": 22.3,
+     "lines": [
+      "EA-E-000226"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 317,
+     "dailyUse": 14.06,
+     "days": 22.5,
+     "lines": [
+      "CG-262"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -737,15 +791,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from A-S Medication Solutions",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Actavis Pharma, Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -773,33 +818,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from American Health Packaging",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Aphena Pharma Solutions - Tennessee, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Asclemed USA, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from BluePoint Laboratories",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -809,25 +827,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Bryant Ranch Prepack",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Camber Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Cardinal Health 107, LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -855,15 +855,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Coupler LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Direct_Rx",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -953,78 +944,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Northwind Health Company, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals,Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from NuCarePharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from PD-Rx Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Preferred Pharmaceuticals Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Preferred Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Proficient Rx LP",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from QPharma Inc",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -1043,25 +962,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Quality Care Products LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Quallent Pharmaceuticals Health LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from REMEDYREPACK INC.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -1220,31 +1121,43 @@
   }
  ],
  "explanation": {
-  "state": "confirmed",
-  "headline": "FDA's records trace this shortage to a plant on our own labels",
+  "state": "check",
+  "headline": "Lisinopril is not on FDA's shortage list as of 2026-10-21; Corvale sites hold 22.3 and 22.5 days on hand",
   "sentences": [
    {
-    "text": "Corvale East has 22 days of lisinopril on hand and Corvale General has 23 days on hand.",
+    "text": "FDA's drug shortage list does not include lisinopril as of 2026-10-21.",
     "cites": [
-     "D1",
+     "D3"
+    ]
+   },
+   {
+    "text": "Corvale East holds 279 tablets of lisinopril 10 mg at 12.5 tablets per day, providing 22.3 days on hand.",
+    "cites": [
+     "D1"
+    ]
+   },
+   {
+    "text": "Corvale General holds 317 tablets of lisinopril 10 mg at 14.1 tablets per day, providing 22.5 days on hand.",
+    "cites": [
      "D2"
     ]
    },
    {
-    "text": "The product label lists Aurobindo Pharma Limited as a registered manufacturing plant with FEI 3004021229.",
+    "text": "A label for NDC 65862003901 names APL HEALTHCARE LIMITED (FEI 3011895410) as a registered plant with a VAI inspection on 2025-12-17.",
+    "cites": [
+     "E5"
+    ]
+   },
+   {
+    "text": "The same label names Aurobindo Pharma Limited (FEI 3004021229) as a registered plant with a VAI inspection on 2023-07-21.",
     "cites": [
      "E14"
     ]
    },
    {
-    "text": "FDA inspection 684552 of that plant ended on 2010-09-24 and was classified OAI, with the classification known on 2010-12-23.",
+    "text": "Aurobindo Pharma Ltd (FEI 3004021229) received an OAI classification on 2010-09-24 and multiple VAI classifications through 2023-07-21.",
     "cites": [
-     "E6"
-    ]
-   },
-   {
-    "text": "Subsequent inspections of the same plant from 2011 through 2023 were all classified VAI.",
-    "cites": [
+     "E6",
      "E7",
      "E8",
      "E9",
@@ -1255,29 +1168,15 @@
     ]
    },
    {
-    "text": "The label also names APL HEALTHCARE LIMITED (FEI 3011895410) as a registered plant, whose most recent inspection in 2025-12-17 was VAI.",
+    "text": "The rule-based best option is to buy from Actavis Pharma, Inc., which is not on FDA's shortage list today and whose label names no plant we could place.",
     "cites": [
-     "E5",
-     "E4"
+     "D4"
     ]
    }
   ],
   "verifier": {
    "checked": 8,
-   "rejected": [
-    {
-     "text": "That OAI classification occurred 5724 days before the posting date of 2026-10-21.",
-     "reason": "date 2026-10-21 is not in the cited evidence"
-    },
-    {
-     "text": "The best option by rule is to buy from A-S Medication Solutions, which is not on FDA's shortage list today and its label names no plant we could place.",
-     "reason": "cites nothing"
-    },
-    {
-     "text": "FDA's records trace our supply to a plant classified OAI 5724 days before the posting",
-     "reason": "headline: number 5724 is not in the cited evidence"
-    }
-   ],
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -1285,45 +1184,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -1345,87 +1265,87 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:58:24.986Z",
+   "at": "2026-10-22T12:16:12.540Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract 152065TJ scope"
+   "reason": "in contract 2H44HDC1 scope"
   },
   {
-   "at": "2026-10-22T07:58:24.987Z",
+   "at": "2026-10-22T12:16:12.540Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 152065TJ scope"
+   "reason": "in contract 2H44HDC1 scope"
   },
   {
-   "at": "2026-10-22T07:58:28.522Z",
+   "at": "2026-10-22T12:16:16.826Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 152065TJ scope"
+   "reason": "in contract 2H44HDC1 scope"
   },
   {
-   "at": "2026-10-22T07:58:29.561Z",
+   "at": "2026-10-22T12:16:17.402Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 152065TJ scope"
+   "reason": "in contract 2H44HDC1 scope"
   },
   {
-   "at": "2026-10-22T07:58:30.056Z",
+   "at": "2026-10-22T12:16:17.717Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 152065TJ scope"
+   "reason": "in contract 2H44HDC1 scope"
   },
   {
-   "at": "2026-10-22T07:58:32.419Z",
+   "at": "2026-10-22T12:16:19.223Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 152065TJ scope"
+   "reason": "in contract 2H44HDC1 scope"
   },
   {
-   "at": "2026-10-22T07:58:33.552Z",
+   "at": "2026-10-22T12:16:20.073Z",
    "action": "What FDA wrote at the OAI inspections",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 152065TJ scope"
+   "reason": "in contract 2H44HDC1 scope"
   },
   {
-   "at": "2026-10-22T07:58:33.891Z",
+   "at": "2026-10-22T12:16:20.295Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 152065TJ scope"
+   "reason": "in contract 2H44HDC1 scope"
   },
   {
-   "at": "2026-10-22T07:58:35.161Z",
+   "at": "2026-10-22T12:16:21.035Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 152065TJ scope"
+   "reason": "in contract 2H44HDC1 scope"
   },
   {
-   "at": "2026-10-22T07:58:36.782Z",
+   "at": "2026-10-22T12:16:22.629Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract 152065TJ scope"
+   "reason": "in contract 2H44HDC1 scope"
   },
   {
-   "at": "2026-10-22T07:58:36.786Z",
+   "at": "2026-10-22T12:16:22.630Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract 152065TJ scope"
+   "reason": "in contract 2H44HDC1 scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-b99ec6",
+   "queryId": "Q-ef4007",
    "row": 0,
    "label": "Corvale East: LISINOPRIL 10MG TAB",
    "fields": {
@@ -1436,37 +1356,47 @@
     "description": "LISINOPRIL 10MG TAB",
     "on_hand": "279.00",
     "daily_use": "12.527",
-    "unit": "package",
+    "unit": "tablet",
+    "pkg_units": "100.00",
+    "unit_basis": "packages of 100, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Lisinopril",
     "labeler_name": "Aurobindo Pharma Limited",
     "package_ndc": "65862-039-01",
     "spl_set_id": "0e6364a4-6d66-4151-8197-d45e2a762895",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "LISINOPRIL 10 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-b99ec6",
+   "queryId": "Q-ef4007",
    "row": 1,
-   "label": "Corvale General: Lisinopril",
+   "label": "Corvale General: Lisinopril 10 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-262",
     "ndc11": "65862003901",
     "ndc_as_recorded": "65862003901",
-    "description": "Lisinopril",
-    "on_hand": "317.52",
+    "description": "Lisinopril 10 mg/1",
+    "on_hand": "317.00",
     "daily_use": "14.060",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Lisinopril",
     "labeler_name": "Aurobindo Pharma Limited",
     "package_ndc": "65862-039-01",
     "spl_set_id": "0e6364a4-6d66-4151-8197-d45e2a762895",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "LISINOPRIL 10 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E3": {
@@ -1665,196 +1595,257 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 279 units of lisinopril at 12.5 a day: 22 days on hand",
+   "label": "Corvale East holds 279 tablets of lisinopril 10 mg at 12.5 a day: 22.3 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "10 mg tablet",
     "on_hand": 279,
     "daily_use": 12.5,
-    "days_on_hand": 22
+    "days_on_hand": 22.3
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 318 units of lisinopril at 14.1 a day: 23 days on hand",
+   "label": "Corvale General holds 317 tablets of lisinopril 10 mg at 14.1 a day: 22.5 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 318,
+    "presentation": "10 mg tablet",
+    "on_hand": 317,
     "daily_use": 14.1,
-    "days_on_hand": 23
+    "days_on_hand": 22.5
+   }
+  },
+  "D3": {
+   "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "lisinopril is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Actavis Pharma, Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Advanced Rx Pharmacy of Tennessee, LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Almatica Pharma Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-b99ec6": {
-   "id": "Q-b99ec6",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%lisinopril%' OR lower(s.description) LIKE '%lisinopril%' ORDER BY s.hospital, s.item_key",
-   "ms": 3530,
+  "Q-ef4007": {
+   "id": "Q-ef4007",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*lisinopril(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*lisinopril(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 4284,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:58:28.517Z",
+   "ranAt": "2026-10-22T12:16:16.824Z",
    "rows": 2
   },
   "Q-539850": {
    "id": "Q-539850",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('0e6364a4-6d66-4151-8197-d45e2a762895') ORDER BY ps.set_id, ps.establishment",
-   "ms": 1035,
+   "ms": 575,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:58:29.557Z",
+   "ranAt": "2026-10-22T12:16:17.401Z",
    "rows": 2
   },
-  "Q-08f2cb": {
-   "id": "Q-08f2cb",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%lisinopril%' ORDER BY status, company_name, package_ndc",
-   "ms": 263,
+  "Q-4378c7": {
+   "id": "Q-4378c7",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*lisinopril(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 150,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:58:29.824Z",
+   "ranAt": "2026-10-22T12:16:17.552Z",
    "rows": 0
   },
-  "Q-c93154": {
-   "id": "Q-c93154",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%lisinopril%' ORDER BY first_posting",
-   "ms": 225,
+  "Q-a83956": {
+   "id": "Q-a83956",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*lisinopril(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 162,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:58:30.053Z",
-   "rows": 2
+   "ranAt": "2026-10-22T12:16:17.715Z",
+   "rows": 1
   },
-  "Q-c28acf": {
-   "id": "Q-c28acf",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%lisinopril%' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2353,
+  "Q-35f38b": {
+   "id": "Q-35f38b",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*lisinopril(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1503,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:58:32.409Z",
+   "ranAt": "2026-10-22T12:16:19.220Z",
    "rows": 1037
   },
   "Q-d36c7b": {
    "id": "Q-d36c7b",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3011895410', '3004021229') ORDER BY fei, end_date",
-   "ms": 430,
+   "ms": 351,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:58:32.850Z",
+   "ranAt": "2026-10-22T12:16:19.574Z",
    "rows": 18
   },
   "Q-1564c0": {
    "id": "Q-1564c0",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3011895410', '3004021229') ORDER BY fei, action_date",
-   "ms": 240,
+   "ms": 140,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:58:33.094Z",
+   "ranAt": "2026-10-22T12:16:19.715Z",
    "rows": 0
   },
   "Q-3e2025": {
    "id": "Q-3e2025",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3011895410', '3004021229') OR (fei_match <> 'name_and_city' AND firm_key IN ('apl', 'aurobindo')) ORDER BY date_published",
-   "ms": 228,
+   "ms": 133,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:58:33.326Z",
+   "ranAt": "2026-10-22T12:16:19.849Z",
    "rows": 0
   },
-  "Q-4e5b2c": {
-   "id": "Q-4e5b2c",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('apl', 'aurobindo') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%lisinopril%' ORDER BY initiation_date",
-   "ms": 219,
+  "Q-bca68d": {
+   "id": "Q-bca68d",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('apl', 'aurobindo') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*lisinopril(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 222,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:58:33.548Z",
+   "ranAt": "2026-10-22T12:16:20.072Z",
    "rows": 0
   },
   "Q-1aae22": {
    "id": "Q-1aae22",
    "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('684552') ORDER BY inspection_id, cfr",
-   "ms": 328,
+   "ms": 219,
    "mode": "live",
    "sources": [
     "fda.citations"
    ],
-   "ranAt": "2026-10-22T07:58:33.879Z",
+   "ranAt": "2026-10-22T12:16:20.292Z",
    "rows": 0
   },
   "Q-42ee93": {
    "id": "Q-42ee93",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('65862003901')",
-   "ms": 1265,
+   "ms": 739,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:58:35.156Z",
+   "ranAt": "2026-10-22T12:16:21.034Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-60a894": {
-   "id": "Q-60a894",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%lisinopril%'",
-   "ms": 1617,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:58:36.779Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-e29ea8": {
+   "id": "Q-e29ea8",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*lisinopril(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1592,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:16:22.627Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 15,
-  "zetarisMs": 17104,
+  "zetarisMs": 20278,
   "modelCalls": 1,
-  "tokensIn": 1747,
-  "tokensOut": 456,
+  "tokensIn": 2088,
+  "tokensOut": 545,
   "mode": "live"
  },
  "slug": "lisinopril",
@@ -1868,7 +1859,7 @@
     "id": "hospital-item:hospital-item:CG-262",
     "type": "HospitalItem",
     "key": "hospital-item:CG-262",
-    "label": "Corvale General: Lisinopril",
+    "label": "Corvale General: Lisinopril 10 mg/1",
     "attrs": {
      "key": "hospital-item:CG-262"
     },
@@ -1963,7 +1954,7 @@
     },
     "facts": [
      {
-      "id": "fact_f2178f7197971cd6",
+      "id": "fact_048273d8f51ccfba",
       "about": "inspection:fda-inspection:1010385",
       "predicate": "classification",
       "value": "VAI",
@@ -1971,9 +1962,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:58:33.885Z"
+       "at": "2026-10-22T12:16:20.294Z"
       },
-      "assertedAt": "2026-10-22T07:58:33.885Z"
+      "assertedAt": "2026-10-22T12:16:20.294Z"
      }
     ],
     "depth": 4
@@ -1989,7 +1980,7 @@
     },
     "facts": [
      {
-      "id": "fact_4c42f3d60b54ebfb",
+      "id": "fact_1ec9e6afb3c0582b",
       "about": "inspection:fda-inspection:1061698",
       "predicate": "classification",
       "value": "VAI",
@@ -1997,9 +1988,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:58:33.885Z"
+       "at": "2026-10-22T12:16:20.294Z"
       },
-      "assertedAt": "2026-10-22T07:58:33.885Z"
+      "assertedAt": "2026-10-22T12:16:20.294Z"
      }
     ],
     "depth": 4
@@ -2015,7 +2006,7 @@
     },
     "facts": [
      {
-      "id": "fact_34502da58da66f16",
+      "id": "fact_7f3c3e9e3effda98",
       "about": "inspection:fda-inspection:1090627",
       "predicate": "classification",
       "value": "VAI",
@@ -2023,9 +2014,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:58:33.885Z"
+       "at": "2026-10-22T12:16:20.294Z"
       },
-      "assertedAt": "2026-10-22T07:58:33.885Z"
+      "assertedAt": "2026-10-22T12:16:20.294Z"
      }
     ],
     "depth": 4
@@ -2041,7 +2032,7 @@
     },
     "facts": [
      {
-      "id": "fact_78724cff1dad5763",
+      "id": "fact_cb8b6dd8cb43738e",
       "about": "inspection:fda-inspection:1121028",
       "predicate": "classification",
       "value": "VAI",
@@ -2049,9 +2040,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:58:33.884Z"
+       "at": "2026-10-22T12:16:20.294Z"
       },
-      "assertedAt": "2026-10-22T07:58:33.884Z"
+      "assertedAt": "2026-10-22T12:16:20.294Z"
      }
     ],
     "depth": 4
@@ -2067,7 +2058,7 @@
     },
     "facts": [
      {
-      "id": "fact_f1d7f64e38b2e350",
+      "id": "fact_d0d6a9225cf179e8",
       "about": "inspection:fda-inspection:1155879",
       "predicate": "classification",
       "value": "VAI",
@@ -2075,9 +2066,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:58:33.886Z"
+       "at": "2026-10-22T12:16:20.294Z"
       },
-      "assertedAt": "2026-10-22T07:58:33.886Z"
+      "assertedAt": "2026-10-22T12:16:20.294Z"
      }
     ],
     "depth": 4
@@ -2093,7 +2084,7 @@
     },
     "facts": [
      {
-      "id": "fact_ad2a29b095316d9b",
+      "id": "fact_85035c187cf5b1e4",
       "about": "inspection:fda-inspection:1210950",
       "predicate": "classification",
       "value": "VAI",
@@ -2101,9 +2092,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:58:33.886Z"
+       "at": "2026-10-22T12:16:20.295Z"
       },
-      "assertedAt": "2026-10-22T07:58:33.886Z"
+      "assertedAt": "2026-10-22T12:16:20.295Z"
      }
     ],
     "depth": 4
@@ -2119,7 +2110,7 @@
     },
     "facts": [
      {
-      "id": "fact_08f796040378b124",
+      "id": "fact_f726dca2b31e00d0",
       "about": "inspection:fda-inspection:1295002",
       "predicate": "classification",
       "value": "VAI",
@@ -2127,9 +2118,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:58:33.884Z"
+       "at": "2026-10-22T12:16:20.294Z"
       },
-      "assertedAt": "2026-10-22T07:58:33.884Z"
+      "assertedAt": "2026-10-22T12:16:20.294Z"
      }
     ],
     "depth": 4
@@ -2145,7 +2136,7 @@
     },
     "facts": [
      {
-      "id": "fact_ebf4f500711e3190",
+      "id": "fact_2ffdef9414093c9b",
       "about": "inspection:fda-inspection:684552",
       "predicate": "classification",
       "value": "OAI",
@@ -2153,9 +2144,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:58:33.884Z"
+       "at": "2026-10-22T12:16:20.294Z"
       },
-      "assertedAt": "2026-10-22T07:58:33.884Z"
+      "assertedAt": "2026-10-22T12:16:20.294Z"
      }
     ],
     "depth": 4
@@ -2171,7 +2162,7 @@
     },
     "facts": [
      {
-      "id": "fact_74e8fee13fd1e3af",
+      "id": "fact_394afeb6c1f86c03",
       "about": "inspection:fda-inspection:750125",
       "predicate": "classification",
       "value": "VAI",
@@ -2179,9 +2170,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:58:33.884Z"
+       "at": "2026-10-22T12:16:20.294Z"
       },
-      "assertedAt": "2026-10-22T07:58:33.884Z"
+      "assertedAt": "2026-10-22T12:16:20.294Z"
      }
     ],
     "depth": 4
@@ -2197,7 +2188,7 @@
     },
     "facts": [
      {
-      "id": "fact_7071875e41448f71",
+      "id": "fact_b76dd0f84e5d77a9",
       "about": "inspection:fda-inspection:940768",
       "predicate": "classification",
       "value": "VAI",
@@ -2205,9 +2196,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:58:33.885Z"
+       "at": "2026-10-22T12:16:20.294Z"
       },
-      "assertedAt": "2026-10-22T07:58:33.885Z"
+      "assertedAt": "2026-10-22T12:16:20.294Z"
      }
     ],
     "depth": 4
@@ -2219,11 +2210,11 @@
     "from": "hospital-item:hospital-item:CG-262",
     "to": "package:ndc-package:65862-039-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:58:28.521Z",
+    "validFrom": "2026-10-22T12:16:16.825Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:28.521Z"
+     "at": "2026-10-22T12:16:16.825Z"
     }
    },
    {
@@ -2231,11 +2222,11 @@
     "from": "hospital-item:hospital-item:EA-E-000226",
     "to": "package:ndc-package:65862-039-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:58:28.520Z",
+    "validFrom": "2026-10-22T12:16:16.825Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:28.520Z"
+     "at": "2026-10-22T12:16:16.825Z"
     }
    },
    {
@@ -2243,11 +2234,11 @@
     "from": "package:ndc-package:65862-039-01",
     "to": "product:ndc-product:65862-039",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:58:28.521Z",
+    "validFrom": "2026-10-22T12:16:16.825Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:28.521Z"
+     "at": "2026-10-22T12:16:16.825Z"
     }
    },
    {
@@ -2255,11 +2246,11 @@
     "from": "product:ndc-product:65862-039",
     "to": "drug:generic:lisinopril",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:58:28.521Z",
+    "validFrom": "2026-10-22T12:16:16.825Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:28.521Z"
+     "at": "2026-10-22T12:16:16.825Z"
     }
    },
    {
@@ -2267,11 +2258,11 @@
     "from": "product:ndc-product:65862-039",
     "to": "labeler:ndc-labeler:65862",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:58:28.521Z",
+    "validFrom": "2026-10-22T12:16:16.825Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:28.521Z"
+     "at": "2026-10-22T12:16:16.825Z"
     }
    },
    {
@@ -2279,11 +2270,11 @@
     "from": "product:ndc-product:65862-039",
     "to": "site:fei:3011895410",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:58:33.883Z",
+    "validFrom": "2026-10-22T12:16:20.294Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:33.883Z"
+     "at": "2026-10-22T12:16:20.294Z"
     }
    },
    {
@@ -2291,11 +2282,11 @@
     "from": "product:ndc-product:65862-039",
     "to": "site:fei:3004021229",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:58:33.884Z",
+    "validFrom": "2026-10-22T12:16:20.294Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:33.884Z"
+     "at": "2026-10-22T12:16:20.294Z"
     }
    },
    {
@@ -2303,11 +2294,11 @@
     "from": "inspection:fda-inspection:1121028",
     "to": "site:fei:3011895410",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:58:33.884Z",
+    "validFrom": "2026-10-22T12:16:20.294Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:33.884Z"
+     "at": "2026-10-22T12:16:20.294Z"
     }
    },
    {
@@ -2315,11 +2306,11 @@
     "from": "inspection:fda-inspection:1295002",
     "to": "site:fei:3011895410",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:58:33.884Z",
+    "validFrom": "2026-10-22T12:16:20.294Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:33.884Z"
+     "at": "2026-10-22T12:16:20.294Z"
     }
    },
    {
@@ -2327,11 +2318,11 @@
     "from": "inspection:fda-inspection:684552",
     "to": "site:fei:3004021229",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:58:33.884Z",
+    "validFrom": "2026-10-22T12:16:20.294Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:33.884Z"
+     "at": "2026-10-22T12:16:20.294Z"
     }
    },
    {
@@ -2339,11 +2330,11 @@
     "from": "inspection:fda-inspection:750125",
     "to": "site:fei:3004021229",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:58:33.884Z",
+    "validFrom": "2026-10-22T12:16:20.294Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:33.884Z"
+     "at": "2026-10-22T12:16:20.294Z"
     }
    },
    {
@@ -2351,11 +2342,11 @@
     "from": "inspection:fda-inspection:940768",
     "to": "site:fei:3004021229",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:58:33.885Z",
+    "validFrom": "2026-10-22T12:16:20.294Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:33.885Z"
+     "at": "2026-10-22T12:16:20.294Z"
     }
    },
    {
@@ -2363,11 +2354,11 @@
     "from": "inspection:fda-inspection:1010385",
     "to": "site:fei:3004021229",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:58:33.885Z",
+    "validFrom": "2026-10-22T12:16:20.294Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:33.885Z"
+     "at": "2026-10-22T12:16:20.294Z"
     }
    },
    {
@@ -2375,11 +2366,11 @@
     "from": "inspection:fda-inspection:1061698",
     "to": "site:fei:3004021229",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:58:33.885Z",
+    "validFrom": "2026-10-22T12:16:20.294Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:33.885Z"
+     "at": "2026-10-22T12:16:20.294Z"
     }
    },
    {
@@ -2387,11 +2378,11 @@
     "from": "inspection:fda-inspection:1090627",
     "to": "site:fei:3004021229",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:58:33.885Z",
+    "validFrom": "2026-10-22T12:16:20.294Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:33.885Z"
+     "at": "2026-10-22T12:16:20.294Z"
     }
    },
    {
@@ -2399,11 +2390,11 @@
     "from": "inspection:fda-inspection:1155879",
     "to": "site:fei:3004021229",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:58:33.885Z",
+    "validFrom": "2026-10-22T12:16:20.294Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:33.885Z"
+     "at": "2026-10-22T12:16:20.294Z"
     }
    },
    {
@@ -2411,11 +2402,11 @@
     "from": "inspection:fda-inspection:1210950",
     "to": "site:fei:3004021229",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:58:33.886Z",
+    "validFrom": "2026-10-22T12:16:20.294Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:58:33.886Z"
+     "at": "2026-10-22T12:16:20.294Z"
     }
    }
   ],

@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-6ce990",
+ "id": "case-2026-10-22-8dc0c4",
  "question": "Why is valproate sodium short, and what do we do?",
- "askedAt": "2026-10-22T09:07:00.788Z",
+ "askedAt": "2026-10-22T12:47:29.845Z",
  "asOf": "2026-10-21",
  "molecule": "valproate sodium",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5HDSSS34130PHCJ76HCVAMX",
+  "contractId": "01M5HTDPVY3HGVN01PEHXTCJBG",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-70cbc8"
+    "Q-23aae3"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3825,
+   "ms": 2941,
    "rows": 5,
-   "finding": "5 stock lines across 3 hospitals.",
+   "finding": "5 stock lines across 3 hospitals, 2 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-54e775"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1102,
+   "ms": 427,
    "rows": 2,
    "finding": "2 plant links on 2 labels; 2 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-5c92fa",
-    "Q-ff5864"
+    "Q-20c765",
+    "Q-5c0b8f"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 585,
+   "ms": 213,
    "rows": 3,
    "finding": "On FDA's list as Current for 2 companies.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-1dd636"
+    "Q-f6ea24"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2903,
+   "ms": 1153,
    "rows": 5,
    "finding": "3 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-c91714",
     "Q-e37b08",
     "Q-628d2b",
-    "Q-7fae75"
+    "Q-e4aeed"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1645,
+   "ms": 603,
    "rows": 25,
    "finding": "23 inspections (3 OAI at our plants), 2 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,7 +111,7 @@
    "sources": [
     "fda.citations"
    ],
-   "ms": 447,
+   "ms": 129,
    "rows": 14,
    "finding": "14 Form 483 observations recorded.",
    "status": "ok"
@@ -119,9 +126,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1720,
+   "ms": 885,
    "rows": 2,
    "finding": "2 approved interchanges on file.",
    "status": "ok"
@@ -129,19 +136,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-c9efd2"
+    "Q-f0ed12"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1864,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1507,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -152,7 +163,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 2,
+   "ms": 1,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -168,8 +179,11 @@
    "onHand": 56,
    "dailyUse": 3.281,
    "days": 17.1,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "valproate sodium|500mg/5ml|injection|5ml|vial",
+   "presentationLabel": "500 mg/5 mL injection, 5 mL vial",
    "evidence": "E1"
   },
   {
@@ -181,34 +195,43 @@
    "onHand": 13,
    "dailyUse": 3.425,
    "days": 3.8,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "valproate sodium|100mg/ml|injection|5ml|vial",
+   "presentationLabel": "100 mg/mL injection, 5 mL vial",
    "evidence": "E2"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-126",
    "ndc11": "00143978510",
-   "description": "Valproate Sodium",
+   "description": "Valproate Sodium 500 mg/5mL",
    "labeler": "Hikma Pharmaceuticals USA Inc.",
-   "onHand": 58.85,
+   "onHand": 58,
    "dailyUse": 4.356,
-   "days": 13.5,
+   "days": 13.3,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "valproate sodium|500mg/5ml|injection|5ml|vial",
+   "presentationLabel": "500 mg/5 mL injection, 5 mL vial",
    "evidence": "E3"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-127",
    "ndc11": "63323049405",
-   "description": "VALPROATE SODIUM",
+   "description": "VALPROATE SODIUM 100 mg/mL",
    "labeler": "Fresenius Kabi USA, LLC",
-   "onHand": 64.48,
+   "onHand": 64,
    "dailyUse": 4.288,
-   "days": 15,
+   "days": 14.9,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "valproate sodium|100mg/ml|injection|5ml|vial",
+   "presentationLabel": "100 mg/mL injection, 5 mL vial",
    "evidence": "E4"
   },
   {
@@ -222,7 +245,94 @@
    "days": 15.2,
    "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "valproate sodium|100mg/ml|injection|5ml|vial",
+   "presentationLabel": "100 mg/mL injection, 5 mL vial",
    "evidence": "E5"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "valproate sodium|100mg/ml|injection|5ml|vial",
+   "label": "100 mg/mL injection, 5 mL vial",
+   "short": "100 mg/mL, 5 mL",
+   "unit": "vial",
+   "onHand": 89,
+   "dailyUse": 8.5,
+   "days": 10.5,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 13,
+     "dailyUse": 3.425,
+     "days": 3.8,
+     "lines": [
+      "EA-E-000219"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 64,
+     "dailyUse": 4.288,
+     "days": 14.9,
+     "lines": [
+      "CG-127"
+     ],
+     "evidence": [
+      "E4"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 12,
+     "dailyUse": 0.787,
+     "days": 15.2,
+     "lines": [
+      "LS-LS-0103"
+     ],
+     "evidence": [
+      "E5"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "valproate sodium|500mg/5ml|injection|5ml|vial",
+   "label": "500 mg/5 mL injection, 5 mL vial",
+   "short": "500 mg/5 mL, 5 mL",
+   "unit": "vial",
+   "onHand": 114,
+   "dailyUse": 7.637,
+   "days": 14.9,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 56,
+     "dailyUse": 3.281,
+     "days": 17.1,
+     "lines": [
+      "EA-E-000041"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 58,
+     "dailyUse": 4.356,
+     "days": 13.3,
+     "lines": [
+      "CG-126"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -563,6 +673,29 @@
  ],
  "options": [
   {
+   "kind": "transfer",
+   "rank": 1,
+   "title": "Transfer 3 vials of 100 mg/mL, 5 mL from Corvale General to Corvale East",
+   "detail": "Corvale General has 15 days of 100 mg/mL injection, 5 mL vials on hand and can spare 3 vials while keeping two weeks; Corvale East has 3.8 days and would reach 5.",
+   "why": "Same presentation, no clinical change, no new supplier.",
+   "needs": "pharmacy director (transfer request)",
+   "evidence": [
+    "E4",
+    "E2"
+   ],
+   "transfer": {
+    "qty": 3,
+    "unit": "vial",
+    "presentation": "100 mg/mL injection, 5 mL vial",
+    "from": "Corvale General",
+    "to": "Corvale East",
+    "fromDays": 14.9,
+    "toDays": 3.8,
+    "fromAfter": 14,
+    "toAfter": 5
+   }
+  },
+  {
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Sagent Pharmaceuticals",
@@ -573,9 +706,9 @@
   },
   {
    "kind": "alternate_concentration",
-   "rank": 3,
+   "rank": 5,
    "title": "Same molecule, alternate concentration or vial size: Valproate Sodium 500 mg/5mL from Hikma Pharmaceuticals USA Inc.",
-   "detail": "Recalculate dose and volume; pharmacist verification required. Approved by Riley Brooks, PharmD on 2025-12-04.",
+   "detail": "Recalculate dose and volume; pharmacist verification required. Approved by Riley Brooks, PharmD on 2025-12-04. FDA lists this product Current (posted 2020-12-30).",
    "why": "Already approved by the P&T committee.",
    "needs": "pharmacist",
    "evidence": [
@@ -584,9 +717,9 @@
   },
   {
    "kind": "alternate_concentration",
-   "rank": 3,
+   "rank": 5,
    "title": "Same molecule, alternate concentration or vial size: VALPROATE SODIUM 100 mg/mL from Fresenius Kabi USA, LLC",
-   "detail": "Recalculate dose and volume; pharmacist verification required. Approved by Alex Morgan, PharmD on 2026-04-19.",
+   "detail": "Recalculate dose and volume; pharmacist verification required. Approved by Alex Morgan, PharmD on 2026-04-19. FDA lists this product Current (posted 2020-12-30).",
    "why": "Already approved by the P&T committee.",
    "needs": "pharmacist",
    "evidence": [
@@ -626,52 +759,57 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "FDA's shortage list shows valproate sodium injection from Fresenius Kabi and Hikma as Current since 2020-12-30; Sagent Pharmaceuticals is not on the list and its label names no plant we could place",
+  "headline": "FDA's records trace our supply to a plant classified OAI 1098 days before the posting",
   "sentences": [
    {
-    "text": "As of 2026-10-21 the shortage has been on FDA's list for 70 months.",
+    "text": "FDA first posted the valproate sodium shortage on 2020-12-30 and it remains Current as of 2026-10-21.",
     "cites": [
-     "D10"
+     "E32",
+     "D9"
     ]
    },
    {
-    "text": "Fresenius Kabi's plant (FEI 3001833549) received an OAI classification letter on 2017-12-28, 1098 days before the shortage posting, and later inspections returned to VAI.",
+    "text": "The shortage listing names Fresenius Kabi USA, LLC and Hikma Pharmaceuticals USA, Inc. as affected companies.",
     "cites": [
-     "D6",
-     "E18",
-     "E21",
-     "E26",
-     "E27"
+     "E30",
+     "E31"
     ]
    },
    {
-    "text": "Hikma's plant (FEI 3002807173) received an OAI classification on 2014-03-28 and a Warning Letter on 2014-10-21, with the most recent inspection VAI on 2023-04-21.",
+    "text": "FDA's OAI classification letter to Fresenius Kabi USA, LLC is dated 2017-12-28, 1098 days before the shortage posting.",
+    "cites": [
+     "D8"
+    ]
+   },
+   {
+    "text": "Hikma's manufacturing plant (FEI 3002807173) has an OAI inspection from 2014 and multiple VAI inspections through 2023.",
     "cites": [
      "E8",
-     "E14",
+     "E11",
+     "E12",
      "E13"
     ]
    },
    {
-    "text": "Sagent Pharmaceuticals is not on FDA's shortage list today and its label names no plant we could place.",
+    "text": "Corvale East has 3.8 days of the 100 mg/mL 5 mL presentation on hand while Corvale General has 14.9 days.",
     "cites": [
-     "D7"
+     "D1",
+     "D2"
     ]
    },
    {
-    "text": "P&T-approved interchange options exist for Hikma 500 mg/5 mL (approved 2025-12-04) and Fresenius Kabi 100 mg/mL (approved 2026-04-19), both requiring pharmacist verification.",
+    "text": "The rule-ranked option is to transfer 3 vials of 100 mg/mL 5 mL from Corvale General to Corvale East, which would give Corvale East 5 days of supply while Corvale General retains two weeks.",
     "cites": [
-     "E33",
-     "E34"
+     "D10"
     ]
    }
   ],
   "verifier": {
-   "checked": 7,
+   "checked": 8,
    "rejected": [
     {
-     "text": "FDA first posted the valproate sodium injection shortage on 2020-12-30 and updated it on 2026-10-15, noting the next release for Fresenius Kabi is November 2026 and to check wholesalers for inventory.",
-     "reason": "month 2026-11 is not in the cited evidence"
+     "text": "Fresenius Kabi USA, LLC also received a VAI classification 506 days before the posting and another VAI 299 days before the posting.",
+     "reason": "Fresenius Kabi USA, LLC is not in the cited evidence"
     }
    ],
    "repaired": 0
@@ -681,45 +819,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -734,87 +893,87 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T09:06:46.692Z",
+   "at": "2026-10-22T12:47:21.983Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract 76HCVAMX scope"
+   "reason": "in contract EHXTCJBG scope"
   },
   {
-   "at": "2026-10-22T09:06:46.692Z",
+   "at": "2026-10-22T12:47:21.983Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 76HCVAMX scope"
+   "reason": "in contract EHXTCJBG scope"
   },
   {
-   "at": "2026-10-22T09:06:50.518Z",
+   "at": "2026-10-22T12:47:24.925Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 76HCVAMX scope"
+   "reason": "in contract EHXTCJBG scope"
   },
   {
-   "at": "2026-10-22T09:06:51.620Z",
+   "at": "2026-10-22T12:47:25.353Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 76HCVAMX scope"
+   "reason": "in contract EHXTCJBG scope"
   },
   {
-   "at": "2026-10-22T09:06:52.205Z",
+   "at": "2026-10-22T12:47:25.565Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 76HCVAMX scope"
+   "reason": "in contract EHXTCJBG scope"
   },
   {
-   "at": "2026-10-22T09:06:55.109Z",
+   "at": "2026-10-22T12:47:26.718Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 76HCVAMX scope"
+   "reason": "in contract EHXTCJBG scope"
   },
   {
-   "at": "2026-10-22T09:06:56.754Z",
+   "at": "2026-10-22T12:47:27.321Z",
    "action": "What FDA wrote at the OAI inspections",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 76HCVAMX scope"
+   "reason": "in contract EHXTCJBG scope"
   },
   {
-   "at": "2026-10-22T09:06:57.202Z",
+   "at": "2026-10-22T12:47:27.452Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 76HCVAMX scope"
+   "reason": "in contract EHXTCJBG scope"
   },
   {
-   "at": "2026-10-22T09:06:58.922Z",
+   "at": "2026-10-22T12:47:28.337Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 76HCVAMX scope"
+   "reason": "in contract EHXTCJBG scope"
   },
   {
-   "at": "2026-10-22T09:07:00.786Z",
+   "at": "2026-10-22T12:47:29.844Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract 76HCVAMX scope"
+   "reason": "in contract EHXTCJBG scope"
   },
   {
-   "at": "2026-10-22T09:07:00.788Z",
+   "at": "2026-10-22T12:47:29.845Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract 76HCVAMX scope"
+   "reason": "in contract EHXTCJBG scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-70cbc8",
+   "queryId": "Q-23aae3",
    "row": 0,
    "label": "Corvale East: VALPROATE SODIUM 500MG/5ML 5ML SDV",
    "fields": {
@@ -825,19 +984,24 @@
     "description": "VALPROATE SODIUM 500MG/5ML 5ML SDV",
     "on_hand": "56.00",
     "daily_use": "3.281",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Valproate Sodium",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0143-9785-10",
     "spl_set_id": "bcf57b31-4811-4104-82b3-46fb91a53ee0",
     "dosage_form": "INJECTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "VALPROATE SODIUM 500 mg/5mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-70cbc8",
+   "queryId": "Q-23aae3",
    "row": 1,
    "label": "Corvale East: VALPROATE SODIUM 100MG/ML 5ML SDV",
    "fields": {
@@ -848,65 +1012,80 @@
     "description": "VALPROATE SODIUM 100MG/ML 5ML SDV",
     "on_hand": "13.00",
     "daily_use": "3.425",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "VALPROATE SODIUM",
     "labeler_name": "Fresenius Kabi USA, LLC",
     "package_ndc": "63323-494-05",
     "spl_set_id": "c572ece7-03d3-4c2a-aeb5-61f2023b28ea",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "VALPROATE SODIUM 100 mg/mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-70cbc8",
+   "queryId": "Q-23aae3",
    "row": 2,
-   "label": "Corvale General: Valproate Sodium",
+   "label": "Corvale General: Valproate Sodium 500 mg/5mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-126",
     "ndc11": "00143978510",
     "ndc_as_recorded": "00143978510",
-    "description": "Valproate Sodium",
-    "on_hand": "58.85",
+    "description": "Valproate Sodium 500 mg/5mL",
+    "on_hand": "58.00",
     "daily_use": "4.356",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Valproate Sodium",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0143-9785-10",
     "spl_set_id": "bcf57b31-4811-4104-82b3-46fb91a53ee0",
     "dosage_form": "INJECTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "VALPROATE SODIUM 500 mg/5mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-70cbc8",
+   "queryId": "Q-23aae3",
    "row": 3,
-   "label": "Corvale General: VALPROATE SODIUM",
+   "label": "Corvale General: VALPROATE SODIUM 100 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-127",
     "ndc11": "63323049405",
     "ndc_as_recorded": "63323049405",
-    "description": "VALPROATE SODIUM",
-    "on_hand": "64.48",
+    "description": "VALPROATE SODIUM 100 mg/mL",
+    "on_hand": "64.00",
     "daily_use": "4.288",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "VALPROATE SODIUM",
     "labeler_name": "Fresenius Kabi USA, LLC",
     "package_ndc": "63323-494-05",
     "spl_set_id": "c572ece7-03d3-4c2a-aeb5-61f2023b28ea",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "VALPROATE SODIUM 100 mg/mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E5": {
    "id": "E5",
-   "queryId": "Q-70cbc8",
+   "queryId": "Q-23aae3",
    "row": 4,
    "label": "Corvale Lakeside: VALPROATE SODIUM 100 mg/mL 5 mL vial",
    "fields": {
@@ -918,13 +1097,18 @@
     "on_hand": "12.00",
     "daily_use": "0.787",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "VALPROATE SODIUM",
     "labeler_name": "Fresenius Kabi USA, LLC",
     "package_ndc": "63323-494-05",
     "spl_set_id": "c572ece7-03d3-4c2a-aeb5-61f2023b28ea",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "VALPROATE SODIUM 100 mg/mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E6": {
@@ -1303,7 +1487,7 @@
   },
   "E30": {
    "id": "E30",
-   "queryId": "Q-5c92fa",
+   "queryId": "Q-20c765",
    "row": 0,
    "label": "FDA shortage list: Fresenius Kabi USA, LLC, Current",
    "fields": {
@@ -1318,7 +1502,7 @@
   },
   "E31": {
    "id": "E31",
-   "queryId": "Q-5c92fa",
+   "queryId": "Q-20c765",
    "row": 1,
    "label": "FDA shortage list: Hikma Pharmaceuticals USA, Inc., Current",
    "fields": {
@@ -1333,7 +1517,7 @@
   },
   "E32": {
    "id": "E32",
-   "queryId": "Q-5c92fa",
+   "queryId": "Q-20c765",
    "row": 0,
    "label": "FDA first posted the shortage 2020-12-30",
    "fields": {
@@ -1386,40 +1570,69 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 69 units of valproate sodium at 6.7 a day: 10 days on hand",
+   "label": "Corvale East holds 13 vials of valproate sodium 100 mg/mL, 5 mL at 3.4 a day: 3.8 days on hand",
    "fields": {
     "hospital": "Corvale East",
-    "on_hand": 69,
-    "daily_use": 6.7,
-    "days_on_hand": 10
+    "presentation": "100 mg/mL injection, 5 mL vial",
+    "on_hand": 13,
+    "daily_use": 3.4,
+    "days_on_hand": 3.8
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 123 units of valproate sodium at 8.6 a day: 14 days on hand",
+   "label": "Corvale General holds 64 vials of valproate sodium 100 mg/mL, 5 mL at 4.3 a day: 14.9 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 123,
-    "daily_use": 8.6,
-    "days_on_hand": 14
+    "presentation": "100 mg/mL injection, 5 mL vial",
+    "on_hand": 64,
+    "daily_use": 4.3,
+    "days_on_hand": 14.9
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 12 units of valproate sodium at 0.8 a day: 15 days on hand",
+   "label": "Corvale Lakeside holds 12 vials of valproate sodium 100 mg/mL, 5 mL at 0.8 a day: 15.2 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
+    "presentation": "100 mg/mL injection, 5 mL vial",
     "on_hand": 12,
     "daily_use": 0.8,
-    "days_on_hand": 15
+    "days_on_hand": 15.2
    }
   },
   "D4": {
    "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale East holds 56 vials of valproate sodium 500 mg/5 mL, 5 mL at 3.3 a day: 17.1 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "500 mg/5 mL injection, 5 mL vial",
+    "on_hand": 56,
+    "daily_use": 3.3,
+    "days_on_hand": 17.1
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 58 vials of valproate sodium 500 mg/5 mL, 5 mL at 4.4 a day: 13.3 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "500 mg/5 mL injection, 5 mL vial",
+    "on_hand": 58,
+    "daily_use": 4.4,
+    "days_on_hand": 13.3
+   }
+  },
+  "D6": {
+   "id": "D6",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 1099323 ended 2019-08-12, classified VAI; classification letter 2019-10-18 — 506 days before FDA posted the shortage on 2020-12-30",
@@ -1429,8 +1642,8 @@
     "days": 506
    }
   },
-  "D5": {
-   "id": "D5",
+  "D7": {
+   "id": "D7",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 1125050 ended 2020-03-06, classified VAI; classification letter 2020-07-22 — 299 days before FDA posted the shortage on 2020-12-30",
@@ -1440,8 +1653,8 @@
     "days": 299
    }
   },
-  "D6": {
-   "id": "D6",
+  "D8": {
+   "id": "D8",
    "queryId": "derived",
    "row": -1,
    "label": "FDA's OAI classification letter to Fresenius Kabi USA, LLC is dated 2017-12-28, 1098 days before FDA posted the shortage on 2020-12-30",
@@ -1451,38 +1664,8 @@
     "days": 1098
    }
   },
-  "D7": {
-   "id": "D7",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 3 by rule: Buy from Sagent Pharmaceuticals. Not on FDA's shortage list today. Its label names no plant we could place.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
-   }
-  },
-  "D8": {
-   "id": "D8",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 3 by rule: Same molecule, alternate concentration or vial size: Valproate Sodium 500 mg/5mL from Hikma Pharmaceuticals USA Inc.. Recalculate dose and volume; pharmacist verification required. Approved by Riley Brooks, PharmD on 2025-12-04.",
-   "fields": {
-    "kind": "alternate_concentration",
-    "needs": "pharmacist"
-   }
-  },
   "D9": {
    "id": "D9",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 3 by rule: Same molecule, alternate concentration or vial size: VALPROATE SODIUM 100 mg/mL from Fresenius Kabi USA, LLC. Recalculate dose and volume; pharmacist verification required. Approved by Alex Morgan, PharmD on 2026-04-19.",
-   "fields": {
-    "kind": "alternate_concentration",
-    "needs": "pharmacist"
-   }
-  },
-  "D10": {
-   "id": "D10",
    "queryId": "derived",
    "row": -1,
    "label": "As of 2026-10-21 the shortage has been on FDA's list for 70 months",
@@ -1491,177 +1674,226 @@
     "posted": "2020-12-30",
     "months": 70
    }
+  },
+  "D10": {
+   "id": "D10",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 3 vials of 100 mg/mL, 5 mL from Corvale General to Corvale East. Corvale General has 15 days of 100 mg/mL injection, 5 mL vials on hand and can spare 3 vials while keeping two weeks; Corvale East has 3.8 days and would reach 5.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D11": {
+   "id": "D11",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Sagent Pharmaceuticals. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D12": {
+   "id": "D12",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 5 by rule: Same molecule, alternate concentration or vial size: Valproate Sodium 500 mg/5mL from Hikma Pharmaceuticals USA Inc.. Recalculate dose and volume; pharmacist verification required. Approved by Riley Brooks, PharmD on 2025-12-04. FDA lists this product Current (posted 2020-12-30).",
+   "fields": {
+    "kind": "alternate_concentration",
+    "needs": "pharmacist"
+   }
   }
  },
  "queries": {
-  "Q-70cbc8": {
-   "id": "Q-70cbc8",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%valproate%' OR lower(s.description) LIKE '%valproate%' ORDER BY s.hospital, s.item_key",
-   "ms": 3823,
+  "Q-23aae3": {
+   "id": "Q-23aae3",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*valproate(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*valproate(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 2940,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T09:06:50.515Z",
+   "ranAt": "2026-10-22T12:47:24.923Z",
    "rows": 5
   },
   "Q-54e775": {
    "id": "Q-54e775",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('bcf57b31-4811-4104-82b3-46fb91a53ee0', 'c572ece7-03d3-4c2a-aeb5-61f2023b28ea') ORDER BY ps.set_id, ps.establishment",
-   "ms": 1100,
+   "ms": 426,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T09:06:51.618Z",
+   "ranAt": "2026-10-22T12:47:25.351Z",
    "rows": 2
   },
-  "Q-5c92fa": {
-   "id": "Q-5c92fa",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%valproate%' ORDER BY status, company_name, package_ndc",
-   "ms": 272,
+  "Q-20c765": {
+   "id": "Q-20c765",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*valproate(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 106,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T09:06:51.892Z",
+   "ranAt": "2026-10-22T12:47:25.459Z",
    "rows": 2
   },
-  "Q-ff5864": {
-   "id": "Q-ff5864",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%valproate%' ORDER BY first_posting",
-   "ms": 310,
+  "Q-5c0b8f": {
+   "id": "Q-5c0b8f",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*valproate(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 104,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T09:06:52.203Z",
+   "ranAt": "2026-10-22T12:47:25.564Z",
    "rows": 1
   },
-  "Q-1dd636": {
-   "id": "Q-1dd636",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%valproate%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2901,
+  "Q-f6ea24": {
+   "id": "Q-f6ea24",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*valproate(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1152,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T09:06:55.106Z",
+   "ranAt": "2026-10-22T12:47:26.717Z",
    "rows": 5
   },
   "Q-c91714": {
    "id": "Q-c91714",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3002807173', '3001833549') ORDER BY fei, end_date",
-   "ms": 624,
+   "ms": 265,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T09:06:55.733Z",
+   "ranAt": "2026-10-22T12:47:26.983Z",
    "rows": 23
   },
   "Q-e37b08": {
    "id": "Q-e37b08",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3002807173', '3001833549') ORDER BY fei, action_date",
-   "ms": 315,
+   "ms": 108,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T09:06:56.050Z",
+   "ranAt": "2026-10-22T12:47:27.093Z",
    "rows": 2
   },
   "Q-628d2b": {
    "id": "Q-628d2b",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3002807173', '3001833549') OR (fei_match <> 'name_and_city' AND firm_key IN ('hikma farmaceutica s a', 'fresenius kabi')) ORDER BY date_published",
-   "ms": 264,
+   "ms": 93,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T09:06:56.315Z",
+   "ranAt": "2026-10-22T12:47:27.186Z",
    "rows": 0
   },
-  "Q-7fae75": {
-   "id": "Q-7fae75",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('hikma farmaceutica s a', 'fresenius kabi', 'hikma') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%valproate%' ORDER BY initiation_date",
-   "ms": 434,
+  "Q-e4aeed": {
+   "id": "Q-e4aeed",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('hikma farmaceutica s a', 'fresenius kabi', 'hikma') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*valproate(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 132,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T09:06:56.751Z",
+   "ranAt": "2026-10-22T12:47:27.320Z",
    "rows": 0
   },
   "Q-60fa41": {
    "id": "Q-60fa41",
    "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('732653', '815426', '876911') ORDER BY inspection_id, cfr",
-   "ms": 446,
+   "ms": 128,
    "mode": "live",
    "sources": [
     "fda.citations"
    ],
-   "ranAt": "2026-10-22T09:06:57.199Z",
+   "ranAt": "2026-10-22T12:47:27.449Z",
    "rows": 14
   },
   "Q-2ea428": {
    "id": "Q-2ea428",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('00143978510', '63323049405')",
-   "ms": 1718,
+   "ms": 884,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T09:06:58.921Z",
+   "ranAt": "2026-10-22T12:47:28.336Z",
    "rows": 2
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2522,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T09:00:21.184Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 2080,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T09:00:23.265Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 2458,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T09:00:25.725Z",
-   "rows": 2
-  },
-  "Q-c9efd2": {
-   "id": "Q-c9efd2",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%valproate%'",
-   "ms": 1862,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T09:07:00.785Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-f0ed12": {
+   "id": "Q-f0ed12",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*valproate(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1506,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:47:29.843Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 15,
-  "zetarisMs": 21129,
+  "zetarisMs": 18052,
   "modelCalls": 1,
-  "tokensIn": 4160,
-  "tokensOut": 556,
+  "tokensIn": 5214,
+  "tokensOut": 483,
   "mode": "live"
  },
  "slug": "valproate",
@@ -1678,7 +1910,7 @@
     "id": "hospital-item:hospital-item:CG-126",
     "type": "HospitalItem",
     "key": "hospital-item:CG-126",
-    "label": "Corvale General: Valproate Sodium",
+    "label": "Corvale General: Valproate Sodium 500 mg/5mL",
     "attrs": {
      "key": "hospital-item:CG-126"
     },
@@ -1689,7 +1921,7 @@
     "id": "hospital-item:hospital-item:CG-127",
     "type": "HospitalItem",
     "key": "hospital-item:CG-127",
-    "label": "Corvale General: VALPROATE SODIUM",
+    "label": "Corvale General: VALPROATE SODIUM 100 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-127"
     },
@@ -1839,7 +2071,7 @@
     },
     "facts": [
      {
-      "id": "fact_ce76301b583bdeb7",
+      "id": "fact_09bf8434cc636111",
       "about": "inspection:fda-inspection:1002820",
       "predicate": "classification",
       "value": "VAI",
@@ -1847,9 +2079,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:06:57.202Z"
+       "at": "2026-10-22T12:47:27.451Z"
       },
-      "assertedAt": "2026-10-22T09:06:57.202Z"
+      "assertedAt": "2026-10-22T12:47:27.451Z"
      }
     ],
     "depth": 4
@@ -1865,7 +2097,7 @@
     },
     "facts": [
      {
-      "id": "fact_e0d75606e67d3fd6",
+      "id": "fact_a0486e0433dda475",
       "about": "inspection:fda-inspection:1014707",
       "predicate": "classification",
       "value": "VAI",
@@ -1873,9 +2105,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:06:57.202Z"
+       "at": "2026-10-22T12:47:27.451Z"
       },
-      "assertedAt": "2026-10-22T09:06:57.202Z"
+      "assertedAt": "2026-10-22T12:47:27.451Z"
      }
     ],
     "depth": 4
@@ -1891,7 +2123,7 @@
     },
     "facts": [
      {
-      "id": "fact_f356b575f11d1a0b",
+      "id": "fact_f8d254f27bbe7c3a",
       "about": "inspection:fda-inspection:1099323",
       "predicate": "classification",
       "value": "VAI",
@@ -1899,9 +2131,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:06:57.202Z"
+       "at": "2026-10-22T12:47:27.451Z"
       },
-      "assertedAt": "2026-10-22T09:06:57.202Z"
+      "assertedAt": "2026-10-22T12:47:27.451Z"
      }
     ],
     "depth": 4
@@ -1917,7 +2149,7 @@
     },
     "facts": [
      {
-      "id": "fact_39abe97e5165af92",
+      "id": "fact_9b00525435b6f01d",
       "about": "inspection:fda-inspection:1125050",
       "predicate": "classification",
       "value": "VAI",
@@ -1925,9 +2157,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:06:57.201Z"
+       "at": "2026-10-22T12:47:27.451Z"
       },
-      "assertedAt": "2026-10-22T09:06:57.201Z"
+      "assertedAt": "2026-10-22T12:47:27.451Z"
      }
     ],
     "depth": 4
@@ -1943,7 +2175,7 @@
     },
     "facts": [
      {
-      "id": "fact_58b93fbf225099bc",
+      "id": "fact_8b35ac6945184511",
       "about": "inspection:fda-inspection:1203129",
       "predicate": "classification",
       "value": "VAI",
@@ -1951,9 +2183,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:06:57.201Z"
+       "at": "2026-10-22T12:47:27.451Z"
       },
-      "assertedAt": "2026-10-22T09:06:57.201Z"
+      "assertedAt": "2026-10-22T12:47:27.451Z"
      }
     ],
     "depth": 4
@@ -1969,7 +2201,7 @@
     },
     "facts": [
      {
-      "id": "fact_7c7cf5132a618f51",
+      "id": "fact_d46574c058ad066a",
       "about": "inspection:fda-inspection:1220482",
       "predicate": "classification",
       "value": "VAI",
@@ -1977,9 +2209,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:06:57.202Z"
+       "at": "2026-10-22T12:47:27.451Z"
       },
-      "assertedAt": "2026-10-22T09:06:57.202Z"
+      "assertedAt": "2026-10-22T12:47:27.451Z"
      }
     ],
     "depth": 4
@@ -1995,7 +2227,7 @@
     },
     "facts": [
      {
-      "id": "fact_417c3943d82fdaa5",
+      "id": "fact_1e90e8ee4d484d8d",
       "about": "inspection:fda-inspection:1254066",
       "predicate": "classification",
       "value": "VAI",
@@ -2003,9 +2235,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:06:57.201Z"
+       "at": "2026-10-22T12:47:27.451Z"
       },
-      "assertedAt": "2026-10-22T09:06:57.201Z"
+      "assertedAt": "2026-10-22T12:47:27.451Z"
      }
     ],
     "depth": 4
@@ -2021,7 +2253,7 @@
     },
     "facts": [
      {
-      "id": "fact_9206e82b992f20bf",
+      "id": "fact_a63d8b27f5c1b318",
       "about": "inspection:fda-inspection:613342",
       "predicate": "classification",
       "value": "VAI",
@@ -2029,9 +2261,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:06:57.201Z"
+       "at": "2026-10-22T12:47:27.451Z"
       },
-      "assertedAt": "2026-10-22T09:06:57.201Z"
+      "assertedAt": "2026-10-22T12:47:27.451Z"
      }
     ],
     "depth": 4
@@ -2047,7 +2279,7 @@
     },
     "facts": [
      {
-      "id": "fact_cb256fbaa9dc1800",
+      "id": "fact_b2258feca46bffe5",
       "about": "inspection:fda-inspection:640082",
       "predicate": "classification",
       "value": "VAI",
@@ -2055,9 +2287,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:06:57.201Z"
+       "at": "2026-10-22T12:47:27.451Z"
       },
-      "assertedAt": "2026-10-22T09:06:57.201Z"
+      "assertedAt": "2026-10-22T12:47:27.451Z"
      }
     ],
     "depth": 4
@@ -2073,7 +2305,7 @@
     },
     "facts": [
      {
-      "id": "fact_34cf684b72744175",
+      "id": "fact_57e0d5d76e2477e2",
       "about": "inspection:fda-inspection:732653",
       "predicate": "classification",
       "value": "OAI",
@@ -2081,9 +2313,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:06:57.202Z"
+       "at": "2026-10-22T12:47:27.451Z"
       },
-      "assertedAt": "2026-10-22T09:06:57.202Z"
+      "assertedAt": "2026-10-22T12:47:27.451Z"
      }
     ],
     "depth": 4
@@ -2099,7 +2331,7 @@
     },
     "facts": [
      {
-      "id": "fact_16c1a8e1e696c1ea",
+      "id": "fact_670787821844b807",
       "about": "inspection:fda-inspection:741861",
       "predicate": "classification",
       "value": "VAI",
@@ -2107,9 +2339,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:06:57.202Z"
+       "at": "2026-10-22T12:47:27.451Z"
       },
-      "assertedAt": "2026-10-22T09:06:57.202Z"
+      "assertedAt": "2026-10-22T12:47:27.451Z"
      }
     ],
     "depth": 4
@@ -2125,7 +2357,7 @@
     },
     "facts": [
      {
-      "id": "fact_062dd5df0835cced",
+      "id": "fact_825e10b5b9b089b6",
       "about": "inspection:fda-inspection:749882",
       "predicate": "classification",
       "value": "VAI",
@@ -2133,9 +2365,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:06:57.201Z"
+       "at": "2026-10-22T12:47:27.451Z"
       },
-      "assertedAt": "2026-10-22T09:06:57.201Z"
+      "assertedAt": "2026-10-22T12:47:27.451Z"
      }
     ],
     "depth": 4
@@ -2151,7 +2383,7 @@
     },
     "facts": [
      {
-      "id": "fact_11b7e8e6f106692f",
+      "id": "fact_f9ca676a20c371d3",
       "about": "inspection:fda-inspection:815426",
       "predicate": "classification",
       "value": "OAI",
@@ -2159,9 +2391,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:06:57.202Z"
+       "at": "2026-10-22T12:47:27.451Z"
       },
-      "assertedAt": "2026-10-22T09:06:57.202Z"
+      "assertedAt": "2026-10-22T12:47:27.451Z"
      }
     ],
     "depth": 4
@@ -2177,7 +2409,7 @@
     },
     "facts": [
      {
-      "id": "fact_9dc968dfeb37160b",
+      "id": "fact_a3d817e33a6149b5",
       "about": "inspection:fda-inspection:876911",
       "predicate": "classification",
       "value": "OAI",
@@ -2185,9 +2417,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:06:57.201Z"
+       "at": "2026-10-22T12:47:27.451Z"
       },
-      "assertedAt": "2026-10-22T09:06:57.201Z"
+      "assertedAt": "2026-10-22T12:47:27.451Z"
      }
     ],
     "depth": 4
@@ -2203,7 +2435,7 @@
     },
     "facts": [
      {
-      "id": "fact_31ba3d762b17f064",
+      "id": "fact_f814a595fd9addc6",
       "about": "inspection:fda-inspection:901775",
       "predicate": "classification",
       "value": "VAI",
@@ -2211,9 +2443,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:06:57.202Z"
+       "at": "2026-10-22T12:47:27.451Z"
       },
-      "assertedAt": "2026-10-22T09:06:57.202Z"
+      "assertedAt": "2026-10-22T12:47:27.451Z"
      }
     ],
     "depth": 4
@@ -2229,7 +2461,7 @@
     },
     "facts": [
      {
-      "id": "fact_4fd816592b8c5685",
+      "id": "fact_f600a62bb1a77004",
       "about": "inspection:fda-inspection:940389",
       "predicate": "classification",
       "value": "VAI",
@@ -2237,9 +2469,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:06:57.201Z"
+       "at": "2026-10-22T12:47:27.451Z"
       },
-      "assertedAt": "2026-10-22T09:06:57.201Z"
+      "assertedAt": "2026-10-22T12:47:27.451Z"
      }
     ],
     "depth": 4
@@ -2255,7 +2487,7 @@
     },
     "facts": [
      {
-      "id": "fact_21c585c6f880b86b",
+      "id": "fact_6d2c77dc6c9035a4",
       "about": "inspection:fda-inspection:962308",
       "predicate": "classification",
       "value": "VAI",
@@ -2263,9 +2495,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:06:57.202Z"
+       "at": "2026-10-22T12:47:27.451Z"
       },
-      "assertedAt": "2026-10-22T09:06:57.202Z"
+      "assertedAt": "2026-10-22T12:47:27.451Z"
      }
     ],
     "depth": 4
@@ -2281,7 +2513,7 @@
     },
     "facts": [
      {
-      "id": "fact_1945023a2e39e9d0",
+      "id": "fact_aa1eb168e8b72ff9",
       "about": "inspection:fda-inspection:970483",
       "predicate": "classification",
       "value": "VAI",
@@ -2289,9 +2521,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:06:57.201Z"
+       "at": "2026-10-22T12:47:27.451Z"
       },
-      "assertedAt": "2026-10-22T09:06:57.201Z"
+      "assertedAt": "2026-10-22T12:47:27.451Z"
      }
     ],
     "depth": 4
@@ -2336,11 +2568,11 @@
     "from": "hospital-item:hospital-item:CG-126",
     "to": "package:ndc-package:0143-9785-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T09:06:50.518Z",
+    "validFrom": "2026-10-22T12:47:24.925Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:50.518Z"
+     "at": "2026-10-22T12:47:24.925Z"
     }
    },
    {
@@ -2348,11 +2580,11 @@
     "from": "hospital-item:hospital-item:CG-127",
     "to": "package:ndc-package:63323-494-05",
     "type": "stocks",
-    "validFrom": "2026-10-22T09:06:50.518Z",
+    "validFrom": "2026-10-22T12:47:24.925Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:50.518Z"
+     "at": "2026-10-22T12:47:24.925Z"
     }
    },
    {
@@ -2360,11 +2592,11 @@
     "from": "hospital-item:hospital-item:EA-E-000041",
     "to": "package:ndc-package:0143-9785-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T09:06:50.517Z",
+    "validFrom": "2026-10-22T12:47:24.924Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:50.517Z"
+     "at": "2026-10-22T12:47:24.924Z"
     }
    },
    {
@@ -2372,11 +2604,11 @@
     "from": "hospital-item:hospital-item:EA-E-000219",
     "to": "package:ndc-package:63323-494-05",
     "type": "stocks",
-    "validFrom": "2026-10-22T09:06:50.517Z",
+    "validFrom": "2026-10-22T12:47:24.925Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:50.517Z"
+     "at": "2026-10-22T12:47:24.925Z"
     }
    },
    {
@@ -2384,11 +2616,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0103",
     "to": "package:ndc-package:63323-494-05",
     "type": "stocks",
-    "validFrom": "2026-10-22T09:06:50.518Z",
+    "validFrom": "2026-10-22T12:47:24.925Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:50.518Z"
+     "at": "2026-10-22T12:47:24.925Z"
     }
    },
    {
@@ -2396,11 +2628,11 @@
     "from": "package:ndc-package:0143-9785-10",
     "to": "product:ndc-product:0143-9785",
     "type": "package-of",
-    "validFrom": "2026-10-22T09:06:50.517Z",
+    "validFrom": "2026-10-22T12:47:24.924Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:50.517Z"
+     "at": "2026-10-22T12:47:24.924Z"
     }
    },
    {
@@ -2408,11 +2640,11 @@
     "from": "package:ndc-package:63323-494-05",
     "to": "product:ndc-product:63323-494",
     "type": "package-of",
-    "validFrom": "2026-10-22T09:06:50.518Z",
+    "validFrom": "2026-10-22T12:47:24.925Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:50.518Z"
+     "at": "2026-10-22T12:47:24.925Z"
     }
    },
    {
@@ -2420,11 +2652,11 @@
     "from": "product:ndc-product:0143-9785",
     "to": "drug:generic:valproate sodium",
     "type": "of-drug",
-    "validFrom": "2026-10-22T09:06:50.517Z",
+    "validFrom": "2026-10-22T12:47:24.924Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:50.517Z"
+     "at": "2026-10-22T12:47:24.924Z"
     }
    },
    {
@@ -2432,11 +2664,11 @@
     "from": "product:ndc-product:0143-9785",
     "to": "labeler:ndc-labeler:0143",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T09:06:50.517Z",
+    "validFrom": "2026-10-22T12:47:24.924Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:50.517Z"
+     "at": "2026-10-22T12:47:24.924Z"
     }
    },
    {
@@ -2444,11 +2676,11 @@
     "from": "product:ndc-product:0143-9785",
     "to": "site:fei:3002807173",
     "type": "made-at",
-    "validFrom": "2026-10-22T09:06:57.201Z",
+    "validFrom": "2026-10-22T12:47:27.451Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:57.201Z"
+     "at": "2026-10-22T12:47:27.451Z"
     }
    },
    {
@@ -2456,11 +2688,11 @@
     "from": "product:ndc-product:63323-494",
     "to": "drug:generic:valproate sodium",
     "type": "of-drug",
-    "validFrom": "2026-10-22T09:06:50.518Z",
+    "validFrom": "2026-10-22T12:47:24.925Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:50.518Z"
+     "at": "2026-10-22T12:47:24.925Z"
     }
    },
    {
@@ -2468,11 +2700,11 @@
     "from": "product:ndc-product:63323-494",
     "to": "labeler:ndc-labeler:63323",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T09:06:50.518Z",
+    "validFrom": "2026-10-22T12:47:24.925Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:50.518Z"
+     "at": "2026-10-22T12:47:24.925Z"
     }
    },
    {
@@ -2480,11 +2712,11 @@
     "from": "product:ndc-product:63323-494",
     "to": "site:fei:3001833549",
     "type": "made-at",
-    "validFrom": "2026-10-22T09:06:57.201Z",
+    "validFrom": "2026-10-22T12:47:27.451Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:57.201Z"
+     "at": "2026-10-22T12:47:27.451Z"
     }
    },
    {
@@ -2492,11 +2724,11 @@
     "from": "shortage:fda-shortage:valproate-2020-12-30",
     "to": "drug:generic:valproate sodium",
     "type": "affects",
-    "validFrom": "2026-10-22T09:06:57.202Z",
+    "validFrom": "2026-10-22T12:47:27.452Z",
     "source": {
      "kind": "fda-shortage-db",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:57.202Z"
+     "at": "2026-10-22T12:47:27.452Z"
     }
    },
    {
@@ -2504,11 +2736,11 @@
     "from": "inspection:fda-inspection:749882",
     "to": "site:fei:3002807173",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:06:57.201Z",
+    "validFrom": "2026-10-22T12:47:27.451Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:57.201Z"
+     "at": "2026-10-22T12:47:27.451Z"
     }
    },
    {
@@ -2516,11 +2748,11 @@
     "from": "inspection:fda-inspection:876911",
     "to": "site:fei:3002807173",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:06:57.201Z",
+    "validFrom": "2026-10-22T12:47:27.451Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:57.201Z"
+     "at": "2026-10-22T12:47:27.451Z"
     }
    },
    {
@@ -2528,11 +2760,11 @@
     "from": "inspection:fda-inspection:940389",
     "to": "site:fei:3002807173",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:06:57.201Z",
+    "validFrom": "2026-10-22T12:47:27.451Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:57.201Z"
+     "at": "2026-10-22T12:47:27.451Z"
     }
    },
    {
@@ -2540,11 +2772,11 @@
     "from": "inspection:fda-inspection:970483",
     "to": "site:fei:3002807173",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:06:57.201Z",
+    "validFrom": "2026-10-22T12:47:27.451Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:57.201Z"
+     "at": "2026-10-22T12:47:27.451Z"
     }
    },
    {
@@ -2552,11 +2784,11 @@
     "from": "inspection:fda-inspection:1125050",
     "to": "site:fei:3002807173",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:06:57.201Z",
+    "validFrom": "2026-10-22T12:47:27.451Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:57.201Z"
+     "at": "2026-10-22T12:47:27.451Z"
     }
    },
    {
@@ -2564,11 +2796,11 @@
     "from": "inspection:fda-inspection:1254066",
     "to": "site:fei:3002807173",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:06:57.201Z",
+    "validFrom": "2026-10-22T12:47:27.451Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:57.201Z"
+     "at": "2026-10-22T12:47:27.451Z"
     }
    },
    {
@@ -2576,11 +2808,11 @@
     "from": "inspection:fda-inspection:1203129",
     "to": "site:fei:3002807173",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:06:57.201Z",
+    "validFrom": "2026-10-22T12:47:27.451Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:57.201Z"
+     "at": "2026-10-22T12:47:27.451Z"
     }
    },
    {
@@ -2588,11 +2820,11 @@
     "from": "warning-letter:fda-warning-letter:433220",
     "to": "site:fei:3002807173",
     "type": "issued-to",
-    "validFrom": "2026-10-22T09:06:57.201Z",
+    "validFrom": "2026-10-22T12:47:27.451Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:57.201Z"
+     "at": "2026-10-22T12:47:27.451Z"
     }
    },
    {
@@ -2600,11 +2832,11 @@
     "from": "inspection:fda-inspection:613342",
     "to": "site:fei:3001833549",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:06:57.201Z",
+    "validFrom": "2026-10-22T12:47:27.451Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:57.201Z"
+     "at": "2026-10-22T12:47:27.451Z"
     }
    },
    {
@@ -2612,11 +2844,11 @@
     "from": "inspection:fda-inspection:640082",
     "to": "site:fei:3001833549",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:06:57.201Z",
+    "validFrom": "2026-10-22T12:47:27.451Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:57.201Z"
+     "at": "2026-10-22T12:47:27.451Z"
     }
    },
    {
@@ -2624,11 +2856,11 @@
     "from": "inspection:fda-inspection:732653",
     "to": "site:fei:3001833549",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:06:57.202Z",
+    "validFrom": "2026-10-22T12:47:27.451Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:57.202Z"
+     "at": "2026-10-22T12:47:27.451Z"
     }
    },
    {
@@ -2636,11 +2868,11 @@
     "from": "inspection:fda-inspection:741861",
     "to": "site:fei:3001833549",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:06:57.202Z",
+    "validFrom": "2026-10-22T12:47:27.451Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:57.202Z"
+     "at": "2026-10-22T12:47:27.451Z"
     }
    },
    {
@@ -2648,11 +2880,11 @@
     "from": "inspection:fda-inspection:815426",
     "to": "site:fei:3001833549",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:06:57.202Z",
+    "validFrom": "2026-10-22T12:47:27.451Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:57.202Z"
+     "at": "2026-10-22T12:47:27.451Z"
     }
    },
    {
@@ -2660,11 +2892,11 @@
     "from": "inspection:fda-inspection:901775",
     "to": "site:fei:3001833549",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:06:57.202Z",
+    "validFrom": "2026-10-22T12:47:27.451Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:57.202Z"
+     "at": "2026-10-22T12:47:27.451Z"
     }
    },
    {
@@ -2672,11 +2904,11 @@
     "from": "inspection:fda-inspection:962308",
     "to": "site:fei:3001833549",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:06:57.202Z",
+    "validFrom": "2026-10-22T12:47:27.451Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:57.202Z"
+     "at": "2026-10-22T12:47:27.451Z"
     }
    },
    {
@@ -2684,11 +2916,11 @@
     "from": "inspection:fda-inspection:1002820",
     "to": "site:fei:3001833549",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:06:57.202Z",
+    "validFrom": "2026-10-22T12:47:27.451Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:57.202Z"
+     "at": "2026-10-22T12:47:27.451Z"
     }
    },
    {
@@ -2696,11 +2928,11 @@
     "from": "inspection:fda-inspection:1014707",
     "to": "site:fei:3001833549",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:06:57.202Z",
+    "validFrom": "2026-10-22T12:47:27.451Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:57.202Z"
+     "at": "2026-10-22T12:47:27.451Z"
     }
    },
    {
@@ -2708,11 +2940,11 @@
     "from": "inspection:fda-inspection:1099323",
     "to": "site:fei:3001833549",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:06:57.202Z",
+    "validFrom": "2026-10-22T12:47:27.451Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:57.202Z"
+     "at": "2026-10-22T12:47:27.451Z"
     }
    },
    {
@@ -2720,11 +2952,11 @@
     "from": "inspection:fda-inspection:1220482",
     "to": "site:fei:3001833549",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:06:57.202Z",
+    "validFrom": "2026-10-22T12:47:27.451Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:57.202Z"
+     "at": "2026-10-22T12:47:27.451Z"
     }
    },
    {
@@ -2732,11 +2964,11 @@
     "from": "warning-letter:fda-warning-letter:225954",
     "to": "site:fei:3001833549",
     "type": "issued-to",
-    "validFrom": "2026-10-22T09:06:57.202Z",
+    "validFrom": "2026-10-22T12:47:27.451Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:57.202Z"
+     "at": "2026-10-22T12:47:27.451Z"
     }
    }
   ],

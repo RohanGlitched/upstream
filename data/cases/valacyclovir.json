@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-3e9b03",
+ "id": "case-2026-10-22-faf70d",
  "question": "Why is valacyclovir hydrochloride short, and what do we do?",
- "askedAt": "2026-10-22T09:06:22.119Z",
+ "askedAt": "2026-10-22T12:47:02.103Z",
  "asOf": "2026-10-21",
  "molecule": "valacyclovir hydrochloride",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5HDRP0P4M385YSPE8K126YN",
+  "contractId": "01M5HTCWD25QZ3PFQSFKG6YE30",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-c72109"
+    "Q-79c987"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3593,
+   "ms": 3108,
    "rows": 1,
-   "finding": "1 stock lines across 1 hospitals.",
+   "finding": "1 stock lines across 1 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-5544ab"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1119,
+   "ms": 374,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-3fa3fe",
-    "Q-e0bc13"
+    "Q-6e3d1e",
+    "Q-9af2b0"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 551,
+   "ms": 203,
    "rows": 0,
    "finding": "Not on FDA's current shortage list.",
    "status": "empty"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-5b309f"
+    "Q-27740d"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2452,
+   "ms": 1098,
    "rows": 475,
    "finding": "42 labelers make it in this form.",
    "status": "ok"
@@ -78,18 +85,18 @@
    "title": "What FDA found at those plants",
    "purpose": "Read every FDA drug inspection, warning letter, import alert and recall for these plants.",
    "queryIds": [
-    "Q-44461a",
-    "Q-a956f9",
+    "Q-2d826c",
+    "Q-60f426",
     "Q-089f4a",
-    "Q-6fcbb0"
+    "Q-65e6ed"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1689,
+   "ms": 545,
    "rows": 45,
    "finding": "44 inspections (1 OAI at our plants), 1 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,7 +111,7 @@
    "sources": [
     "fda.citations"
    ],
-   "ms": 408,
+   "ms": 132,
    "rows": 2,
    "finding": "2 Form 483 observations recorded.",
    "status": "ok"
@@ -119,9 +126,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 989,
+   "ms": 566,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -129,19 +136,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-f223bf"
+    "Q-3404c3"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1244,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1191,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -163,14 +174,42 @@
    "hospital": "Corvale General",
    "itemKey": "CG-348",
    "ndc11": "51655070304",
-   "description": "Valacyclovir Hydrochloride",
+   "description": "Valacyclovir Hydrochloride 1 g/1",
    "labeler": "Northwind Health Company, LLC",
-   "onHand": 256.22,
+   "onHand": 256,
    "dailyUse": 15.624,
    "days": 16.4,
    "unit": "tablet",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "valacyclovir hydrochloride|1g|tablet||tablet",
+   "presentationLabel": "1 g tablet",
    "evidence": "E1"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "valacyclovir hydrochloride|1g|tablet||tablet",
+   "label": "1 g tablet",
+   "short": "1 g",
+   "unit": "tablet",
+   "onHand": 256,
+   "dailyUse": 15.624,
+   "days": 16.4,
+   "hospitals": [
+    {
+     "hospital": "Corvale General",
+     "onHand": 256,
+     "dailyUse": 15.624,
+     "days": 16.4,
+     "lines": [
+      "CG-348"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -633,60 +672,6 @@
  "options": [
   {
    "kind": "alternate_manufacturer",
-   "rank": 2,
-   "title": "Buy from Proficient Rx LP",
-   "detail": "Not on FDA's shortage list today. Plants: Proficient Rx LP (last inspection VAI 2022-12-08).",
-   "why": "Same product, no clinical change, plant record clear.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from A-S Medication Solutions",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from ASCLEMED USA INC.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from American Health Packaging",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Aphena Pharma Solutions - Tennessee, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Asclemed USA, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Aurobindo Pharma Limited",
    "detail": "Not on FDA's shortage list today. Plants: APL HEALTHCARE LIMITED (last inspection VAI 2025-12-17); Aurobindo Pharma Limited (last inspection VAI 2022-05-10); Aurolife Pharma LLC (last inspection OAI 2021-12-07).",
@@ -706,25 +691,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Bryant Ranch Prepack",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Camber Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Cardinal Health 107, LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -751,15 +718,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Direct Rx",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Direct _Rx",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -769,25 +727,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Direct_Rx",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from GlaxoSmithKline LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Golden State Medical Supply, Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -841,70 +781,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals,Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from NuCare Pharmacuticals,Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from PD-Rx Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Preferred Pharmaceuticals Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Preferred Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Quallent Pharmaceuticals Health LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from REMEDYREPACK INC.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -932,15 +809,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from SUN PHARMACEUTICAL INDUSTRIES, INC.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Safecor Health LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -1039,51 +907,51 @@
   }
  ],
  "explanation": {
-  "state": "confirmed",
-  "headline": "FDA's records trace this shortage to a plant on our own labels",
+  "state": "check",
+  "headline": "Valacyclovir hydrochloride is not on FDA's shortage list as of 2026-10-21; Corvale General has 16.4 days on hand and the current label traces to a repack plant last inspected VAI 2025-09-26",
   "sentences": [
    {
-    "text": "Corvale General has 256 units on hand at 15.6 units per day, providing 16 days of supply.",
+    "text": "FDA's drug shortage list does not include valacyclovir hydrochloride as of 2026-10-21.",
+    "cites": [
+     "D2"
+    ]
+   },
+   {
+    "text": "Corvale General holds 256 tablets of the 1 g presentation, which at 15.6 tablets per day provides 16.4 days on hand.",
     "cites": [
      "D1"
     ]
    },
    {
-    "text": "The product label identifies Northwind Health Company, LLC as the registered plant (FEI 1831143) with a VAI inspection on 2025-09-26.",
+    "text": "The product label (NDC 51655070304) names Northwind Health Company, LLC as the repack plant (FEI 1831143) with a last inspection classification of VAI on 2025-09-26.",
     "cites": [
      "E7"
     ]
    },
    {
-    "text": "FDA inspection 952157 classified the same facility (FEI 1831143, Northwind Pharmaceuticals LLC) as OAI with an end date of 2015-12-09.",
+    "text": "FDA inspection records for FEI 1831143 show a VAI classification on 2025-09-26 (inspection 1256379) and an earlier OAI classification on 2015-12-09 (inspection 952157).",
     "cites": [
+     "E6",
      "E4"
     ]
    },
    {
-    "text": "Subsequent inspections in 2018 and 2025 returned VAI classifications.",
+    "text": "The top-ranked buying option is Aurobindo Pharma Limited, which is not on FDA's shortage list and operates three plants: APL HEALTHCARE LIMITED (VAI 2025-12-17), Aurobindo Pharma Limited (VAI 2022-05-10), and Aurolife Pharma LLC (OAI 2021-12-07).",
     "cites": [
-     "E5",
-     "E6"
+     "D3"
+    ]
+   },
+   {
+    "text": "Alternative manufacturers AvPAK and Camber Pharmaceuticals, Inc. are also not on the shortage list, but their labels name no identifiable plant.",
+    "cites": [
+     "D4",
+     "D5"
     ]
    }
   ],
   "verifier": {
    "checked": 7,
-   "rejected": [
-    {
-     "text": "That OAI classification occurred 3777 days before the posting date of 2026-10-21.",
-     "reason": "date 2026-10-21 is not in the cited evidence"
-    },
-    {
-     "text": "The recommended alternative is Proficient Rx LP, which is not on FDA's shortage list and whose plant last received a VAI inspection on 2022-12-08.",
-     "reason": "date 2022-12-08 is not in the cited evidence"
-    },
-    {
-     "text": "FDA's records trace our supply to a plant classified OAI 3777 days before the posting",
-     "reason": "headline: number 3777 is not in the cited evidence"
-    }
-   ],
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -1091,45 +959,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -1144,110 +1033,115 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T09:06:10.070Z",
+   "at": "2026-10-22T12:46:54.883Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract E8K126YN scope"
+   "reason": "in contract FKG6YE30 scope"
   },
   {
-   "at": "2026-10-22T09:06:10.070Z",
+   "at": "2026-10-22T12:46:54.883Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract E8K126YN scope"
+   "reason": "in contract FKG6YE30 scope"
   },
   {
-   "at": "2026-10-22T09:06:13.664Z",
+   "at": "2026-10-22T12:46:57.992Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract E8K126YN scope"
+   "reason": "in contract FKG6YE30 scope"
   },
   {
-   "at": "2026-10-22T09:06:14.784Z",
+   "at": "2026-10-22T12:46:58.366Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract E8K126YN scope"
+   "reason": "in contract FKG6YE30 scope"
   },
   {
-   "at": "2026-10-22T09:06:15.334Z",
+   "at": "2026-10-22T12:46:58.569Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract E8K126YN scope"
+   "reason": "in contract FKG6YE30 scope"
   },
   {
-   "at": "2026-10-22T09:06:17.786Z",
+   "at": "2026-10-22T12:46:59.667Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract E8K126YN scope"
+   "reason": "in contract FKG6YE30 scope"
   },
   {
-   "at": "2026-10-22T09:06:19.475Z",
+   "at": "2026-10-22T12:47:00.213Z",
    "action": "What FDA wrote at the OAI inspections",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract E8K126YN scope"
+   "reason": "in contract FKG6YE30 scope"
   },
   {
-   "at": "2026-10-22T09:06:19.884Z",
+   "at": "2026-10-22T12:47:00.345Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract E8K126YN scope"
+   "reason": "in contract FKG6YE30 scope"
   },
   {
-   "at": "2026-10-22T09:06:20.873Z",
+   "at": "2026-10-22T12:47:00.911Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract E8K126YN scope"
+   "reason": "in contract FKG6YE30 scope"
   },
   {
-   "at": "2026-10-22T09:06:22.118Z",
+   "at": "2026-10-22T12:47:02.102Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract E8K126YN scope"
+   "reason": "in contract FKG6YE30 scope"
   },
   {
-   "at": "2026-10-22T09:06:22.119Z",
+   "at": "2026-10-22T12:47:02.103Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract E8K126YN scope"
+   "reason": "in contract FKG6YE30 scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-c72109",
+   "queryId": "Q-79c987",
    "row": 0,
-   "label": "Corvale General: Valacyclovir Hydrochloride",
+   "label": "Corvale General: Valacyclovir Hydrochloride 1 g/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-348",
     "ndc11": "51655070304",
     "ndc_as_recorded": "51655070304",
-    "description": "Valacyclovir Hydrochloride",
-    "on_hand": "256.22",
+    "description": "Valacyclovir Hydrochloride 1 g/1",
+    "on_hand": "256.00",
     "daily_use": "15.624",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Valacyclovir Hydrochloride",
     "labeler_name": "Northwind Health Company, LLC",
     "package_ndc": "51655-703-04",
     "spl_set_id": "f98aea50-e4d9-c0cc-e053-6294a90a811c",
     "dosage_form": "TABLET, FILM COATED",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "VALACYCLOVIR HYDROCHLORIDE 1 g/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-44461a",
+   "queryId": "Q-2d826c",
    "row": 1,
    "label": "FDA inspection 944649 (VAI)",
    "fields": {
@@ -1276,7 +1170,7 @@
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-44461a",
+   "queryId": "Q-2d826c",
    "row": 2,
    "label": "FDA inspection 952157 (OAI); Form 483: Penicillin processing area not  kept separate; Cleaning / Sanitizing / Maintenance",
    "fields": {
@@ -1292,7 +1186,7 @@
   },
   "E5": {
    "id": "E5",
-   "queryId": "Q-44461a",
+   "queryId": "Q-2d826c",
    "row": 4,
    "label": "FDA inspection 1073148 (VAI)",
    "fields": {
@@ -1308,7 +1202,7 @@
   },
   "E6": {
    "id": "E6",
-   "queryId": "Q-44461a",
+   "queryId": "Q-2d826c",
    "row": 5,
    "label": "FDA inspection 1256379 (VAI)",
    "fields": {
@@ -1342,184 +1236,244 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 256 units of valacyclovir hydrochloride at 15.6 a day: 16 days on hand",
+   "label": "Corvale General holds 256 tablets of valacyclovir hydrochloride 1 g at 15.6 a day: 16.4 days on hand",
    "fields": {
     "hospital": "Corvale General",
+    "presentation": "1 g tablet",
     "on_hand": 256,
     "daily_use": 15.6,
-    "days_on_hand": 16
+    "days_on_hand": 16.4
+   }
+  },
+  "D2": {
+   "id": "D2",
+   "queryId": "derived",
+   "row": -1,
+   "label": "valacyclovir hydrochloride is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D3": {
+   "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Aurobindo Pharma Limited. Not on FDA's shortage list today. Plants: APL HEALTHCARE LIMITED (last inspection VAI 2025-12-17); Aurobindo Pharma Limited (last inspection VAI 2022-05-10); Aurolife Pharma LLC (last inspection OAI 2021-12-07).",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from AvPAK. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Camber Pharmaceuticals, Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-c72109": {
-   "id": "Q-c72109",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%valacyclovir%' OR lower(s.description) LIKE '%valacyclovir%' ORDER BY s.hospital, s.item_key",
-   "ms": 3591,
+  "Q-79c987": {
+   "id": "Q-79c987",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*valacyclovir(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*valacyclovir(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3107,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T09:06:13.662Z",
+   "ranAt": "2026-10-22T12:46:57.990Z",
    "rows": 1
   },
   "Q-5544ab": {
    "id": "Q-5544ab",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('f98aea50-e4d9-c0cc-e053-6294a90a811c') ORDER BY ps.set_id, ps.establishment",
-   "ms": 1118,
+   "ms": 373,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T09:06:14.782Z",
+   "ranAt": "2026-10-22T12:46:58.365Z",
    "rows": 1
   },
-  "Q-3fa3fe": {
-   "id": "Q-3fa3fe",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%valacyclovir%' ORDER BY status, company_name, package_ndc",
-   "ms": 291,
+  "Q-6e3d1e": {
+   "id": "Q-6e3d1e",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*valacyclovir(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 97,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T09:06:15.075Z",
+   "ranAt": "2026-10-22T12:46:58.463Z",
    "rows": 0
   },
-  "Q-e0bc13": {
-   "id": "Q-e0bc13",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%valacyclovir%' ORDER BY first_posting",
-   "ms": 243,
+  "Q-9af2b0": {
+   "id": "Q-9af2b0",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*valacyclovir(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 103,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T09:06:15.333Z",
+   "ranAt": "2026-10-22T12:46:58.568Z",
    "rows": 0
   },
-  "Q-5b309f": {
-   "id": "Q-5b309f",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%valacyclovir%' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2448,
+  "Q-27740d": {
+   "id": "Q-27740d",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*valacyclovir(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1101,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T09:06:17.782Z",
+   "ranAt": "2026-10-22T12:46:59.665Z",
    "rows": 475
   },
-  "Q-44461a": {
-   "id": "Q-44461a",
-   "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('1831143', '3011895410', '3007373532', '3004021229', '3005796917', '3011557028') ORDER BY fei, end_date",
-   "ms": 722,
+  "Q-2d826c": {
+   "id": "Q-2d826c",
+   "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('1831143', '3011895410', '3007373532', '3005796917', '3004021229', '3011557028') ORDER BY fei, end_date",
+   "ms": 231,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T09:06:18.508Z",
+   "ranAt": "2026-10-22T12:46:59.898Z",
    "rows": 44
   },
-  "Q-a956f9": {
-   "id": "Q-a956f9",
-   "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('1831143', '3011895410', '3007373532', '3004021229', '3005796917', '3011557028') ORDER BY fei, action_date",
-   "ms": 335,
+  "Q-60f426": {
+   "id": "Q-60f426",
+   "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('1831143', '3011895410', '3007373532', '3005796917', '3004021229', '3011557028') ORDER BY fei, action_date",
+   "ms": 104,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T09:06:18.845Z",
+   "ranAt": "2026-10-22T12:47:00.004Z",
    "rows": 1
   },
   "Q-089f4a": {
    "id": "Q-089f4a",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('1831143') OR (fei_match <> 'name_and_city' AND firm_key IN ('northwind health')) ORDER BY date_published",
-   "ms": 326,
+   "ms": 95,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T09:06:19.173Z",
+   "ranAt": "2026-10-22T12:47:00.100Z",
    "rows": 0
   },
-  "Q-6fcbb0": {
-   "id": "Q-6fcbb0",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('northwind health') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%valacyclovir%' ORDER BY initiation_date",
-   "ms": 298,
+  "Q-65e6ed": {
+   "id": "Q-65e6ed",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('northwind health') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*valacyclovir(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 111,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T09:06:19.473Z",
+   "ranAt": "2026-10-22T12:47:00.211Z",
    "rows": 0
   },
   "Q-4696e2": {
    "id": "Q-4696e2",
    "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('952157') ORDER BY inspection_id, cfr",
-   "ms": 406,
+   "ms": 130,
    "mode": "live",
    "sources": [
     "fda.citations"
    ],
-   "ranAt": "2026-10-22T09:06:19.881Z",
+   "ranAt": "2026-10-22T12:47:00.343Z",
    "rows": 2
   },
   "Q-1769ee": {
    "id": "Q-1769ee",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('51655070304')",
-   "ms": 987,
+   "ms": 564,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T09:06:20.871Z",
+   "ranAt": "2026-10-22T12:47:00.909Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2522,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T09:00:21.184Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 2080,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T09:00:23.265Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 2458,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T09:00:25.725Z",
-   "rows": 2
-  },
-  "Q-f223bf": {
-   "id": "Q-f223bf",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%valacyclovir%'",
-   "ms": 1242,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T09:06:22.115Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-3404c3": {
+   "id": "Q-3404c3",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*valacyclovir(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1190,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:47:02.101Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 15,
-  "zetarisMs": 19067,
+  "zetarisMs": 17414,
   "modelCalls": 1,
-  "tokensIn": 945,
-  "tokensOut": 382,
+  "tokensIn": 1384,
+  "tokensOut": 541,
   "mode": "live"
  },
  "slug": "valacyclovir",
@@ -1532,7 +1486,7 @@
     "id": "hospital-item:hospital-item:CG-348",
     "type": "HospitalItem",
     "key": "hospital-item:CG-348",
-    "label": "Corvale General: Valacyclovir Hydrochloride",
+    "label": "Corvale General: Valacyclovir Hydrochloride 1 g/1",
     "attrs": {
      "key": "hospital-item:CG-348"
     },
@@ -1605,7 +1559,7 @@
     },
     "facts": [
      {
-      "id": "fact_b51f79c521937f7a",
+      "id": "fact_b82b0bfe6c2312af",
       "about": "inspection:fda-inspection:1073148",
       "predicate": "classification",
       "value": "VAI",
@@ -1613,9 +1567,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:06:19.883Z"
+       "at": "2026-10-22T12:47:00.344Z"
       },
-      "assertedAt": "2026-10-22T09:06:19.883Z"
+      "assertedAt": "2026-10-22T12:47:00.344Z"
      }
     ],
     "depth": 4
@@ -1631,7 +1585,7 @@
     },
     "facts": [
      {
-      "id": "fact_01e398bb3cafbf40",
+      "id": "fact_5711b102bdbf8222",
       "about": "inspection:fda-inspection:1256379",
       "predicate": "classification",
       "value": "VAI",
@@ -1639,9 +1593,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:06:19.883Z"
+       "at": "2026-10-22T12:47:00.344Z"
       },
-      "assertedAt": "2026-10-22T09:06:19.883Z"
+      "assertedAt": "2026-10-22T12:47:00.344Z"
      }
     ],
     "depth": 4
@@ -1657,7 +1611,7 @@
     },
     "facts": [
      {
-      "id": "fact_433dfd58eaf23f34",
+      "id": "fact_b465c7a2c266b592",
       "about": "inspection:fda-inspection:944649",
       "predicate": "classification",
       "value": "VAI",
@@ -1665,9 +1619,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:06:19.883Z"
+       "at": "2026-10-22T12:47:00.344Z"
       },
-      "assertedAt": "2026-10-22T09:06:19.883Z"
+      "assertedAt": "2026-10-22T12:47:00.344Z"
      }
     ],
     "depth": 4
@@ -1683,7 +1637,7 @@
     },
     "facts": [
      {
-      "id": "fact_aa27b644997f8d73",
+      "id": "fact_4352189834c82202",
       "about": "inspection:fda-inspection:952157",
       "predicate": "classification",
       "value": "OAI",
@@ -1691,9 +1645,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:06:19.883Z"
+       "at": "2026-10-22T12:47:00.344Z"
       },
-      "assertedAt": "2026-10-22T09:06:19.883Z"
+      "assertedAt": "2026-10-22T12:47:00.344Z"
      }
     ],
     "depth": 4
@@ -1705,11 +1659,11 @@
     "from": "hospital-item:hospital-item:CG-348",
     "to": "package:ndc-package:51655-703-04",
     "type": "stocks",
-    "validFrom": "2026-10-22T09:06:13.664Z",
+    "validFrom": "2026-10-22T12:46:57.991Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:13.664Z"
+     "at": "2026-10-22T12:46:57.991Z"
     }
    },
    {
@@ -1717,11 +1671,11 @@
     "from": "package:ndc-package:51655-703-04",
     "to": "product:ndc-product:51655-703",
     "type": "package-of",
-    "validFrom": "2026-10-22T09:06:13.664Z",
+    "validFrom": "2026-10-22T12:46:57.991Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:13.664Z"
+     "at": "2026-10-22T12:46:57.991Z"
     }
    },
    {
@@ -1729,11 +1683,11 @@
     "from": "product:ndc-product:51655-703",
     "to": "drug:generic:valacyclovir hydrochloride",
     "type": "of-drug",
-    "validFrom": "2026-10-22T09:06:13.664Z",
+    "validFrom": "2026-10-22T12:46:57.991Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:13.664Z"
+     "at": "2026-10-22T12:46:57.991Z"
     }
    },
    {
@@ -1741,11 +1695,11 @@
     "from": "product:ndc-product:51655-703",
     "to": "labeler:ndc-labeler:51655",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T09:06:13.664Z",
+    "validFrom": "2026-10-22T12:46:57.991Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:13.664Z"
+     "at": "2026-10-22T12:46:57.991Z"
     }
    },
    {
@@ -1753,11 +1707,11 @@
     "from": "product:ndc-product:51655-703",
     "to": "site:fei:1831143",
     "type": "made-at",
-    "validFrom": "2026-10-22T09:06:19.883Z",
+    "validFrom": "2026-10-22T12:47:00.344Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:19.883Z"
+     "at": "2026-10-22T12:47:00.344Z"
     }
    },
    {
@@ -1765,11 +1719,11 @@
     "from": "inspection:fda-inspection:944649",
     "to": "site:fei:1831143",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:06:19.883Z",
+    "validFrom": "2026-10-22T12:47:00.344Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:19.883Z"
+     "at": "2026-10-22T12:47:00.344Z"
     }
    },
    {
@@ -1777,11 +1731,11 @@
     "from": "inspection:fda-inspection:952157",
     "to": "site:fei:1831143",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:06:19.883Z",
+    "validFrom": "2026-10-22T12:47:00.344Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:19.883Z"
+     "at": "2026-10-22T12:47:00.344Z"
     }
    },
    {
@@ -1789,11 +1743,11 @@
     "from": "inspection:fda-inspection:1073148",
     "to": "site:fei:1831143",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:06:19.883Z",
+    "validFrom": "2026-10-22T12:47:00.344Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:19.883Z"
+     "at": "2026-10-22T12:47:00.344Z"
     }
    },
    {
@@ -1801,11 +1755,11 @@
     "from": "inspection:fda-inspection:1256379",
     "to": "site:fei:1831143",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:06:19.883Z",
+    "validFrom": "2026-10-22T12:47:00.344Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:06:19.883Z"
+     "at": "2026-10-22T12:47:00.344Z"
     }
    }
   ],

@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-ec6c00",
+ "id": "case-2026-10-22-ccd6a2",
  "question": "Why is docetaxel short, and what do we do?",
- "askedAt": "2026-10-22T07:41:39.599Z",
+ "askedAt": "2026-10-22T11:51:41.408Z",
  "asOf": "2026-10-21",
  "molecule": "docetaxel",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H8XN88FNGB8T5T1QB6608Y",
+  "contractId": "01M5HQ7FNEK65FT3AD7XBWSY1B",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-73dc63"
+    "Q-94da6d"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2776,
+   "ms": 4027,
    "rows": 2,
-   "finding": "2 stock lines across 2 hospitals.",
+   "finding": "2 stock lines across 2 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-2f9a78"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 835,
+   "ms": 444,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 0 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-ce38a9",
-    "Q-77149d"
+    "Q-7ebaae",
+    "Q-3d41af"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 398,
+   "ms": 251,
    "rows": 3,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-cd988d"
+    "Q-82ef33"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2005,
+   "ms": 1138,
    "rows": 81,
    "finding": "23 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-808a5c",
     "Q-de2bfd",
     "Q-c77df6",
-    "Q-c0fcb2"
+    "Q-9f9f27"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1093,
+   "ms": 648,
    "rows": 0,
    "finding": "0 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "empty"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1005,
+   "ms": 691,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-77a80b"
+    "Q-f5fb16"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1237,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1936,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -153,22 +164,65 @@
    "onHand": 52,
    "dailyUse": 2.481,
    "days": 21,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "docetaxel|160mg/8ml|injection|8ml|vial",
+   "presentationLabel": "160 mg/8 mL injection, 8 mL vial",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-201",
    "ndc11": "70121122301",
-   "description": "Docetaxel",
+   "description": "Docetaxel 160 mg/8mL",
    "labeler": "Amneal Pharmaceuticals LLC",
-   "onHand": 81.77,
+   "onHand": 81,
    "dailyUse": 2.903,
-   "days": 28.2,
+   "days": 27.9,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "docetaxel|160mg/8ml|injection|8ml|vial",
+   "presentationLabel": "160 mg/8 mL injection, 8 mL vial",
    "evidence": "E2"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "docetaxel|160mg/8ml|injection|8ml|vial",
+   "label": "160 mg/8 mL injection, 8 mL vial",
+   "short": "160 mg/8 mL, 8 mL",
+   "unit": "vial",
+   "onHand": 133,
+   "dailyUse": 5.384,
+   "days": 24.7,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 52,
+     "dailyUse": 2.481,
+     "days": 21,
+     "lines": [
+      "EA-E-000261"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 81,
+     "dailyUse": 2.903,
+     "days": 27.9,
+     "lines": [
+      "CG-201"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -621,42 +675,42 @@
  ],
  "explanation": {
   "state": "no_signal",
-  "headline": "FDA shortage list shows Ingenus Pharmaceuticals LLC discontinued docetaxel on 2026-02-20; no FDA signal at our plants",
+  "headline": "Docetaxel is not on FDA's shortage list as of 2026-10-21",
   "sentences": [
    {
-    "text": "FDA's shortage list records Ingenus Pharmaceuticals LLC as To Be Discontinued for docetaxel with an initial posting date of 2026-02-20 and a business decision to discontinue manufacture.",
+    "text": "FDA's records show docetaxel is not on the drug shortage list as of 2026-10-21.",
     "cites": [
-     "E4"
+     "D3"
     ]
    },
    {
-    "text": "No FDA shortage signal is posted for the plants supplying Corvale East or Corvale General.",
-    "cites": [
-     "E4"
-    ]
-   },
-   {
-    "text": "Corvale East holds 52 units at 2.5 per day for 21 days on hand.",
+    "text": "Corvale East holds 52 vials of docetaxel 160 mg/8 mL with 21 days on hand at current use.",
     "cites": [
      "D1"
     ]
    },
    {
-    "text": "Corvale General holds 82 units at 2.9 per day for 28 days on hand.",
+    "text": "Corvale General holds 81 vials of the same presentation with 27.9 days on hand at current use.",
     "cites": [
      "D2"
     ]
    },
    {
-    "text": "The label for NDC 70121122301 names Amneal Oncology Pvt. Ltd. Telangana 509301 as the manufacturing plant.",
+    "text": "Ingenus Pharmaceuticals LLC has a product listed as To Be Discontinued on the FDA shortage list with an initial posting date of 2026-02-20.",
     "cites": [
-     "E3"
+     "E4"
     ]
    },
    {
-    "text": "Best option by rule is to buy from Accord Healthcare Inc., which is not on FDA's shortage list today.",
+    "text": "The best option by rule is to buy from Accord Healthcare Inc., which is not on FDA's shortage list today.",
     "cites": [
-     "E4"
+     "D4"
+    ]
+   },
+   {
+    "text": "Accord Healthcare Inc.'s label names no plant we could place.",
+    "cites": [
+     "D4"
     ]
    }
   ],
@@ -670,45 +724,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -730,80 +805,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:41:30.248Z",
+   "at": "2026-10-22T11:51:32.271Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract 1QB6608Y scope"
+   "reason": "in contract 7XBWSY1B scope"
   },
   {
-   "at": "2026-10-22T07:41:30.248Z",
+   "at": "2026-10-22T11:51:32.271Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 1QB6608Y scope"
+   "reason": "in contract 7XBWSY1B scope"
   },
   {
-   "at": "2026-10-22T07:41:33.025Z",
+   "at": "2026-10-22T11:51:36.298Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 1QB6608Y scope"
+   "reason": "in contract 7XBWSY1B scope"
   },
   {
-   "at": "2026-10-22T07:41:33.859Z",
+   "at": "2026-10-22T11:51:36.743Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 1QB6608Y scope"
+   "reason": "in contract 7XBWSY1B scope"
   },
   {
-   "at": "2026-10-22T07:41:34.257Z",
+   "at": "2026-10-22T11:51:36.993Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 1QB6608Y scope"
+   "reason": "in contract 7XBWSY1B scope"
   },
   {
-   "at": "2026-10-22T07:41:36.263Z",
+   "at": "2026-10-22T11:51:38.131Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 1QB6608Y scope"
+   "reason": "in contract 7XBWSY1B scope"
   },
   {
-   "at": "2026-10-22T07:41:37.355Z",
+   "at": "2026-10-22T11:51:38.780Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 1QB6608Y scope"
+   "reason": "in contract 7XBWSY1B scope"
   },
   {
-   "at": "2026-10-22T07:41:38.360Z",
+   "at": "2026-10-22T11:51:39.470Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 1QB6608Y scope"
+   "reason": "in contract 7XBWSY1B scope"
   },
   {
-   "at": "2026-10-22T07:41:39.597Z",
+   "at": "2026-10-22T11:51:41.406Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract 1QB6608Y scope"
+   "reason": "in contract 7XBWSY1B scope"
   },
   {
-   "at": "2026-10-22T07:41:39.600Z",
+   "at": "2026-10-22T11:51:41.408Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract 1QB6608Y scope"
+   "reason": "in contract 7XBWSY1B scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-73dc63",
+   "queryId": "Q-94da6d",
    "row": 0,
    "label": "Corvale East: DOCETAXEL 160MG/8ML 8ML SDV",
    "fields": {
@@ -814,37 +889,47 @@
     "description": "DOCETAXEL 160MG/8ML 8ML SDV",
     "on_hand": "52.00",
     "daily_use": "2.481",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Docetaxel",
     "labeler_name": "Amneal Pharmaceuticals LLC",
     "package_ndc": "70121-1223-1",
     "spl_set_id": "67508df6-b96f-46fa-a792-0afcdfa9810e",
     "dosage_form": "INJECTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "DOCETAXEL ANHYDROUS 160 mg/8mL",
+    "unit_content": "8 mL",
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-73dc63",
+   "queryId": "Q-94da6d",
    "row": 1,
-   "label": "Corvale General: Docetaxel",
+   "label": "Corvale General: Docetaxel 160 mg/8mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-201",
     "ndc11": "70121122301",
     "ndc_as_recorded": "70121122301",
-    "description": "Docetaxel",
-    "on_hand": "81.77",
+    "description": "Docetaxel 160 mg/8mL",
+    "on_hand": "81.00",
     "daily_use": "2.903",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Docetaxel",
     "labeler_name": "Amneal Pharmaceuticals LLC",
     "package_ndc": "70121-1223-1",
     "spl_set_id": "67508df6-b96f-46fa-a792-0afcdfa9810e",
     "dosage_form": "INJECTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "DOCETAXEL ANHYDROUS 160 mg/8mL",
+    "unit_content": "8 mL",
+    "pkg_unit": "vial"
    }
   },
   "E3": {
@@ -865,7 +950,7 @@
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-ce38a9",
+   "queryId": "Q-7ebaae",
    "row": 0,
    "label": "FDA shortage list: Ingenus Pharmaceuticals LLC, To Be Discontinued",
    "fields": {
@@ -882,9 +967,10 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 52 units of docetaxel at 2.5 a day: 21 days on hand",
+   "label": "Corvale East holds 52 vials of docetaxel 160 mg/8 mL, 8 mL at 2.5 a day: 21 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "160 mg/8 mL injection, 8 mL vial",
     "on_hand": 52,
     "daily_use": 2.5,
     "days_on_hand": 21
@@ -894,173 +980,233 @@
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 82 units of docetaxel at 2.9 a day: 28 days on hand",
+   "label": "Corvale General holds 81 vials of docetaxel 160 mg/8 mL, 8 mL at 2.9 a day: 27.9 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 82,
+    "presentation": "160 mg/8 mL injection, 8 mL vial",
+    "on_hand": 81,
     "daily_use": 2.9,
-    "days_on_hand": 28
+    "days_on_hand": 27.9
+   }
+  },
+  "D3": {
+   "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "docetaxel is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Accord Healthcare Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Actavis Pharma, Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Alembic Pharmaceuticals Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-73dc63": {
-   "id": "Q-73dc63",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%docetaxel%' OR lower(s.description) LIKE '%docetaxel%' ORDER BY s.hospital, s.item_key",
-   "ms": 2774,
+  "Q-94da6d": {
+   "id": "Q-94da6d",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*docetaxel(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*docetaxel(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 4026,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:41:33.022Z",
+   "ranAt": "2026-10-22T11:51:36.297Z",
    "rows": 2
   },
   "Q-2f9a78": {
    "id": "Q-2f9a78",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('67508df6-b96f-46fa-a792-0afcdfa9810e') ORDER BY ps.set_id, ps.establishment",
-   "ms": 832,
+   "ms": 443,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:41:33.857Z",
+   "ranAt": "2026-10-22T11:51:36.741Z",
    "rows": 1
   },
-  "Q-ce38a9": {
-   "id": "Q-ce38a9",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%docetaxel%' ORDER BY status, company_name, package_ndc",
-   "ms": 182,
+  "Q-7ebaae": {
+   "id": "Q-7ebaae",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*docetaxel(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 129,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:41:34.041Z",
+   "ranAt": "2026-10-22T11:51:36.872Z",
    "rows": 2
   },
-  "Q-77149d": {
-   "id": "Q-77149d",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%docetaxel%' ORDER BY first_posting",
-   "ms": 213,
+  "Q-3d41af": {
+   "id": "Q-3d41af",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*docetaxel(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 119,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:41:34.256Z",
+   "ranAt": "2026-10-22T11:51:36.992Z",
    "rows": 1
   },
-  "Q-cd988d": {
-   "id": "Q-cd988d",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%docetaxel%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2002,
+  "Q-82ef33": {
+   "id": "Q-82ef33",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*docetaxel(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1136,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:41:36.259Z",
+   "ranAt": "2026-10-22T11:51:38.129Z",
    "rows": 81
   },
   "Q-808a5c": {
    "id": "Q-808a5c",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('') ORDER BY fei, end_date",
-   "ms": 436,
+   "ms": 239,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:41:36.699Z",
+   "ranAt": "2026-10-22T11:51:38.369Z",
    "rows": 0
   },
   "Q-de2bfd": {
    "id": "Q-de2bfd",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('') ORDER BY fei, action_date",
-   "ms": 166,
+   "ms": 132,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:41:36.867Z",
+   "ranAt": "2026-10-22T11:51:38.503Z",
    "rows": 0
   },
   "Q-c77df6": {
    "id": "Q-c77df6",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('') OR (fei_match <> 'name_and_city' AND firm_key IN ('amneal oncology telangana 509301')) ORDER BY date_published",
-   "ms": 218,
+   "ms": 117,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:41:37.087Z",
+   "ranAt": "2026-10-22T11:51:38.621Z",
    "rows": 0
   },
-  "Q-c0fcb2": {
-   "id": "Q-c0fcb2",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('amneal oncology telangana 509301', 'amneal') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%docetaxel%' ORDER BY initiation_date",
-   "ms": 265,
+  "Q-9f9f27": {
+   "id": "Q-9f9f27",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('amneal oncology telangana 509301', 'amneal') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*docetaxel(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 157,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:41:37.353Z",
+   "ranAt": "2026-10-22T11:51:38.778Z",
    "rows": 0
   },
   "Q-dac92f": {
    "id": "Q-dac92f",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('70121122301')",
-   "ms": 1002,
+   "ms": 689,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:41:38.358Z",
+   "ranAt": "2026-10-22T11:51:39.469Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-77a80b": {
-   "id": "Q-77a80b",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%docetaxel%'",
-   "ms": 1235,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:41:39.595Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-f5fb16": {
+   "id": "Q-f5fb16",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*docetaxel(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1935,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:51:41.405Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 14696,
+  "zetarisMs": 19330,
   "modelCalls": 1,
-  "tokensIn": 654,
-  "tokensOut": 344,
+  "tokensIn": 1018,
+  "tokensOut": 323,
   "mode": "live"
  },
  "slug": "docetaxel",
@@ -1074,7 +1220,7 @@
     "id": "hospital-item:hospital-item:CG-201",
     "type": "HospitalItem",
     "key": "hospital-item:CG-201",
-    "label": "Corvale General: Docetaxel",
+    "label": "Corvale General: Docetaxel 160 mg/8mL",
     "attrs": {
      "key": "hospital-item:CG-201"
     },
@@ -1143,11 +1289,11 @@
     "from": "hospital-item:hospital-item:CG-201",
     "to": "package:ndc-package:70121-1223-1",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:41:33.024Z",
+    "validFrom": "2026-10-22T11:51:36.298Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:41:33.024Z"
+     "at": "2026-10-22T11:51:36.298Z"
     }
    },
    {
@@ -1155,11 +1301,11 @@
     "from": "hospital-item:hospital-item:EA-E-000261",
     "to": "package:ndc-package:70121-1223-1",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:41:33.024Z",
+    "validFrom": "2026-10-22T11:51:36.298Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:41:33.024Z"
+     "at": "2026-10-22T11:51:36.298Z"
     }
    },
    {
@@ -1167,11 +1313,11 @@
     "from": "package:ndc-package:70121-1223-1",
     "to": "product:ndc-product:70121-1223",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:41:33.024Z",
+    "validFrom": "2026-10-22T11:51:36.298Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:41:33.024Z"
+     "at": "2026-10-22T11:51:36.298Z"
     }
    },
    {
@@ -1179,11 +1325,11 @@
     "from": "product:ndc-product:70121-1223",
     "to": "drug:generic:docetaxel",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:41:33.024Z",
+    "validFrom": "2026-10-22T11:51:36.298Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:41:33.024Z"
+     "at": "2026-10-22T11:51:36.298Z"
     }
    },
    {
@@ -1191,11 +1337,11 @@
     "from": "product:ndc-product:70121-1223",
     "to": "labeler:ndc-labeler:70121",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:41:33.024Z",
+    "validFrom": "2026-10-22T11:51:36.298Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:41:33.024Z"
+     "at": "2026-10-22T11:51:36.298Z"
     }
    }
   ],

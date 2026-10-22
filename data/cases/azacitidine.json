@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-e0c976",
+ "id": "case-2026-10-22-382684",
  "question": "Why is azacitidine short, and what do we do?",
- "askedAt": "2026-10-22T07:27:00.361Z",
+ "askedAt": "2026-10-22T11:31:58.230Z",
  "asOf": "2026-10-21",
  "molecule": "azacitidine",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H82WYFEKRFXYEEVHGKEWTJ",
+  "contractId": "01M5HP3DASKDFDMSJ9JVNSRERH",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-a8ca13"
+    "Q-9a16d3"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1969,
+   "ms": 3122,
    "rows": 6,
-   "finding": "6 stock lines across 3 hospitals.",
+   "finding": "6 stock lines across 3 hospitals, 2 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-1acdad"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 453,
+   "ms": 402,
    "rows": 3,
    "finding": "3 plant links on 2 labels; 3 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-bd4a69",
-    "Q-c8869f"
+    "Q-4b32c1",
+    "Q-9153fb"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 220,
+   "ms": 209,
    "rows": 11,
    "finding": "On FDA's list as Current for 9 companies.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-3f4fe4"
+    "Q-0355d1"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1401,
+   "ms": 1181,
    "rows": 27,
    "finding": "21 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-88f21b",
     "Q-8491c9",
     "Q-7f314d",
-    "Q-d5d4eb"
+    "Q-e38a89"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 760,
+   "ms": 576,
    "rows": 63,
    "finding": "56 inspections (1 OAI at our plants), 5 compliance actions, 2 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,7 +111,7 @@
    "sources": [
     "fda.citations"
    ],
-   "ms": 177,
+   "ms": 135,
    "rows": 11,
    "finding": "11 Form 483 observations recorded.",
    "status": "ok"
@@ -119,9 +126,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1088,
+   "ms": 915,
    "rows": 2,
    "finding": "2 approved interchanges on file.",
    "status": "ok"
@@ -129,19 +136,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-683d77"
+    "Q-dea502"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 899,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1453,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -168,8 +179,11 @@
    "onHand": 46,
    "dailyUse": 2.855,
    "days": 16.1,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "azacitidine|100mg|injection||vial",
+   "presentationLabel": "100 mg injection",
    "evidence": "E1"
   },
   {
@@ -181,34 +195,43 @@
    "onHand": 29,
    "dailyUse": 3.229,
    "days": 9,
-   "unit": "package",
+   "unit": "each",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "azacitidine|100mg|injection||each",
+   "presentationLabel": "100 mg injection",
    "evidence": "E2"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-3",
    "ndc11": "00143960601",
-   "description": "Azacitidine",
+   "description": "Azacitidine 100 mg/1",
    "labeler": "Hikma Pharmaceuticals USA Inc.",
-   "onHand": 33.05,
+   "onHand": 33,
    "dailyUse": 2.928,
    "days": 11.3,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "azacitidine|100mg|injection||vial",
+   "presentationLabel": "100 mg injection",
    "evidence": "E3"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-4",
    "ndc11": "16729030610",
-   "description": "Azacitidine",
+   "description": "Azacitidine 100 mg/1",
    "labeler": "Accord Healthcare Inc.",
-   "onHand": 55.62,
+   "onHand": 55,
    "dailyUse": 2.81,
-   "days": 19.8,
+   "days": 19.6,
    "unit": "each",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "azacitidine|100mg|injection||each",
+   "presentationLabel": "100 mg injection",
    "evidence": "E4"
   },
   {
@@ -222,6 +245,9 @@
    "days": 18.2,
    "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "azacitidine|100mg|injection||vial",
+   "presentationLabel": "100 mg injection",
    "evidence": "E5"
   },
   {
@@ -235,7 +261,106 @@
    "days": 12.7,
    "unit": "each",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "azacitidine|100mg|injection||each",
+   "presentationLabel": "100 mg injection",
    "evidence": "E6"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "azacitidine|100mg|injection||each",
+   "label": "100 mg injection",
+   "short": "100 mg",
+   "unit": "each",
+   "onHand": 95,
+   "dailyUse": 6.902,
+   "days": 13.8,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 29,
+     "dailyUse": 3.229,
+     "days": 9,
+     "lines": [
+      "EA-E-000136"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 55,
+     "dailyUse": 2.81,
+     "days": 19.6,
+     "lines": [
+      "CG-4"
+     ],
+     "evidence": [
+      "E4"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 11,
+     "dailyUse": 0.863,
+     "days": 12.7,
+     "lines": [
+      "LS-LS-0055"
+     ],
+     "evidence": [
+      "E6"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "azacitidine|100mg|injection||vial",
+   "label": "100 mg injection",
+   "short": "100 mg",
+   "unit": "vial",
+   "onHand": 90,
+   "dailyUse": 6.386,
+   "days": 14.1,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 46,
+     "dailyUse": 2.855,
+     "days": 16.1,
+     "lines": [
+      "EA-E-000040"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 33,
+     "dailyUse": 2.928,
+     "days": 11.3,
+     "lines": [
+      "CG-3"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 11,
+     "dailyUse": 0.603,
+     "days": 18.2,
+     "lines": [
+      "LS-LS-0016"
+     ],
+     "evidence": [
+      "E5"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -887,6 +1012,29 @@
  ],
  "options": [
   {
+   "kind": "transfer",
+   "rank": 1,
+   "title": "Transfer 15 units of 100 mg from Corvale General to Corvale East",
+   "detail": "Corvale General has 20 days of 100 mg injection on hand and can spare 15 units while keeping two weeks; Corvale East has 9 days and would reach 14.",
+   "why": "Same presentation, no clinical change, no new supplier.",
+   "needs": "pharmacy director (transfer request)",
+   "evidence": [
+    "E4",
+    "E2"
+   ],
+   "transfer": {
+    "qty": 15,
+    "unit": "each",
+    "presentation": "100 mg injection",
+    "from": "Corvale General",
+    "to": "Corvale East",
+    "fromDays": 19.6,
+    "toDays": 9,
+    "fromAfter": 14,
+    "toAfter": 14
+   }
+  },
+  {
    "kind": "alternate_manufacturer",
    "rank": 2,
    "title": "Buy from BluePoint Laboratories",
@@ -894,28 +1042,6 @@
    "why": "Same product, no clinical change, plant record clear.",
    "needs": "buyer",
    "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 2,
-   "title": "Same product, alternate manufacturer: Azacitidine 100 mg/1 from Hikma Pharmaceuticals USA Inc.",
-   "detail": "Same product from Hikma Pharmaceuticals USA Inc.; substitute NDC, no clinical change. Approved by Riley Brooks, PharmD on 2026-04-04.",
-   "why": "Already approved by the P&T committee.",
-   "needs": "pharmacist",
-   "evidence": [
-    "E44"
-   ]
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 2,
-   "title": "Same product, alternate manufacturer: Azacitidine 100 mg/1 from Accord Healthcare Inc.",
-   "detail": "Same product from Accord Healthcare Inc.; substitute NDC, no clinical change. Approved by Jordan Hale, PharmD on 2025-09-24.",
-   "why": "Already approved by the P&T committee.",
-   "needs": "pharmacist",
-   "evidence": [
-    "E45"
-   ]
   },
   {
    "kind": "alternate_manufacturer",
@@ -1024,6 +1150,28 @@
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
    "evidence": []
+  },
+  {
+   "kind": "alternate_concentration",
+   "rank": 5,
+   "title": "Same molecule, alternate concentration or vial size: Azacitidine 100 mg/1 from Hikma Pharmaceuticals USA Inc.",
+   "detail": "Same product from Hikma Pharmaceuticals USA Inc.; substitute NDC, no clinical change. Approved by Riley Brooks, PharmD on 2026-04-04. FDA lists this product Current (posted 2020-12-18).",
+   "why": "Already approved by the P&T committee.",
+   "needs": "pharmacist",
+   "evidence": [
+    "E44"
+   ]
+  },
+  {
+   "kind": "alternate_concentration",
+   "rank": 5,
+   "title": "Same molecule, alternate concentration or vial size: Azacitidine 100 mg/1 from Accord Healthcare Inc.",
+   "detail": "Same product from Accord Healthcare Inc.; substitute NDC, no clinical change. Approved by Jordan Hale, PharmD on 2025-09-24. FDA lists this product Current (posted 2020-12-21).",
+   "why": "Already approved by the P&T committee.",
+   "needs": "pharmacist",
+   "evidence": [
+    "E45"
+   ]
   }
  ],
  "timeline": [
@@ -1085,55 +1233,58 @@
   }
  ],
  "explanation": {
-  "state": "confirmed",
-  "headline": "FDA's records trace our supply to a plant classified OAI 714 days after the shortage posting and subject to import alerts and warning letters",
+  "state": "check",
+  "headline": "FDA's records trace our supply to a plant classified OAI 714 days after the shortage posting",
   "sentences": [
    {
-    "text": "FDA first posted the azacitidine shortage on 2020-12-18 and it remains current as of 2026-10-21, spanning 70 months.",
+    "text": "FDA first posted the azacitidine shortage on 2020-12-18 and it remains current as of 2026-10-21.",
     "cites": [
      "E43",
      "D14"
     ]
    },
    {
-    "text": "A registered plant for Accord Healthcare's product, Intas Pharmaceuticals Limited (FEI 3004011473), received an OAI classification on 2022-12-02, 714 days after the shortage posting.",
+    "text": "Our Corvale General and Corvale East inventory both carry NDC 16729030610 labeled by Accord Healthcare Inc.",
     "cites": [
-     "D9",
-     "E22",
+     "E4",
+     "E2"
+    ]
+   },
+   {
+    "text": "That NDC's SPL set ID 70140e11 names Intas Pharmaceuticals Limited as the manufacturing plant.",
+    "cites": [
+     "E22"
+    ]
+   },
+   {
+    "text": "FDA inspected Intas Pharmaceuticals Limited (FEI 3004011473) ending 2022-12-02 and classified it OAI with 11 observations on the Form 483.",
+    "cites": [
      "E18"
     ]
    },
    {
-    "text": "FDA issued an import alert (66-40) for Intas Pharmaceuticals Limited on 2023-06-01 and again on 2023-11-14, and warning letters on 2023-07-28 and 2023-11-21 for two Intas sites.",
+    "text": "The OAI classification letter is dated 2023-04-05, which is 714 days after the shortage posting on 2020-12-18.",
+    "cites": [
+     "D12"
+    ]
+   },
+   {
+    "text": "An import alert 66-40 for Intas Pharmaceuticals Limited was published on 2023-06-01 and a warning letter issued on 2023-07-28.",
     "cites": [
      "E20",
-     "E21",
-     "E19",
-     "E31"
+     "E19"
     ]
    },
    {
-    "text": "An alternate manufacturer option ranked by rule is BluePoint Laboratories, which is not on FDA's shortage list today and uses Sindan-Pharma Srl (last inspection NAI 2024-08-02).",
+    "text": "The rule-based best option is to transfer 15 units of 100 mg from Corvale General to Corvale East, which would give Corvale East 14 days on hand while Corvale General retains two weeks.",
     "cites": [
-     "D11"
-    ]
-   },
-   {
-    "text": "P&T-approved interchange options include Hikma Pharmaceuticals USA Inc. (approved 2026-04-04) and Accord Healthcare Inc. (approved 2025-09-24) as same-product alternates.",
-    "cites": [
-     "D12",
-     "D13"
+     "D15"
     ]
    }
   ],
   "verifier": {
-   "checked": 7,
-   "rejected": [
-    {
-     "text": "Multiple earlier inspections of Intas sites were classified VAI between 2019 and 2022, with classification letters issued 294 to 570 days before the shortage posting.",
-     "reason": "number 2022 is not in the cited evidence"
-    }
-   ],
+   "checked": 8,
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -1141,132 +1292,153 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [],
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:26:53.391Z",
+   "at": "2026-10-22T11:31:50.233Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract VHGKEWTJ scope"
+   "reason": "in contract JVNSRERH scope"
   },
   {
-   "at": "2026-10-22T07:26:53.391Z",
+   "at": "2026-10-22T11:31:50.233Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract VHGKEWTJ scope"
+   "reason": "in contract JVNSRERH scope"
   },
   {
-   "at": "2026-10-22T07:26:55.361Z",
+   "at": "2026-10-22T11:31:53.356Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract VHGKEWTJ scope"
+   "reason": "in contract JVNSRERH scope"
   },
   {
-   "at": "2026-10-22T07:26:55.814Z",
+   "at": "2026-10-22T11:31:53.759Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract VHGKEWTJ scope"
+   "reason": "in contract JVNSRERH scope"
   },
   {
-   "at": "2026-10-22T07:26:56.034Z",
+   "at": "2026-10-22T11:31:53.967Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract VHGKEWTJ scope"
+   "reason": "in contract JVNSRERH scope"
   },
   {
-   "at": "2026-10-22T07:26:57.435Z",
+   "at": "2026-10-22T11:31:55.148Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract VHGKEWTJ scope"
+   "reason": "in contract JVNSRERH scope"
   },
   {
-   "at": "2026-10-22T07:26:58.195Z",
+   "at": "2026-10-22T11:31:55.724Z",
    "action": "What FDA wrote at the OAI inspections",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract VHGKEWTJ scope"
+   "reason": "in contract JVNSRERH scope"
   },
   {
-   "at": "2026-10-22T07:26:58.374Z",
+   "at": "2026-10-22T11:31:55.862Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract VHGKEWTJ scope"
+   "reason": "in contract JVNSRERH scope"
   },
   {
-   "at": "2026-10-22T07:26:59.462Z",
+   "at": "2026-10-22T11:31:56.776Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract VHGKEWTJ scope"
+   "reason": "in contract JVNSRERH scope"
   },
   {
-   "at": "2026-10-22T07:27:00.361Z",
+   "at": "2026-10-22T11:31:58.229Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract VHGKEWTJ scope"
+   "reason": "in contract JVNSRERH scope"
   },
   {
-   "at": "2026-10-22T07:27:00.361Z",
+   "at": "2026-10-22T11:31:58.230Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract VHGKEWTJ scope"
+   "reason": "in contract JVNSRERH scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-a8ca13",
+   "queryId": "Q-9a16d3",
    "row": 0,
    "label": "Corvale East: AZACITIDINE 100MG",
    "fields": {
@@ -1277,19 +1449,24 @@
     "description": "AZACITIDINE 100MG",
     "on_hand": "46.00",
     "daily_use": "2.855",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Azacitidine",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0143-9606-01",
     "spl_set_id": "ff73515d-bd55-4eb5-992b-d2138c80887e",
     "dosage_form": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-    "route": "INTRAVENOUS|SUBCUTANEOUS"
+    "route": "INTRAVENOUS|SUBCUTANEOUS",
+    "strength": "AZACITIDINE 100 mg/1",
+    "unit_content": null,
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-a8ca13",
+   "queryId": "Q-9a16d3",
    "row": 1,
    "label": "Corvale East: AZACITIDINE 100MG",
    "fields": {
@@ -1300,65 +1477,80 @@
     "description": "AZACITIDINE 100MG",
     "on_hand": "29.00",
     "daily_use": "3.229",
-    "unit": "package",
+    "unit": "each",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Azacitidine",
     "labeler_name": "Accord Healthcare Inc.",
     "package_ndc": "16729-306-10",
     "spl_set_id": "70140e11-33f1-2240-e053-2991aa0a0480",
     "dosage_form": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-    "route": "INTRAVENOUS|SUBCUTANEOUS"
+    "route": "INTRAVENOUS|SUBCUTANEOUS",
+    "strength": "AZACITIDINE 100 mg/1",
+    "unit_content": null,
+    "pkg_unit": "injection"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-a8ca13",
+   "queryId": "Q-9a16d3",
    "row": 2,
-   "label": "Corvale General: Azacitidine",
+   "label": "Corvale General: Azacitidine 100 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-3",
     "ndc11": "00143960601",
     "ndc_as_recorded": "00143960601",
-    "description": "Azacitidine",
-    "on_hand": "33.05",
+    "description": "Azacitidine 100 mg/1",
+    "on_hand": "33.00",
     "daily_use": "2.928",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Azacitidine",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0143-9606-01",
     "spl_set_id": "ff73515d-bd55-4eb5-992b-d2138c80887e",
     "dosage_form": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-    "route": "INTRAVENOUS|SUBCUTANEOUS"
+    "route": "INTRAVENOUS|SUBCUTANEOUS",
+    "strength": "AZACITIDINE 100 mg/1",
+    "unit_content": null,
+    "pkg_unit": "vial"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-a8ca13",
+   "queryId": "Q-9a16d3",
    "row": 3,
-   "label": "Corvale General: Azacitidine",
+   "label": "Corvale General: Azacitidine 100 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-4",
     "ndc11": "16729030610",
     "ndc_as_recorded": "16729030610",
-    "description": "Azacitidine",
-    "on_hand": "55.62",
+    "description": "Azacitidine 100 mg/1",
+    "on_hand": "55.00",
     "daily_use": "2.810",
     "unit": "each",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Azacitidine",
     "labeler_name": "Accord Healthcare Inc.",
     "package_ndc": "16729-306-10",
     "spl_set_id": "70140e11-33f1-2240-e053-2991aa0a0480",
     "dosage_form": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-    "route": "INTRAVENOUS|SUBCUTANEOUS"
+    "route": "INTRAVENOUS|SUBCUTANEOUS",
+    "strength": "AZACITIDINE 100 mg/1",
+    "unit_content": null,
+    "pkg_unit": "injection"
    }
   },
   "E5": {
    "id": "E5",
-   "queryId": "Q-a8ca13",
+   "queryId": "Q-9a16d3",
    "row": 4,
    "label": "Corvale Lakeside: Azacitidine 100 mg/1 1 mL vial",
    "fields": {
@@ -1370,18 +1562,23 @@
     "on_hand": "11.00",
     "daily_use": "0.603",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Azacitidine",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0143-9606-01",
     "spl_set_id": "ff73515d-bd55-4eb5-992b-d2138c80887e",
     "dosage_form": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-    "route": "INTRAVENOUS|SUBCUTANEOUS"
+    "route": "INTRAVENOUS|SUBCUTANEOUS",
+    "strength": "AZACITIDINE 100 mg/1",
+    "unit_content": null,
+    "pkg_unit": "vial"
    }
   },
   "E6": {
    "id": "E6",
-   "queryId": "Q-a8ca13",
+   "queryId": "Q-9a16d3",
    "row": 5,
    "label": "Corvale Lakeside: Azacitidine 100 mg/1",
    "fields": {
@@ -1393,13 +1590,18 @@
     "on_hand": "11.00",
     "daily_use": "0.863",
     "unit": "each",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Azacitidine",
     "labeler_name": "Accord Healthcare Inc.",
     "package_ndc": "16729-306-10",
     "spl_set_id": "70140e11-33f1-2240-e053-2991aa0a0480",
     "dosage_form": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-    "route": "INTRAVENOUS|SUBCUTANEOUS"
+    "route": "INTRAVENOUS|SUBCUTANEOUS",
+    "strength": "AZACITIDINE 100 mg/1",
+    "unit_content": null,
+    "pkg_unit": "injection"
    }
   },
   "E7": {
@@ -1829,7 +2031,7 @@
   },
   "E34": {
    "id": "E34",
-   "queryId": "Q-bd4a69",
+   "queryId": "Q-4b32c1",
    "row": 0,
    "label": "FDA shortage list: Accord Healthcare Inc., Current",
    "fields": {
@@ -1844,7 +2046,7 @@
   },
   "E35": {
    "id": "E35",
-   "queryId": "Q-bd4a69",
+   "queryId": "Q-4b32c1",
    "row": 1,
    "label": "FDA shortage list: Armas Pharmaceuticals Inc, Current",
    "fields": {
@@ -1859,7 +2061,7 @@
   },
   "E36": {
    "id": "E36",
-   "queryId": "Q-bd4a69",
+   "queryId": "Q-4b32c1",
    "row": 2,
    "label": "FDA shortage list: Bristol Myers Squibb Co., Current",
    "fields": {
@@ -1874,7 +2076,7 @@
   },
   "E37": {
    "id": "E37",
-   "queryId": "Q-bd4a69",
+   "queryId": "Q-4b32c1",
    "row": 3,
    "label": "FDA shortage list: Dr. Reddy's Laboratories, Inc., Current",
    "fields": {
@@ -1889,7 +2091,7 @@
   },
   "E38": {
    "id": "E38",
-   "queryId": "Q-bd4a69",
+   "queryId": "Q-4b32c1",
    "row": 4,
    "label": "FDA shortage list: Eugia US LLC, Current",
    "fields": {
@@ -1904,7 +2106,7 @@
   },
   "E39": {
    "id": "E39",
-   "queryId": "Q-bd4a69",
+   "queryId": "Q-4b32c1",
    "row": 5,
    "label": "FDA shortage list: Fresenius Kabi USA, LLC, Current",
    "fields": {
@@ -1919,7 +2121,7 @@
   },
   "E40": {
    "id": "E40",
-   "queryId": "Q-bd4a69",
+   "queryId": "Q-4b32c1",
    "row": 6,
    "label": "FDA shortage list: Hikma Pharmaceuticals USA, Inc., Current",
    "fields": {
@@ -1934,7 +2136,7 @@
   },
   "E41": {
    "id": "E41",
-   "queryId": "Q-bd4a69",
+   "queryId": "Q-4b32c1",
    "row": 7,
    "label": "FDA shortage list: Meitheal Pharmaceuticals, Inc., Current",
    "fields": {
@@ -1949,7 +2151,7 @@
   },
   "E42": {
    "id": "E42",
-   "queryId": "Q-bd4a69",
+   "queryId": "Q-4b32c1",
    "row": 8,
    "label": "FDA shortage list: Teva Pharmaceuticals USA, Inc., Current",
    "fields": {
@@ -1964,7 +2166,7 @@
   },
   "E43": {
    "id": "E43",
-   "queryId": "Q-bd4a69",
+   "queryId": "Q-4b32c1",
    "row": 1,
    "label": "FDA first posted the shortage 2020-12-18",
    "fields": {
@@ -2017,40 +2219,82 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 75 units of azacitidine at 6.1 a day: 12 days on hand",
+   "label": "Corvale East holds 29 eachs of azacitidine 100 mg at 3.2 a day: 9 days on hand",
    "fields": {
     "hospital": "Corvale East",
-    "on_hand": 75,
-    "daily_use": 6.1,
-    "days_on_hand": 12
+    "presentation": "100 mg injection",
+    "on_hand": 29,
+    "daily_use": 3.2,
+    "days_on_hand": 9
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 89 units of azacitidine at 5.7 a day: 15 days on hand",
+   "label": "Corvale General holds 55 eachs of azacitidine 100 mg at 2.8 a day: 19.6 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 89,
-    "daily_use": 5.7,
-    "days_on_hand": 15
+    "presentation": "100 mg injection",
+    "on_hand": 55,
+    "daily_use": 2.8,
+    "days_on_hand": 19.6
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 22 units of azacitidine at 1.5 a day: 15 days on hand",
+   "label": "Corvale Lakeside holds 11 eachs of azacitidine 100 mg at 0.9 a day: 12.7 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
-    "on_hand": 22,
-    "daily_use": 1.5,
-    "days_on_hand": 15
+    "presentation": "100 mg injection",
+    "on_hand": 11,
+    "daily_use": 0.9,
+    "days_on_hand": 12.7
    }
   },
   "D4": {
    "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale East holds 46 vials of azacitidine 100 mg at 2.9 a day: 16.1 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "100 mg injection",
+    "on_hand": 46,
+    "daily_use": 2.9,
+    "days_on_hand": 16.1
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 33 vials of azacitidine 100 mg at 2.9 a day: 11.3 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "100 mg injection",
+    "on_hand": 33,
+    "daily_use": 2.9,
+    "days_on_hand": 11.3
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale Lakeside holds 11 vials of azacitidine 100 mg at 0.6 a day: 18.2 days on hand",
+   "fields": {
+    "hospital": "Corvale Lakeside",
+    "presentation": "100 mg injection",
+    "on_hand": 11,
+    "daily_use": 0.6,
+    "days_on_hand": 18.2
+   }
+  },
+  "D7": {
+   "id": "D7",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 1092798 ended 2019-05-28, classified VAI; classification letter 2019-07-12 — 570 days before FDA posted the shortage on 2020-12-18",
@@ -2060,8 +2304,8 @@
     "days": 570
    }
   },
-  "D5": {
-   "id": "D5",
+  "D8": {
+   "id": "D8",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 1123031 ended 2019-06-20, classified VAI; classification letter 2020-04-17 — 547 days before FDA posted the shortage on 2020-12-18",
@@ -2071,8 +2315,8 @@
     "days": 547
    }
   },
-  "D6": {
-   "id": "D6",
+  "D9": {
+   "id": "D9",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 1098380 ended 2019-08-02, classified VAI; classification letter 2019-10-31 — 504 days before FDA posted the shortage on 2020-12-18",
@@ -2082,8 +2326,8 @@
     "days": 504
    }
   },
-  "D7": {
-   "id": "D7",
+  "D10": {
+   "id": "D10",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 1119170 ended 2020-02-28, classified VAI; classification letter 2020-03-25 — 294 days before FDA posted the shortage on 2020-12-18",
@@ -2093,8 +2337,8 @@
     "days": 294
    }
   },
-  "D8": {
-   "id": "D8",
+  "D11": {
+   "id": "D11",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 1207607 ended 2022-10-06, classified VAI — 657 days after FDA posted the shortage on 2020-12-18",
@@ -2104,8 +2348,8 @@
     "days": 657
    }
   },
-  "D9": {
-   "id": "D9",
+  "D12": {
+   "id": "D12",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 1191818 ended 2022-12-02, classified OAI; classification letter 2023-04-05; Form 483: Absence of Written Procedures; Procedures for sterile drug products; Following/documenting laboratory controls (11 observations) — 714 days after FDA posted the shortage on 2020-12-18",
@@ -2115,8 +2359,8 @@
     "days": 714
    }
   },
-  "D10": {
-   "id": "D10",
+  "D13": {
+   "id": "D13",
    "queryId": "derived",
    "row": -1,
    "label": "FDA's OAI classification letter to Intas Pharmaceuticals Limited is dated 2023-04-05, 838 days after FDA posted the shortage on 2020-12-18",
@@ -2124,36 +2368,6 @@
     "letter": "2023-04-05",
     "posted": "2020-12-18",
     "days": 838
-   }
-  },
-  "D11": {
-   "id": "D11",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 2 by rule: Buy from BluePoint Laboratories. Not on FDA's shortage list today. Plants: Sindan-Pharma Srl (last inspection NAI 2024-08-02).",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
-   }
-  },
-  "D12": {
-   "id": "D12",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 2 by rule: Same product, alternate manufacturer: Azacitidine 100 mg/1 from Hikma Pharmaceuticals USA Inc.. Same product from Hikma Pharmaceuticals USA Inc.; substitute NDC, no clinical change. Approved by Riley Brooks, PharmD on 2026-04-04.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "pharmacist"
-   }
-  },
-  "D13": {
-   "id": "D13",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 2 by rule: Same product, alternate manufacturer: Azacitidine 100 mg/1 from Accord Healthcare Inc.. Same product from Accord Healthcare Inc.; substitute NDC, no clinical change. Approved by Jordan Hale, PharmD on 2025-09-24.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "pharmacist"
    }
   },
   "D14": {
@@ -2166,177 +2380,226 @@
     "posted": "2020-12-18",
     "months": 70
    }
+  },
+  "D15": {
+   "id": "D15",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 15 units of 100 mg from Corvale General to Corvale East. Corvale General has 20 days of 100 mg injection on hand and can spare 15 units while keeping two weeks; Corvale East has 9 days and would reach 14.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D16": {
+   "id": "D16",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from BluePoint Laboratories. Not on FDA's shortage list today. Plants: Sindan-Pharma Srl (last inspection NAI 2024-08-02).",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D17": {
+   "id": "D17",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Amneal Pharmaceuticals LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
   }
  },
  "queries": {
-  "Q-a8ca13": {
-   "id": "Q-a8ca13",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%azacitidine%' OR lower(s.description) LIKE '%azacitidine%' ORDER BY s.hospital, s.item_key",
-   "ms": 1967,
+  "Q-9a16d3": {
+   "id": "Q-9a16d3",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*azacitidine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*azacitidine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3121,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:26:55.359Z",
+   "ranAt": "2026-10-22T11:31:53.354Z",
    "rows": 6
   },
   "Q-1acdad": {
    "id": "Q-1acdad",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('ff73515d-bd55-4eb5-992b-d2138c80887e', '70140e11-33f1-2240-e053-2991aa0a0480') ORDER BY ps.set_id, ps.establishment",
-   "ms": 452,
+   "ms": 401,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:26:55.813Z",
+   "ranAt": "2026-10-22T11:31:53.757Z",
    "rows": 3
   },
-  "Q-bd4a69": {
-   "id": "Q-bd4a69",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%azacitidine%' ORDER BY status, company_name, package_ndc",
-   "ms": 107,
+  "Q-4b32c1": {
+   "id": "Q-4b32c1",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*azacitidine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 103,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:26:55.921Z",
+   "ranAt": "2026-10-22T11:31:53.862Z",
    "rows": 9
   },
-  "Q-c8869f": {
-   "id": "Q-c8869f",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%azacitidine%' ORDER BY first_posting",
-   "ms": 111,
+  "Q-9153fb": {
+   "id": "Q-9153fb",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*azacitidine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 104,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:26:56.033Z",
+   "ranAt": "2026-10-22T11:31:53.966Z",
    "rows": 2
   },
-  "Q-3f4fe4": {
-   "id": "Q-3f4fe4",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%azacitidine%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 1398,
+  "Q-0355d1": {
+   "id": "Q-0355d1",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*azacitidine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1179,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:26:57.432Z",
+   "ranAt": "2026-10-22T11:31:55.147Z",
    "rows": 27
   },
   "Q-88f21b": {
    "id": "Q-88f21b",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3004011473', '3003157498', '3002320821', '3005566806', '3006549835', '3012414462', '3011960448', '3009876430', '3008865184') ORDER BY fei, end_date",
-   "ms": 326,
+   "ms": 237,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:26:57.761Z",
+   "ranAt": "2026-10-22T11:31:55.385Z",
    "rows": 56
   },
   "Q-8491c9": {
    "id": "Q-8491c9",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3004011473', '3003157498', '3002320821', '3005566806', '3006549835', '3012414462', '3011960448', '3009876430', '3008865184') ORDER BY fei, action_date",
-   "ms": 138,
+   "ms": 111,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:26:57.900Z",
+   "ranAt": "2026-10-22T11:31:55.498Z",
    "rows": 5
   },
   "Q-7f314d": {
    "id": "Q-7f314d",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3004011473', '3003157498', '3002320821') OR (fei_match <> 'name_and_city' AND firm_key IN ('intas', 'thymoorgan pharmazie')) ORDER BY date_published",
-   "ms": 135,
+   "ms": 98,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:26:58.037Z",
+   "ranAt": "2026-10-22T11:31:55.597Z",
    "rows": 2
   },
-  "Q-d5d4eb": {
-   "id": "Q-d5d4eb",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('intas', 'thymoorgan pharmazie', 'hikma', 'accord') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%azacitidine%' ORDER BY initiation_date",
-   "ms": 156,
+  "Q-e38a89": {
+   "id": "Q-e38a89",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('intas', 'thymoorgan pharmazie', 'hikma', 'accord') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*azacitidine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 125,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:26:58.194Z",
+   "ranAt": "2026-10-22T11:31:55.722Z",
    "rows": 0
   },
   "Q-c730e9": {
    "id": "Q-c730e9",
    "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('1191818') ORDER BY inspection_id, cfr",
-   "ms": 175,
+   "ms": 134,
    "mode": "live",
    "sources": [
     "fda.citations"
    ],
-   "ranAt": "2026-10-22T07:26:58.371Z",
+   "ranAt": "2026-10-22T11:31:55.858Z",
    "rows": 11
   },
   "Q-5872e0": {
    "id": "Q-5872e0",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('00143960601', '16729030610')",
-   "ms": 1087,
+   "ms": 913,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:26:59.461Z",
+   "ranAt": "2026-10-22T11:31:56.775Z",
    "rows": 2
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-683d77": {
-   "id": "Q-683d77",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%azacitidine%'",
-   "ms": 897,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:27:00.359Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-dea502": {
+   "id": "Q-dea502",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*azacitidine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1452,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:31:58.228Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 15,
-  "zetarisMs": 12320,
+  "zetarisMs": 18186,
   "modelCalls": 1,
-  "tokensIn": 5603,
-  "tokensOut": 577,
+  "tokensIn": 6264,
+  "tokensOut": 485,
   "mode": "live"
  },
  "slug": "azacitidine",
@@ -2354,7 +2617,7 @@
     "id": "hospital-item:hospital-item:CG-3",
     "type": "HospitalItem",
     "key": "hospital-item:CG-3",
-    "label": "Corvale General: Azacitidine",
+    "label": "Corvale General: Azacitidine 100 mg/1",
     "attrs": {
      "key": "hospital-item:CG-3"
     },
@@ -2365,7 +2628,7 @@
     "id": "hospital-item:hospital-item:CG-4",
     "type": "HospitalItem",
     "key": "hospital-item:CG-4",
-    "label": "Corvale General: Azacitidine",
+    "label": "Corvale General: Azacitidine 100 mg/1",
     "attrs": {
      "key": "hospital-item:CG-4"
     },
@@ -2548,7 +2811,7 @@
     },
     "facts": [
      {
-      "id": "fact_83b5a2b3e65c1efd",
+      "id": "fact_f2c7de18444cf946",
       "about": "inspection:fda-inspection:1005711",
       "predicate": "classification",
       "value": "VAI",
@@ -2556,9 +2819,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:58.374Z"
+       "at": "2026-10-22T11:31:55.860Z"
       },
-      "assertedAt": "2026-10-22T07:26:58.374Z"
+      "assertedAt": "2026-10-22T11:31:55.860Z"
      }
     ],
     "depth": 4
@@ -2574,7 +2837,7 @@
     },
     "facts": [
      {
-      "id": "fact_8de8020bbe13e6ef",
+      "id": "fact_4bae4e629062e612",
       "about": "inspection:fda-inspection:1092798",
       "predicate": "classification",
       "value": "VAI",
@@ -2582,9 +2845,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:58.373Z"
+       "at": "2026-10-22T11:31:55.860Z"
       },
-      "assertedAt": "2026-10-22T07:26:58.373Z"
+      "assertedAt": "2026-10-22T11:31:55.860Z"
      }
     ],
     "depth": 4
@@ -2600,7 +2863,7 @@
     },
     "facts": [
      {
-      "id": "fact_e87371cd60d285af",
+      "id": "fact_4be6e9253ed0c7b2",
       "about": "inspection:fda-inspection:1098380",
       "predicate": "classification",
       "value": "VAI",
@@ -2608,9 +2871,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:58.374Z"
+       "at": "2026-10-22T11:31:55.860Z"
       },
-      "assertedAt": "2026-10-22T07:26:58.374Z"
+      "assertedAt": "2026-10-22T11:31:55.860Z"
      }
     ],
     "depth": 4
@@ -2626,7 +2889,7 @@
     },
     "facts": [
      {
-      "id": "fact_f0bfe654176faa96",
+      "id": "fact_46a01c39d6e793d9",
       "about": "inspection:fda-inspection:1119170",
       "predicate": "classification",
       "value": "VAI",
@@ -2634,9 +2897,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:58.373Z"
+       "at": "2026-10-22T11:31:55.860Z"
       },
-      "assertedAt": "2026-10-22T07:26:58.373Z"
+      "assertedAt": "2026-10-22T11:31:55.860Z"
      }
     ],
     "depth": 4
@@ -2652,7 +2915,7 @@
     },
     "facts": [
      {
-      "id": "fact_b0a2a81aa64cce24",
+      "id": "fact_a28495daddc1df6c",
       "about": "inspection:fda-inspection:1123031",
       "predicate": "classification",
       "value": "VAI",
@@ -2660,9 +2923,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:58.373Z"
+       "at": "2026-10-22T11:31:55.859Z"
       },
-      "assertedAt": "2026-10-22T07:26:58.373Z"
+      "assertedAt": "2026-10-22T11:31:55.859Z"
      }
     ],
     "depth": 4
@@ -2678,7 +2941,7 @@
     },
     "facts": [
      {
-      "id": "fact_571ae1ed2f9e81e0",
+      "id": "fact_6d38a3745bb1175a",
       "about": "inspection:fda-inspection:1191818",
       "predicate": "classification",
       "value": "OAI",
@@ -2686,9 +2949,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:58.373Z"
+       "at": "2026-10-22T11:31:55.860Z"
       },
-      "assertedAt": "2026-10-22T07:26:58.373Z"
+      "assertedAt": "2026-10-22T11:31:55.860Z"
      }
     ],
     "depth": 4
@@ -2704,7 +2967,7 @@
     },
     "facts": [
      {
-      "id": "fact_b13bcb6526f5fb42",
+      "id": "fact_fb9eebe8ad1c7e3d",
       "about": "inspection:fda-inspection:1203954",
       "predicate": "classification",
       "value": "VAI",
@@ -2712,9 +2975,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:58.373Z"
+       "at": "2026-10-22T11:31:55.859Z"
       },
-      "assertedAt": "2026-10-22T07:26:58.373Z"
+      "assertedAt": "2026-10-22T11:31:55.859Z"
      }
     ],
     "depth": 4
@@ -2730,7 +2993,7 @@
     },
     "facts": [
      {
-      "id": "fact_8705aa03cdd95b44",
+      "id": "fact_1a623f1e27201158",
       "about": "inspection:fda-inspection:1207607",
       "predicate": "classification",
       "value": "VAI",
@@ -2738,9 +3001,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:58.373Z"
+       "at": "2026-10-22T11:31:55.859Z"
       },
-      "assertedAt": "2026-10-22T07:26:58.373Z"
+      "assertedAt": "2026-10-22T11:31:55.859Z"
      }
     ],
     "depth": 4
@@ -2756,7 +3019,7 @@
     },
     "facts": [
      {
-      "id": "fact_d0d55cc2c6f471e1",
+      "id": "fact_ef2bce577c303250",
       "about": "inspection:fda-inspection:634793",
       "predicate": "classification",
       "value": "VAI",
@@ -2764,9 +3027,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:58.373Z"
+       "at": "2026-10-22T11:31:55.860Z"
       },
-      "assertedAt": "2026-10-22T07:26:58.373Z"
+      "assertedAt": "2026-10-22T11:31:55.860Z"
      }
     ],
     "depth": 4
@@ -2782,7 +3045,7 @@
     },
     "facts": [
      {
-      "id": "fact_8019fddc283d3f9d",
+      "id": "fact_4a9cd2879d25646b",
       "about": "inspection:fda-inspection:647633",
       "predicate": "classification",
       "value": "VAI",
@@ -2790,9 +3053,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:58.373Z"
+       "at": "2026-10-22T11:31:55.859Z"
       },
-      "assertedAt": "2026-10-22T07:26:58.373Z"
+      "assertedAt": "2026-10-22T11:31:55.859Z"
      }
     ],
     "depth": 4
@@ -2808,7 +3071,7 @@
     },
     "facts": [
      {
-      "id": "fact_88ecdd61aba3d8f8",
+      "id": "fact_d68c7e183b2b48c7",
       "about": "inspection:fda-inspection:755472",
       "predicate": "classification",
       "value": "VAI",
@@ -2816,9 +3079,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:58.373Z"
+       "at": "2026-10-22T11:31:55.860Z"
       },
-      "assertedAt": "2026-10-22T07:26:58.373Z"
+      "assertedAt": "2026-10-22T11:31:55.860Z"
      }
     ],
     "depth": 4
@@ -2834,7 +3097,7 @@
     },
     "facts": [
      {
-      "id": "fact_fbfb7291a44a30ef",
+      "id": "fact_1bdda29c1072f685",
       "about": "inspection:fda-inspection:755788",
       "predicate": "classification",
       "value": "VAI",
@@ -2842,9 +3105,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:58.373Z"
+       "at": "2026-10-22T11:31:55.860Z"
       },
-      "assertedAt": "2026-10-22T07:26:58.373Z"
+      "assertedAt": "2026-10-22T11:31:55.860Z"
      }
     ],
     "depth": 4
@@ -2860,7 +3123,7 @@
     },
     "facts": [
      {
-      "id": "fact_c67038deb1379c7e",
+      "id": "fact_7de8ff9bcd97b4fb",
       "about": "inspection:fda-inspection:788126",
       "predicate": "classification",
       "value": "VAI",
@@ -2868,9 +3131,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:58.373Z"
+       "at": "2026-10-22T11:31:55.860Z"
       },
-      "assertedAt": "2026-10-22T07:26:58.373Z"
+      "assertedAt": "2026-10-22T11:31:55.860Z"
      }
     ],
     "depth": 4
@@ -2886,7 +3149,7 @@
     },
     "facts": [
      {
-      "id": "fact_eb31bbb03f98311a",
+      "id": "fact_68db964cc19eba5d",
       "about": "inspection:fda-inspection:839384",
       "predicate": "classification",
       "value": "VAI",
@@ -2894,9 +3157,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:58.373Z"
+       "at": "2026-10-22T11:31:55.860Z"
       },
-      "assertedAt": "2026-10-22T07:26:58.373Z"
+      "assertedAt": "2026-10-22T11:31:55.860Z"
      }
     ],
     "depth": 4
@@ -2912,7 +3175,7 @@
     },
     "facts": [
      {
-      "id": "fact_674ed7b1dd7a8155",
+      "id": "fact_cafdef90b134d330",
       "about": "inspection:fda-inspection:883211",
       "predicate": "classification",
       "value": "VAI",
@@ -2920,9 +3183,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:58.373Z"
+       "at": "2026-10-22T11:31:55.859Z"
       },
-      "assertedAt": "2026-10-22T07:26:58.373Z"
+      "assertedAt": "2026-10-22T11:31:55.859Z"
      }
     ],
     "depth": 4
@@ -2938,7 +3201,7 @@
     },
     "facts": [
      {
-      "id": "fact_3ea38068eb2f9eed",
+      "id": "fact_b23673accf3878d1",
       "about": "inspection:fda-inspection:923354",
       "predicate": "classification",
       "value": "VAI",
@@ -2946,9 +3209,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:58.373Z"
+       "at": "2026-10-22T11:31:55.860Z"
       },
-      "assertedAt": "2026-10-22T07:26:58.373Z"
+      "assertedAt": "2026-10-22T11:31:55.860Z"
      }
     ],
     "depth": 4
@@ -2964,7 +3227,7 @@
     },
     "facts": [
      {
-      "id": "fact_9c23f263d52ee6e4",
+      "id": "fact_e81511a372fabd10",
       "about": "inspection:fda-inspection:978469",
       "predicate": "classification",
       "value": "VAI",
@@ -2972,9 +3235,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:58.374Z"
+       "at": "2026-10-22T11:31:55.860Z"
       },
-      "assertedAt": "2026-10-22T07:26:58.374Z"
+      "assertedAt": "2026-10-22T11:31:55.860Z"
      }
     ],
     "depth": 4
@@ -2990,7 +3253,7 @@
     },
     "facts": [
      {
-      "id": "fact_c5fb0e73a64c68a1",
+      "id": "fact_9467d1e2ad69d74a",
       "about": "inspection:fda-inspection:992746",
       "predicate": "classification",
       "value": "VAI",
@@ -2998,9 +3261,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:26:58.373Z"
+       "at": "2026-10-22T11:31:55.860Z"
       },
-      "assertedAt": "2026-10-22T07:26:58.373Z"
+      "assertedAt": "2026-10-22T11:31:55.860Z"
      }
     ],
     "depth": 4
@@ -3045,11 +3308,11 @@
     "from": "hospital-item:hospital-item:CG-3",
     "to": "package:ndc-package:0143-9606-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:26:55.360Z",
+    "validFrom": "2026-10-22T11:31:53.356Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:55.360Z"
+     "at": "2026-10-22T11:31:53.356Z"
     }
    },
    {
@@ -3057,11 +3320,11 @@
     "from": "hospital-item:hospital-item:CG-4",
     "to": "package:ndc-package:16729-306-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:26:55.360Z",
+    "validFrom": "2026-10-22T11:31:53.356Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:55.360Z"
+     "at": "2026-10-22T11:31:53.356Z"
     }
    },
    {
@@ -3069,11 +3332,11 @@
     "from": "hospital-item:hospital-item:EA-E-000040",
     "to": "package:ndc-package:0143-9606-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:26:55.360Z",
+    "validFrom": "2026-10-22T11:31:53.356Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:55.360Z"
+     "at": "2026-10-22T11:31:53.356Z"
     }
    },
    {
@@ -3081,11 +3344,11 @@
     "from": "hospital-item:hospital-item:EA-E-000136",
     "to": "package:ndc-package:16729-306-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:26:55.360Z",
+    "validFrom": "2026-10-22T11:31:53.356Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:55.360Z"
+     "at": "2026-10-22T11:31:53.356Z"
     }
    },
    {
@@ -3093,11 +3356,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0016",
     "to": "package:ndc-package:0143-9606-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:26:55.360Z",
+    "validFrom": "2026-10-22T11:31:53.356Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:55.360Z"
+     "at": "2026-10-22T11:31:53.356Z"
     }
    },
    {
@@ -3105,11 +3368,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0055",
     "to": "package:ndc-package:16729-306-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:26:55.361Z",
+    "validFrom": "2026-10-22T11:31:53.356Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:55.361Z"
+     "at": "2026-10-22T11:31:53.356Z"
     }
    },
    {
@@ -3117,11 +3380,11 @@
     "from": "package:ndc-package:0143-9606-01",
     "to": "product:ndc-product:0143-9606",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:26:55.360Z",
+    "validFrom": "2026-10-22T11:31:53.356Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:55.360Z"
+     "at": "2026-10-22T11:31:53.356Z"
     }
    },
    {
@@ -3129,11 +3392,11 @@
     "from": "package:ndc-package:16729-306-10",
     "to": "product:ndc-product:16729-306",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:26:55.360Z",
+    "validFrom": "2026-10-22T11:31:53.356Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:55.360Z"
+     "at": "2026-10-22T11:31:53.356Z"
     }
    },
    {
@@ -3141,11 +3404,11 @@
     "from": "product:ndc-product:0143-9606",
     "to": "drug:generic:azacitidine",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:26:55.360Z",
+    "validFrom": "2026-10-22T11:31:53.356Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:55.360Z"
+     "at": "2026-10-22T11:31:53.356Z"
     }
    },
    {
@@ -3153,11 +3416,11 @@
     "from": "product:ndc-product:0143-9606",
     "to": "labeler:ndc-labeler:0143",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:26:55.360Z",
+    "validFrom": "2026-10-22T11:31:53.356Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:55.360Z"
+     "at": "2026-10-22T11:31:53.356Z"
     }
    },
    {
@@ -3165,11 +3428,11 @@
     "from": "product:ndc-product:0143-9606",
     "to": "site:fei:3002320821",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:26:58.372Z",
+    "validFrom": "2026-10-22T11:31:55.859Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:58.372Z"
+     "at": "2026-10-22T11:31:55.859Z"
     }
    },
    {
@@ -3177,11 +3440,11 @@
     "from": "product:ndc-product:16729-306",
     "to": "drug:generic:azacitidine",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:26:55.360Z",
+    "validFrom": "2026-10-22T11:31:53.356Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:55.360Z"
+     "at": "2026-10-22T11:31:53.356Z"
     }
    },
    {
@@ -3189,11 +3452,11 @@
     "from": "product:ndc-product:16729-306",
     "to": "labeler:ndc-labeler:16729",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:26:55.360Z",
+    "validFrom": "2026-10-22T11:31:53.356Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:55.360Z"
+     "at": "2026-10-22T11:31:53.356Z"
     }
    },
    {
@@ -3201,11 +3464,11 @@
     "from": "product:ndc-product:16729-306",
     "to": "site:fei:3004011473",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:26:58.373Z",
+    "validFrom": "2026-10-22T11:31:55.860Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:58.373Z"
+     "at": "2026-10-22T11:31:55.860Z"
     }
    },
    {
@@ -3213,11 +3476,11 @@
     "from": "product:ndc-product:16729-306",
     "to": "site:fei:3003157498",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:26:58.373Z",
+    "validFrom": "2026-10-22T11:31:55.860Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:58.373Z"
+     "at": "2026-10-22T11:31:55.860Z"
     }
    },
    {
@@ -3225,11 +3488,11 @@
     "from": "shortage:fda-shortage:azacitidine-2020-12-18",
     "to": "drug:generic:azacitidine",
     "type": "affects",
-    "validFrom": "2026-10-22T07:26:58.374Z",
+    "validFrom": "2026-10-22T11:31:55.861Z",
     "source": {
      "kind": "fda-shortage-db",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:58.374Z"
+     "at": "2026-10-22T11:31:55.861Z"
     }
    },
    {
@@ -3237,11 +3500,11 @@
     "from": "inspection:fda-inspection:647633",
     "to": "site:fei:3002320821",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:58.372Z",
+    "validFrom": "2026-10-22T11:31:55.859Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:58.372Z"
+     "at": "2026-10-22T11:31:55.859Z"
     }
    },
    {
@@ -3249,11 +3512,11 @@
     "from": "inspection:fda-inspection:883211",
     "to": "site:fei:3002320821",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:58.373Z",
+    "validFrom": "2026-10-22T11:31:55.859Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:58.373Z"
+     "at": "2026-10-22T11:31:55.859Z"
     }
    },
    {
@@ -3261,11 +3524,11 @@
     "from": "inspection:fda-inspection:1123031",
     "to": "site:fei:3002320821",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:58.373Z",
+    "validFrom": "2026-10-22T11:31:55.859Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:58.373Z"
+     "at": "2026-10-22T11:31:55.859Z"
     }
    },
    {
@@ -3273,11 +3536,11 @@
     "from": "inspection:fda-inspection:1207607",
     "to": "site:fei:3002320821",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:58.373Z",
+    "validFrom": "2026-10-22T11:31:55.859Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:58.373Z"
+     "at": "2026-10-22T11:31:55.859Z"
     }
    },
    {
@@ -3285,11 +3548,11 @@
     "from": "inspection:fda-inspection:1203954",
     "to": "site:fei:3002320821",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:58.373Z",
+    "validFrom": "2026-10-22T11:31:55.859Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:58.373Z"
+     "at": "2026-10-22T11:31:55.859Z"
     }
    },
    {
@@ -3297,11 +3560,11 @@
     "from": "inspection:fda-inspection:755472",
     "to": "site:fei:3004011473",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:58.373Z",
+    "validFrom": "2026-10-22T11:31:55.860Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:58.373Z"
+     "at": "2026-10-22T11:31:55.860Z"
     }
    },
    {
@@ -3309,11 +3572,11 @@
     "from": "inspection:fda-inspection:992746",
     "to": "site:fei:3004011473",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:58.373Z",
+    "validFrom": "2026-10-22T11:31:55.860Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:58.373Z"
+     "at": "2026-10-22T11:31:55.860Z"
     }
    },
    {
@@ -3321,11 +3584,11 @@
     "from": "inspection:fda-inspection:1092798",
     "to": "site:fei:3004011473",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:58.373Z",
+    "validFrom": "2026-10-22T11:31:55.860Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:58.373Z"
+     "at": "2026-10-22T11:31:55.860Z"
     }
    },
    {
@@ -3333,11 +3596,11 @@
     "from": "inspection:fda-inspection:1119170",
     "to": "site:fei:3004011473",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:58.373Z",
+    "validFrom": "2026-10-22T11:31:55.860Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:58.373Z"
+     "at": "2026-10-22T11:31:55.860Z"
     }
    },
    {
@@ -3345,11 +3608,11 @@
     "from": "inspection:fda-inspection:1191818",
     "to": "site:fei:3004011473",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:58.373Z",
+    "validFrom": "2026-10-22T11:31:55.860Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:58.373Z"
+     "at": "2026-10-22T11:31:55.860Z"
     }
    },
    {
@@ -3357,11 +3620,11 @@
     "from": "warning-letter:fda-warning-letter:652067",
     "to": "site:fei:3004011473",
     "type": "issued-to",
-    "validFrom": "2026-10-22T07:26:58.373Z",
+    "validFrom": "2026-10-22T11:31:55.860Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:58.373Z"
+     "at": "2026-10-22T11:31:55.860Z"
     }
    },
    {
@@ -3369,11 +3632,11 @@
     "from": "import-alert:fda-import-alert:66-40",
     "to": "site:fei:3004011473",
     "type": "lists",
-    "validFrom": "2026-10-22T07:26:58.373Z",
+    "validFrom": "2026-10-22T11:31:55.860Z",
     "source": {
      "kind": "fda-import-alert",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:58.373Z"
+     "at": "2026-10-22T11:31:55.860Z"
     }
    },
    {
@@ -3381,11 +3644,11 @@
     "from": "inspection:fda-inspection:634793",
     "to": "site:fei:3003157498",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:58.373Z",
+    "validFrom": "2026-10-22T11:31:55.860Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:58.373Z"
+     "at": "2026-10-22T11:31:55.860Z"
     }
    },
    {
@@ -3393,11 +3656,11 @@
     "from": "inspection:fda-inspection:755788",
     "to": "site:fei:3003157498",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:58.373Z",
+    "validFrom": "2026-10-22T11:31:55.860Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:58.373Z"
+     "at": "2026-10-22T11:31:55.860Z"
     }
    },
    {
@@ -3405,11 +3668,11 @@
     "from": "inspection:fda-inspection:788126",
     "to": "site:fei:3003157498",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:58.373Z",
+    "validFrom": "2026-10-22T11:31:55.860Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:58.373Z"
+     "at": "2026-10-22T11:31:55.860Z"
     }
    },
    {
@@ -3417,11 +3680,11 @@
     "from": "inspection:fda-inspection:839384",
     "to": "site:fei:3003157498",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:58.373Z",
+    "validFrom": "2026-10-22T11:31:55.860Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:58.373Z"
+     "at": "2026-10-22T11:31:55.860Z"
     }
    },
    {
@@ -3429,11 +3692,11 @@
     "from": "inspection:fda-inspection:923354",
     "to": "site:fei:3003157498",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:58.373Z",
+    "validFrom": "2026-10-22T11:31:55.860Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:58.373Z"
+     "at": "2026-10-22T11:31:55.860Z"
     }
    },
    {
@@ -3441,11 +3704,11 @@
     "from": "inspection:fda-inspection:978469",
     "to": "site:fei:3003157498",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:58.374Z",
+    "validFrom": "2026-10-22T11:31:55.860Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:58.374Z"
+     "at": "2026-10-22T11:31:55.860Z"
     }
    },
    {
@@ -3453,11 +3716,11 @@
     "from": "inspection:fda-inspection:1005711",
     "to": "site:fei:3003157498",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:58.374Z",
+    "validFrom": "2026-10-22T11:31:55.860Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:58.374Z"
+     "at": "2026-10-22T11:31:55.860Z"
     }
    },
    {
@@ -3465,11 +3728,11 @@
     "from": "inspection:fda-inspection:1098380",
     "to": "site:fei:3003157498",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:26:58.374Z",
+    "validFrom": "2026-10-22T11:31:55.860Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:58.374Z"
+     "at": "2026-10-22T11:31:55.860Z"
     }
    },
    {
@@ -3477,11 +3740,11 @@
     "from": "warning-letter:fda-warning-letter:662868",
     "to": "site:fei:3003157498",
     "type": "issued-to",
-    "validFrom": "2026-10-22T07:26:58.374Z",
+    "validFrom": "2026-10-22T11:31:55.860Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:26:58.374Z"
+     "at": "2026-10-22T11:31:55.860Z"
     }
    }
   ],

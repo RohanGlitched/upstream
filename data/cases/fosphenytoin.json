@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-3fd304",
+ "id": "case-2026-10-22-f854dd",
  "question": "Why is fosphenytoin sodium short, and what do we do?",
- "askedAt": "2026-10-22T07:48:07.547Z",
+ "askedAt": "2026-10-22T12:01:36.644Z",
  "asOf": "2026-10-21",
  "molecule": "fosphenytoin sodium",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H99FPQRQ6G2Z4C9H9FTWF0",
+  "contractId": "01M5HQSNF2Z0TJ7QZS81R2M25H",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-12eff7"
+    "Q-696a54"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3025,
+   "ms": 3671,
    "rows": 3,
-   "finding": "3 stock lines across 3 hospitals.",
+   "finding": "3 stock lines across 3 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-c332c9"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 723,
+   "ms": 454,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 0 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-3f1528",
-    "Q-f54aa8"
+    "Q-c7b406",
+    "Q-9bccaa"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 348,
+   "ms": 276,
    "rows": 1,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-5e7f06"
+    "Q-7bfbea"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1787,
+   "ms": 1310,
    "rows": 19,
    "finding": "8 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-808a5c",
     "Q-de2bfd",
     "Q-df1a00",
-    "Q-bff1f3"
+    "Q-91d145"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1102,
+   "ms": 673,
    "rows": 0,
    "finding": "0 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "empty"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 999,
+   "ms": 664,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-db0ce1"
+    "Q-044ea7"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1774,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1560,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -153,21 +164,27 @@
    "onHand": 121,
    "dailyUse": 7.02,
    "days": 17.2,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "fosphenytoin sodium|50mg/ml|injection|10ml|vial",
+   "presentationLabel": "50 mg/mL injection, 10 mL vial",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-224",
    "ndc11": "25021079810",
-   "description": "Fosphenytoin Sodium",
+   "description": "Fosphenytoin Sodium 50 mg/mL",
    "labeler": "Sagent Pharmaceuticals",
-   "onHand": 140.93,
+   "onHand": 140,
    "dailyUse": 8.072,
-   "days": 17.5,
+   "days": 17.3,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "fosphenytoin sodium|50mg/ml|injection|10ml|vial",
+   "presentationLabel": "50 mg/mL injection, 10 mL vial",
    "evidence": "E2"
   },
   {
@@ -181,7 +198,59 @@
    "days": 24,
    "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "fosphenytoin sodium|50mg/ml|injection|10ml|vial",
+   "presentationLabel": "50 mg/mL injection, 10 mL vial",
    "evidence": "E3"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "fosphenytoin sodium|50mg/ml|injection|10ml|vial",
+   "label": "50 mg/mL injection, 10 mL vial",
+   "short": "50 mg/mL, 10 mL",
+   "unit": "vial",
+   "onHand": 315,
+   "dailyUse": 17.339,
+   "days": 18.2,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 121,
+     "dailyUse": 7.02,
+     "days": 17.2,
+     "lines": [
+      "EA-E-000147"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 140,
+     "dailyUse": 8.072,
+     "days": 17.3,
+     "lines": [
+      "CG-224"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 54,
+     "dailyUse": 2.247,
+     "days": 24,
+     "lines": [
+      "LS-LS-0062"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -371,45 +440,42 @@
  ],
  "explanation": {
   "state": "no_signal",
-  "headline": "No FDA shortage signal for fosphenytoin sodium; Corvale sites hold 17 to 24 days on hand",
+  "headline": "FDA's records show fosphenytoin sodium is not on the drug shortage list as of 2026-10-21",
   "sentences": [
    {
-    "text": "Corvale East holds 121 units at 7 per day for 17 days on hand.",
+    "text": "FDA's drug shortage list does not include fosphenytoin sodium as of 2026-10-21.",
+    "cites": [
+     "D4"
+    ]
+   },
+   {
+    "text": "Corvale East holds 121 vials of the 50 mg/mL 10 mL presentation with 17.2 days on hand at 7 vials per day.",
     "cites": [
      "D1"
     ]
    },
    {
-    "text": "Corvale General holds 141 units at 8.1 per day for 17 days on hand.",
+    "text": "Corvale General holds 140 vials with 17.3 days on hand at 8.1 vials per day.",
     "cites": [
      "D2"
     ]
    },
    {
-    "text": "Corvale Lakeside holds 54 units at 2.2 per day for 24 days on hand.",
+    "text": "Corvale Lakeside holds 54 vials with 24 days on hand at 2.2 vials per day.",
     "cites": [
      "D3"
     ]
    },
    {
-    "text": "The Sagent Pharmaceuticals label names the GLAND plant as the manufacturing site.",
+    "text": "The rule-based best option is to buy from Amneal Pharmaceuticals LLC, which is not on FDA's shortage list today and whose label names no plant we could place.",
     "cites": [
-     "E4"
+     "D5"
     ]
    }
   ],
   "verifier": {
-   "checked": 7,
-   "rejected": [
-    {
-     "text": "FDA's shortage list shows no signal for fosphenytoin sodium as of 2026-10-21.",
-     "reason": "cites nothing"
-    },
-    {
-     "text": "The recommended action is to buy from Amneal Pharmaceuticals LLC, which is not on FDA's shortage list today.",
-     "reason": "cites nothing"
-    }
-   ],
+   "checked": 6,
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -417,45 +483,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -470,80 +557,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:47:57.784Z",
+   "at": "2026-10-22T12:01:28.034Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract 9H9FTWF0 scope"
+   "reason": "in contract 81R2M25H scope"
   },
   {
-   "at": "2026-10-22T07:47:57.784Z",
+   "at": "2026-10-22T12:01:28.034Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 9H9FTWF0 scope"
+   "reason": "in contract 81R2M25H scope"
   },
   {
-   "at": "2026-10-22T07:48:00.812Z",
+   "at": "2026-10-22T12:01:31.706Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 9H9FTWF0 scope"
+   "reason": "in contract 81R2M25H scope"
   },
   {
-   "at": "2026-10-22T07:48:01.534Z",
+   "at": "2026-10-22T12:01:32.161Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 9H9FTWF0 scope"
+   "reason": "in contract 81R2M25H scope"
   },
   {
-   "at": "2026-10-22T07:48:01.883Z",
+   "at": "2026-10-22T12:01:32.436Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 9H9FTWF0 scope"
+   "reason": "in contract 81R2M25H scope"
   },
   {
-   "at": "2026-10-22T07:48:03.669Z",
+   "at": "2026-10-22T12:01:33.747Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 9H9FTWF0 scope"
+   "reason": "in contract 81R2M25H scope"
   },
   {
-   "at": "2026-10-22T07:48:04.772Z",
+   "at": "2026-10-22T12:01:34.419Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 9H9FTWF0 scope"
+   "reason": "in contract 81R2M25H scope"
   },
   {
-   "at": "2026-10-22T07:48:05.770Z",
+   "at": "2026-10-22T12:01:35.083Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 9H9FTWF0 scope"
+   "reason": "in contract 81R2M25H scope"
   },
   {
-   "at": "2026-10-22T07:48:07.545Z",
+   "at": "2026-10-22T12:01:36.643Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract 9H9FTWF0 scope"
+   "reason": "in contract 81R2M25H scope"
   },
   {
-   "at": "2026-10-22T07:48:07.547Z",
+   "at": "2026-10-22T12:01:36.644Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract 9H9FTWF0 scope"
+   "reason": "in contract 81R2M25H scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-12eff7",
+   "queryId": "Q-696a54",
    "row": 0,
    "label": "Corvale East: FOSPHENYTOIN SODIUM 50MG/ML 10ML SDV",
    "fields": {
@@ -554,42 +641,52 @@
     "description": "FOSPHENYTOIN SODIUM 50MG/ML 10ML SDV",
     "on_hand": "121.00",
     "daily_use": "7.020",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Fosphenytoin Sodium",
     "labeler_name": "Sagent Pharmaceuticals",
     "package_ndc": "25021-798-10",
     "spl_set_id": "e1dab8ad-cbf6-4273-92fa-02629de2abde",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "FOSPHENYTOIN SODIUM 50 mg/mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-12eff7",
+   "queryId": "Q-696a54",
    "row": 1,
-   "label": "Corvale General: Fosphenytoin Sodium",
+   "label": "Corvale General: Fosphenytoin Sodium 50 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-224",
     "ndc11": "25021079810",
     "ndc_as_recorded": "25021079810",
-    "description": "Fosphenytoin Sodium",
-    "on_hand": "140.93",
+    "description": "Fosphenytoin Sodium 50 mg/mL",
+    "on_hand": "140.00",
     "daily_use": "8.072",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Fosphenytoin Sodium",
     "labeler_name": "Sagent Pharmaceuticals",
     "package_ndc": "25021-798-10",
     "spl_set_id": "e1dab8ad-cbf6-4273-92fa-02629de2abde",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "FOSPHENYTOIN SODIUM 50 mg/mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-12eff7",
+   "queryId": "Q-696a54",
    "row": 2,
    "label": "Corvale Lakeside: Fosphenytoin Sodium 50 mg/mL 10 mL vial",
    "fields": {
@@ -601,13 +698,18 @@
     "on_hand": "54.00",
     "daily_use": "2.247",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Fosphenytoin Sodium",
     "labeler_name": "Sagent Pharmaceuticals",
     "package_ndc": "25021-798-10",
     "spl_set_id": "e1dab8ad-cbf6-4273-92fa-02629de2abde",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "FOSPHENYTOIN SODIUM 50 mg/mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E4": {
@@ -630,197 +732,259 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 121 units of fosphenytoin sodium at 7 a day: 17 days on hand",
+   "label": "Corvale East holds 121 vials of fosphenytoin sodium 50 mg/mL, 10 mL at 7 a day: 17.2 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "50 mg/mL injection, 10 mL vial",
     "on_hand": 121,
     "daily_use": 7,
-    "days_on_hand": 17
+    "days_on_hand": 17.2
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 141 units of fosphenytoin sodium at 8.1 a day: 17 days on hand",
+   "label": "Corvale General holds 140 vials of fosphenytoin sodium 50 mg/mL, 10 mL at 8.1 a day: 17.3 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 141,
+    "presentation": "50 mg/mL injection, 10 mL vial",
+    "on_hand": 140,
     "daily_use": 8.1,
-    "days_on_hand": 17
+    "days_on_hand": 17.3
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 54 units of fosphenytoin sodium at 2.2 a day: 24 days on hand",
+   "label": "Corvale Lakeside holds 54 vials of fosphenytoin sodium 50 mg/mL, 10 mL at 2.2 a day: 24 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
+    "presentation": "50 mg/mL injection, 10 mL vial",
     "on_hand": 54,
     "daily_use": 2.2,
     "days_on_hand": 24
    }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "fosphenytoin sodium is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Amneal Pharmaceuticals LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Fresenius Kabi USA, LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from GLENMARK PHARMACEUTICALS INC., USA. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
   }
  },
  "queries": {
-  "Q-12eff7": {
-   "id": "Q-12eff7",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%fosphenytoin%' OR lower(s.description) LIKE '%fosphenytoin%' ORDER BY s.hospital, s.item_key",
-   "ms": 3022,
+  "Q-696a54": {
+   "id": "Q-696a54",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*fosphenytoin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*fosphenytoin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3670,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:48:00.806Z",
+   "ranAt": "2026-10-22T12:01:31.704Z",
    "rows": 3
   },
   "Q-c332c9": {
    "id": "Q-c332c9",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('e1dab8ad-cbf6-4273-92fa-02629de2abde') ORDER BY ps.set_id, ps.establishment",
-   "ms": 719,
+   "ms": 453,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:48:01.531Z",
+   "ranAt": "2026-10-22T12:01:32.159Z",
    "rows": 1
   },
-  "Q-3f1528": {
-   "id": "Q-3f1528",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%fosphenytoin%' ORDER BY status, company_name, package_ndc",
-   "ms": 161,
+  "Q-c7b406": {
+   "id": "Q-c7b406",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*fosphenytoin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 140,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:48:01.695Z",
+   "ranAt": "2026-10-22T12:01:32.301Z",
    "rows": 0
   },
-  "Q-f54aa8": {
-   "id": "Q-f54aa8",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%fosphenytoin%' ORDER BY first_posting",
-   "ms": 181,
+  "Q-9bccaa": {
+   "id": "Q-9bccaa",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*fosphenytoin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 133,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:48:01.879Z",
+   "ranAt": "2026-10-22T12:01:32.435Z",
    "rows": 1
   },
-  "Q-5e7f06": {
-   "id": "Q-5e7f06",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%fosphenytoin%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 1780,
+  "Q-7bfbea": {
+   "id": "Q-7bfbea",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*fosphenytoin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1308,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:48:03.663Z",
+   "ranAt": "2026-10-22T12:01:33.744Z",
    "rows": 19
   },
   "Q-808a5c": {
    "id": "Q-808a5c",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('') ORDER BY fei, end_date",
-   "ms": 548,
+   "ms": 268,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:48:04.217Z",
+   "ranAt": "2026-10-22T12:01:34.015Z",
    "rows": 0
   },
   "Q-de2bfd": {
    "id": "Q-de2bfd",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('') ORDER BY fei, action_date",
-   "ms": 207,
+   "ms": 140,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:48:04.427Z",
+   "ranAt": "2026-10-22T12:01:34.156Z",
    "rows": 0
   },
   "Q-df1a00": {
    "id": "Q-df1a00",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('') OR (fei_match <> 'name_and_city' AND firm_key IN ('gland')) ORDER BY date_published",
-   "ms": 149,
+   "ms": 116,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:48:04.580Z",
+   "ranAt": "2026-10-22T12:01:34.272Z",
    "rows": 0
   },
-  "Q-bff1f3": {
-   "id": "Q-bff1f3",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('gland', 'sagent') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%fosphenytoin%' ORDER BY initiation_date",
-   "ms": 185,
+  "Q-91d145": {
+   "id": "Q-91d145",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('gland', 'sagent') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*fosphenytoin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 143,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:48:04.768Z",
+   "ranAt": "2026-10-22T12:01:34.418Z",
    "rows": 0
   },
   "Q-fe897b": {
    "id": "Q-fe897b",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('25021079810')",
-   "ms": 995,
+   "ms": 663,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:48:05.767Z",
+   "ranAt": "2026-10-22T12:01:35.082Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-db0ce1": {
-   "id": "Q-db0ce1",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%fosphenytoin%'",
-   "ms": 1770,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:48:07.540Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-044ea7": {
+   "id": "Q-044ea7",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*fosphenytoin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1558,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:01:36.642Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 15088,
+  "zetarisMs": 18800,
   "modelCalls": 1,
-  "tokensIn": 580,
-  "tokensOut": 303,
+  "tokensIn": 983,
+  "tokensOut": 309,
   "mode": "live"
  },
  "slug": "fosphenytoin",
@@ -835,7 +999,7 @@
     "id": "hospital-item:hospital-item:CG-224",
     "type": "HospitalItem",
     "key": "hospital-item:CG-224",
-    "label": "Corvale General: Fosphenytoin Sodium",
+    "label": "Corvale General: Fosphenytoin Sodium 50 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-224"
     },
@@ -915,11 +1079,11 @@
     "from": "hospital-item:hospital-item:CG-224",
     "to": "package:ndc-package:25021-798-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:48:00.810Z",
+    "validFrom": "2026-10-22T12:01:31.706Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:48:00.810Z"
+     "at": "2026-10-22T12:01:31.706Z"
     }
    },
    {
@@ -927,11 +1091,11 @@
     "from": "hospital-item:hospital-item:EA-E-000147",
     "to": "package:ndc-package:25021-798-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:48:00.810Z",
+    "validFrom": "2026-10-22T12:01:31.706Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:48:00.810Z"
+     "at": "2026-10-22T12:01:31.706Z"
     }
    },
    {
@@ -939,11 +1103,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0062",
     "to": "package:ndc-package:25021-798-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:48:00.811Z",
+    "validFrom": "2026-10-22T12:01:31.706Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:48:00.811Z"
+     "at": "2026-10-22T12:01:31.706Z"
     }
    },
    {
@@ -951,11 +1115,11 @@
     "from": "package:ndc-package:25021-798-10",
     "to": "product:ndc-product:25021-798",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:48:00.810Z",
+    "validFrom": "2026-10-22T12:01:31.706Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:48:00.810Z"
+     "at": "2026-10-22T12:01:31.706Z"
     }
    },
    {
@@ -963,11 +1127,11 @@
     "from": "product:ndc-product:25021-798",
     "to": "drug:generic:fosphenytoin sodium",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:48:00.810Z",
+    "validFrom": "2026-10-22T12:01:31.706Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:48:00.810Z"
+     "at": "2026-10-22T12:01:31.706Z"
     }
    },
    {
@@ -975,11 +1139,11 @@
     "from": "product:ndc-product:25021-798",
     "to": "labeler:ndc-labeler:25021",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:48:00.810Z",
+    "validFrom": "2026-10-22T12:01:31.706Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:48:00.810Z"
+     "at": "2026-10-22T12:01:31.706Z"
     }
    }
   ],

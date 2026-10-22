@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-88cc89",
+ "id": "case-2026-10-22-32b90b",
  "question": "Why is polyethylene glycol 3350 and electrolytes with orange flavor short, and what do we do?",
- "askedAt": "2026-10-22T08:14:36.885Z",
+ "askedAt": "2026-10-22T12:32:24.014Z",
  "asOf": "2026-10-21",
  "molecule": "polyethylene glycol 3350 and electrolytes with orange flavor",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5HASVDF1P1P6ZQGMYBZ1TV2",
+  "contractId": "01M5HSJ2VB83SEM65E5687DPPZ",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-b3c8fe"
+    "Q-7dac98"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3732,
+   "ms": 3123,
    "rows": 3,
-   "finding": "3 stock lines across 3 hospitals.",
+   "finding": "3 stock lines across 3 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-c604bb"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1040,
+   "ms": 389,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-f2b3c9",
-    "Q-f9e9c9"
+    "Q-85b42a",
+    "Q-5a2e01"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 578,
+   "ms": 206,
    "rows": 2,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-72b772"
+    "Q-3920ad"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 3061,
+   "ms": 1071,
    "rows": 19,
    "finding": "9 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-0248c2",
     "Q-d6461a",
     "Q-163621",
-    "Q-24ab26"
+    "Q-298133"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1782,
+   "ms": 558,
    "rows": 11,
    "finding": "11 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1539,
+   "ms": 574,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-4e7b4d"
+    "Q-a9a41f"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2509,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1345,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 1,
+   "ms": 0,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -153,21 +164,27 @@
    "onHand": 182,
    "dailyUse": 7.306,
    "days": 24.9,
-   "unit": "package",
+   "unit": "each",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "polyethylene glycol 3350 and electrolytes with orange flavor|236g/4l+22.74g/4l+6.74g/4l+5.86g/4l+2.97g/4l|powder|4l|each",
+   "presentationLabel": "236 g/4 L + 22.74 g/4 L + 6.74 g/4 L + 5.86 g/4 L + 2.97 g/4 L powder, 4 L each",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-313",
    "ndc11": "64380076721",
-   "description": "Polyethylene Glycol 3350 and electrolytes with Orange Flavor",
+   "description": "Polyethylene Glycol 3350 and electrolytes with Orange Flavor 236 g/4L",
    "labeler": "Strides Pharma Science Limited",
-   "onHand": 271.82,
+   "onHand": 271,
    "dailyUse": 9.795,
-   "days": 27.8,
+   "days": 27.7,
    "unit": "each",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "polyethylene glycol 3350 and electrolytes with orange flavor|236g/4l+22.74g/4l+6.74g/4l+5.86g/4l+2.97g/4l|powder|4l|each",
+   "presentationLabel": "236 g/4 L + 22.74 g/4 L + 6.74 g/4 L + 5.86 g/4 L + 2.97 g/4 L powder, 4 L each",
    "evidence": "E2"
   },
   {
@@ -181,7 +198,59 @@
    "days": 8.9,
    "unit": "each",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "polyethylene glycol 3350 and electrolytes with orange flavor|236g/4l+22.74g/4l+6.74g/4l+5.86g/4l+2.97g/4l|powder|4l|each",
+   "presentationLabel": "236 g/4 L + 22.74 g/4 L + 6.74 g/4 L + 5.86 g/4 L + 2.97 g/4 L powder, 4 L each",
    "evidence": "E3"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "polyethylene glycol 3350 and electrolytes with orange flavor|236g/4l+22.74g/4l+6.74g/4l+5.86g/4l+2.97g/4l|powder|4l|each",
+   "label": "236 g/4 L + 22.74 g/4 L + 6.74 g/4 L + 5.86 g/4 L + 2.97 g/4 L powder, 4 L each",
+   "short": "236 g/4 L + 22.74 g/4 L + 6.74 g/4 L + 5.86 g/4 L + 2.97 g/4 L, 4 L",
+   "unit": "each",
+   "onHand": 468,
+   "dailyUse": 18.778,
+   "days": 24.9,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 182,
+     "dailyUse": 7.306,
+     "days": 24.9,
+     "lines": [
+      "EA-E-000222"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 271,
+     "dailyUse": 9.795,
+     "days": 27.7,
+     "lines": [
+      "CG-313"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 15,
+     "dailyUse": 1.677,
+     "days": 8.9,
+     "lines": [
+      "LS-LS-0105"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -389,35 +458,48 @@
   {
    "kind": "transfer",
    "rank": 1,
-   "title": "Transfer 9 from Corvale General to Corvale Lakeside",
-   "detail": "Corvale General has 28 days on hand and can spare 9 while keeping two weeks; Corvale Lakeside has 8.9 days and would reach 14.",
-   "why": "Same product, no clinical change, no new supplier.",
+   "title": "Transfer 9 units of 236 g/4 L + 22.74 g/4 L + 6.74 g/4 L + 5.86 g/4 L + 2.97 g/4 L, 4 L from Corvale General to Corvale Lakeside",
+   "detail": "Corvale General has 28 days of 236 g/4 L + 22.74 g/4 L + 6.74 g/4 L + 5.86 g/4 L + 2.97 g/4 L powder, 4 L each on hand and can spare 9 units while keeping two weeks; Corvale Lakeside has 8.9 days and would reach 14.",
+   "why": "Same presentation, no clinical change, no new supplier.",
    "needs": "pharmacy director (transfer request)",
    "evidence": [
     "E2",
     "E3"
-   ]
+   ],
+   "transfer": {
+    "qty": 9,
+    "unit": "each",
+    "presentation": "236 g/4 L + 22.74 g/4 L + 6.74 g/4 L + 5.86 g/4 L + 2.97 g/4 L powder, 4 L each",
+    "from": "Corvale General",
+    "to": "Corvale Lakeside",
+    "fromDays": 27.7,
+    "toDays": 8.9,
+    "fromAfter": 27,
+    "toAfter": 14
+   }
   },
   {
    "kind": "transfer",
    "rank": 1,
-   "title": "Transfer 9 from Corvale East to Corvale Lakeside",
-   "detail": "Corvale East has 25 days on hand and can spare 9 while keeping two weeks; Corvale Lakeside has 8.9 days and would reach 14.",
-   "why": "Same product, no clinical change, no new supplier.",
+   "title": "Transfer 9 units of 236 g/4 L + 22.74 g/4 L + 6.74 g/4 L + 5.86 g/4 L + 2.97 g/4 L, 4 L from Corvale East to Corvale Lakeside",
+   "detail": "Corvale East has 25 days of 236 g/4 L + 22.74 g/4 L + 6.74 g/4 L + 5.86 g/4 L + 2.97 g/4 L powder, 4 L each on hand and can spare 9 units while keeping two weeks; Corvale Lakeside has 8.9 days and would reach 14.",
+   "why": "Same presentation, no clinical change, no new supplier.",
    "needs": "pharmacy director (transfer request)",
    "evidence": [
     "E1",
     "E3"
-   ]
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from A-S Medication Solutions",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
+   ],
+   "transfer": {
+    "qty": 9,
+    "unit": "each",
+    "presentation": "236 g/4 L + 22.74 g/4 L + 6.74 g/4 L + 5.86 g/4 L + 2.97 g/4 L powder, 4 L each",
+    "from": "Corvale East",
+    "to": "Corvale Lakeside",
+    "fromDays": 24.9,
+    "toDays": 8.9,
+    "fromAfter": 24,
+    "toAfter": 14
+   }
   },
   {
    "kind": "alternate_manufacturer",
@@ -543,100 +625,122 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "FDA's records show the product is supplied by Strides Pharma Science Limited (FEI 3004554612) whose most recent inspection ended 2026-05-20 and was classified VAI, and a different manufacturer (Salix Pharmaceuticals) has a shortage listing marked To Be Discontinued as of 2026-08-13",
+  "headline": "FDA's records show the product is not on the shortage list as of 2026-10-21; the labeler is Strides Pharma Science Limited with a registered plant last inspected VAI on 2026-05-20",
   "sentences": [
    {
-    "text": "The NDC 64380076721 used at Corvale General, Corvale Lakeside, and Corvale East is labeled by Strides Pharma Science Limited with FEI 3004554612.",
+    "text": "FDA's drug shortage list does not include polyethylene glycol 3350 and electrolytes with orange flavor as of 2026-10-21.",
     "cites": [
-     "E2",
-     "E3",
-     "E1",
+     "D4"
+    ]
+   },
+   {
+    "text": "The product label identifies Strides Pharma Science Limited as the labeler and names a registered plant (FEI 3004554612) in India.",
+    "cites": [
      "E11"
     ]
    },
    {
-    "text": "FDA inspection 1319788 of that facility ended on 2026-05-20 and received a VAI classification, with the classification known to FDA on 2026-08-14.",
+    "text": "FDA's most recent inspection of that plant ended on 2026-05-20 and was classified VAI, with the classification known on 2026-08-14.",
     "cites": [
      "E10"
     ]
    },
    {
-    "text": "A separate FDA shortage listing for the same generic combination under Salix Pharmaceuticals shows a status of To Be Discontinued with an initial posting date of 2026-08-13 and notes a business decision to discontinue manufacture.",
+    "text": "Corvale Lakeside holds 15 units with 1.7 used per day, giving 8.9 days on hand.",
     "cites": [
-     "E12"
+     "D3"
     ]
    },
    {
-    "text": "Current inventory shows Corvale General holds 272 units at 9.8 per day (28 days on hand), Corvale Lakeside holds 15 units at 1.7 per day (9 days on hand), and Corvale East holds 182 units at 7.3 per day (25 days on hand).",
+    "text": "Corvale General holds 271 units with 9.8 used per day, giving 27.7 days on hand and can spare 9 units while keeping at least two weeks of supply.",
     "cites": [
-     "D2",
-     "D3",
+     "D2"
+    ]
+   },
+   {
+    "text": "The top-ranked action is to transfer 9 units from Corvale General to Corvale Lakeside, which would raise Lakeside to about 14 days on hand.",
+    "cites": [
+     "D5"
+    ]
+   },
+   {
+    "text": "An alternative transfer of 9 units from Corvale East (24.9 days on hand) would also achieve 14 days at Lakeside.",
+    "cites": [
+     "D6",
      "D1"
-    ]
-   },
-   {
-    "text": "Because the links between the Strides-supplied NDC and the Salix discontinuation are weak and the Strides plant's latest inspection is VAI, the root cause for this specific NDC's shortage should be verified with the supplier and FDA.",
-    "cites": [
-     "E11",
-     "E10",
-     "E12"
     ]
    }
   ],
   "verifier": {
-   "checked": 7,
-   "rejected": [
-    {
-     "text": "The recommended transfer is to move 9 units from Corvale General to Corvale Lakeside, which would leave Corvale General with about two weeks of supply and bring Corvale Lakeside to approximately 14 days on hand.",
-     "reason": "number 14 is not in the cited evidence"
-    }
-   ],
-   "repaired": 0
+   "checked": 8,
+   "rejected": [],
+   "repaired": 1
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
  },
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -651,80 +755,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T08:14:22.639Z",
+   "at": "2026-10-22T12:32:16.747Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract MYBZ1TV2 scope"
+   "reason": "in contract 5687DPPZ scope"
   },
   {
-   "at": "2026-10-22T08:14:22.639Z",
+   "at": "2026-10-22T12:32:16.747Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract MYBZ1TV2 scope"
+   "reason": "in contract 5687DPPZ scope"
   },
   {
-   "at": "2026-10-22T08:14:26.373Z",
+   "at": "2026-10-22T12:32:19.870Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract MYBZ1TV2 scope"
+   "reason": "in contract 5687DPPZ scope"
   },
   {
-   "at": "2026-10-22T08:14:27.412Z",
+   "at": "2026-10-22T12:32:20.259Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract MYBZ1TV2 scope"
+   "reason": "in contract 5687DPPZ scope"
   },
   {
-   "at": "2026-10-22T08:14:27.991Z",
+   "at": "2026-10-22T12:32:20.465Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract MYBZ1TV2 scope"
+   "reason": "in contract 5687DPPZ scope"
   },
   {
-   "at": "2026-10-22T08:14:31.051Z",
+   "at": "2026-10-22T12:32:21.536Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract MYBZ1TV2 scope"
+   "reason": "in contract 5687DPPZ scope"
   },
   {
-   "at": "2026-10-22T08:14:32.835Z",
+   "at": "2026-10-22T12:32:22.094Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract MYBZ1TV2 scope"
+   "reason": "in contract 5687DPPZ scope"
   },
   {
-   "at": "2026-10-22T08:14:34.375Z",
+   "at": "2026-10-22T12:32:22.668Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract MYBZ1TV2 scope"
+   "reason": "in contract 5687DPPZ scope"
   },
   {
-   "at": "2026-10-22T08:14:36.883Z",
+   "at": "2026-10-22T12:32:24.014Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract MYBZ1TV2 scope"
+   "reason": "in contract 5687DPPZ scope"
   },
   {
-   "at": "2026-10-22T08:14:36.885Z",
+   "at": "2026-10-22T12:32:24.014Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract MYBZ1TV2 scope"
+   "reason": "in contract 5687DPPZ scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-b3c8fe",
+   "queryId": "Q-7dac98",
    "row": 0,
    "label": "Corvale East: POLYETHYLENE GLYCOL 3350 AND ELECTROLYTES WITH ORANGE FLAVOR",
    "fields": {
@@ -735,42 +839,52 @@
     "description": "POLYETHYLENE GLYCOL 3350 AND ELECTROLYTES WITH ORANGE FLAVOR",
     "on_hand": "182.00",
     "daily_use": "7.306",
-    "unit": "package",
+    "unit": "each",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Polyethylene Glycol 3350 and electrolytes with Orange Flavor",
     "labeler_name": "Strides Pharma Science Limited",
     "package_ndc": "64380-767-21",
     "spl_set_id": "48c741a9-9039-4fdb-a875-86d4ea968282",
     "dosage_form": "POWDER, FOR SOLUTION",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "POLYETHYLENE GLYCOL 3350 236 g/4L; SODIUM SULFATE ANHYDROUS 22.74 g/4L; SODIUM BICARBONATE 6.74 g/4L; SODIUM CHLORIDE 5.86 g/4L; POTASSIUM CHLORIDE 2.97 g/4L",
+    "unit_content": "4 L",
+    "pkg_unit": "jug"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-b3c8fe",
+   "queryId": "Q-7dac98",
    "row": 1,
-   "label": "Corvale General: Polyethylene Glycol 3350 and electrolytes with Orange Flavor",
+   "label": "Corvale General: Polyethylene Glycol 3350 and electrolytes with Orange Flavor 236 g/4L",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-313",
     "ndc11": "64380076721",
     "ndc_as_recorded": "64380076721",
-    "description": "Polyethylene Glycol 3350 and electrolytes with Orange Flavor",
-    "on_hand": "271.82",
+    "description": "Polyethylene Glycol 3350 and electrolytes with Orange Flavor 236 g/4L",
+    "on_hand": "271.00",
     "daily_use": "9.795",
     "unit": "each",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Polyethylene Glycol 3350 and electrolytes with Orange Flavor",
     "labeler_name": "Strides Pharma Science Limited",
     "package_ndc": "64380-767-21",
     "spl_set_id": "48c741a9-9039-4fdb-a875-86d4ea968282",
     "dosage_form": "POWDER, FOR SOLUTION",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "POLYETHYLENE GLYCOL 3350 236 g/4L; SODIUM SULFATE ANHYDROUS 22.74 g/4L; SODIUM BICARBONATE 6.74 g/4L; SODIUM CHLORIDE 5.86 g/4L; POTASSIUM CHLORIDE 2.97 g/4L",
+    "unit_content": "4 L",
+    "pkg_unit": "jug"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-b3c8fe",
+   "queryId": "Q-7dac98",
    "row": 2,
    "label": "Corvale Lakeside: Polyethylene Glycol 3350 and electrolytes with Orange Flavor 236 g/4L",
    "fields": {
@@ -782,13 +896,18 @@
     "on_hand": "15.00",
     "daily_use": "1.677",
     "unit": "each",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Polyethylene Glycol 3350 and electrolytes with Orange Flavor",
     "labeler_name": "Strides Pharma Science Limited",
     "package_ndc": "64380-767-21",
     "spl_set_id": "48c741a9-9039-4fdb-a875-86d4ea968282",
     "dosage_form": "POWDER, FOR SOLUTION",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "POLYETHYLENE GLYCOL 3350 236 g/4L; SODIUM SULFATE ANHYDROUS 22.74 g/4L; SODIUM BICARBONATE 6.74 g/4L; SODIUM CHLORIDE 5.86 g/4L; POTASSIUM CHLORIDE 2.97 g/4L",
+    "unit_content": "4 L",
+    "pkg_unit": "jug"
    }
   },
   "E4": {
@@ -921,7 +1040,7 @@
   },
   "E12": {
    "id": "E12",
-   "queryId": "Q-f2b3c9",
+   "queryId": "Q-85b42a",
    "row": 0,
    "label": "FDA shortage list: Salix Pharmaceuticals, a division of Bausch Health US, LLC, To Be Discontinued",
    "fields": {
@@ -938,197 +1057,259 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 182 units of polyethylene glycol 3350 and electrolytes with orange flavor at 7.3 a day: 25 days on hand",
+   "label": "Corvale East holds 182 eachs of polyethylene glycol 3350 and electrolytes with orange flavor 236 g/4 L + 22.74 g/4 L + 6.74 g/4 L + 5.86 g/4 L + 2.97 g/4 L, 4 L at 7.3 a day: 24.9 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "236 g/4 L + 22.74 g/4 L + 6.74 g/4 L + 5.86 g/4 L + 2.97 g/4 L powder, 4 L each",
     "on_hand": 182,
     "daily_use": 7.3,
-    "days_on_hand": 25
+    "days_on_hand": 24.9
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 272 units of polyethylene glycol 3350 and electrolytes with orange flavor at 9.8 a day: 28 days on hand",
+   "label": "Corvale General holds 271 eachs of polyethylene glycol 3350 and electrolytes with orange flavor 236 g/4 L + 22.74 g/4 L + 6.74 g/4 L + 5.86 g/4 L + 2.97 g/4 L, 4 L at 9.8 a day: 27.7 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 272,
+    "presentation": "236 g/4 L + 22.74 g/4 L + 6.74 g/4 L + 5.86 g/4 L + 2.97 g/4 L powder, 4 L each",
+    "on_hand": 271,
     "daily_use": 9.8,
-    "days_on_hand": 28
+    "days_on_hand": 27.7
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 15 units of polyethylene glycol 3350 and electrolytes with orange flavor at 1.7 a day: 9 days on hand",
+   "label": "Corvale Lakeside holds 15 eachs of polyethylene glycol 3350 and electrolytes with orange flavor 236 g/4 L + 22.74 g/4 L + 6.74 g/4 L + 5.86 g/4 L + 2.97 g/4 L, 4 L at 1.7 a day: 8.9 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
+    "presentation": "236 g/4 L + 22.74 g/4 L + 6.74 g/4 L + 5.86 g/4 L + 2.97 g/4 L powder, 4 L each",
     "on_hand": 15,
     "daily_use": 1.7,
-    "days_on_hand": 9
+    "days_on_hand": 8.9
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "polyethylene glycol 3350 and electrolytes with orange flavor is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 9 units of 236 g/4 L + 22.74 g/4 L + 6.74 g/4 L + 5.86 g/4 L + 2.97 g/4 L, 4 L from Corvale General to Corvale Lakeside. Corvale General has 28 days of 236 g/4 L + 22.74 g/4 L + 6.74 g/4 L + 5.86 g/4 L + 2.97 g/4 L powder, 4 L each on hand and can spare 9 units while keeping two weeks; Corvale Lakeside has 8.9 days and would reach 14.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 9 units of 236 g/4 L + 22.74 g/4 L + 6.74 g/4 L + 5.86 g/4 L + 2.97 g/4 L, 4 L from Corvale East to Corvale Lakeside. Corvale East has 25 days of 236 g/4 L + 22.74 g/4 L + 6.74 g/4 L + 5.86 g/4 L + 2.97 g/4 L powder, 4 L each on hand and can spare 9 units while keeping two weeks; Corvale Lakeside has 8.9 days and would reach 14.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Affordable Pharmaceuticals, LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-b3c8fe": {
-   "id": "Q-b3c8fe",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%polyethylene%' OR lower(s.description) LIKE '%polyethylene%' ORDER BY s.hospital, s.item_key",
-   "ms": 3730,
+  "Q-7dac98": {
+   "id": "Q-7dac98",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*polyethylene(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*polyethylene(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3121,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T08:14:26.370Z",
+   "ranAt": "2026-10-22T12:32:19.869Z",
    "rows": 3
   },
   "Q-c604bb": {
    "id": "Q-c604bb",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('48c741a9-9039-4fdb-a875-86d4ea968282') ORDER BY ps.set_id, ps.establishment",
-   "ms": 1037,
+   "ms": 387,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:14:27.410Z",
+   "ranAt": "2026-10-22T12:32:20.258Z",
    "rows": 1
   },
-  "Q-f2b3c9": {
-   "id": "Q-f2b3c9",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%polyethylene%' ORDER BY status, company_name, package_ndc",
-   "ms": 286,
+  "Q-85b42a": {
+   "id": "Q-85b42a",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*polyethylene(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 101,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T08:14:27.698Z",
+   "ranAt": "2026-10-22T12:32:20.360Z",
    "rows": 1
   },
-  "Q-f9e9c9": {
-   "id": "Q-f9e9c9",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%polyethylene%' ORDER BY first_posting",
-   "ms": 288,
+  "Q-5a2e01": {
+   "id": "Q-5a2e01",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*polyethylene(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 103,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T08:14:27.988Z",
+   "ranAt": "2026-10-22T12:32:20.464Z",
    "rows": 1
   },
-  "Q-72b772": {
-   "id": "Q-72b772",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%polyethylene%' AND lower(p.dosage_form) LIKE '%powder%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 3058,
+  "Q-3920ad": {
+   "id": "Q-3920ad",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*polyethylene(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%powder%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1070,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:14:31.049Z",
+   "ranAt": "2026-10-22T12:32:21.535Z",
    "rows": 19
   },
   "Q-0248c2": {
    "id": "Q-0248c2",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3004554612') ORDER BY fei, end_date",
-   "ms": 636,
+   "ms": 220,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T08:14:31.687Z",
+   "ranAt": "2026-10-22T12:32:21.757Z",
    "rows": 11
   },
   "Q-d6461a": {
    "id": "Q-d6461a",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3004554612') ORDER BY fei, action_date",
-   "ms": 423,
+   "ms": 109,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T08:14:32.112Z",
+   "ranAt": "2026-10-22T12:32:21.867Z",
    "rows": 0
   },
   "Q-163621": {
    "id": "Q-163621",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3004554612') OR (fei_match <> 'name_and_city' AND firm_key IN ('strides science')) ORDER BY date_published",
-   "ms": 336,
+   "ms": 109,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T08:14:32.450Z",
+   "ranAt": "2026-10-22T12:32:21.977Z",
    "rows": 0
   },
-  "Q-24ab26": {
-   "id": "Q-24ab26",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('strides science') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%polyethylene%' ORDER BY initiation_date",
-   "ms": 378,
+  "Q-298133": {
+   "id": "Q-298133",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('strides science') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*polyethylene(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 115,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T08:14:32.830Z",
+   "ranAt": "2026-10-22T12:32:22.093Z",
    "rows": 0
   },
   "Q-343e92": {
    "id": "Q-343e92",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('64380076721')",
-   "ms": 1537,
+   "ms": 572,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:14:34.372Z",
+   "ranAt": "2026-10-22T12:32:22.667Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-4e7b4d": {
-   "id": "Q-4e7b4d",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%polyethylene%'",
-   "ms": 2506,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:14:36.880Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-a9a41f": {
+   "id": "Q-a9a41f",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*polyethylene(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1344,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:32:24.012Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 19586,
+  "zetarisMs": 17459,
   "modelCalls": 1,
-  "tokensIn": 2330,
-  "tokensOut": 595,
+  "tokensIn": 3768,
+  "tokensOut": 468,
   "mode": "live"
  },
  "slug": "polyethylene",
@@ -1143,7 +1324,7 @@
     "id": "hospital-item:hospital-item:CG-313",
     "type": "HospitalItem",
     "key": "hospital-item:CG-313",
-    "label": "Corvale General: Polyethylene Glycol 3350 and electrolytes with Orange Flavor",
+    "label": "Corvale General: Polyethylene Glycol 3350 and electrolytes with Orange Flavor 236 g/4L",
     "attrs": {
      "key": "hospital-item:CG-313"
     },
@@ -1238,7 +1419,7 @@
     },
     "facts": [
      {
-      "id": "fact_c039ac894c8a5a47",
+      "id": "fact_3f645f9dafe3d36f",
       "about": "inspection:fda-inspection:1012339",
       "predicate": "classification",
       "value": "VAI",
@@ -1246,9 +1427,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:14:32.834Z"
+       "at": "2026-10-22T12:32:22.094Z"
       },
-      "assertedAt": "2026-10-22T08:14:32.834Z"
+      "assertedAt": "2026-10-22T12:32:22.094Z"
      }
     ],
     "depth": 4
@@ -1264,7 +1445,7 @@
     },
     "facts": [
      {
-      "id": "fact_f735158f76e1d76e",
+      "id": "fact_57833793434ecca5",
       "about": "inspection:fda-inspection:1091356",
       "predicate": "classification",
       "value": "VAI",
@@ -1272,9 +1453,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:14:32.834Z"
+       "at": "2026-10-22T12:32:22.094Z"
       },
-      "assertedAt": "2026-10-22T08:14:32.834Z"
+      "assertedAt": "2026-10-22T12:32:22.094Z"
      }
     ],
     "depth": 4
@@ -1290,7 +1471,7 @@
     },
     "facts": [
      {
-      "id": "fact_8b3aa3f4301d3853",
+      "id": "fact_183ec52c3d38cddd",
       "about": "inspection:fda-inspection:1115442",
       "predicate": "classification",
       "value": "VAI",
@@ -1298,9 +1479,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:14:32.834Z"
+       "at": "2026-10-22T12:32:22.094Z"
       },
-      "assertedAt": "2026-10-22T08:14:32.834Z"
+      "assertedAt": "2026-10-22T12:32:22.094Z"
      }
     ],
     "depth": 4
@@ -1316,7 +1497,7 @@
     },
     "facts": [
      {
-      "id": "fact_551f880f95c1cc19",
+      "id": "fact_0e8f6bd5d1035397",
       "about": "inspection:fda-inspection:1195160",
       "predicate": "classification",
       "value": "VAI",
@@ -1324,9 +1505,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:14:32.834Z"
+       "at": "2026-10-22T12:32:22.094Z"
       },
-      "assertedAt": "2026-10-22T08:14:32.834Z"
+      "assertedAt": "2026-10-22T12:32:22.094Z"
      }
     ],
     "depth": 4
@@ -1342,7 +1523,7 @@
     },
     "facts": [
      {
-      "id": "fact_ae2f8bb1b38d7c54",
+      "id": "fact_adf57868aa7d3294",
       "about": "inspection:fda-inspection:1319788",
       "predicate": "classification",
       "value": "VAI",
@@ -1350,9 +1531,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:14:32.834Z"
+       "at": "2026-10-22T12:32:22.094Z"
       },
-      "assertedAt": "2026-10-22T08:14:32.834Z"
+      "assertedAt": "2026-10-22T12:32:22.094Z"
      }
     ],
     "depth": 4
@@ -1368,7 +1549,7 @@
     },
     "facts": [
      {
-      "id": "fact_e324e0015b46c5b0",
+      "id": "fact_1e47549026ef4228",
       "about": "inspection:fda-inspection:898070",
       "predicate": "classification",
       "value": "VAI",
@@ -1376,9 +1557,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:14:32.834Z"
+       "at": "2026-10-22T12:32:22.094Z"
       },
-      "assertedAt": "2026-10-22T08:14:32.834Z"
+      "assertedAt": "2026-10-22T12:32:22.094Z"
      }
     ],
     "depth": 4
@@ -1394,7 +1575,7 @@
     },
     "facts": [
      {
-      "id": "fact_bda6d7d60f84cbca",
+      "id": "fact_42f6656dad5f385d",
       "about": "inspection:fda-inspection:958409",
       "predicate": "classification",
       "value": "VAI",
@@ -1402,9 +1583,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:14:32.834Z"
+       "at": "2026-10-22T12:32:22.094Z"
       },
-      "assertedAt": "2026-10-22T08:14:32.834Z"
+      "assertedAt": "2026-10-22T12:32:22.094Z"
      }
     ],
     "depth": 4
@@ -1416,11 +1597,11 @@
     "from": "hospital-item:hospital-item:CG-313",
     "to": "package:ndc-package:64380-767-21",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:14:26.372Z",
+    "validFrom": "2026-10-22T12:32:19.870Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:14:26.372Z"
+     "at": "2026-10-22T12:32:19.870Z"
     }
    },
    {
@@ -1428,11 +1609,11 @@
     "from": "hospital-item:hospital-item:EA-E-000222",
     "to": "package:ndc-package:64380-767-21",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:14:26.371Z",
+    "validFrom": "2026-10-22T12:32:19.870Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:14:26.371Z"
+     "at": "2026-10-22T12:32:19.870Z"
     }
    },
    {
@@ -1440,11 +1621,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0105",
     "to": "package:ndc-package:64380-767-21",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:14:26.372Z",
+    "validFrom": "2026-10-22T12:32:19.870Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:14:26.372Z"
+     "at": "2026-10-22T12:32:19.870Z"
     }
    },
    {
@@ -1452,11 +1633,11 @@
     "from": "package:ndc-package:64380-767-21",
     "to": "product:ndc-product:64380-767",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:14:26.372Z",
+    "validFrom": "2026-10-22T12:32:19.870Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:14:26.372Z"
+     "at": "2026-10-22T12:32:19.870Z"
     }
    },
    {
@@ -1464,11 +1645,11 @@
     "from": "product:ndc-product:64380-767",
     "to": "drug:generic:polyethylene glycol 3350 and electrolytes with orange flavor",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:14:26.372Z",
+    "validFrom": "2026-10-22T12:32:19.870Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:14:26.372Z"
+     "at": "2026-10-22T12:32:19.870Z"
     }
    },
    {
@@ -1476,11 +1657,11 @@
     "from": "product:ndc-product:64380-767",
     "to": "labeler:ndc-labeler:64380",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:14:26.372Z",
+    "validFrom": "2026-10-22T12:32:19.870Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:14:26.372Z"
+     "at": "2026-10-22T12:32:19.870Z"
     }
    },
    {
@@ -1488,11 +1669,11 @@
     "from": "product:ndc-product:64380-767",
     "to": "site:fei:3004554612",
     "type": "made-at",
-    "validFrom": "2026-10-22T08:14:32.833Z",
+    "validFrom": "2026-10-22T12:32:22.094Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:14:32.833Z"
+     "at": "2026-10-22T12:32:22.094Z"
     }
    },
    {
@@ -1500,11 +1681,11 @@
     "from": "inspection:fda-inspection:898070",
     "to": "site:fei:3004554612",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:14:32.834Z",
+    "validFrom": "2026-10-22T12:32:22.094Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:14:32.834Z"
+     "at": "2026-10-22T12:32:22.094Z"
     }
    },
    {
@@ -1512,11 +1693,11 @@
     "from": "inspection:fda-inspection:958409",
     "to": "site:fei:3004554612",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:14:32.834Z",
+    "validFrom": "2026-10-22T12:32:22.094Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:14:32.834Z"
+     "at": "2026-10-22T12:32:22.094Z"
     }
    },
    {
@@ -1524,11 +1705,11 @@
     "from": "inspection:fda-inspection:1012339",
     "to": "site:fei:3004554612",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:14:32.834Z",
+    "validFrom": "2026-10-22T12:32:22.094Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:14:32.834Z"
+     "at": "2026-10-22T12:32:22.094Z"
     }
    },
    {
@@ -1536,11 +1717,11 @@
     "from": "inspection:fda-inspection:1091356",
     "to": "site:fei:3004554612",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:14:32.834Z",
+    "validFrom": "2026-10-22T12:32:22.094Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:14:32.834Z"
+     "at": "2026-10-22T12:32:22.094Z"
     }
    },
    {
@@ -1548,11 +1729,11 @@
     "from": "inspection:fda-inspection:1115442",
     "to": "site:fei:3004554612",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:14:32.834Z",
+    "validFrom": "2026-10-22T12:32:22.094Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:14:32.834Z"
+     "at": "2026-10-22T12:32:22.094Z"
     }
    },
    {
@@ -1560,11 +1741,11 @@
     "from": "inspection:fda-inspection:1195160",
     "to": "site:fei:3004554612",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:14:32.834Z",
+    "validFrom": "2026-10-22T12:32:22.094Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:14:32.834Z"
+     "at": "2026-10-22T12:32:22.094Z"
     }
    },
    {
@@ -1572,11 +1753,11 @@
     "from": "inspection:fda-inspection:1319788",
     "to": "site:fei:3004554612",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:14:32.834Z",
+    "validFrom": "2026-10-22T12:32:22.094Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:14:32.834Z"
+     "at": "2026-10-22T12:32:22.094Z"
     }
    }
   ],

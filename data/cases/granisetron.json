@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-002046",
+ "id": "case-2026-10-22-ea43be",
  "question": "Why is granisetron hydrochloride short, and what do we do?",
- "askedAt": "2026-10-22T07:49:27.460Z",
+ "askedAt": "2026-10-22T12:03:48.389Z",
  "asOf": "2026-10-21",
  "molecule": "granisetron hydrochloride",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H9BWSHQ1X7JGGZ03RQKJHK",
+  "contractId": "01M5HQXK1C25112WY5R7VBZ3JW",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-b55d03"
+    "Q-5a6f68"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3006,
+   "ms": 5602,
    "rows": 2,
-   "finding": "2 stock lines across 2 hospitals.",
+   "finding": "2 stock lines across 2 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-842feb"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1064,
+   "ms": 638,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-f2abbd",
-    "Q-c1082d"
+    "Q-5b7c51",
+    "Q-5f790d"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 435,
+   "ms": 389,
    "rows": 1,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-43833a"
+    "Q-d5fbde"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2271,
+   "ms": 1587,
    "rows": 7,
    "finding": "3 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-fb34a4",
     "Q-196782",
     "Q-5f637d",
-    "Q-3bbadb"
+    "Q-70e744"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1546,
+   "ms": 873,
    "rows": 6,
    "finding": "6 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1238,
+   "ms": 740,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-8ac2b1"
+    "Q-039348"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1172,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1936,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 1,
+   "ms": 0,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -153,22 +164,65 @@
    "onHand": 204,
    "dailyUse": 7.621,
    "days": 26.8,
-   "unit": "package",
+   "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 2, converted to units",
+   "presentation": "granisetron hydrochloride|1mg|tablet||tablet",
+   "presentationLabel": "1 mg tablet",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-230",
    "ndc11": "69452035001",
-   "description": "Granisetron Hydrochloride",
+   "description": "Granisetron Hydrochloride 1 mg/1",
    "labeler": "Bionpharma Inc.",
-   "onHand": 135.01,
+   "onHand": 135,
    "dailyUse": 9.076,
    "days": 14.9,
    "unit": "tablet",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "granisetron hydrochloride|1mg|tablet||tablet",
+   "presentationLabel": "1 mg tablet",
    "evidence": "E2"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "granisetron hydrochloride|1mg|tablet||tablet",
+   "label": "1 mg tablet",
+   "short": "1 mg",
+   "unit": "tablet",
+   "onHand": 339,
+   "dailyUse": 16.697,
+   "days": 20.3,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 204,
+     "dailyUse": 7.621,
+     "days": 26.8,
+     "lines": [
+      "EA-E-000258"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 135,
+     "dailyUse": 9.076,
+     "days": 14.9,
+     "lines": [
+      "CG-230"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -345,28 +399,34 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "Granisetron hydrochloride supply at Corvale sites covers 15 to 27 days; the labeled manufacturer OrBion Pharmaceuticals Private Limited has a history of VAI inspections and a recent NAI inspection on 2025-10-27; Breckenridge Pharmaceutical, Inc. is not on FDA's shortage list today but its label names no plant we could place.",
+  "headline": "Granisetron hydrochloride is not on FDA's shortage list as of 2026-10-21; Corvale East has 26.8 days on hand and Corvale General has 14.9 days on hand",
   "sentences": [
    {
-    "text": "Corvale East has 204 units on hand at 7.6 units per day, providing 27 days of supply.",
+    "text": "FDA's drug shortage list does not include granisetron hydrochloride as of 2026-10-21.",
+    "cites": [
+     "D3"
+    ]
+   },
+   {
+    "text": "Corvale East holds 204 tablets of the 1 mg presentation with a daily use of 7.6 tablets, providing 26.8 days on hand.",
     "cites": [
      "D1"
     ]
    },
    {
-    "text": "Corvale General has 135 units on hand at 9.1 units per day, providing 15 days of supply.",
+    "text": "Corvale General holds 135 tablets of the 1 mg presentation with a daily use of 9.1 tablets, providing 14.9 days on hand.",
     "cites": [
      "D2"
     ]
    },
    {
-    "text": "The product label for NDC 69452035001 identifies OrBion Pharmaceuticals Private Limited (FEI 3004540907) as the manufacturing plant, with operations including analysis, labeling, manufacture, and pack.",
+    "text": "The product label for NDC 69452035001 identifies OrBion Pharmaceuticals Private Limited (FEI 3004540907) as the manufacturing plant, which was last inspected by FDA and classified NAI on 2025-10-27.",
     "cites": [
      "E7"
     ]
    },
    {
-    "text": "FDA inspection records for that plant show VAI classifications on 2011-04-07, 2015-06-03, 2019-05-31, and 2023-09-08.",
+    "text": "FDA inspection records for that plant show four prior inspections classified VAI, with the most recent ending 2023-09-08 and known to FDA on 2023-10-11.",
     "cites": [
      "E3",
      "E4",
@@ -375,28 +435,23 @@
     ]
    },
    {
-    "text": "The most recent inspection listed for the plant is an NAI classification dated 2025-10-27.",
+    "text": "The rule-based alternate manufacturer option ranked 3 is to buy from Breckenridge Pharmaceutical, Inc., which is not on FDA's shortage list today and whose label names no plant we could place.",
     "cites": [
-     "E7"
+     "D4"
     ]
    },
    {
-    "text": "Check current inventory allocation between sites and verify Breckenridge's manufacturing site before committing to a purchase.",
+    "text": "Check current inventory against projected use and confirm availability from Breckenridge Pharmaceutical, Inc. before placing orders.",
     "cites": [
      "D1",
      "D2",
-     "E7"
+     "D4"
     ]
    }
   ],
   "verifier": {
    "checked": 8,
-   "rejected": [
-    {
-     "text": "Breckenridge Pharmaceutical, Inc. is not on FDA's shortage list as of 2026-10-21, but its label does not name a plant we could place.",
-     "reason": "date 2026-10-21 is not in the cited evidence"
-    }
-   ],
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -404,45 +459,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -457,80 +533,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:49:16.722Z",
+   "at": "2026-10-22T12:03:36.621Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract 03RQKJHK scope"
+   "reason": "in contract R7VBZ3JW scope"
   },
   {
-   "at": "2026-10-22T07:49:16.722Z",
+   "at": "2026-10-22T12:03:36.621Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 03RQKJHK scope"
+   "reason": "in contract R7VBZ3JW scope"
   },
   {
-   "at": "2026-10-22T07:49:19.730Z",
+   "at": "2026-10-22T12:03:42.224Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 03RQKJHK scope"
+   "reason": "in contract R7VBZ3JW scope"
   },
   {
-   "at": "2026-10-22T07:49:20.793Z",
+   "at": "2026-10-22T12:03:42.862Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 03RQKJHK scope"
+   "reason": "in contract R7VBZ3JW scope"
   },
   {
-   "at": "2026-10-22T07:49:21.229Z",
+   "at": "2026-10-22T12:03:43.252Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 03RQKJHK scope"
+   "reason": "in contract R7VBZ3JW scope"
   },
   {
-   "at": "2026-10-22T07:49:23.499Z",
+   "at": "2026-10-22T12:03:44.839Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 03RQKJHK scope"
+   "reason": "in contract R7VBZ3JW scope"
   },
   {
-   "at": "2026-10-22T07:49:25.048Z",
+   "at": "2026-10-22T12:03:45.713Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 03RQKJHK scope"
+   "reason": "in contract R7VBZ3JW scope"
   },
   {
-   "at": "2026-10-22T07:49:26.286Z",
+   "at": "2026-10-22T12:03:46.454Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 03RQKJHK scope"
+   "reason": "in contract R7VBZ3JW scope"
   },
   {
-   "at": "2026-10-22T07:49:27.459Z",
+   "at": "2026-10-22T12:03:48.389Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract 03RQKJHK scope"
+   "reason": "in contract R7VBZ3JW scope"
   },
   {
-   "at": "2026-10-22T07:49:27.461Z",
+   "at": "2026-10-22T12:03:48.390Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract 03RQKJHK scope"
+   "reason": "in contract R7VBZ3JW scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-b55d03",
+   "queryId": "Q-5a6f68",
    "row": 0,
    "label": "Corvale East: GRANISETRON HYDROCHLORIDE 1MG TAB",
    "fields": {
@@ -541,37 +617,47 @@
     "description": "GRANISETRON HYDROCHLORIDE 1MG TAB",
     "on_hand": "204.00",
     "daily_use": "7.621",
-    "unit": "package",
+    "unit": "tablet",
+    "pkg_units": "2.00",
+    "unit_basis": "packages of 2, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Granisetron Hydrochloride",
     "labeler_name": "Bionpharma Inc.",
     "package_ndc": "69452-350-01",
     "spl_set_id": "50b713d3-7ca8-465a-aefa-65ddbe17b934",
     "dosage_form": "TABLET, FILM COATED",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "GRANISETRON HYDROCHLORIDE 1 mg/1",
+    "unit_content": null,
+    "pkg_unit": "blister"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-b55d03",
+   "queryId": "Q-5a6f68",
    "row": 1,
-   "label": "Corvale General: Granisetron Hydrochloride",
+   "label": "Corvale General: Granisetron Hydrochloride 1 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-230",
     "ndc11": "69452035001",
     "ndc_as_recorded": "69452035001",
-    "description": "Granisetron Hydrochloride",
-    "on_hand": "135.01",
+    "description": "Granisetron Hydrochloride 1 mg/1",
+    "on_hand": "135.00",
     "daily_use": "9.076",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Granisetron Hydrochloride",
     "labeler_name": "Bionpharma Inc.",
     "package_ndc": "69452-350-01",
     "spl_set_id": "50b713d3-7ca8-465a-aefa-65ddbe17b934",
     "dosage_form": "TABLET, FILM COATED",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "GRANISETRON HYDROCHLORIDE 1 mg/1",
+    "unit_content": null,
+    "pkg_unit": "blister"
    }
   },
   "E3": {
@@ -658,185 +744,236 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 204 units of granisetron hydrochloride at 7.6 a day: 27 days on hand",
+   "label": "Corvale East holds 204 tablets of granisetron hydrochloride 1 mg at 7.6 a day: 26.8 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "1 mg tablet",
     "on_hand": 204,
     "daily_use": 7.6,
-    "days_on_hand": 27
+    "days_on_hand": 26.8
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 135 units of granisetron hydrochloride at 9.1 a day: 15 days on hand",
+   "label": "Corvale General holds 135 tablets of granisetron hydrochloride 1 mg at 9.1 a day: 14.9 days on hand",
    "fields": {
     "hospital": "Corvale General",
+    "presentation": "1 mg tablet",
     "on_hand": 135,
     "daily_use": 9.1,
-    "days_on_hand": 15
+    "days_on_hand": 14.9
+   }
+  },
+  "D3": {
+   "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "granisetron hydrochloride is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Breckenridge Pharmaceutical, Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Natco Pharma Limited. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-b55d03": {
-   "id": "Q-b55d03",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%granisetron%' OR lower(s.description) LIKE '%granisetron%' ORDER BY s.hospital, s.item_key",
-   "ms": 3002,
+  "Q-5a6f68": {
+   "id": "Q-5a6f68",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*granisetron(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*granisetron(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 5602,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:49:19.724Z",
+   "ranAt": "2026-10-22T12:03:42.221Z",
    "rows": 2
   },
   "Q-842feb": {
    "id": "Q-842feb",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('50b713d3-7ca8-465a-aefa-65ddbe17b934') ORDER BY ps.set_id, ps.establishment",
-   "ms": 1059,
+   "ms": 636,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:49:20.789Z",
+   "ranAt": "2026-10-22T12:03:42.860Z",
    "rows": 1
   },
-  "Q-f2abbd": {
-   "id": "Q-f2abbd",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%granisetron%' ORDER BY status, company_name, package_ndc",
-   "ms": 241,
+  "Q-5b7c51": {
+   "id": "Q-5b7c51",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*granisetron(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 161,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:49:21.035Z",
+   "ranAt": "2026-10-22T12:03:43.023Z",
    "rows": 0
   },
-  "Q-c1082d": {
-   "id": "Q-c1082d",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%granisetron%' ORDER BY first_posting",
-   "ms": 185,
+  "Q-5f790d": {
+   "id": "Q-5f790d",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*granisetron(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 225,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:49:21.223Z",
+   "ranAt": "2026-10-22T12:03:43.250Z",
    "rows": 1
   },
-  "Q-43833a": {
-   "id": "Q-43833a",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%granisetron%' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2269,
+  "Q-d5fbde": {
+   "id": "Q-d5fbde",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*granisetron(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1586,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:49:23.495Z",
+   "ranAt": "2026-10-22T12:03:44.838Z",
    "rows": 7
   },
   "Q-fb34a4": {
    "id": "Q-fb34a4",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3004540907') ORDER BY fei, end_date",
-   "ms": 680,
+   "ms": 373,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:49:24.179Z",
+   "ranAt": "2026-10-22T12:03:45.213Z",
    "rows": 6
   },
   "Q-196782": {
    "id": "Q-196782",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3004540907') ORDER BY fei, action_date",
-   "ms": 295,
+   "ms": 162,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:49:24.478Z",
+   "ranAt": "2026-10-22T12:03:45.376Z",
    "rows": 0
   },
   "Q-5f637d": {
    "id": "Q-5f637d",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3004540907') OR (fei_match <> 'name_and_city' AND firm_key IN ('orbion')) ORDER BY date_published",
-   "ms": 260,
+   "ms": 158,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:49:24.741Z",
+   "ranAt": "2026-10-22T12:03:45.535Z",
    "rows": 0
   },
-  "Q-3bbadb": {
-   "id": "Q-3bbadb",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('orbion', 'bionpharma') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%granisetron%' ORDER BY initiation_date",
-   "ms": 296,
+  "Q-70e744": {
+   "id": "Q-70e744",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('orbion', 'bionpharma') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*granisetron(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 173,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:49:25.042Z",
+   "ranAt": "2026-10-22T12:03:45.709Z",
    "rows": 0
   },
   "Q-9e5392": {
    "id": "Q-9e5392",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('69452035001')",
-   "ms": 1234,
+   "ms": 739,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:49:26.282Z",
+   "ranAt": "2026-10-22T12:03:46.452Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-8ac2b1": {
-   "id": "Q-8ac2b1",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%granisetron%'",
-   "ms": 1169,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:49:27.455Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-039348": {
+   "id": "Q-039348",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*granisetron(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1933,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:03:48.387Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 16061,
+  "zetarisMs": 21956,
   "modelCalls": 1,
-  "tokensIn": 993,
-  "tokensOut": 538,
+  "tokensIn": 1279,
+  "tokensOut": 507,
   "mode": "live"
  },
  "slug": "granisetron",
@@ -850,7 +987,7 @@
     "id": "hospital-item:hospital-item:CG-230",
     "type": "HospitalItem",
     "key": "hospital-item:CG-230",
-    "label": "Corvale General: Granisetron Hydrochloride",
+    "label": "Corvale General: Granisetron Hydrochloride 1 mg/1",
     "attrs": {
      "key": "hospital-item:CG-230"
     },
@@ -934,7 +1071,7 @@
     },
     "facts": [
      {
-      "id": "fact_e8b9a81a1abb910e",
+      "id": "fact_f06abced63470c25",
       "about": "inspection:fda-inspection:1091278",
       "predicate": "classification",
       "value": "VAI",
@@ -942,9 +1079,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:49:25.046Z"
+       "at": "2026-10-22T12:03:45.713Z"
       },
-      "assertedAt": "2026-10-22T07:49:25.046Z"
+      "assertedAt": "2026-10-22T12:03:45.713Z"
      }
     ],
     "depth": 4
@@ -960,7 +1097,7 @@
     },
     "facts": [
      {
-      "id": "fact_f7cde6b520f5f3d8",
+      "id": "fact_1302ba530e686c1a",
       "about": "inspection:fda-inspection:1217144",
       "predicate": "classification",
       "value": "VAI",
@@ -968,9 +1105,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:49:25.046Z"
+       "at": "2026-10-22T12:03:45.713Z"
       },
-      "assertedAt": "2026-10-22T07:49:25.046Z"
+      "assertedAt": "2026-10-22T12:03:45.713Z"
      }
     ],
     "depth": 4
@@ -986,7 +1123,7 @@
     },
     "facts": [
      {
-      "id": "fact_43d01bf9dfa691c4",
+      "id": "fact_322765dff0e07b6a",
       "about": "inspection:fda-inspection:732080",
       "predicate": "classification",
       "value": "VAI",
@@ -994,9 +1131,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:49:25.045Z"
+       "at": "2026-10-22T12:03:45.712Z"
       },
-      "assertedAt": "2026-10-22T07:49:25.045Z"
+      "assertedAt": "2026-10-22T12:03:45.712Z"
      }
     ],
     "depth": 4
@@ -1012,7 +1149,7 @@
     },
     "facts": [
      {
-      "id": "fact_ebea34ab6211acdd",
+      "id": "fact_6421741ee4b8324a",
       "about": "inspection:fda-inspection:934390",
       "predicate": "classification",
       "value": "VAI",
@@ -1020,9 +1157,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:49:25.046Z"
+       "at": "2026-10-22T12:03:45.713Z"
       },
-      "assertedAt": "2026-10-22T07:49:25.046Z"
+      "assertedAt": "2026-10-22T12:03:45.713Z"
      }
     ],
     "depth": 4
@@ -1034,11 +1171,11 @@
     "from": "hospital-item:hospital-item:CG-230",
     "to": "package:ndc-package:69452-350-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:49:19.729Z",
+    "validFrom": "2026-10-22T12:03:42.223Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:49:19.729Z"
+     "at": "2026-10-22T12:03:42.223Z"
     }
    },
    {
@@ -1046,11 +1183,11 @@
     "from": "hospital-item:hospital-item:EA-E-000258",
     "to": "package:ndc-package:69452-350-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:49:19.728Z",
+    "validFrom": "2026-10-22T12:03:42.223Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:49:19.728Z"
+     "at": "2026-10-22T12:03:42.223Z"
     }
    },
    {
@@ -1058,11 +1195,11 @@
     "from": "package:ndc-package:69452-350-01",
     "to": "product:ndc-product:69452-350",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:49:19.728Z",
+    "validFrom": "2026-10-22T12:03:42.223Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:49:19.728Z"
+     "at": "2026-10-22T12:03:42.223Z"
     }
    },
    {
@@ -1070,11 +1207,11 @@
     "from": "product:ndc-product:69452-350",
     "to": "drug:generic:granisetron hydrochloride",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:49:19.728Z",
+    "validFrom": "2026-10-22T12:03:42.223Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:49:19.728Z"
+     "at": "2026-10-22T12:03:42.223Z"
     }
    },
    {
@@ -1082,11 +1219,11 @@
     "from": "product:ndc-product:69452-350",
     "to": "labeler:ndc-labeler:69452",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:49:19.729Z",
+    "validFrom": "2026-10-22T12:03:42.223Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:49:19.729Z"
+     "at": "2026-10-22T12:03:42.223Z"
     }
    },
    {
@@ -1094,11 +1231,11 @@
     "from": "product:ndc-product:69452-350",
     "to": "site:fei:3004540907",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:49:25.045Z",
+    "validFrom": "2026-10-22T12:03:45.712Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:49:25.045Z"
+     "at": "2026-10-22T12:03:45.712Z"
     }
    },
    {
@@ -1106,11 +1243,11 @@
     "from": "inspection:fda-inspection:732080",
     "to": "site:fei:3004540907",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:49:25.045Z",
+    "validFrom": "2026-10-22T12:03:45.712Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:49:25.045Z"
+     "at": "2026-10-22T12:03:45.712Z"
     }
    },
    {
@@ -1118,11 +1255,11 @@
     "from": "inspection:fda-inspection:934390",
     "to": "site:fei:3004540907",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:49:25.046Z",
+    "validFrom": "2026-10-22T12:03:45.713Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:49:25.046Z"
+     "at": "2026-10-22T12:03:45.713Z"
     }
    },
    {
@@ -1130,11 +1267,11 @@
     "from": "inspection:fda-inspection:1091278",
     "to": "site:fei:3004540907",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:49:25.046Z",
+    "validFrom": "2026-10-22T12:03:45.713Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:49:25.046Z"
+     "at": "2026-10-22T12:03:45.713Z"
     }
    },
    {
@@ -1142,11 +1279,11 @@
     "from": "inspection:fda-inspection:1217144",
     "to": "site:fei:3004540907",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:49:25.046Z",
+    "validFrom": "2026-10-22T12:03:45.713Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:49:25.046Z"
+     "at": "2026-10-22T12:03:45.713Z"
     }
    }
   ],

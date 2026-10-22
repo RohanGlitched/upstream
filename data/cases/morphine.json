@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-7e840e",
+ "id": "case-2026-10-22-025df3",
  "question": "Why is morphine sulfate short, and what do we do?",
- "askedAt": "2026-10-22T08:04:43.702Z",
+ "askedAt": "2026-10-22T12:23:39.730Z",
  "asOf": "2026-10-21",
  "molecule": "morphine sulfate",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5HA7JZH816REG0WMZPHJ43P",
+  "contractId": "01M5HS21PHC0XKK3FXYX36CGMX",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-1b81dd"
+    "Q-e21925"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 6802,
+   "ms": 3302,
    "rows": 10,
-   "finding": "10 stock lines across 3 hospitals.",
+   "finding": "10 stock lines across 3 hospitals, 4 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-b55bdf"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1451,
+   "ms": 537,
    "rows": 3,
    "finding": "3 plant links on 3 labels; 2 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-8de150",
-    "Q-f1ef8b"
+    "Q-18a1de",
+    "Q-f94e4b"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 759,
+   "ms": 270,
    "rows": 35,
    "finding": "On FDA's list as Current for 5 companies.",
    "status": "ok"
@@ -63,14 +68,16 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-4dc1de"
+    "Q-3b6889"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 3556,
-   "rows": 29,
-   "finding": "10 labelers make it in this form.",
+   "ms": 1122,
+   "rows": 26,
+   "finding": "7 labelers make it in this form.",
    "status": "ok"
   },
   {
@@ -81,15 +88,15 @@
     "Q-1c6bed",
     "Q-b798bb",
     "Q-4133d5",
-    "Q-16b25d"
+    "Q-968e53"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1819,
+   "ms": 613,
    "rows": 70,
    "finding": "63 inspections (2 OAI at our plants), 3 compliance actions, 0 import-alert listings, 4 recalls.",
    "status": "ok"
@@ -104,7 +111,7 @@
    "sources": [
     "fda.citations"
    ],
-   "ms": 436,
+   "ms": 192,
    "rows": 8,
    "finding": "8 Form 483 observations recorded.",
    "status": "ok"
@@ -119,9 +126,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 2070,
+   "ms": 989,
    "rows": 2,
    "finding": "2 approved interchanges on file.",
    "status": "ok"
@@ -129,19 +136,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-ba8268"
+    "Q-f595c2"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2603,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1419,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -168,8 +179,11 @@
    "onHand": 56,
    "dailyUse": 20.835,
    "days": 2.7,
-   "unit": "package",
+   "unit": "each",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "morphine sulfate|2mg/ml|injection|1ml|each",
+   "presentationLabel": "2 mg/mL injection, 1 mL each",
    "evidence": "E1"
   },
   {
@@ -181,8 +195,11 @@
    "onHand": 106,
    "dailyUse": 19.654,
    "days": 5.4,
-   "unit": "package",
+   "unit": "each",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "morphine sulfate|1mg/ml|injection|10ml|each",
+   "presentationLabel": "1 mg/mL injection, 10 mL each",
    "evidence": "E2"
   },
   {
@@ -194,8 +211,11 @@
    "onHand": 259,
    "dailyUse": 20.424,
    "days": 12.7,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 25, converted to units",
+   "presentation": "morphine sulfate|2mg/ml|injection|1ml|vial",
+   "presentationLabel": "2 mg/mL injection, 1 mL vial",
    "evidence": "E3"
   },
   {
@@ -207,60 +227,75 @@
    "onHand": 483,
    "dailyUse": 19.106,
    "days": 25.3,
-   "unit": "package",
+   "unit": "each",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "morphine sulfate|20mg/5ml|solution|100ml|each",
+   "presentationLabel": "20 mg/5 mL solution, 100 mL each",
    "evidence": "E4"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-280",
    "ndc11": "63323045201",
-   "description": "Morphine Sulfate",
+   "description": "Morphine Sulfate 2 mg/mL",
    "labeler": "Fresenius Kabi USA, LLC",
-   "onHand": 308.34,
+   "onHand": 308,
    "dailyUse": 19.967,
    "days": 15.4,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "morphine sulfate|2mg/ml|injection|1ml|vial",
+   "presentationLabel": "2 mg/mL injection, 1 mL vial",
    "evidence": "E5"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-281",
    "ndc11": "75826013005",
-   "description": "Morphine Sulfate",
+   "description": "Morphine Sulfate 20 mg/5mL",
    "labeler": "Winder Laboratories LLC",
-   "onHand": 540.42,
+   "onHand": 540,
    "dailyUse": 19.708,
    "days": 27.4,
    "unit": "each",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "morphine sulfate|20mg/5ml|solution|100ml|each",
+   "presentationLabel": "20 mg/5 mL solution, 100 mL each",
    "evidence": "E6"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-92",
    "ndc11": "00409189001",
-   "description": "MORPHINE SULFATE",
+   "description": "MORPHINE SULFATE 2 mg/mL",
    "labeler": "Hospira, Inc.",
-   "onHand": 317.18,
+   "onHand": 317,
    "dailyUse": 18.976,
    "days": 16.7,
    "unit": "each",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "morphine sulfate|2mg/ml|injection|1ml|each",
+   "presentationLabel": "2 mg/mL injection, 1 mL each",
    "evidence": "E7"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-93",
    "ndc11": "00641601910",
-   "description": "morphine sulfate",
+   "description": "morphine sulfate 1 mg/mL",
    "labeler": "Hikma Pharmaceuticals USA Inc.",
-   "onHand": 322.3,
+   "onHand": 322,
    "dailyUse": 19.575,
-   "days": 16.5,
+   "days": 16.4,
    "unit": "each",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "morphine sulfate|1mg/ml|injection|10ml|each",
+   "presentationLabel": "1 mg/mL injection, 10 mL each",
    "evidence": "E8"
   },
   {
@@ -274,6 +309,9 @@
    "days": 14.7,
    "unit": "each",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "morphine sulfate|2mg/ml|injection|1ml|each",
+   "presentationLabel": "2 mg/mL injection, 1 mL each",
    "evidence": "E9"
   },
   {
@@ -287,7 +325,176 @@
    "days": 26.7,
    "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "morphine sulfate|2mg/ml|injection|1ml|vial",
+   "presentationLabel": "2 mg/mL injection, 1 mL vial",
    "evidence": "E10"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "morphine sulfate|2mg/ml|injection|1ml|each",
+   "label": "2 mg/mL injection, 1 mL each",
+   "short": "2 mg/mL, 1 mL",
+   "unit": "each",
+   "onHand": 420,
+   "dailyUse": 43.018,
+   "days": 9.8,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 56,
+     "dailyUse": 20.835,
+     "days": 2.7,
+     "lines": [
+      "EA-E-000081"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 317,
+     "dailyUse": 18.976,
+     "days": 16.7,
+     "lines": [
+      "CG-92"
+     ],
+     "evidence": [
+      "E7"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 47,
+     "dailyUse": 3.207,
+     "days": 14.7,
+     "lines": [
+      "LS-LS-0038"
+     ],
+     "evidence": [
+      "E9"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "morphine sulfate|1mg/ml|injection|10ml|each",
+   "label": "1 mg/mL injection, 10 mL each",
+   "short": "1 mg/mL, 10 mL",
+   "unit": "each",
+   "onHand": 428,
+   "dailyUse": 39.229,
+   "days": 10.9,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 106,
+     "dailyUse": 19.654,
+     "days": 5.4,
+     "lines": [
+      "EA-E-000113"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 322,
+     "dailyUse": 19.575,
+     "days": 16.4,
+     "lines": [
+      "CG-93"
+     ],
+     "evidence": [
+      "E8"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "morphine sulfate|2mg/ml|injection|1ml|vial",
+   "label": "2 mg/mL injection, 1 mL vial",
+   "short": "2 mg/mL, 1 mL",
+   "unit": "vial",
+   "onHand": 715,
+   "dailyUse": 45.928,
+   "days": 15.6,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 259,
+     "dailyUse": 20.424,
+     "days": 12.7,
+     "lines": [
+      "EA-E-000217"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 308,
+     "dailyUse": 19.967,
+     "days": 15.4,
+     "lines": [
+      "CG-280"
+     ],
+     "evidence": [
+      "E5"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 148,
+     "dailyUse": 5.537,
+     "days": 26.7,
+     "lines": [
+      "LS-LS-0100"
+     ],
+     "evidence": [
+      "E10"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "morphine sulfate|20mg/5ml|solution|100ml|each",
+   "label": "20 mg/5 mL solution, 100 mL each",
+   "short": "20 mg/5 mL, 100 mL",
+   "unit": "each",
+   "onHand": 1023,
+   "dailyUse": 38.814,
+   "days": 26.4,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 483,
+     "dailyUse": 19.106,
+     "days": 25.3,
+     "lines": [
+      "EA-E-000310"
+     ],
+     "evidence": [
+      "E4"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 540,
+     "dailyUse": 19.708,
+     "days": 27.4,
+     "lines": [
+      "CG-281"
+     ],
+     "evidence": [
+      "E6"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -738,22 +945,6 @@
    "inOurStock": false
   },
   {
-   "labeler": "MDD US Operations, LLC",
-   "ndc11": "27505000405",
-   "dosageForm": "INJECTION",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
-   "labeler": "MDD US Operations, LLC, a subsidiary of Supernus Pharmaceuticals, Inc",
-   "ndc11": "27505000605",
-   "dosageForm": "INJECTION, SOLUTION",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
    "labeler": "Piramal Critical Care, Inc.",
    "ndc11": "66794016002",
    "dosageForm": "INJECTION",
@@ -768,27 +959,54 @@
    ],
    "onShortageList": true,
    "inOurStock": false
-  },
-  {
-   "labeler": "TruPharma, LLC",
-   "ndc11": "52817072005",
-   "dosageForm": "INJECTION",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
   }
  ],
  "options": [
   {
-   "kind": "alternate_manufacturer",
-   "rank": 2,
-   "title": "Same product, alternate manufacturer: Morphine Sulfate 2 mg/mL from Fresenius Kabi USA, LLC",
-   "detail": "Same product from Fresenius Kabi USA, LLC; substitute NDC, no clinical change. Approved by Casey Nguyen, MD on 2025-10-09.",
-   "why": "Already approved by the P&T committee.",
-   "needs": "pharmacist",
+   "kind": "transfer",
+   "rank": 1,
+   "title": "Transfer 51 units of 2 mg/mL, 1 mL from Corvale General to Corvale East",
+   "detail": "Corvale General has 17 days of 2 mg/mL injection, 1 mL each on hand and can spare 51 units while keeping two weeks; Corvale East has 2.7 days and would reach 5.",
+   "why": "Same presentation, no clinical change, no new supplier. Schedule II controlled substance: the transfer is documented between DEA registrants.",
+   "needs": "pharmacy director, plus a DEA Form 222 or CSOS order (Schedule II)",
    "evidence": [
-    "E47"
-   ]
+    "E7",
+    "E1"
+   ],
+   "transfer": {
+    "qty": 51,
+    "unit": "each",
+    "presentation": "2 mg/mL injection, 1 mL each",
+    "from": "Corvale General",
+    "to": "Corvale East",
+    "fromDays": 16.7,
+    "toDays": 2.7,
+    "fromAfter": 14,
+    "toAfter": 5
+   }
+  },
+  {
+   "kind": "transfer",
+   "rank": 1,
+   "title": "Transfer 47 units of 1 mg/mL, 10 mL from Corvale General to Corvale East",
+   "detail": "Corvale General has 16 days of 1 mg/mL injection, 10 mL each on hand and can spare 47 units while keeping two weeks; Corvale East has 5.4 days and would reach 8.",
+   "why": "Same presentation, no clinical change, no new supplier. Schedule II controlled substance: the transfer is documented between DEA registrants.",
+   "needs": "pharmacy director, plus a DEA Form 222 or CSOS order (Schedule II)",
+   "evidence": [
+    "E8",
+    "E2"
+   ],
+   "transfer": {
+    "qty": 47,
+    "unit": "each",
+    "presentation": "1 mg/mL injection, 10 mL each",
+    "from": "Corvale General",
+    "to": "Corvale East",
+    "fromDays": 16.4,
+    "toDays": 5.4,
+    "fromAfter": 14,
+    "toAfter": 8
+   }
   },
   {
    "kind": "alternate_manufacturer",
@@ -800,41 +1018,25 @@
    "evidence": []
   },
   {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from MDD US Operations, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from MDD US Operations, LLC, a subsidiary of Supernus Pharmaceuticals, Inc",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from TruPharma, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
    "kind": "alternate_concentration",
-   "rank": 3,
+   "rank": 5,
    "title": "Same molecule, alternate concentration or vial size: MORPHINE SULFATE 2 mg/mL from Hospira, Inc.",
-   "detail": "Recalculate dose and volume; pharmacist verification required. Approved by Sam Rivera, MD on 2026-08-13.",
+   "detail": "Recalculate dose and volume; pharmacist verification required. Approved by Sam Rivera, MD on 2026-08-13. FDA lists this product Current (posted 2017-10-31).",
    "why": "Already approved by the P&T committee.",
    "needs": "pharmacist",
    "evidence": [
     "E46"
+   ]
+  },
+  {
+   "kind": "alternate_concentration",
+   "rank": 5,
+   "title": "Same molecule, alternate concentration or vial size: Morphine Sulfate 2 mg/mL from Fresenius Kabi USA, LLC",
+   "detail": "Same product from Fresenius Kabi USA, LLC; substitute NDC, no clinical change. Approved by Casey Nguyen, MD on 2025-10-09. FDA lists this product Current (posted 2017-10-31).",
+   "why": "Already approved by the P&T committee.",
+   "needs": "pharmacist",
+   "evidence": [
+    "E47"
    ]
   }
  ],
@@ -891,58 +1093,52 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "FDA's records trace our supply to a plant classified OAI 58 days before the shortage posting",
+  "headline": "FDA's records trace our supply to a plant classified OAI 58 days after the shortage posting",
   "sentences": [
    {
-    "text": "FDA first posted the morphine sulfate injection shortage on 2017-10-31 and it remains current as of 2026-10-21, spanning 108 months on the list.",
+    "text": "FDA first posted the morphine sulfate injection shortage on 2017-10-31 and it remains current as of 2026-10-21.",
     "cites": [
      "E45",
-     "D13"
+     "D17"
     ]
    },
    {
-    "text": "The Fresenius Kabi USA, LLC plant (FEI 3001833549) received an OAI classification letter dated 2017-12-28, which was 58 days after the initial shortage posting.",
+    "text": "The shortage listing names Fresenius Kabi USA, LLC as a company with current shortage status.",
     "cites": [
-     "D9",
+     "E39"
+    ]
+   },
+   {
+    "text": "FDA's OAI classification letter to Fresenius Kabi USA, LLC is dated 2017-12-28, 58 days after FDA posted the shortage on 2017-10-31.",
+    "cites": [
+     "D16"
+    ]
+   },
+   {
+    "text": "Inspection 732653 at the Fresenius Kabi plant ended 2011-07-08 and was classified OAI with the classification known on 2017-12-28.",
+    "cites": [
      "E21"
     ]
    },
    {
-    "text": "That same plant had a prior OAI inspection ending 2011-07-08 and another OAI inspection ending 2013-01-11, with a Warning Letter issued 2012-02-22.",
-    "cites": [
-     "E21",
-     "E24",
-     "E31"
-    ]
-   },
-   {
-    "text": "The most recent inspection of the Fresenius Kabi plant ended 2023-10-13 and was classified VAI.",
-    "cites": [
-     "E30",
-     "E32"
-    ]
-   },
-   {
-    "text": "Hikma Pharmaceuticals USA Inc. (FEI 2220525) is also listed as a current shortage manufacturer; its latest inspection ended 2024-06-12 and was classified VAI.",
+    "text": "Hikma Pharmaceuticals USA Inc. also appears on the FDA shortage list with current status and its registered plant last inspected 2026-05-13 with NAI classification.",
     "cites": [
      "E40",
-     "E17",
      "E18"
     ]
    },
    {
-    "text": "Corvale East has 11 days on hand, Corvale General has 19 days, and Corvale Lakeside has 22 days of morphine sulfate at current usage rates.",
+    "text": "Corvale East has 2.7 days of 2 mg/mL injection on hand while Corvale General has 16.7 days and can spare 51 units while keeping two weeks supply.",
     "cites": [
      "D1",
      "D2",
-     "D3"
+     "D18"
     ]
    },
    {
-    "text": "The approved therapeutic interchange is the same product from Fresenius Kabi USA, LLC (NDC 63323045201, 2 mg/mL), approved by Casey Nguyen, MD on 2025-10-09, requiring pharmacist substitution.",
+    "text": "The recommended action is to transfer 51 units of 2 mg/mL, 1 mL from Corvale General to Corvale East, which requires pharmacy director approval plus a DEA Form 222 or CSOS order for this Schedule II substance.",
     "cites": [
-     "D10",
-     "E47"
+     "D18"
     ]
    }
   ],
@@ -956,45 +1152,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -1009,87 +1226,87 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T08:04:24.184Z",
+   "at": "2026-10-22T12:23:31.281Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract MZPHJ43P scope"
+   "reason": "in contract YX36CGMX scope"
   },
   {
-   "at": "2026-10-22T08:04:24.188Z",
+   "at": "2026-10-22T12:23:31.281Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract MZPHJ43P scope"
+   "reason": "in contract YX36CGMX scope"
   },
   {
-   "at": "2026-10-22T08:04:30.996Z",
+   "at": "2026-10-22T12:23:34.584Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract MZPHJ43P scope"
+   "reason": "in contract YX36CGMX scope"
   },
   {
-   "at": "2026-10-22T08:04:32.446Z",
+   "at": "2026-10-22T12:23:35.122Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract MZPHJ43P scope"
+   "reason": "in contract YX36CGMX scope"
   },
   {
-   "at": "2026-10-22T08:04:33.205Z",
+   "at": "2026-10-22T12:23:35.392Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract MZPHJ43P scope"
+   "reason": "in contract YX36CGMX scope"
   },
   {
-   "at": "2026-10-22T08:04:36.762Z",
+   "at": "2026-10-22T12:23:36.513Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract MZPHJ43P scope"
+   "reason": "in contract YX36CGMX scope"
   },
   {
-   "at": "2026-10-22T08:04:38.582Z",
+   "at": "2026-10-22T12:23:37.126Z",
    "action": "What FDA wrote at the OAI inspections",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract MZPHJ43P scope"
+   "reason": "in contract YX36CGMX scope"
   },
   {
-   "at": "2026-10-22T08:04:39.029Z",
+   "at": "2026-10-22T12:23:37.322Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract MZPHJ43P scope"
+   "reason": "in contract YX36CGMX scope"
   },
   {
-   "at": "2026-10-22T08:04:41.098Z",
+   "at": "2026-10-22T12:23:38.310Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract MZPHJ43P scope"
+   "reason": "in contract YX36CGMX scope"
   },
   {
-   "at": "2026-10-22T08:04:43.701Z",
+   "at": "2026-10-22T12:23:39.729Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract MZPHJ43P scope"
+   "reason": "in contract YX36CGMX scope"
   },
   {
-   "at": "2026-10-22T08:04:43.703Z",
+   "at": "2026-10-22T12:23:39.730Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract MZPHJ43P scope"
+   "reason": "in contract YX36CGMX scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-1b81dd",
+   "queryId": "Q-e21925",
    "row": 0,
    "label": "Corvale East: MORPHINE SULFATE 2MG/ML 1ML CART",
    "fields": {
@@ -1100,19 +1317,24 @@
     "description": "MORPHINE SULFATE 2MG/ML 1ML CART",
     "on_hand": "56.00",
     "daily_use": "20.835",
-    "unit": "package",
+    "unit": "each",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "MORPHINE SULFATE",
     "labeler_name": "Hospira, Inc.",
     "package_ndc": "0409-1890-01",
     "spl_set_id": null,
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "MORPHINE SULFATE 2 mg/mL",
+    "unit_content": "1 mL",
+    "pkg_unit": "cartridge"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-1b81dd",
+   "queryId": "Q-e21925",
    "row": 1,
    "label": "Corvale East: MORPHINE SULFATE 1MG/ML 10ML AMP",
    "fields": {
@@ -1123,19 +1345,24 @@
     "description": "MORPHINE SULFATE 1MG/ML 10ML AMP",
     "on_hand": "106.00",
     "daily_use": "19.654",
-    "unit": "package",
+    "unit": "each",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "morphine sulfate",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0641-6019-10",
     "spl_set_id": "ebb18761-e5c4-4238-bb84-f9549f500210",
     "dosage_form": "INJECTION",
-    "route": "EPIDURAL|INTRATHECAL|INTRAVENOUS"
+    "route": "EPIDURAL|INTRATHECAL|INTRAVENOUS",
+    "strength": "MORPHINE SULFATE 1 mg/mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "ampule"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-1b81dd",
+   "queryId": "Q-e21925",
    "row": 2,
    "label": "Corvale East: MORPHINE SULFATE 2MG/ML 1ML SDV",
    "fields": {
@@ -1146,19 +1373,24 @@
     "description": "MORPHINE SULFATE 2MG/ML 1ML SDV",
     "on_hand": "259.00",
     "daily_use": "20.424",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "25.00",
+    "unit_basis": "packages of 25, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Morphine Sulfate",
     "labeler_name": "Fresenius Kabi USA, LLC",
     "package_ndc": "63323-452-01",
     "spl_set_id": "582f42e5-444e-4246-af8c-e7e28097c69a",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "MORPHINE SULFATE 2 mg/mL",
+    "unit_content": "1 mL",
+    "pkg_unit": "vial"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-1b81dd",
+   "queryId": "Q-e21925",
    "row": 3,
    "label": "Corvale East: MORPHINE SULFATE 20MG/5ML 100ML BTL",
    "fields": {
@@ -1169,111 +1401,136 @@
     "description": "MORPHINE SULFATE 20MG/5ML 100ML BTL",
     "on_hand": "483.00",
     "daily_use": "19.106",
-    "unit": "package",
+    "unit": "each",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Morphine Sulfate",
     "labeler_name": "Winder Laboratories LLC",
     "package_ndc": "75826-130-05",
     "spl_set_id": "e9a7319a-bf1f-48db-a71e-6d4e6ead9555",
     "dosage_form": "SOLUTION",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "MORPHINE SULFATE 20 mg/5mL",
+    "unit_content": "100 mL",
+    "pkg_unit": "bottle"
    }
   },
   "E5": {
    "id": "E5",
-   "queryId": "Q-1b81dd",
+   "queryId": "Q-e21925",
    "row": 4,
-   "label": "Corvale General: Morphine Sulfate",
+   "label": "Corvale General: Morphine Sulfate 2 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-280",
     "ndc11": "63323045201",
     "ndc_as_recorded": "63323045201",
-    "description": "Morphine Sulfate",
-    "on_hand": "308.34",
+    "description": "Morphine Sulfate 2 mg/mL",
+    "on_hand": "308.00",
     "daily_use": "19.967",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Morphine Sulfate",
     "labeler_name": "Fresenius Kabi USA, LLC",
     "package_ndc": "63323-452-01",
     "spl_set_id": "582f42e5-444e-4246-af8c-e7e28097c69a",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "MORPHINE SULFATE 2 mg/mL",
+    "unit_content": "1 mL",
+    "pkg_unit": "vial"
    }
   },
   "E6": {
    "id": "E6",
-   "queryId": "Q-1b81dd",
+   "queryId": "Q-e21925",
    "row": 5,
-   "label": "Corvale General: Morphine Sulfate",
+   "label": "Corvale General: Morphine Sulfate 20 mg/5mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-281",
     "ndc11": "75826013005",
     "ndc_as_recorded": "75826013005",
-    "description": "Morphine Sulfate",
-    "on_hand": "540.42",
+    "description": "Morphine Sulfate 20 mg/5mL",
+    "on_hand": "540.00",
     "daily_use": "19.708",
     "unit": "each",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Morphine Sulfate",
     "labeler_name": "Winder Laboratories LLC",
     "package_ndc": "75826-130-05",
     "spl_set_id": "e9a7319a-bf1f-48db-a71e-6d4e6ead9555",
     "dosage_form": "SOLUTION",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "MORPHINE SULFATE 20 mg/5mL",
+    "unit_content": "100 mL",
+    "pkg_unit": "bottle"
    }
   },
   "E7": {
    "id": "E7",
-   "queryId": "Q-1b81dd",
+   "queryId": "Q-e21925",
    "row": 6,
-   "label": "Corvale General: MORPHINE SULFATE",
+   "label": "Corvale General: MORPHINE SULFATE 2 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-92",
     "ndc11": "00409189001",
     "ndc_as_recorded": "00409189001",
-    "description": "MORPHINE SULFATE",
-    "on_hand": "317.18",
+    "description": "MORPHINE SULFATE 2 mg/mL",
+    "on_hand": "317.00",
     "daily_use": "18.976",
     "unit": "each",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "MORPHINE SULFATE",
     "labeler_name": "Hospira, Inc.",
     "package_ndc": "0409-1890-01",
     "spl_set_id": null,
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "MORPHINE SULFATE 2 mg/mL",
+    "unit_content": "1 mL",
+    "pkg_unit": "cartridge"
    }
   },
   "E8": {
    "id": "E8",
-   "queryId": "Q-1b81dd",
+   "queryId": "Q-e21925",
    "row": 7,
-   "label": "Corvale General: morphine sulfate",
+   "label": "Corvale General: morphine sulfate 1 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-93",
     "ndc11": "00641601910",
     "ndc_as_recorded": "00641601910",
-    "description": "morphine sulfate",
-    "on_hand": "322.30",
+    "description": "morphine sulfate 1 mg/mL",
+    "on_hand": "322.00",
     "daily_use": "19.575",
     "unit": "each",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "morphine sulfate",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0641-6019-10",
     "spl_set_id": "ebb18761-e5c4-4238-bb84-f9549f500210",
     "dosage_form": "INJECTION",
-    "route": "EPIDURAL|INTRATHECAL|INTRAVENOUS"
+    "route": "EPIDURAL|INTRATHECAL|INTRAVENOUS",
+    "strength": "MORPHINE SULFATE 1 mg/mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "ampule"
    }
   },
   "E9": {
    "id": "E9",
-   "queryId": "Q-1b81dd",
+   "queryId": "Q-e21925",
    "row": 8,
    "label": "Corvale Lakeside: morphine SULFATE 2 mg/mL",
    "fields": {
@@ -1285,18 +1542,23 @@
     "on_hand": "47.00",
     "daily_use": "3.207",
     "unit": "each",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "MORPHINE SULFATE",
     "labeler_name": "Hospira, Inc.",
     "package_ndc": "0409-1890-01",
     "spl_set_id": null,
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "MORPHINE SULFATE 2 mg/mL",
+    "unit_content": "1 mL",
+    "pkg_unit": "cartridge"
    }
   },
   "E10": {
    "id": "E10",
-   "queryId": "Q-1b81dd",
+   "queryId": "Q-e21925",
    "row": 9,
    "label": "Corvale Lakeside: morphine Sulfate 2 mg/mL 1 mL vial",
    "fields": {
@@ -1308,13 +1570,18 @@
     "on_hand": "148.00",
     "daily_use": "5.537",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Morphine Sulfate",
     "labeler_name": "Fresenius Kabi USA, LLC",
     "package_ndc": "63323-452-01",
     "spl_set_id": "582f42e5-444e-4246-af8c-e7e28097c69a",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "MORPHINE SULFATE 2 mg/mL",
+    "unit_content": "1 mL",
+    "pkg_unit": "vial"
    }
   },
   "E11": {
@@ -1682,7 +1949,7 @@
   },
   "E34": {
    "id": "E34",
-   "queryId": "Q-16b25d",
+   "queryId": "Q-968e53",
    "row": 0,
    "label": "Recall D-0856-2021",
    "fields": {
@@ -1700,7 +1967,7 @@
   },
   "E35": {
    "id": "E35",
-   "queryId": "Q-16b25d",
+   "queryId": "Q-968e53",
    "row": 1,
    "label": "Recall D-0392-2024",
    "fields": {
@@ -1718,7 +1985,7 @@
   },
   "E36": {
    "id": "E36",
-   "queryId": "Q-16b25d",
+   "queryId": "Q-968e53",
    "row": 2,
    "label": "Recall D-0223-2026",
    "fields": {
@@ -1736,7 +2003,7 @@
   },
   "E37": {
    "id": "E37",
-   "queryId": "Q-16b25d",
+   "queryId": "Q-968e53",
    "row": 3,
    "label": "Recall D-0788-2026",
    "fields": {
@@ -1754,7 +2021,7 @@
   },
   "E38": {
    "id": "E38",
-   "queryId": "Q-8de150",
+   "queryId": "Q-18a1de",
    "row": 0,
    "label": "FDA shortage list: Amphastar Pharmaceuticals, Inc., Current",
    "fields": {
@@ -1769,7 +2036,7 @@
   },
   "E39": {
    "id": "E39",
-   "queryId": "Q-8de150",
+   "queryId": "Q-18a1de",
    "row": 1,
    "label": "FDA shortage list: Fresenius Kabi USA, LLC, Current",
    "fields": {
@@ -1784,7 +2051,7 @@
   },
   "E40": {
    "id": "E40",
-   "queryId": "Q-8de150",
+   "queryId": "Q-18a1de",
    "row": 7,
    "label": "FDA shortage list: Hikma Pharmaceuticals USA, Inc., Current",
    "fields": {
@@ -1799,7 +2066,7 @@
   },
   "E41": {
    "id": "E41",
-   "queryId": "Q-8de150",
+   "queryId": "Q-18a1de",
    "row": 14,
    "label": "FDA shortage list: Hospira, Inc., a Pfizer Company, Current",
    "fields": {
@@ -1814,7 +2081,7 @@
   },
   "E42": {
    "id": "E42",
-   "queryId": "Q-8de150",
+   "queryId": "Q-18a1de",
    "row": 22,
    "label": "FDA shortage list: Piramal Critical Care Inc., Current",
    "fields": {
@@ -1829,7 +2096,7 @@
   },
   "E43": {
    "id": "E43",
-   "queryId": "Q-8de150",
+   "queryId": "Q-18a1de",
    "row": 24,
    "label": "FDA shortage list: Padagis US LLC, To Be Discontinued",
    "fields": {
@@ -1844,7 +2111,7 @@
   },
   "E44": {
    "id": "E44",
-   "queryId": "Q-8de150",
+   "queryId": "Q-18a1de",
    "row": 28,
    "label": "FDA shortage list: Upsher-Smith Laboratories, LLC, To Be Discontinued",
    "fields": {
@@ -1859,7 +2126,7 @@
   },
   "E45": {
    "id": "E45",
-   "queryId": "Q-8de150",
+   "queryId": "Q-18a1de",
    "row": 1,
    "label": "FDA first posted the shortage 2017-10-31",
    "fields": {
@@ -1912,40 +2179,134 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 904 units of morphine sulfate at 80 a day: 11 days on hand",
+   "label": "Corvale East holds 56 eachs of morphine sulfate 2 mg/mL, 1 mL at 20.8 a day: 2.7 days on hand",
    "fields": {
     "hospital": "Corvale East",
-    "on_hand": 904,
-    "daily_use": 80,
-    "days_on_hand": 11
+    "presentation": "2 mg/mL injection, 1 mL each",
+    "on_hand": 56,
+    "daily_use": 20.8,
+    "days_on_hand": 2.7
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 1488 units of morphine sulfate at 78.2 a day: 19 days on hand",
+   "label": "Corvale General holds 317 eachs of morphine sulfate 2 mg/mL, 1 mL at 19 a day: 16.7 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 1488,
-    "daily_use": 78.2,
-    "days_on_hand": 19
+    "presentation": "2 mg/mL injection, 1 mL each",
+    "on_hand": 317,
+    "daily_use": 19,
+    "days_on_hand": 16.7
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 195 units of morphine sulfate at 8.7 a day: 22 days on hand",
+   "label": "Corvale Lakeside holds 47 eachs of morphine sulfate 2 mg/mL, 1 mL at 3.2 a day: 14.7 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
-    "on_hand": 195,
-    "daily_use": 8.7,
-    "days_on_hand": 22
+    "presentation": "2 mg/mL injection, 1 mL each",
+    "on_hand": 47,
+    "daily_use": 3.2,
+    "days_on_hand": 14.7
    }
   },
   "D4": {
    "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale East holds 106 eachs of morphine sulfate 1 mg/mL, 10 mL at 19.7 a day: 5.4 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "1 mg/mL injection, 10 mL each",
+    "on_hand": 106,
+    "daily_use": 19.7,
+    "days_on_hand": 5.4
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 322 eachs of morphine sulfate 1 mg/mL, 10 mL at 19.6 a day: 16.4 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "1 mg/mL injection, 10 mL each",
+    "on_hand": 322,
+    "daily_use": 19.6,
+    "days_on_hand": 16.4
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale East holds 259 vials of morphine sulfate 2 mg/mL, 1 mL at 20.4 a day: 12.7 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "2 mg/mL injection, 1 mL vial",
+    "on_hand": 259,
+    "daily_use": 20.4,
+    "days_on_hand": 12.7
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 308 vials of morphine sulfate 2 mg/mL, 1 mL at 20 a day: 15.4 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "2 mg/mL injection, 1 mL vial",
+    "on_hand": 308,
+    "daily_use": 20,
+    "days_on_hand": 15.4
+   }
+  },
+  "D8": {
+   "id": "D8",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale Lakeside holds 148 vials of morphine sulfate 2 mg/mL, 1 mL at 5.5 a day: 26.7 days on hand",
+   "fields": {
+    "hospital": "Corvale Lakeside",
+    "presentation": "2 mg/mL injection, 1 mL vial",
+    "on_hand": 148,
+    "daily_use": 5.5,
+    "days_on_hand": 26.7
+   }
+  },
+  "D9": {
+   "id": "D9",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale East holds 483 eachs of morphine sulfate 20 mg/5 mL, 100 mL at 19.1 a day: 25.3 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "20 mg/5 mL solution, 100 mL each",
+    "on_hand": 483,
+    "daily_use": 19.1,
+    "days_on_hand": 25.3
+   }
+  },
+  "D10": {
+   "id": "D10",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 540 eachs of morphine sulfate 20 mg/5 mL, 100 mL at 19.7 a day: 27.4 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "20 mg/5 mL solution, 100 mL each",
+    "on_hand": 540,
+    "daily_use": 19.7,
+    "days_on_hand": 27.4
+   }
+  },
+  "D11": {
+   "id": "D11",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 962308 ended 2016-02-04, classified VAI; classification letter 2016-08-03 — 635 days before FDA posted the shortage on 2017-10-31",
@@ -1955,8 +2316,8 @@
     "days": 635
    }
   },
-  "D5": {
-   "id": "D5",
+  "D12": {
+   "id": "D12",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 1002820 ended 2017-02-01, classified VAI — 272 days before FDA posted the shortage on 2017-10-31",
@@ -1966,8 +2327,8 @@
     "days": 272
    }
   },
-  "D6": {
-   "id": "D6",
+  "D13": {
+   "id": "D13",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 1014707 ended 2017-03-30, classified VAI; classification letter 2017-11-08 — 215 days before FDA posted the shortage on 2017-10-31",
@@ -1977,8 +2338,8 @@
     "days": 215
    }
   },
-  "D7": {
-   "id": "D7",
+  "D14": {
+   "id": "D14",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 1099323 ended 2019-08-12, classified VAI; classification letter 2019-10-18 — 650 days after FDA posted the shortage on 2017-10-31",
@@ -1988,8 +2349,8 @@
     "days": 650
    }
   },
-  "D8": {
-   "id": "D8",
+  "D15": {
+   "id": "D15",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 1106822 ended 2019-09-10, classified VAI; classification letter 2020-02-10 — 679 days after FDA posted the shortage on 2017-10-31",
@@ -1999,8 +2360,8 @@
     "days": 679
    }
   },
-  "D9": {
-   "id": "D9",
+  "D16": {
+   "id": "D16",
    "queryId": "derived",
    "row": -1,
    "label": "FDA's OAI classification letter to Fresenius Kabi USA, LLC is dated 2017-12-28, 58 days after FDA posted the shortage on 2017-10-31",
@@ -2010,38 +2371,8 @@
     "days": 58
    }
   },
-  "D10": {
-   "id": "D10",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 2 by rule: Same product, alternate manufacturer: Morphine Sulfate 2 mg/mL from Fresenius Kabi USA, LLC. Same product from Fresenius Kabi USA, LLC; substitute NDC, no clinical change. Approved by Casey Nguyen, MD on 2025-10-09.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "pharmacist"
-   }
-  },
-  "D11": {
-   "id": "D11",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 3 by rule: Buy from Civica, Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
-   }
-  },
-  "D12": {
-   "id": "D12",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 3 by rule: Buy from MDD US Operations, LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
-   }
-  },
-  "D13": {
-   "id": "D13",
+  "D17": {
+   "id": "D17",
    "queryId": "derived",
    "row": -1,
    "label": "As of 2026-10-21 the shortage has been on FDA's list for 108 months",
@@ -2050,177 +2381,226 @@
     "posted": "2017-10-31",
     "months": 108
    }
+  },
+  "D18": {
+   "id": "D18",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 51 units of 2 mg/mL, 1 mL from Corvale General to Corvale East. Corvale General has 17 days of 2 mg/mL injection, 1 mL each on hand and can spare 51 units while keeping two weeks; Corvale East has 2.7 days and would reach 5.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director, plus a DEA Form 222 or CSOS order (Schedule II)"
+   }
+  },
+  "D19": {
+   "id": "D19",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 47 units of 1 mg/mL, 10 mL from Corvale General to Corvale East. Corvale General has 16 days of 1 mg/mL injection, 10 mL each on hand and can spare 47 units while keeping two weeks; Corvale East has 5.4 days and would reach 8.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director, plus a DEA Form 222 or CSOS order (Schedule II)"
+   }
+  },
+  "D20": {
+   "id": "D20",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Civica, Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
   }
  },
  "queries": {
-  "Q-1b81dd": {
-   "id": "Q-1b81dd",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%morphine%' OR lower(s.description) LIKE '%morphine%' ORDER BY s.hospital, s.item_key",
-   "ms": 6795,
+  "Q-e21925": {
+   "id": "Q-e21925",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*morphine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*morphine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3300,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T08:04:30.983Z",
+   "ranAt": "2026-10-22T12:23:34.581Z",
    "rows": 10
   },
   "Q-b55bdf": {
    "id": "Q-b55bdf",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('ebb18761-e5c4-4238-bb84-f9549f500210', '582f42e5-444e-4246-af8c-e7e28097c69a', 'e9a7319a-bf1f-48db-a71e-6d4e6ead9555') ORDER BY ps.set_id, ps.establishment",
-   "ms": 1446,
+   "ms": 536,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:04:32.442Z",
+   "ranAt": "2026-10-22T12:23:35.120Z",
    "rows": 3
   },
-  "Q-8de150": {
-   "id": "Q-8de150",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%morphine%' ORDER BY status, company_name, package_ndc",
-   "ms": 391,
+  "Q-18a1de": {
+   "id": "Q-18a1de",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*morphine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 149,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T08:04:32.837Z",
+   "ranAt": "2026-10-22T12:23:35.271Z",
    "rows": 30
   },
-  "Q-f1ef8b": {
-   "id": "Q-f1ef8b",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%morphine%' ORDER BY first_posting",
-   "ms": 360,
+  "Q-f94e4b": {
+   "id": "Q-f94e4b",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*morphine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 118,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T08:04:33.202Z",
+   "ranAt": "2026-10-22T12:23:35.390Z",
    "rows": 5
   },
-  "Q-4dc1de": {
-   "id": "Q-4dc1de",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%morphine%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 3552,
+  "Q-3b6889": {
+   "id": "Q-3b6889",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*morphine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1120,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:04:36.758Z",
-   "rows": 29
+   "ranAt": "2026-10-22T12:23:36.512Z",
+   "rows": 26
   },
   "Q-1c6bed": {
    "id": "Q-1c6bed",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3001833549', '2220525', '3008887707', '1021343', '2016148') ORDER BY fei, end_date",
-   "ms": 896,
+   "ms": 239,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T08:04:37.659Z",
+   "ranAt": "2026-10-22T12:23:36.752Z",
    "rows": 63
   },
   "Q-b798bb": {
    "id": "Q-b798bb",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3001833549', '2220525', '3008887707', '1021343', '2016148') ORDER BY fei, action_date",
-   "ms": 275,
+   "ms": 123,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T08:04:37.944Z",
+   "ranAt": "2026-10-22T12:23:36.876Z",
    "rows": 3
   },
   "Q-4133d5": {
    "id": "Q-4133d5",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3001833549', '2220525') OR (fei_match <> 'name_and_city' AND firm_key IN ('fresenius kabi', 'winder winder', 'hikma')) ORDER BY date_published",
-   "ms": 313,
+   "ms": 105,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T08:04:38.261Z",
+   "ranAt": "2026-10-22T12:23:36.982Z",
    "rows": 0
   },
-  "Q-16b25d": {
-   "id": "Q-16b25d",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('fresenius kabi', 'winder winder', 'hikma', 'hospira', 'winder') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%morphine%' ORDER BY initiation_date",
-   "ms": 314,
+  "Q-968e53": {
+   "id": "Q-968e53",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('fresenius kabi', 'winder winder', 'hikma', 'hospira', 'winder') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*morphine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 142,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T08:04:38.578Z",
+   "ranAt": "2026-10-22T12:23:37.125Z",
    "rows": 4
   },
   "Q-7a0482": {
    "id": "Q-7a0482",
    "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('732653', '815426') ORDER BY inspection_id, cfr",
-   "ms": 432,
+   "ms": 190,
    "mode": "live",
    "sources": [
     "fda.citations"
    ],
-   "ranAt": "2026-10-22T08:04:39.014Z",
+   "ranAt": "2026-10-22T12:23:37.316Z",
    "rows": 8
   },
   "Q-59293c": {
    "id": "Q-59293c",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('00409189001', '00641601910', '63323045201', '75826013005')",
-   "ms": 2065,
+   "ms": 987,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:04:41.094Z",
+   "ranAt": "2026-10-22T12:23:38.309Z",
    "rows": 2
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-ba8268": {
-   "id": "Q-ba8268",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%morphine%'",
-   "ms": 2599,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:04:43.698Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-f595c2": {
+   "id": "Q-f595c2",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*morphine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1418,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:23:39.728Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 15,
-  "zetarisMs": 24809,
+  "zetarisMs": 18635,
   "modelCalls": 1,
-  "tokensIn": 4706,
-  "tokensOut": 569,
+  "tokensIn": 6679,
+  "tokensOut": 497,
   "mode": "live"
  },
  "slug": "morphine",
@@ -2242,7 +2622,7 @@
     "id": "hospital-item:hospital-item:CG-280",
     "type": "HospitalItem",
     "key": "hospital-item:CG-280",
-    "label": "Corvale General: Morphine Sulfate",
+    "label": "Corvale General: Morphine Sulfate 2 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-280"
     },
@@ -2253,7 +2633,7 @@
     "id": "hospital-item:hospital-item:CG-281",
     "type": "HospitalItem",
     "key": "hospital-item:CG-281",
-    "label": "Corvale General: Morphine Sulfate",
+    "label": "Corvale General: Morphine Sulfate 20 mg/5mL",
     "attrs": {
      "key": "hospital-item:CG-281"
     },
@@ -2264,7 +2644,7 @@
     "id": "hospital-item:hospital-item:CG-92",
     "type": "HospitalItem",
     "key": "hospital-item:CG-92",
-    "label": "Corvale General: MORPHINE SULFATE",
+    "label": "Corvale General: MORPHINE SULFATE 2 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-92"
     },
@@ -2275,7 +2655,7 @@
     "id": "hospital-item:hospital-item:CG-93",
     "type": "HospitalItem",
     "key": "hospital-item:CG-93",
-    "label": "Corvale General: morphine sulfate",
+    "label": "Corvale General: morphine sulfate 1 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-93"
     },
@@ -2524,7 +2904,7 @@
     },
     "facts": [
      {
-      "id": "fact_6997ef89e48f30f9",
+      "id": "fact_27c9f500cc22de89",
       "about": "inspection:fda-inspection:1002820",
       "predicate": "classification",
       "value": "VAI",
@@ -2532,9 +2912,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:04:39.023Z"
+       "at": "2026-10-22T12:23:37.321Z"
       },
-      "assertedAt": "2026-10-22T08:04:39.023Z"
+      "assertedAt": "2026-10-22T12:23:37.321Z"
      }
     ],
     "depth": 4
@@ -2550,7 +2930,7 @@
     },
     "facts": [
      {
-      "id": "fact_d477ae75cdfc795b",
+      "id": "fact_539c7782c6bcd12d",
       "about": "inspection:fda-inspection:1014707",
       "predicate": "classification",
       "value": "VAI",
@@ -2558,9 +2938,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:04:39.023Z"
+       "at": "2026-10-22T12:23:37.321Z"
       },
-      "assertedAt": "2026-10-22T08:04:39.023Z"
+      "assertedAt": "2026-10-22T12:23:37.321Z"
      }
     ],
     "depth": 4
@@ -2576,7 +2956,7 @@
     },
     "facts": [
      {
-      "id": "fact_76a14fda28e900d1",
+      "id": "fact_409e295847bfa9cd",
       "about": "inspection:fda-inspection:1099323",
       "predicate": "classification",
       "value": "VAI",
@@ -2584,9 +2964,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:04:39.024Z"
+       "at": "2026-10-22T12:23:37.321Z"
       },
-      "assertedAt": "2026-10-22T08:04:39.024Z"
+      "assertedAt": "2026-10-22T12:23:37.321Z"
      }
     ],
     "depth": 4
@@ -2602,7 +2982,7 @@
     },
     "facts": [
      {
-      "id": "fact_416720fb83310637",
+      "id": "fact_e88160fc83af76bd",
       "about": "inspection:fda-inspection:1106822",
       "predicate": "classification",
       "value": "VAI",
@@ -2610,9 +2990,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:04:39.019Z"
+       "at": "2026-10-22T12:23:37.320Z"
       },
-      "assertedAt": "2026-10-22T08:04:39.019Z"
+      "assertedAt": "2026-10-22T12:23:37.320Z"
      }
     ],
     "depth": 4
@@ -2628,7 +3008,7 @@
     },
     "facts": [
      {
-      "id": "fact_4a18ec7fd3f060ab",
+      "id": "fact_db57e4a623ced041",
       "about": "inspection:fda-inspection:1220482",
       "predicate": "classification",
       "value": "VAI",
@@ -2636,9 +3016,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:04:39.024Z"
+       "at": "2026-10-22T12:23:37.321Z"
       },
-      "assertedAt": "2026-10-22T08:04:39.024Z"
+      "assertedAt": "2026-10-22T12:23:37.321Z"
      }
     ],
     "depth": 4
@@ -2654,7 +3034,7 @@
     },
     "facts": [
      {
-      "id": "fact_86b038429164f31b",
+      "id": "fact_ba55325989c863ae",
       "about": "inspection:fda-inspection:1222115",
       "predicate": "classification",
       "value": "VAI",
@@ -2662,9 +3042,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:04:39.019Z"
+       "at": "2026-10-22T12:23:37.320Z"
       },
-      "assertedAt": "2026-10-22T08:04:39.019Z"
+      "assertedAt": "2026-10-22T12:23:37.320Z"
      }
     ],
     "depth": 4
@@ -2680,7 +3060,7 @@
     },
     "facts": [
      {
-      "id": "fact_23ca69ec8d529622",
+      "id": "fact_27a28242c7bc6265",
       "about": "inspection:fda-inspection:1237333",
       "predicate": "classification",
       "value": "VAI",
@@ -2688,9 +3068,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:04:39.019Z"
+       "at": "2026-10-22T12:23:37.320Z"
       },
-      "assertedAt": "2026-10-22T08:04:39.019Z"
+      "assertedAt": "2026-10-22T12:23:37.320Z"
      }
     ],
     "depth": 4
@@ -2706,7 +3086,7 @@
     },
     "facts": [
      {
-      "id": "fact_2ec26e8231f1e216",
+      "id": "fact_9179d797b6ba6eae",
       "about": "inspection:fda-inspection:567761",
       "predicate": "classification",
       "value": "VAI",
@@ -2714,9 +3094,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:04:39.018Z"
+       "at": "2026-10-22T12:23:37.319Z"
       },
-      "assertedAt": "2026-10-22T08:04:39.018Z"
+      "assertedAt": "2026-10-22T12:23:37.319Z"
      }
     ],
     "depth": 4
@@ -2732,7 +3112,7 @@
     },
     "facts": [
      {
-      "id": "fact_347a947bf9102468",
+      "id": "fact_7d4005d5f5b0db9d",
       "about": "inspection:fda-inspection:613342",
       "predicate": "classification",
       "value": "VAI",
@@ -2740,9 +3120,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:04:39.020Z"
+       "at": "2026-10-22T12:23:37.320Z"
       },
-      "assertedAt": "2026-10-22T08:04:39.020Z"
+      "assertedAt": "2026-10-22T12:23:37.320Z"
      }
     ],
     "depth": 4
@@ -2758,7 +3138,7 @@
     },
     "facts": [
      {
-      "id": "fact_17ba004d498cd90e",
+      "id": "fact_e15972fbc28b36e6",
       "about": "inspection:fda-inspection:640082",
       "predicate": "classification",
       "value": "VAI",
@@ -2766,9 +3146,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:04:39.020Z"
+       "at": "2026-10-22T12:23:37.320Z"
       },
-      "assertedAt": "2026-10-22T08:04:39.020Z"
+      "assertedAt": "2026-10-22T12:23:37.320Z"
      }
     ],
     "depth": 4
@@ -2784,7 +3164,7 @@
     },
     "facts": [
      {
-      "id": "fact_4bfa364da33d3fc8",
+      "id": "fact_f90bb0187e94f4bc",
       "about": "inspection:fda-inspection:695392",
       "predicate": "classification",
       "value": "VAI",
@@ -2792,9 +3172,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:04:39.019Z"
+       "at": "2026-10-22T12:23:37.319Z"
       },
-      "assertedAt": "2026-10-22T08:04:39.019Z"
+      "assertedAt": "2026-10-22T12:23:37.319Z"
      }
     ],
     "depth": 4
@@ -2810,7 +3190,7 @@
     },
     "facts": [
      {
-      "id": "fact_18fe376ae3e66304",
+      "id": "fact_f07149954eaea319",
       "about": "inspection:fda-inspection:719344",
       "predicate": "classification",
       "value": "VAI",
@@ -2818,9 +3198,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:04:39.019Z"
+       "at": "2026-10-22T12:23:37.319Z"
       },
-      "assertedAt": "2026-10-22T08:04:39.019Z"
+      "assertedAt": "2026-10-22T12:23:37.319Z"
      }
     ],
     "depth": 4
@@ -2836,7 +3216,7 @@
     },
     "facts": [
      {
-      "id": "fact_c22cec1fc8188903",
+      "id": "fact_a2de1a8598a4a8d4",
       "about": "inspection:fda-inspection:732653",
       "predicate": "classification",
       "value": "OAI",
@@ -2844,9 +3224,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:04:39.021Z"
+       "at": "2026-10-22T12:23:37.320Z"
       },
-      "assertedAt": "2026-10-22T08:04:39.021Z"
+      "assertedAt": "2026-10-22T12:23:37.320Z"
      }
     ],
     "depth": 4
@@ -2862,7 +3242,7 @@
     },
     "facts": [
      {
-      "id": "fact_0583650baec52ca4",
+      "id": "fact_553f3eb2612576ca",
       "about": "inspection:fda-inspection:741861",
       "predicate": "classification",
       "value": "VAI",
@@ -2870,9 +3250,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:04:39.021Z"
+       "at": "2026-10-22T12:23:37.320Z"
       },
-      "assertedAt": "2026-10-22T08:04:39.021Z"
+      "assertedAt": "2026-10-22T12:23:37.320Z"
      }
     ],
     "depth": 4
@@ -2888,7 +3268,7 @@
     },
     "facts": [
      {
-      "id": "fact_0c71c756abfa7d3d",
+      "id": "fact_846c13f93aad73eb",
       "about": "inspection:fda-inspection:815426",
       "predicate": "classification",
       "value": "OAI",
@@ -2896,9 +3276,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:04:39.021Z"
+       "at": "2026-10-22T12:23:37.321Z"
       },
-      "assertedAt": "2026-10-22T08:04:39.021Z"
+      "assertedAt": "2026-10-22T12:23:37.321Z"
      }
     ],
     "depth": 4
@@ -2914,7 +3294,7 @@
     },
     "facts": [
      {
-      "id": "fact_fc53a18df74eb09e",
+      "id": "fact_ae784bacfa1eaa33",
       "about": "inspection:fda-inspection:837934",
       "predicate": "classification",
       "value": "VAI",
@@ -2922,9 +3302,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:04:39.019Z"
+       "at": "2026-10-22T12:23:37.320Z"
       },
-      "assertedAt": "2026-10-22T08:04:39.019Z"
+      "assertedAt": "2026-10-22T12:23:37.320Z"
      }
     ],
     "depth": 4
@@ -2940,7 +3320,7 @@
     },
     "facts": [
      {
-      "id": "fact_5bdb58106cc5844b",
+      "id": "fact_8ee4b4d622beb8b4",
       "about": "inspection:fda-inspection:901775",
       "predicate": "classification",
       "value": "VAI",
@@ -2948,9 +3328,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:04:39.022Z"
+       "at": "2026-10-22T12:23:37.321Z"
       },
-      "assertedAt": "2026-10-22T08:04:39.022Z"
+      "assertedAt": "2026-10-22T12:23:37.321Z"
      }
     ],
     "depth": 4
@@ -2966,7 +3346,7 @@
     },
     "facts": [
      {
-      "id": "fact_df55e8821df97bca",
+      "id": "fact_50281604fa4973c9",
       "about": "inspection:fda-inspection:962308",
       "predicate": "classification",
       "value": "VAI",
@@ -2974,9 +3354,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:04:39.022Z"
+       "at": "2026-10-22T12:23:37.321Z"
       },
-      "assertedAt": "2026-10-22T08:04:39.022Z"
+      "assertedAt": "2026-10-22T12:23:37.321Z"
      }
     ],
     "depth": 4
@@ -3010,11 +3390,11 @@
     "from": "hospital-item:hospital-item:CG-280",
     "to": "package:ndc-package:63323-452-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:04:30.991Z",
+    "validFrom": "2026-10-22T12:23:34.583Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:30.991Z"
+     "at": "2026-10-22T12:23:34.583Z"
     }
    },
    {
@@ -3022,11 +3402,11 @@
     "from": "hospital-item:hospital-item:CG-281",
     "to": "package:ndc-package:75826-130-05",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:04:30.992Z",
+    "validFrom": "2026-10-22T12:23:34.583Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:30.992Z"
+     "at": "2026-10-22T12:23:34.583Z"
     }
    },
    {
@@ -3034,11 +3414,11 @@
     "from": "hospital-item:hospital-item:CG-92",
     "to": "package:ndc-package:0409-1890-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:04:30.993Z",
+    "validFrom": "2026-10-22T12:23:34.583Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:30.993Z"
+     "at": "2026-10-22T12:23:34.583Z"
     }
    },
    {
@@ -3046,11 +3426,11 @@
     "from": "hospital-item:hospital-item:CG-93",
     "to": "package:ndc-package:0641-6019-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:04:30.993Z",
+    "validFrom": "2026-10-22T12:23:34.583Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:30.993Z"
+     "at": "2026-10-22T12:23:34.583Z"
     }
    },
    {
@@ -3058,11 +3438,11 @@
     "from": "hospital-item:hospital-item:EA-E-000081",
     "to": "package:ndc-package:0409-1890-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:04:30.989Z",
+    "validFrom": "2026-10-22T12:23:34.583Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:30.989Z"
+     "at": "2026-10-22T12:23:34.583Z"
     }
    },
    {
@@ -3070,11 +3450,11 @@
     "from": "hospital-item:hospital-item:EA-E-000113",
     "to": "package:ndc-package:0641-6019-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:04:30.989Z",
+    "validFrom": "2026-10-22T12:23:34.583Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:30.989Z"
+     "at": "2026-10-22T12:23:34.583Z"
     }
    },
    {
@@ -3082,11 +3462,11 @@
     "from": "hospital-item:hospital-item:EA-E-000217",
     "to": "package:ndc-package:63323-452-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:04:30.990Z",
+    "validFrom": "2026-10-22T12:23:34.583Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:30.990Z"
+     "at": "2026-10-22T12:23:34.583Z"
     }
    },
    {
@@ -3094,11 +3474,11 @@
     "from": "hospital-item:hospital-item:EA-E-000310",
     "to": "package:ndc-package:75826-130-05",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:04:30.990Z",
+    "validFrom": "2026-10-22T12:23:34.583Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:30.990Z"
+     "at": "2026-10-22T12:23:34.583Z"
     }
    },
    {
@@ -3106,11 +3486,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0038",
     "to": "package:ndc-package:0409-1890-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:04:30.994Z",
+    "validFrom": "2026-10-22T12:23:34.584Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:30.994Z"
+     "at": "2026-10-22T12:23:34.584Z"
     }
    },
    {
@@ -3118,11 +3498,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0100",
     "to": "package:ndc-package:63323-452-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:04:30.995Z",
+    "validFrom": "2026-10-22T12:23:34.584Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:30.995Z"
+     "at": "2026-10-22T12:23:34.584Z"
     }
    },
    {
@@ -3130,11 +3510,11 @@
     "from": "package:ndc-package:63323-452-01",
     "to": "product:ndc-product:63323-452",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:04:30.990Z",
+    "validFrom": "2026-10-22T12:23:34.583Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:30.990Z"
+     "at": "2026-10-22T12:23:34.583Z"
     }
    },
    {
@@ -3142,11 +3522,11 @@
     "from": "package:ndc-package:75826-130-05",
     "to": "product:ndc-product:75826-130",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:04:30.991Z",
+    "validFrom": "2026-10-22T12:23:34.583Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:30.991Z"
+     "at": "2026-10-22T12:23:34.583Z"
     }
    },
    {
@@ -3154,11 +3534,11 @@
     "from": "package:ndc-package:0409-1890-01",
     "to": "product:ndc-product:0409-1890",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:04:30.989Z",
+    "validFrom": "2026-10-22T12:23:34.583Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:30.989Z"
+     "at": "2026-10-22T12:23:34.583Z"
     }
    },
    {
@@ -3166,11 +3546,11 @@
     "from": "package:ndc-package:0641-6019-10",
     "to": "product:ndc-product:0641-6019",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:04:30.989Z",
+    "validFrom": "2026-10-22T12:23:34.583Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:30.989Z"
+     "at": "2026-10-22T12:23:34.583Z"
     }
    },
    {
@@ -3178,11 +3558,11 @@
     "from": "product:ndc-product:63323-452",
     "to": "drug:generic:morphine sulfate",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:04:30.990Z",
+    "validFrom": "2026-10-22T12:23:34.583Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:30.990Z"
+     "at": "2026-10-22T12:23:34.583Z"
     }
    },
    {
@@ -3190,11 +3570,11 @@
     "from": "product:ndc-product:63323-452",
     "to": "labeler:ndc-labeler:63323",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:04:30.990Z",
+    "validFrom": "2026-10-22T12:23:34.583Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:30.990Z"
+     "at": "2026-10-22T12:23:34.583Z"
     }
    },
    {
@@ -3202,11 +3582,11 @@
     "from": "product:ndc-product:63323-452",
     "to": "site:fei:3001833549",
     "type": "made-at",
-    "validFrom": "2026-10-22T08:04:39.020Z",
+    "validFrom": "2026-10-22T12:23:37.320Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:39.020Z"
+     "at": "2026-10-22T12:23:37.320Z"
     }
    },
    {
@@ -3214,11 +3594,11 @@
     "from": "product:ndc-product:75826-130",
     "to": "drug:generic:morphine sulfate",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:04:30.991Z",
+    "validFrom": "2026-10-22T12:23:34.583Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:30.991Z"
+     "at": "2026-10-22T12:23:34.583Z"
     }
    },
    {
@@ -3226,11 +3606,11 @@
     "from": "product:ndc-product:75826-130",
     "to": "labeler:ndc-labeler:75826",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:04:30.991Z",
+    "validFrom": "2026-10-22T12:23:34.583Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:30.991Z"
+     "at": "2026-10-22T12:23:34.583Z"
     }
    },
    {
@@ -3238,11 +3618,11 @@
     "from": "product:ndc-product:0409-1890",
     "to": "drug:generic:morphine sulfate",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:04:30.989Z",
+    "validFrom": "2026-10-22T12:23:34.583Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:30.989Z"
+     "at": "2026-10-22T12:23:34.583Z"
     }
    },
    {
@@ -3250,11 +3630,11 @@
     "from": "product:ndc-product:0409-1890",
     "to": "labeler:ndc-labeler:0409",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:04:30.989Z",
+    "validFrom": "2026-10-22T12:23:34.583Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:30.989Z"
+     "at": "2026-10-22T12:23:34.583Z"
     }
    },
    {
@@ -3262,11 +3642,11 @@
     "from": "product:ndc-product:0641-6019",
     "to": "drug:generic:morphine sulfate",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:04:30.989Z",
+    "validFrom": "2026-10-22T12:23:34.583Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:30.989Z"
+     "at": "2026-10-22T12:23:34.583Z"
     }
    },
    {
@@ -3274,11 +3654,11 @@
     "from": "product:ndc-product:0641-6019",
     "to": "labeler:ndc-labeler:0641",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:04:30.989Z",
+    "validFrom": "2026-10-22T12:23:34.583Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:30.989Z"
+     "at": "2026-10-22T12:23:34.583Z"
     }
    },
    {
@@ -3286,11 +3666,11 @@
     "from": "product:ndc-product:0641-6019",
     "to": "site:fei:2220525",
     "type": "made-at",
-    "validFrom": "2026-10-22T08:04:39.018Z",
+    "validFrom": "2026-10-22T12:23:37.319Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:39.018Z"
+     "at": "2026-10-22T12:23:37.319Z"
     }
    },
    {
@@ -3298,11 +3678,11 @@
     "from": "shortage:fda-shortage:morphine-2017-10-31",
     "to": "drug:generic:morphine sulfate",
     "type": "affects",
-    "validFrom": "2026-10-22T08:04:39.024Z",
+    "validFrom": "2026-10-22T12:23:37.321Z",
     "source": {
      "kind": "fda-shortage-db",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:39.024Z"
+     "at": "2026-10-22T12:23:37.321Z"
     }
    },
    {
@@ -3310,11 +3690,11 @@
     "from": "inspection:fda-inspection:613342",
     "to": "site:fei:3001833549",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:04:39.020Z",
+    "validFrom": "2026-10-22T12:23:37.320Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:39.020Z"
+     "at": "2026-10-22T12:23:37.320Z"
     }
    },
    {
@@ -3322,11 +3702,11 @@
     "from": "inspection:fda-inspection:640082",
     "to": "site:fei:3001833549",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:04:39.020Z",
+    "validFrom": "2026-10-22T12:23:37.320Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:39.020Z"
+     "at": "2026-10-22T12:23:37.320Z"
     }
    },
    {
@@ -3334,11 +3714,11 @@
     "from": "inspection:fda-inspection:732653",
     "to": "site:fei:3001833549",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:04:39.020Z",
+    "validFrom": "2026-10-22T12:23:37.320Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:39.020Z"
+     "at": "2026-10-22T12:23:37.320Z"
     }
    },
    {
@@ -3346,11 +3726,11 @@
     "from": "inspection:fda-inspection:741861",
     "to": "site:fei:3001833549",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:04:39.021Z",
+    "validFrom": "2026-10-22T12:23:37.320Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:39.021Z"
+     "at": "2026-10-22T12:23:37.320Z"
     }
    },
    {
@@ -3358,11 +3738,11 @@
     "from": "inspection:fda-inspection:815426",
     "to": "site:fei:3001833549",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:04:39.021Z",
+    "validFrom": "2026-10-22T12:23:37.321Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:39.021Z"
+     "at": "2026-10-22T12:23:37.321Z"
     }
    },
    {
@@ -3370,11 +3750,11 @@
     "from": "inspection:fda-inspection:901775",
     "to": "site:fei:3001833549",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:04:39.022Z",
+    "validFrom": "2026-10-22T12:23:37.321Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:39.022Z"
+     "at": "2026-10-22T12:23:37.321Z"
     }
    },
    {
@@ -3382,11 +3762,11 @@
     "from": "inspection:fda-inspection:962308",
     "to": "site:fei:3001833549",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:04:39.022Z",
+    "validFrom": "2026-10-22T12:23:37.321Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:39.022Z"
+     "at": "2026-10-22T12:23:37.321Z"
     }
    },
    {
@@ -3394,11 +3774,11 @@
     "from": "inspection:fda-inspection:1002820",
     "to": "site:fei:3001833549",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:04:39.023Z",
+    "validFrom": "2026-10-22T12:23:37.321Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:39.023Z"
+     "at": "2026-10-22T12:23:37.321Z"
     }
    },
    {
@@ -3406,11 +3786,11 @@
     "from": "inspection:fda-inspection:1014707",
     "to": "site:fei:3001833549",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:04:39.023Z",
+    "validFrom": "2026-10-22T12:23:37.321Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:39.023Z"
+     "at": "2026-10-22T12:23:37.321Z"
     }
    },
    {
@@ -3418,11 +3798,11 @@
     "from": "inspection:fda-inspection:1099323",
     "to": "site:fei:3001833549",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:04:39.023Z",
+    "validFrom": "2026-10-22T12:23:37.321Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:39.023Z"
+     "at": "2026-10-22T12:23:37.321Z"
     }
    },
    {
@@ -3430,11 +3810,11 @@
     "from": "inspection:fda-inspection:1220482",
     "to": "site:fei:3001833549",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:04:39.024Z",
+    "validFrom": "2026-10-22T12:23:37.321Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:39.024Z"
+     "at": "2026-10-22T12:23:37.321Z"
     }
    },
    {
@@ -3442,11 +3822,11 @@
     "from": "warning-letter:fda-warning-letter:225954",
     "to": "site:fei:3001833549",
     "type": "issued-to",
-    "validFrom": "2026-10-22T08:04:39.021Z",
+    "validFrom": "2026-10-22T12:23:37.321Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:39.021Z"
+     "at": "2026-10-22T12:23:37.321Z"
     }
    },
    {
@@ -3454,11 +3834,11 @@
     "from": "inspection:fda-inspection:567761",
     "to": "site:fei:2220525",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:04:39.018Z",
+    "validFrom": "2026-10-22T12:23:37.319Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:39.018Z"
+     "at": "2026-10-22T12:23:37.319Z"
     }
    },
    {
@@ -3466,11 +3846,11 @@
     "from": "inspection:fda-inspection:695392",
     "to": "site:fei:2220525",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:04:39.019Z",
+    "validFrom": "2026-10-22T12:23:37.319Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:39.019Z"
+     "at": "2026-10-22T12:23:37.319Z"
     }
    },
    {
@@ -3478,11 +3858,11 @@
     "from": "inspection:fda-inspection:719344",
     "to": "site:fei:2220525",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:04:39.019Z",
+    "validFrom": "2026-10-22T12:23:37.319Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:39.019Z"
+     "at": "2026-10-22T12:23:37.319Z"
     }
    },
    {
@@ -3490,11 +3870,11 @@
     "from": "inspection:fda-inspection:837934",
     "to": "site:fei:2220525",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:04:39.019Z",
+    "validFrom": "2026-10-22T12:23:37.320Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:39.019Z"
+     "at": "2026-10-22T12:23:37.320Z"
     }
    },
    {
@@ -3502,11 +3882,11 @@
     "from": "inspection:fda-inspection:1106822",
     "to": "site:fei:2220525",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:04:39.019Z",
+    "validFrom": "2026-10-22T12:23:37.320Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:39.019Z"
+     "at": "2026-10-22T12:23:37.320Z"
     }
    },
    {
@@ -3514,11 +3894,11 @@
     "from": "inspection:fda-inspection:1222115",
     "to": "site:fei:2220525",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:04:39.019Z",
+    "validFrom": "2026-10-22T12:23:37.320Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:39.019Z"
+     "at": "2026-10-22T12:23:37.320Z"
     }
    },
    {
@@ -3526,11 +3906,11 @@
     "from": "inspection:fda-inspection:1237333",
     "to": "site:fei:2220525",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:04:39.019Z",
+    "validFrom": "2026-10-22T12:23:37.320Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:04:39.019Z"
+     "at": "2026-10-22T12:23:37.320Z"
     }
    }
   ],

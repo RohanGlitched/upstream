@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-2b9f49",
+ "id": "case-2026-10-22-a8d6f3",
  "question": "Why is promethazine hydrochloride short, and what do we do?",
- "askedAt": "2026-10-22T08:17:18.245Z",
+ "askedAt": "2026-10-22T12:35:31.545Z",
  "asOf": "2026-10-21",
  "molecule": "promethazine hydrochloride",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5HAYS9EJ461N5AMKYATDEKZ",
+  "contractId": "01M5HSQSWJ2ZXK78GBR9MSGW5N",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-e34ae1"
+    "Q-640b00"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3794,
+   "ms": 3043,
    "rows": 4,
-   "finding": "4 stock lines across 3 hospitals.",
+   "finding": "4 stock lines across 3 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-af7a23"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1273,
+   "ms": 365,
    "rows": 3,
    "finding": "3 plant links on 2 labels; 3 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-5a67ad",
-    "Q-fc5d96"
+    "Q-8d08b6",
+    "Q-64224e"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 747,
+   "ms": 221,
    "rows": 15,
    "finding": "On FDA's list as Current for 2 companies.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-10b1a9"
+    "Q-a592a6"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2587,
+   "ms": 1069,
    "rows": 283,
    "finding": "29 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-a4d02a",
     "Q-65827c",
     "Q-e63d35",
-    "Q-e1bd93"
+    "Q-c4def1"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1549,
+   "ms": 558,
    "rows": 24,
    "finding": "20 inspections (3 OAI at our plants), 4 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,7 +111,7 @@
    "sources": [
     "fda.citations"
    ],
-   "ms": 419,
+   "ms": 147,
    "rows": 18,
    "finding": "18 Form 483 observations recorded.",
    "status": "ok"
@@ -119,9 +126,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1325,
+   "ms": 585,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -129,19 +136,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-2242d7"
+    "Q-0c64e2"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2242,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1378,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -152,7 +163,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 3,
+   "ms": 0,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -168,34 +179,43 @@
    "onHand": 109,
    "dailyUse": 8.865,
    "days": 12.3,
-   "unit": "package",
+   "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 5, converted to units",
+   "presentation": "promethazine hydrochloride|25mg|tablet||tablet",
+   "presentationLabel": "25 mg tablet",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-318",
    "ndc11": "43063040505",
-   "description": "Promethazine Hydrochloride",
+   "description": "Promethazine Hydrochloride 25 mg/1",
    "labeler": "PD-Rx Pharmaceuticals, Inc.",
-   "onHand": 217.08,
+   "onHand": 217,
    "dailyUse": 8.282,
    "days": 26.2,
    "unit": "tablet",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "promethazine hydrochloride|25mg|tablet||tablet",
+   "presentationLabel": "25 mg tablet",
    "evidence": "E2"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-319",
    "ndc11": "65841004110",
-   "description": "Promethazine Hydrochloride",
+   "description": "Promethazine Hydrochloride 25 mg/1",
    "labeler": "Zydus Lifesciences Limited",
-   "onHand": 172.91,
+   "onHand": 172,
    "dailyUse": 8.651,
-   "days": 20,
+   "days": 19.9,
    "unit": "tablet",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "promethazine hydrochloride|25mg|tablet||tablet",
+   "presentationLabel": "25 mg tablet",
    "evidence": "E3"
   },
   {
@@ -209,7 +229,61 @@
    "days": 9.6,
    "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "promethazine hydrochloride|25mg|tablet||tablet",
+   "presentationLabel": "25 mg tablet",
    "evidence": "E4"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "promethazine hydrochloride|25mg|tablet||tablet",
+   "label": "25 mg tablet",
+   "short": "25 mg",
+   "unit": "tablet",
+   "onHand": 517,
+   "dailyUse": 27.775,
+   "days": 18.6,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 109,
+     "dailyUse": 8.865,
+     "days": 12.3,
+     "lines": [
+      "EA-E-000156"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 389,
+     "dailyUse": 16.933,
+     "days": 23,
+     "lines": [
+      "CG-318",
+      "CG-319"
+     ],
+     "evidence": [
+      "E2",
+      "E3"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 19,
+     "dailyUse": 1.977,
+     "days": 9.6,
+     "lines": [
+      "LS-LS-0069"
+     ],
+     "evidence": [
+      "E4"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -738,33 +812,26 @@
   {
    "kind": "transfer",
    "rank": 1,
-   "title": "Transfer 9 from Corvale General to Corvale Lakeside",
-   "detail": "Corvale General has 23 days on hand and can spare 9 while keeping two weeks; Corvale Lakeside has 9.6 days and would reach 14.",
-   "why": "Same product, no clinical change, no new supplier.",
+   "title": "Transfer 9 tablets of 25 mg from Corvale General to Corvale Lakeside",
+   "detail": "Corvale General has 23 days of 25 mg tablets on hand and can spare 9 tablets while keeping two weeks; Corvale Lakeside has 9.6 days and would reach 14.",
+   "why": "Same presentation, no clinical change, no new supplier.",
    "needs": "pharmacy director (transfer request)",
    "evidence": [
     "E2",
     "E3",
     "E4"
-   ]
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from A-S Medication Solutions",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from ASCLEMED USA INC.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
+   ],
+   "transfer": {
+    "qty": 9,
+    "unit": "tablet",
+    "presentation": "25 mg tablet",
+    "from": "Corvale General",
+    "to": "Corvale Lakeside",
+    "fromDays": 23,
+    "toDays": 9.6,
+    "fromAfter": 22,
+    "toAfter": 14
+   }
   },
   {
    "kind": "alternate_manufacturer",
@@ -779,15 +846,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Advanced Rx Pharmacy of Tennessee, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from American Health Packaging",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -814,15 +872,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Asclemed USA, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from BluePoint Laboratories",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -832,43 +881,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Bryant Ranch Prepack",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Cardinal Health 107, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Coupler LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from DIRECT RX",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Direct_Rx",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -904,52 +917,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Northwind Health Company, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals,Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from PharmPak, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Preferred Pharmaceuticals Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Proficient Rx LP",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from REMEDYREPACK INC.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -1023,103 +991,128 @@
   }
  ],
  "explanation": {
-  "state": "confirmed",
+  "state": "check",
   "headline": "FDA's records trace our supply to a plant classified OAI 1468 days before the posting",
   "sentences": [
    {
-    "text": "FDA first posted the promethazine hydrochloride shortage on 2023-11-21 and it has remained on the list for 35 months as of 2026-10-21.",
+    "text": "FDA first posted the promethazine hydrochloride shortage on 2023-11-21 and it remains Current as of 2026-10-21.",
     "cites": [
-     "D11",
-     "E28"
+     "E28",
+     "D8"
     ]
    },
    {
-    "text": "Our Corvale General inventory includes product from Zydus Lifesciences Limited (NDC 65841004110) and PD-Rx Pharmaceuticals, Inc. (NDC 43063040505).",
+    "text": "The shortage listing covers Hikma Pharmaceuticals USA, Inc. and XGen Pharmaceuticals DJB, Inc. for injection presentations.",
+    "cites": [
+     "E26",
+     "E27"
+    ]
+   },
+   {
+    "text": "Our Corvale General stock includes tablets labeled by PD-Rx Pharmaceuticals, Inc. (NDC 43063040505) and Zydus Lifesciences Limited (NDC 65841004110).",
     "cites": [
      "E2",
      "E3"
     ]
    },
    {
-    "text": "The Zydus Lifesciences Limited plant (FEI 3002984011) on that label received an OAI classification letter dated 2019-11-14, which was 1468 days before the shortage posting.",
+    "text": "The Zydus Lifesciences Limited label names a registered plant (FEI 3002984011) that received OAI classifications after inspections ending 2014-09-05 and 2019-05-03.",
     "cites": [
-     "D7",
+     "E18",
      "E20",
      "E25"
     ]
    },
    {
-    "text": "That same plant also received an earlier OAI classification letter dated 2016-06-09, 2721 days before the posting.",
+    "text": "FDA's OAI classification letter for the 2019 inspection is dated 2019-11-14, 1468 days before the shortage posting.",
     "cites": [
-     "D6",
-     "E18"
+     "D7"
     ]
    },
    {
-    "text": "The PD-Rx Pharmaceuticals, Inc. plant (FEI 1641825) on our other label has only VAI inspections, most recently ending 2026-08-20.",
+    "text": "The PD-Rx Pharmaceuticals, Inc. plant (FEI 1641825) shows only VAI inspections, most recently ending 2026-08-20.",
     "cites": [
-     "E5",
-     "E6",
      "E7",
      "E8"
     ]
    },
    {
-    "text": "The highest-ranked action by rule is to transfer 9 units from Corvale General to Corvale Lakeside, which would give Corvale Lakeside 14 days on hand while Corvale General retains two weeks of supply.",
+    "text": "The rule‑based transfer option moves 9 tablets of 25 mg from Corvale General (23 days on hand) to Corvale Lakeside (9.6 days on hand), bringing Lakeside to 14 days.",
     "cites": [
-     "D8"
+     "D9"
     ]
    }
   ],
   "verifier": {
-   "checked": 7,
+   "checked": 8,
    "rejected": [],
-   "repaired": 0
+   "repaired": 1
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
  },
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -1134,87 +1127,87 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T08:17:04.302Z",
+   "at": "2026-10-22T12:35:24.178Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract KYATDEKZ scope"
+   "reason": "in contract R9MSGW5N scope"
   },
   {
-   "at": "2026-10-22T08:17:04.303Z",
+   "at": "2026-10-22T12:35:24.179Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract KYATDEKZ scope"
+   "reason": "in contract R9MSGW5N scope"
   },
   {
-   "at": "2026-10-22T08:17:08.097Z",
+   "at": "2026-10-22T12:35:27.222Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract KYATDEKZ scope"
+   "reason": "in contract R9MSGW5N scope"
   },
   {
-   "at": "2026-10-22T08:17:09.370Z",
+   "at": "2026-10-22T12:35:27.587Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract KYATDEKZ scope"
+   "reason": "in contract R9MSGW5N scope"
   },
   {
-   "at": "2026-10-22T08:17:10.117Z",
+   "at": "2026-10-22T12:35:27.807Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract KYATDEKZ scope"
+   "reason": "in contract R9MSGW5N scope"
   },
   {
-   "at": "2026-10-22T08:17:12.704Z",
+   "at": "2026-10-22T12:35:28.876Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract KYATDEKZ scope"
+   "reason": "in contract R9MSGW5N scope"
   },
   {
-   "at": "2026-10-22T08:17:14.253Z",
+   "at": "2026-10-22T12:35:29.434Z",
    "action": "What FDA wrote at the OAI inspections",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract KYATDEKZ scope"
+   "reason": "in contract R9MSGW5N scope"
   },
   {
-   "at": "2026-10-22T08:17:14.675Z",
+   "at": "2026-10-22T12:35:29.583Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract KYATDEKZ scope"
+   "reason": "in contract R9MSGW5N scope"
   },
   {
-   "at": "2026-10-22T08:17:16.000Z",
+   "at": "2026-10-22T12:35:30.167Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract KYATDEKZ scope"
+   "reason": "in contract R9MSGW5N scope"
   },
   {
-   "at": "2026-10-22T08:17:18.242Z",
+   "at": "2026-10-22T12:35:31.545Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract KYATDEKZ scope"
+   "reason": "in contract R9MSGW5N scope"
   },
   {
-   "at": "2026-10-22T08:17:18.246Z",
+   "at": "2026-10-22T12:35:31.545Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract KYATDEKZ scope"
+   "reason": "in contract R9MSGW5N scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-e34ae1",
+   "queryId": "Q-640b00",
    "row": 0,
    "label": "Corvale East: PROMETHAZINE HYDROCHLORIDE 25MG TAB",
    "fields": {
@@ -1225,65 +1218,80 @@
     "description": "PROMETHAZINE HYDROCHLORIDE 25MG TAB",
     "on_hand": "109.00",
     "daily_use": "8.865",
-    "unit": "package",
+    "unit": "tablet",
+    "pkg_units": "5.00",
+    "unit_basis": "packages of 5, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Promethazine Hydrochloride",
     "labeler_name": "PD-Rx Pharmaceuticals, Inc.",
     "package_ndc": "43063-405-05",
     "spl_set_id": "81fd29a9-c090-49ba-8b48-bd3656ca0c92",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "PROMETHAZINE HYDROCHLORIDE 25 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-e34ae1",
+   "queryId": "Q-640b00",
    "row": 1,
-   "label": "Corvale General: Promethazine Hydrochloride",
+   "label": "Corvale General: Promethazine Hydrochloride 25 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-318",
     "ndc11": "43063040505",
     "ndc_as_recorded": "43063040505",
-    "description": "Promethazine Hydrochloride",
-    "on_hand": "217.08",
+    "description": "Promethazine Hydrochloride 25 mg/1",
+    "on_hand": "217.00",
     "daily_use": "8.282",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Promethazine Hydrochloride",
     "labeler_name": "PD-Rx Pharmaceuticals, Inc.",
     "package_ndc": "43063-405-05",
     "spl_set_id": "81fd29a9-c090-49ba-8b48-bd3656ca0c92",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "PROMETHAZINE HYDROCHLORIDE 25 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-e34ae1",
+   "queryId": "Q-640b00",
    "row": 2,
-   "label": "Corvale General: Promethazine Hydrochloride",
+   "label": "Corvale General: Promethazine Hydrochloride 25 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-319",
     "ndc11": "65841004110",
     "ndc_as_recorded": "65841004110",
-    "description": "Promethazine Hydrochloride",
-    "on_hand": "172.91",
+    "description": "Promethazine Hydrochloride 25 mg/1",
+    "on_hand": "172.00",
     "daily_use": "8.651",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Promethazine Hydrochloride",
     "labeler_name": "Zydus Lifesciences Limited",
     "package_ndc": "65841-041-10",
     "spl_set_id": "4eaa8291-9cde-4205-857b-925ea8d618ba",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "PROMETHAZINE HYDROCHLORIDE 25 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-e34ae1",
+   "queryId": "Q-640b00",
    "row": 3,
    "label": "Corvale Lakeside: Promethazine Hydrochloride 25 mg/1",
    "fields": {
@@ -1295,13 +1303,18 @@
     "on_hand": "19.00",
     "daily_use": "1.977",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Promethazine Hydrochloride",
     "labeler_name": "PD-Rx Pharmaceuticals, Inc.",
     "package_ndc": "43063-405-05",
     "spl_set_id": "81fd29a9-c090-49ba-8b48-bd3656ca0c92",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "PROMETHAZINE HYDROCHLORIDE 25 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E5": {
@@ -1628,7 +1641,7 @@
   },
   "E26": {
    "id": "E26",
-   "queryId": "Q-5a67ad",
+   "queryId": "Q-8d08b6",
    "row": 0,
    "label": "FDA shortage list: Hikma Pharmaceuticals USA, Inc., Current",
    "fields": {
@@ -1643,7 +1656,7 @@
   },
   "E27": {
    "id": "E27",
-   "queryId": "Q-5a67ad",
+   "queryId": "Q-8d08b6",
    "row": 8,
    "label": "FDA shortage list: XGen Pharmaceuticals DJB, Inc., Current",
    "fields": {
@@ -1658,7 +1671,7 @@
   },
   "E28": {
    "id": "E28",
-   "queryId": "Q-5a67ad",
+   "queryId": "Q-8d08b6",
    "row": 0,
    "label": "FDA first posted the shortage 2023-11-21",
    "fields": {
@@ -1675,22 +1688,24 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 109 units of promethazine hydrochloride at 8.9 a day: 12 days on hand",
+   "label": "Corvale East holds 109 tablets of promethazine hydrochloride 25 mg at 8.9 a day: 12.3 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "25 mg tablet",
     "on_hand": 109,
     "daily_use": 8.9,
-    "days_on_hand": 12
+    "days_on_hand": 12.3
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 390 units of promethazine hydrochloride at 16.9 a day: 23 days on hand",
+   "label": "Corvale General holds 389 tablets of promethazine hydrochloride 25 mg at 16.9 a day: 23 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 390,
+    "presentation": "25 mg tablet",
+    "on_hand": 389,
     "daily_use": 16.9,
     "days_on_hand": 23
    }
@@ -1699,12 +1714,13 @@
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 19 units of promethazine hydrochloride at 2 a day: 10 days on hand",
+   "label": "Corvale Lakeside holds 19 tablets of promethazine hydrochloride 25 mg at 2 a day: 9.6 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
+    "presentation": "25 mg tablet",
     "on_hand": 19,
     "daily_use": 2,
-    "days_on_hand": 10
+    "days_on_hand": 9.6
    }
   },
   "D4": {
@@ -1755,27 +1771,28 @@
    "id": "D8",
    "queryId": "derived",
    "row": -1,
-   "label": "Option ranked 1 by rule: Transfer 9 from Corvale General to Corvale Lakeside. Corvale General has 23 days on hand and can spare 9 while keeping two weeks; Corvale Lakeside has 9.6 days and would reach 14.",
+   "label": "As of 2026-10-21 the shortage has been on FDA's list for 35 months",
    "fields": {
-    "kind": "transfer",
-    "needs": "pharmacy director (transfer request)"
+    "as_of": "2026-10-21",
+    "posted": "2023-11-21",
+    "months": 35
    }
   },
   "D9": {
    "id": "D9",
    "queryId": "derived",
    "row": -1,
-   "label": "Option ranked 3 by rule: Buy from A-S Medication Solutions. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "label": "Option ranked 1 by rule: Transfer 9 tablets of 25 mg from Corvale General to Corvale Lakeside. Corvale General has 23 days of 25 mg tablets on hand and can spare 9 tablets while keeping two weeks; Corvale Lakeside has 9.6 days and would reach 14.",
    "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
    }
   },
   "D10": {
    "id": "D10",
    "queryId": "derived",
    "row": -1,
-   "label": "Option ranked 3 by rule: Buy from ASCLEMED USA INC.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "label": "Option ranked 3 by rule: Buy from Actavis Pharma, Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
    "fields": {
     "kind": "alternate_manufacturer",
     "needs": "buyer"
@@ -1785,183 +1802,201 @@
    "id": "D11",
    "queryId": "derived",
    "row": -1,
-   "label": "As of 2026-10-21 the shortage has been on FDA's list for 35 months",
+   "label": "Option ranked 3 by rule: Buy from Advanced Rx Pharmacy of Tennessee, LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
    "fields": {
-    "as_of": "2026-10-21",
-    "posted": "2023-11-21",
-    "months": 35
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-e34ae1": {
-   "id": "Q-e34ae1",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%promethazine%' OR lower(s.description) LIKE '%promethazine%' ORDER BY s.hospital, s.item_key",
-   "ms": 3791,
+  "Q-640b00": {
+   "id": "Q-640b00",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*promethazine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*promethazine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3041,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T08:17:08.094Z",
+   "ranAt": "2026-10-22T12:35:27.220Z",
    "rows": 4
   },
   "Q-af7a23": {
    "id": "Q-af7a23",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('81fd29a9-c090-49ba-8b48-bd3656ca0c92', '4eaa8291-9cde-4205-857b-925ea8d618ba') ORDER BY ps.set_id, ps.establishment",
-   "ms": 1271,
+   "ms": 364,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:17:09.368Z",
+   "ranAt": "2026-10-22T12:35:27.585Z",
    "rows": 3
   },
-  "Q-5a67ad": {
-   "id": "Q-5a67ad",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%promethazine%' ORDER BY status, company_name, package_ndc",
-   "ms": 404,
+  "Q-8d08b6": {
+   "id": "Q-8d08b6",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*promethazine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 106,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T08:17:09.775Z",
+   "ranAt": "2026-10-22T12:35:27.693Z",
    "rows": 10
   },
-  "Q-fc5d96": {
-   "id": "Q-fc5d96",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%promethazine%' ORDER BY first_posting",
-   "ms": 337,
+  "Q-64224e": {
+   "id": "Q-64224e",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*promethazine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 112,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T08:17:10.114Z",
+   "ranAt": "2026-10-22T12:35:27.806Z",
    "rows": 5
   },
-  "Q-10b1a9": {
-   "id": "Q-10b1a9",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%promethazine%' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2580,
+  "Q-a592a6": {
+   "id": "Q-a592a6",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*promethazine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1067,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:17:12.698Z",
+   "ranAt": "2026-10-22T12:35:28.875Z",
    "rows": 283
   },
   "Q-a4d02a": {
    "id": "Q-a4d02a",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3005430968', '3002984011', '1641825') ORDER BY fei, end_date",
-   "ms": 674,
+   "ms": 229,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T08:17:13.379Z",
+   "ranAt": "2026-10-22T12:35:29.105Z",
    "rows": 20
   },
   "Q-65827c": {
    "id": "Q-65827c",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3005430968', '3002984011', '1641825') ORDER BY fei, action_date",
-   "ms": 325,
+   "ms": 108,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T08:17:13.707Z",
+   "ranAt": "2026-10-22T12:35:29.214Z",
    "rows": 4
   },
   "Q-e63d35": {
    "id": "Q-e63d35",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3005430968', '3002984011', '1641825') OR (fei_match <> 'name_and_city' AND firm_key IN ('zydus lifesciences', 'pd rx')) ORDER BY date_published",
-   "ms": 254,
+   "ms": 100,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T08:17:13.963Z",
+   "ranAt": "2026-10-22T12:35:29.315Z",
    "rows": 0
   },
-  "Q-e1bd93": {
-   "id": "Q-e1bd93",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('zydus lifesciences', 'pd rx') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%promethazine%' ORDER BY initiation_date",
-   "ms": 286,
+  "Q-c4def1": {
+   "id": "Q-c4def1",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('zydus lifesciences', 'pd rx') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*promethazine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 116,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T08:17:14.251Z",
+   "ranAt": "2026-10-22T12:35:29.433Z",
    "rows": 0
   },
   "Q-f0f723": {
    "id": "Q-f0f723",
    "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('709477', '895756', '1088772') ORDER BY inspection_id, cfr",
-   "ms": 417,
+   "ms": 145,
    "mode": "live",
    "sources": [
     "fda.citations"
    ],
-   "ranAt": "2026-10-22T08:17:14.670Z",
+   "ranAt": "2026-10-22T12:35:29.579Z",
    "rows": 18
   },
   "Q-972ff8": {
    "id": "Q-972ff8",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('43063040505', '65841004110')",
-   "ms": 1322,
+   "ms": 583,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:17:15.997Z",
+   "ranAt": "2026-10-22T12:35:30.166Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-2242d7": {
-   "id": "Q-2242d7",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%promethazine%'",
-   "ms": 2238,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:17:18.238Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-0c64e2": {
+   "id": "Q-0c64e2",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*promethazine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1377,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:35:31.544Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 15,
-  "zetarisMs": 19270,
+  "zetarisMs": 17556,
   "modelCalls": 1,
-  "tokensIn": 3867,
-  "tokensOut": 486,
+  "tokensIn": 4176,
+  "tokensOut": 517,
   "mode": "live"
  },
  "slug": "promethazine",
@@ -1977,7 +2012,7 @@
     "id": "hospital-item:hospital-item:CG-318",
     "type": "HospitalItem",
     "key": "hospital-item:CG-318",
-    "label": "Corvale General: Promethazine Hydrochloride",
+    "label": "Corvale General: Promethazine Hydrochloride 25 mg/1",
     "attrs": {
      "key": "hospital-item:CG-318"
     },
@@ -1988,7 +2023,7 @@
     "id": "hospital-item:hospital-item:CG-319",
     "type": "HospitalItem",
     "key": "hospital-item:CG-319",
-    "label": "Corvale General: Promethazine Hydrochloride",
+    "label": "Corvale General: Promethazine Hydrochloride 25 mg/1",
     "attrs": {
      "key": "hospital-item:CG-319"
     },
@@ -2138,7 +2173,7 @@
     },
     "facts": [
      {
-      "id": "fact_23e25dd77217a9c5",
+      "id": "fact_1724c34fe26daed7",
       "about": "inspection:fda-inspection:1088772",
       "predicate": "classification",
       "value": "OAI",
@@ -2146,9 +2181,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:17:14.674Z"
+       "at": "2026-10-22T12:35:29.582Z"
       },
-      "assertedAt": "2026-10-22T08:17:14.674Z"
+      "assertedAt": "2026-10-22T12:35:29.582Z"
      }
     ],
     "depth": 4
@@ -2164,7 +2199,7 @@
     },
     "facts": [
      {
-      "id": "fact_a81558fa35302a3e",
+      "id": "fact_e9f0784df82239f8",
       "about": "inspection:fda-inspection:1177670",
       "predicate": "classification",
       "value": "VAI",
@@ -2172,9 +2207,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:17:14.674Z"
+       "at": "2026-10-22T12:35:29.582Z"
       },
-      "assertedAt": "2026-10-22T08:17:14.674Z"
+      "assertedAt": "2026-10-22T12:35:29.582Z"
      }
     ],
     "depth": 4
@@ -2190,7 +2225,7 @@
     },
     "facts": [
      {
-      "id": "fact_5178f83d3a9d35d1",
+      "id": "fact_04c12db6a23a866e",
       "about": "inspection:fda-inspection:1190289",
       "predicate": "classification",
       "value": "VAI",
@@ -2198,9 +2233,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:17:14.673Z"
+       "at": "2026-10-22T12:35:29.581Z"
       },
-      "assertedAt": "2026-10-22T08:17:14.673Z"
+      "assertedAt": "2026-10-22T12:35:29.581Z"
      }
     ],
     "depth": 4
@@ -2216,7 +2251,7 @@
     },
     "facts": [
      {
-      "id": "fact_9b0fbd9888de9a74",
+      "id": "fact_3795878883a4af7b",
       "about": "inspection:fda-inspection:1331942",
       "predicate": "classification",
       "value": "VAI",
@@ -2224,9 +2259,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:17:14.673Z"
+       "at": "2026-10-22T12:35:29.581Z"
       },
-      "assertedAt": "2026-10-22T08:17:14.673Z"
+      "assertedAt": "2026-10-22T12:35:29.581Z"
      }
     ],
     "depth": 4
@@ -2242,7 +2277,7 @@
     },
     "facts": [
      {
-      "id": "fact_cb54a38e36ba963d",
+      "id": "fact_547611b5960a4e5e",
       "about": "inspection:fda-inspection:709477",
       "predicate": "classification",
       "value": "OAI",
@@ -2250,9 +2285,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:17:14.674Z"
+       "at": "2026-10-22T12:35:29.581Z"
       },
-      "assertedAt": "2026-10-22T08:17:14.674Z"
+      "assertedAt": "2026-10-22T12:35:29.581Z"
      }
     ],
     "depth": 4
@@ -2268,7 +2303,7 @@
     },
     "facts": [
      {
-      "id": "fact_72ed83b350c0c640",
+      "id": "fact_1a5b29404eb1a666",
       "about": "inspection:fda-inspection:709841",
       "predicate": "classification",
       "value": "VAI",
@@ -2276,9 +2311,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:17:14.674Z"
+       "at": "2026-10-22T12:35:29.581Z"
       },
-      "assertedAt": "2026-10-22T08:17:14.674Z"
+      "assertedAt": "2026-10-22T12:35:29.581Z"
      }
     ],
     "depth": 4
@@ -2294,7 +2329,7 @@
     },
     "facts": [
      {
-      "id": "fact_6df5d88813f3cdd1",
+      "id": "fact_0352464da594106d",
       "about": "inspection:fda-inspection:772764",
       "predicate": "classification",
       "value": "VAI",
@@ -2302,9 +2337,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:17:14.674Z"
+       "at": "2026-10-22T12:35:29.581Z"
       },
-      "assertedAt": "2026-10-22T08:17:14.674Z"
+      "assertedAt": "2026-10-22T12:35:29.581Z"
      }
     ],
     "depth": 4
@@ -2320,7 +2355,7 @@
     },
     "facts": [
      {
-      "id": "fact_b770ff23a9238447",
+      "id": "fact_345946e4cabe8db5",
       "about": "inspection:fda-inspection:808443",
       "predicate": "classification",
       "value": "VAI",
@@ -2328,9 +2363,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:17:14.674Z"
+       "at": "2026-10-22T12:35:29.581Z"
       },
-      "assertedAt": "2026-10-22T08:17:14.674Z"
+      "assertedAt": "2026-10-22T12:35:29.581Z"
      }
     ],
     "depth": 4
@@ -2346,7 +2381,7 @@
     },
     "facts": [
      {
-      "id": "fact_73f3ba671cd5f8bb",
+      "id": "fact_13ca2726ce02a967",
       "about": "inspection:fda-inspection:850780",
       "predicate": "classification",
       "value": "VAI",
@@ -2354,9 +2389,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:17:14.674Z"
+       "at": "2026-10-22T12:35:29.581Z"
       },
-      "assertedAt": "2026-10-22T08:17:14.674Z"
+      "assertedAt": "2026-10-22T12:35:29.581Z"
      }
     ],
     "depth": 4
@@ -2372,7 +2407,7 @@
     },
     "facts": [
      {
-      "id": "fact_8036328c6c827092",
+      "id": "fact_3e4edf552453b2eb",
       "about": "inspection:fda-inspection:895756",
       "predicate": "classification",
       "value": "OAI",
@@ -2380,9 +2415,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:17:14.674Z"
+       "at": "2026-10-22T12:35:29.582Z"
       },
-      "assertedAt": "2026-10-22T08:17:14.674Z"
+      "assertedAt": "2026-10-22T12:35:29.582Z"
      }
     ],
     "depth": 4
@@ -2398,7 +2433,7 @@
     },
     "facts": [
      {
-      "id": "fact_8f3c5f1ec847ce15",
+      "id": "fact_2598508dbdbb0566",
       "about": "inspection:fda-inspection:927215",
       "predicate": "classification",
       "value": "VAI",
@@ -2406,9 +2441,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:17:14.674Z"
+       "at": "2026-10-22T12:35:29.581Z"
       },
-      "assertedAt": "2026-10-22T08:17:14.674Z"
+      "assertedAt": "2026-10-22T12:35:29.581Z"
      }
     ],
     "depth": 4
@@ -2424,7 +2459,7 @@
     },
     "facts": [
      {
-      "id": "fact_d458d9b03a247f23",
+      "id": "fact_fde4b1527a2de7e4",
       "about": "inspection:fda-inspection:955661",
       "predicate": "classification",
       "value": "VAI",
@@ -2432,9 +2467,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:17:14.673Z"
+       "at": "2026-10-22T12:35:29.581Z"
       },
-      "assertedAt": "2026-10-22T08:17:14.673Z"
+      "assertedAt": "2026-10-22T12:35:29.581Z"
      }
     ],
     "depth": 4
@@ -2501,11 +2536,11 @@
     "from": "hospital-item:hospital-item:CG-318",
     "to": "package:ndc-package:43063-405-05",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:17:08.096Z",
+    "validFrom": "2026-10-22T12:35:27.221Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:17:08.096Z"
+     "at": "2026-10-22T12:35:27.221Z"
     }
    },
    {
@@ -2513,11 +2548,11 @@
     "from": "hospital-item:hospital-item:CG-319",
     "to": "package:ndc-package:65841-041-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:17:08.096Z",
+    "validFrom": "2026-10-22T12:35:27.221Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:17:08.096Z"
+     "at": "2026-10-22T12:35:27.221Z"
     }
    },
    {
@@ -2525,11 +2560,11 @@
     "from": "hospital-item:hospital-item:EA-E-000156",
     "to": "package:ndc-package:43063-405-05",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:17:08.096Z",
+    "validFrom": "2026-10-22T12:35:27.221Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:17:08.096Z"
+     "at": "2026-10-22T12:35:27.221Z"
     }
    },
    {
@@ -2537,11 +2572,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0069",
     "to": "package:ndc-package:43063-405-05",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:17:08.097Z",
+    "validFrom": "2026-10-22T12:35:27.221Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:17:08.097Z"
+     "at": "2026-10-22T12:35:27.221Z"
     }
    },
    {
@@ -2549,11 +2584,11 @@
     "from": "package:ndc-package:43063-405-05",
     "to": "product:ndc-product:43063-405",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:17:08.096Z",
+    "validFrom": "2026-10-22T12:35:27.221Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:17:08.096Z"
+     "at": "2026-10-22T12:35:27.221Z"
     }
    },
    {
@@ -2561,11 +2596,11 @@
     "from": "package:ndc-package:65841-041-10",
     "to": "product:ndc-product:65841-041",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:17:08.097Z",
+    "validFrom": "2026-10-22T12:35:27.221Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:17:08.097Z"
+     "at": "2026-10-22T12:35:27.221Z"
     }
    },
    {
@@ -2573,11 +2608,11 @@
     "from": "product:ndc-product:43063-405",
     "to": "drug:generic:promethazine hydrochloride",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:17:08.096Z",
+    "validFrom": "2026-10-22T12:35:27.221Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:17:08.096Z"
+     "at": "2026-10-22T12:35:27.221Z"
     }
    },
    {
@@ -2585,11 +2620,11 @@
     "from": "product:ndc-product:43063-405",
     "to": "labeler:ndc-labeler:43063",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:17:08.096Z",
+    "validFrom": "2026-10-22T12:35:27.221Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:17:08.096Z"
+     "at": "2026-10-22T12:35:27.221Z"
     }
    },
    {
@@ -2597,11 +2632,11 @@
     "from": "product:ndc-product:43063-405",
     "to": "site:fei:1641825",
     "type": "made-at",
-    "validFrom": "2026-10-22T08:17:14.673Z",
+    "validFrom": "2026-10-22T12:35:29.581Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:17:14.673Z"
+     "at": "2026-10-22T12:35:29.581Z"
     }
    },
    {
@@ -2609,11 +2644,11 @@
     "from": "product:ndc-product:65841-041",
     "to": "drug:generic:promethazine hydrochloride",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:17:08.097Z",
+    "validFrom": "2026-10-22T12:35:27.221Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:17:08.097Z"
+     "at": "2026-10-22T12:35:27.221Z"
     }
    },
    {
@@ -2621,11 +2656,11 @@
     "from": "product:ndc-product:65841-041",
     "to": "labeler:ndc-labeler:65841",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:17:08.097Z",
+    "validFrom": "2026-10-22T12:35:27.221Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:17:08.097Z"
+     "at": "2026-10-22T12:35:27.221Z"
     }
    },
    {
@@ -2633,11 +2668,11 @@
     "from": "product:ndc-product:65841-041",
     "to": "site:fei:3005430968",
     "type": "made-at",
-    "validFrom": "2026-10-22T08:17:14.674Z",
+    "validFrom": "2026-10-22T12:35:29.581Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:17:14.674Z"
+     "at": "2026-10-22T12:35:29.581Z"
     }
    },
    {
@@ -2645,11 +2680,11 @@
     "from": "product:ndc-product:65841-041",
     "to": "site:fei:3002984011",
     "type": "made-at",
-    "validFrom": "2026-10-22T08:17:14.674Z",
+    "validFrom": "2026-10-22T12:35:29.581Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:17:14.674Z"
+     "at": "2026-10-22T12:35:29.581Z"
     }
    },
    {
@@ -2657,11 +2692,11 @@
     "from": "shortage:fda-shortage:promethazine-2023-11-21",
     "to": "drug:generic:promethazine hydrochloride",
     "type": "affects",
-    "validFrom": "2026-10-22T08:17:14.675Z",
+    "validFrom": "2026-10-22T12:35:29.582Z",
     "source": {
      "kind": "fda-shortage-db",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:17:14.675Z"
+     "at": "2026-10-22T12:35:29.582Z"
     }
    },
    {
@@ -2669,11 +2704,11 @@
     "from": "inspection:fda-inspection:955661",
     "to": "site:fei:1641825",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:17:14.673Z",
+    "validFrom": "2026-10-22T12:35:29.581Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:17:14.673Z"
+     "at": "2026-10-22T12:35:29.581Z"
     }
    },
    {
@@ -2681,11 +2716,11 @@
     "from": "inspection:fda-inspection:1190289",
     "to": "site:fei:1641825",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:17:14.673Z",
+    "validFrom": "2026-10-22T12:35:29.581Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:17:14.673Z"
+     "at": "2026-10-22T12:35:29.581Z"
     }
    },
    {
@@ -2693,11 +2728,11 @@
     "from": "inspection:fda-inspection:1331942",
     "to": "site:fei:1641825",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:17:14.673Z",
+    "validFrom": "2026-10-22T12:35:29.581Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:17:14.673Z"
+     "at": "2026-10-22T12:35:29.581Z"
     }
    },
    {
@@ -2705,11 +2740,11 @@
     "from": "inspection:fda-inspection:709841",
     "to": "site:fei:3005430968",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:17:14.674Z",
+    "validFrom": "2026-10-22T12:35:29.581Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:17:14.674Z"
+     "at": "2026-10-22T12:35:29.581Z"
     }
    },
    {
@@ -2717,11 +2752,11 @@
     "from": "inspection:fda-inspection:808443",
     "to": "site:fei:3005430968",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:17:14.674Z",
+    "validFrom": "2026-10-22T12:35:29.581Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:17:14.674Z"
+     "at": "2026-10-22T12:35:29.581Z"
     }
    },
    {
@@ -2729,11 +2764,11 @@
     "from": "inspection:fda-inspection:927215",
     "to": "site:fei:3005430968",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:17:14.674Z",
+    "validFrom": "2026-10-22T12:35:29.581Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:17:14.674Z"
+     "at": "2026-10-22T12:35:29.581Z"
     }
    },
    {
@@ -2741,11 +2776,11 @@
     "from": "warning-letter:fda-warning-letter:722576",
     "to": "site:fei:3005430968",
     "type": "issued-to",
-    "validFrom": "2026-10-22T08:17:14.674Z",
+    "validFrom": "2026-10-22T12:35:29.581Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:17:14.674Z"
+     "at": "2026-10-22T12:35:29.581Z"
     }
    },
    {
@@ -2753,11 +2788,11 @@
     "from": "inspection:fda-inspection:709477",
     "to": "site:fei:3002984011",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:17:14.674Z",
+    "validFrom": "2026-10-22T12:35:29.581Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:17:14.674Z"
+     "at": "2026-10-22T12:35:29.581Z"
     }
    },
    {
@@ -2765,11 +2800,11 @@
     "from": "inspection:fda-inspection:772764",
     "to": "site:fei:3002984011",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:17:14.674Z",
+    "validFrom": "2026-10-22T12:35:29.581Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:17:14.674Z"
+     "at": "2026-10-22T12:35:29.581Z"
     }
    },
    {
@@ -2777,11 +2812,11 @@
     "from": "inspection:fda-inspection:850780",
     "to": "site:fei:3002984011",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:17:14.674Z",
+    "validFrom": "2026-10-22T12:35:29.581Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:17:14.674Z"
+     "at": "2026-10-22T12:35:29.581Z"
     }
    },
    {
@@ -2789,11 +2824,11 @@
     "from": "inspection:fda-inspection:895756",
     "to": "site:fei:3002984011",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:17:14.674Z",
+    "validFrom": "2026-10-22T12:35:29.582Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:17:14.674Z"
+     "at": "2026-10-22T12:35:29.582Z"
     }
    },
    {
@@ -2801,11 +2836,11 @@
     "from": "inspection:fda-inspection:1088772",
     "to": "site:fei:3002984011",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:17:14.674Z",
+    "validFrom": "2026-10-22T12:35:29.582Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:17:14.674Z"
+     "at": "2026-10-22T12:35:29.582Z"
     }
    },
    {
@@ -2813,11 +2848,11 @@
     "from": "inspection:fda-inspection:1177670",
     "to": "site:fei:3002984011",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:17:14.674Z",
+    "validFrom": "2026-10-22T12:35:29.582Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:17:14.674Z"
+     "at": "2026-10-22T12:35:29.582Z"
     }
    },
    {
@@ -2825,11 +2860,11 @@
     "from": "warning-letter:fda-warning-letter:192132",
     "to": "site:fei:3002984011",
     "type": "issued-to",
-    "validFrom": "2026-10-22T08:17:14.674Z",
+    "validFrom": "2026-10-22T12:35:29.581Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:17:14.674Z"
+     "at": "2026-10-22T12:35:29.581Z"
     }
    },
    {
@@ -2837,11 +2872,11 @@
     "from": "warning-letter:fda-warning-letter:471062",
     "to": "site:fei:3002984011",
     "type": "issued-to",
-    "validFrom": "2026-10-22T08:17:14.674Z",
+    "validFrom": "2026-10-22T12:35:29.582Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:17:14.674Z"
+     "at": "2026-10-22T12:35:29.582Z"
     }
    },
    {
@@ -2849,11 +2884,11 @@
     "from": "warning-letter:fda-warning-letter:584856",
     "to": "site:fei:3002984011",
     "type": "issued-to",
-    "validFrom": "2026-10-22T08:17:14.674Z",
+    "validFrom": "2026-10-22T12:35:29.582Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:17:14.674Z"
+     "at": "2026-10-22T12:35:29.582Z"
     }
    }
   ],

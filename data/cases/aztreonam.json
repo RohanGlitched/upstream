@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-703239",
+ "id": "case-2026-10-22-76b8ea",
  "question": "Why is aztreonam short, and what do we do?",
- "askedAt": "2026-10-22T07:27:29.206Z",
+ "askedAt": "2026-10-22T11:32:34.747Z",
  "asOf": "2026-10-21",
  "molecule": "aztreonam",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H83S6YR02BRT57XWAPK163",
+  "contractId": "01M5HP4H5CKBEHZB1N7A0WWT8W",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-1e536f"
+    "Q-b48d2c"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2200,
+   "ms": 3494,
    "rows": 3,
-   "finding": "3 stock lines across 3 hospitals.",
+   "finding": "3 stock lines across 3 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-a9a2b4"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 566,
+   "ms": 393,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-73e867",
-    "Q-adfc8b"
+    "Q-2e40cb",
+    "Q-0d3e96"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 240,
+   "ms": 213,
    "rows": 0,
    "finding": "Not on FDA's current shortage list.",
    "status": "empty"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-7c24e9"
+    "Q-9753b2"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1350,
+   "ms": 1137,
    "rows": 11,
    "finding": "4 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-527fc7",
     "Q-99b033",
     "Q-ab4efb",
-    "Q-c45323"
+    "Q-1c50e9"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 774,
+   "ms": 620,
    "rows": 23,
    "finding": "21 inspections (0 OAI at our plants), 2 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 616,
+   "ms": 563,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-e4103e"
+    "Q-e4d6db"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1122,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1400,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 1,
+   "ms": 2,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -153,21 +164,27 @@
    "onHand": 261,
    "dailyUse": 13.151,
    "days": 19.8,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "aztreonam|1g|injection||vial",
+   "presentationLabel": "1 g injection",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-155",
    "ndc11": "50090749400",
-   "description": "AZTREONAM",
+   "description": "AZTREONAM 1 g/1",
    "labeler": "A-S Medication Solutions",
-   "onHand": 255.31,
+   "onHand": 255,
    "dailyUse": 15.434,
    "days": 16.5,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "aztreonam|1g|injection||vial",
+   "presentationLabel": "1 g injection",
    "evidence": "E2"
   },
   {
@@ -181,7 +198,59 @@
    "days": 10.1,
    "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "aztreonam|1g|injection||vial",
+   "presentationLabel": "1 g injection",
    "evidence": "E3"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "aztreonam|1g|injection||vial",
+   "label": "1 g injection",
+   "short": "1 g",
+   "unit": "vial",
+   "onHand": 558,
+   "dailyUse": 32.728,
+   "days": 17,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 261,
+     "dailyUse": 13.151,
+     "days": 19.8,
+     "lines": [
+      "EA-E-000172"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 255,
+     "dailyUse": 15.434,
+     "days": 16.5,
+     "lines": [
+      "CG-155"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 42,
+     "dailyUse": 4.143,
+     "days": 10.1,
+     "lines": [
+      "LS-LS-0079"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -424,56 +493,55 @@
   }
  ],
  "explanation": {
-  "state": "confirmed",
-  "headline": "FDA's records trace this shortage to a plant on our own labels",
+  "state": "check",
+  "headline": "Aztreonam is not on FDA's shortage list as of 2026-10-21; current inventory provides 10.1 to 19.8 days on hand across three sites",
   "sentences": [
    {
-    "text": "The aztreonam product we use is labeled by A-S Medication Solutions and manufactured at FEI 1450743, which FDA lists as a registered plant.",
+    "text": "FDA's drug shortage list does not include aztreonam as of 2026-10-21.",
     "cites": [
-     "E10"
+     "D4"
     ]
    },
    {
-    "text": "FDA's most recent inspection of that plant ended on 2026-08-12 and was classified VAI, with the classification known to FDA on 2026-10-14.",
+    "text": "Corvale East holds 261 vials of the 1 g injection at 13.2 vials per day, giving 19.8 days on hand.",
     "cites": [
-     "E8"
+     "D1"
     ]
    },
    {
-    "text": "The plant also received a Warning Letter on 2017-06-05 and VAI inspections in 2009, 2012, 2013, and 2018.",
+    "text": "Corvale General holds 255 vials at 15.4 vials per day, giving 16.5 days on hand.",
     "cites": [
-     "E9",
-     "E4",
-     "E5",
-     "E6",
-     "E7"
+     "D2"
     ]
    },
    {
-    "text": "Our three sites have 20, 17, and 10 days of supply on hand respectively.",
+    "text": "Corvale Lakeside holds 42 vials at 4.1 vials per day, giving 10.1 days on hand.",
     "cites": [
-     "D1",
-     "D2",
      "D3"
+    ]
+   },
+   {
+    "text": "The rule‑based alternate manufacturer ranked first is E.R. Squibb & Sons, L.L.C., which is also not on FDA's shortage list today and operates from the Bristol‑Myers Squibb Company Princeton plant.",
+    "cites": [
+     "D5"
+    ]
+   },
+   {
+    "text": "A secondary alternate is Fresenius Kabi USA, LLC, not on the shortage list, whose plant last received a VAI classification on 2023-10-13.",
+    "cites": [
+     "D6"
+    ]
+   },
+   {
+    "text": "A third alternate is Hospira, Inc., not on the shortage list, though its label names no plant we could place.",
+    "cites": [
+     "D7"
     ]
    }
   ],
   "verifier": {
-   "checked": 7,
-   "rejected": [
-    {
-     "text": "That inspection occurred 70 days before today (2026-10-21).",
-     "reason": "date 2026-10-21 is not in the cited evidence"
-    },
-    {
-     "text": "The rule-based best option is to buy from E.R. Squibb & Sons, L.L.C., which is not on FDA's shortage list today.",
-     "reason": "cites nothing"
-    },
-    {
-     "text": "FDA's records show the registered plant on our aztreonam label received a VAI classification on 2026-08-12, 70 days before today",
-     "reason": "headline: number 70 is not in the cited evidence"
-    }
-   ],
+   "checked": 8,
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -481,45 +549,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -534,80 +623,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:27:22.334Z",
+   "at": "2026-10-22T11:32:26.924Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract XWAPK163 scope"
+   "reason": "in contract 7A0WWT8W scope"
   },
   {
-   "at": "2026-10-22T07:27:22.334Z",
+   "at": "2026-10-22T11:32:26.924Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XWAPK163 scope"
+   "reason": "in contract 7A0WWT8W scope"
   },
   {
-   "at": "2026-10-22T07:27:24.535Z",
+   "at": "2026-10-22T11:32:30.418Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XWAPK163 scope"
+   "reason": "in contract 7A0WWT8W scope"
   },
   {
-   "at": "2026-10-22T07:27:25.100Z",
+   "at": "2026-10-22T11:32:30.811Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XWAPK163 scope"
+   "reason": "in contract 7A0WWT8W scope"
   },
   {
-   "at": "2026-10-22T07:27:25.340Z",
+   "at": "2026-10-22T11:32:31.025Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XWAPK163 scope"
+   "reason": "in contract 7A0WWT8W scope"
   },
   {
-   "at": "2026-10-22T07:27:26.691Z",
+   "at": "2026-10-22T11:32:32.162Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XWAPK163 scope"
+   "reason": "in contract 7A0WWT8W scope"
   },
   {
-   "at": "2026-10-22T07:27:27.466Z",
+   "at": "2026-10-22T11:32:32.783Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XWAPK163 scope"
+   "reason": "in contract 7A0WWT8W scope"
   },
   {
-   "at": "2026-10-22T07:27:28.082Z",
+   "at": "2026-10-22T11:32:33.345Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XWAPK163 scope"
+   "reason": "in contract 7A0WWT8W scope"
   },
   {
-   "at": "2026-10-22T07:27:29.204Z",
+   "at": "2026-10-22T11:32:34.745Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract XWAPK163 scope"
+   "reason": "in contract 7A0WWT8W scope"
   },
   {
-   "at": "2026-10-22T07:27:29.206Z",
+   "at": "2026-10-22T11:32:34.747Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract XWAPK163 scope"
+   "reason": "in contract 7A0WWT8W scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-1e536f",
+   "queryId": "Q-b48d2c",
    "row": 0,
    "label": "Corvale East: AZTREONAM 1G",
    "fields": {
@@ -618,42 +707,52 @@
     "description": "AZTREONAM 1G",
     "on_hand": "261.00",
     "daily_use": "13.151",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "AZTREONAM",
     "labeler_name": "A-S Medication Solutions",
     "package_ndc": "50090-7494-0",
     "spl_set_id": "f9d5515e-54bc-4efc-9f49-8ee3e88c3e01",
     "dosage_form": "INJECTION, POWDER, FOR SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "AZTREONAM 1 g/1",
+    "unit_content": null,
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-1e536f",
+   "queryId": "Q-b48d2c",
    "row": 1,
-   "label": "Corvale General: AZTREONAM",
+   "label": "Corvale General: AZTREONAM 1 g/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-155",
     "ndc11": "50090749400",
     "ndc_as_recorded": "50090749400",
-    "description": "AZTREONAM",
-    "on_hand": "255.31",
+    "description": "AZTREONAM 1 g/1",
+    "on_hand": "255.00",
     "daily_use": "15.434",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "AZTREONAM",
     "labeler_name": "A-S Medication Solutions",
     "package_ndc": "50090-7494-0",
     "spl_set_id": "f9d5515e-54bc-4efc-9f49-8ee3e88c3e01",
     "dosage_form": "INJECTION, POWDER, FOR SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "AZTREONAM 1 g/1",
+    "unit_content": null,
+    "pkg_unit": "vial"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-1e536f",
+   "queryId": "Q-b48d2c",
    "row": 2,
    "label": "Corvale Lakeside: AZTREONAM 1 g/1 10 mL vial",
    "fields": {
@@ -665,13 +764,18 @@
     "on_hand": "42.00",
     "daily_use": "4.143",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "AZTREONAM",
     "labeler_name": "A-S Medication Solutions",
     "package_ndc": "50090-7494-0",
     "spl_set_id": "f9d5515e-54bc-4efc-9f49-8ee3e88c3e01",
     "dosage_form": "INJECTION, POWDER, FOR SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "AZTREONAM 1 g/1",
+    "unit_content": null,
+    "pkg_unit": "vial"
    }
   },
   "E4": {
@@ -788,197 +892,259 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 261 units of aztreonam at 13.2 a day: 20 days on hand",
+   "label": "Corvale East holds 261 vials of aztreonam 1 g at 13.2 a day: 19.8 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "1 g injection",
     "on_hand": 261,
     "daily_use": 13.2,
-    "days_on_hand": 20
+    "days_on_hand": 19.8
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 255 units of aztreonam at 15.4 a day: 17 days on hand",
+   "label": "Corvale General holds 255 vials of aztreonam 1 g at 15.4 a day: 16.5 days on hand",
    "fields": {
     "hospital": "Corvale General",
+    "presentation": "1 g injection",
     "on_hand": 255,
     "daily_use": 15.4,
-    "days_on_hand": 17
+    "days_on_hand": 16.5
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 42 units of aztreonam at 4.1 a day: 10 days on hand",
+   "label": "Corvale Lakeside holds 42 vials of aztreonam 1 g at 4.1 a day: 10.1 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
+    "presentation": "1 g injection",
     "on_hand": 42,
     "daily_use": 4.1,
-    "days_on_hand": 10
+    "days_on_hand": 10.1
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "aztreonam is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from E.R. Squibb & Sons, L.L.C.. Not on FDA's shortage list today. Plants: Bristol-Myers Squibb Company Princeton.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from Fresenius Kabi USA, LLC. Not on FDA's shortage list today. Plants: Fresenius Kabi USA, LLC (last inspection VAI 2023-10-13).",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Hospira, Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-1e536f": {
-   "id": "Q-1e536f",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%aztreonam%' OR lower(s.description) LIKE '%aztreonam%' ORDER BY s.hospital, s.item_key",
-   "ms": 2197,
+  "Q-b48d2c": {
+   "id": "Q-b48d2c",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*aztreonam(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*aztreonam(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3492,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:27:24.531Z",
+   "ranAt": "2026-10-22T11:32:30.417Z",
    "rows": 3
   },
   "Q-a9a2b4": {
    "id": "Q-a9a2b4",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('f9d5515e-54bc-4efc-9f49-8ee3e88c3e01') ORDER BY ps.set_id, ps.establishment",
-   "ms": 565,
+   "ms": 392,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:27:25.099Z",
+   "ranAt": "2026-10-22T11:32:30.810Z",
    "rows": 1
   },
-  "Q-73e867": {
-   "id": "Q-73e867",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%aztreonam%' ORDER BY status, company_name, package_ndc",
-   "ms": 117,
+  "Q-2e40cb": {
+   "id": "Q-2e40cb",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*aztreonam(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 108,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:27:25.217Z",
+   "ranAt": "2026-10-22T11:32:30.920Z",
    "rows": 0
   },
-  "Q-adfc8b": {
-   "id": "Q-adfc8b",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%aztreonam%' ORDER BY first_posting",
-   "ms": 121,
+  "Q-0d3e96": {
+   "id": "Q-0d3e96",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*aztreonam(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 103,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:27:25.339Z",
+   "ranAt": "2026-10-22T11:32:31.023Z",
    "rows": 0
   },
-  "Q-7c24e9": {
-   "id": "Q-7c24e9",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%aztreonam%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 1349,
+  "Q-9753b2": {
+   "id": "Q-9753b2",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*aztreonam(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1135,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:27:26.689Z",
+   "ranAt": "2026-10-22T11:32:32.160Z",
    "rows": 11
   },
   "Q-527fc7": {
    "id": "Q-527fc7",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('1450743', '3001833549') ORDER BY fei, end_date",
-   "ms": 315,
+   "ms": 232,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:27:27.006Z",
+   "ranAt": "2026-10-22T11:32:32.394Z",
    "rows": 21
   },
   "Q-99b033": {
    "id": "Q-99b033",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('1450743', '3001833549') ORDER BY fei, action_date",
-   "ms": 149,
+   "ms": 131,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:27:27.156Z",
+   "ranAt": "2026-10-22T11:32:32.527Z",
    "rows": 2
   },
   "Q-ab4efb": {
    "id": "Q-ab4efb",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('1450743') OR (fei_match <> 'name_and_city' AND firm_key IN ('a s medication solutions')) ORDER BY date_published",
-   "ms": 122,
+   "ms": 90,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:27:27.279Z",
+   "ranAt": "2026-10-22T11:32:32.618Z",
    "rows": 0
   },
-  "Q-c45323": {
-   "id": "Q-c45323",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('a s medication solutions') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%aztreonam%' ORDER BY initiation_date",
-   "ms": 184,
+  "Q-1c50e9": {
+   "id": "Q-1c50e9",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('a s medication solutions') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*aztreonam(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 161,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:27:27.464Z",
+   "ranAt": "2026-10-22T11:32:32.780Z",
    "rows": 0
   },
   "Q-572eb1": {
    "id": "Q-572eb1",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('50090749400')",
-   "ms": 614,
+   "ms": 561,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:27:28.080Z",
+   "ranAt": "2026-10-22T11:32:33.344Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-e4103e": {
-   "id": "Q-e4103e",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%aztreonam%'",
-   "ms": 1121,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:27:29.203Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-e4d6db": {
+   "id": "Q-e4d6db",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*aztreonam(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1398,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:32:34.744Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 12225,
+  "zetarisMs": 18011,
   "modelCalls": 1,
-  "tokensIn": 1205,
-  "tokensOut": 412,
+  "tokensIn": 1581,
+  "tokensOut": 448,
   "mode": "live"
  },
  "slug": "aztreonam",
@@ -993,7 +1159,7 @@
     "id": "hospital-item:hospital-item:CG-155",
     "type": "HospitalItem",
     "key": "hospital-item:CG-155",
-    "label": "Corvale General: AZTREONAM",
+    "label": "Corvale General: AZTREONAM 1 g/1",
     "attrs": {
      "key": "hospital-item:CG-155"
     },
@@ -1088,7 +1254,7 @@
     },
     "facts": [
      {
-      "id": "fact_1d468ba24bf21425",
+      "id": "fact_95b4f0ac720a7668",
       "about": "inspection:fda-inspection:1054512",
       "predicate": "classification",
       "value": "VAI",
@@ -1096,9 +1262,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:27:27.466Z"
+       "at": "2026-10-22T11:32:32.782Z"
       },
-      "assertedAt": "2026-10-22T07:27:27.466Z"
+      "assertedAt": "2026-10-22T11:32:32.782Z"
      }
     ],
     "depth": 4
@@ -1114,7 +1280,7 @@
     },
     "facts": [
      {
-      "id": "fact_a3dd674608bd6538",
+      "id": "fact_ebe33f90291c309f",
       "about": "inspection:fda-inspection:1331612",
       "predicate": "classification",
       "value": "VAI",
@@ -1122,9 +1288,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:27:27.466Z"
+       "at": "2026-10-22T11:32:32.782Z"
       },
-      "assertedAt": "2026-10-22T07:27:27.466Z"
+      "assertedAt": "2026-10-22T11:32:32.782Z"
      }
     ],
     "depth": 4
@@ -1140,7 +1306,7 @@
     },
     "facts": [
      {
-      "id": "fact_4bb5d1e3b0a982c1",
+      "id": "fact_ff2fbc2ce403bdda",
       "about": "inspection:fda-inspection:628529",
       "predicate": "classification",
       "value": "VAI",
@@ -1148,9 +1314,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:27:27.466Z"
+       "at": "2026-10-22T11:32:32.782Z"
       },
-      "assertedAt": "2026-10-22T07:27:27.466Z"
+      "assertedAt": "2026-10-22T11:32:32.782Z"
      }
     ],
     "depth": 4
@@ -1166,7 +1332,7 @@
     },
     "facts": [
      {
-      "id": "fact_64dfe692b473e0cb",
+      "id": "fact_b1e20ee6e028ab15",
       "about": "inspection:fda-inspection:770191",
       "predicate": "classification",
       "value": "VAI",
@@ -1174,9 +1340,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:27:27.466Z"
+       "at": "2026-10-22T11:32:32.782Z"
       },
-      "assertedAt": "2026-10-22T07:27:27.466Z"
+      "assertedAt": "2026-10-22T11:32:32.782Z"
      }
     ],
     "depth": 4
@@ -1192,7 +1358,7 @@
     },
     "facts": [
      {
-      "id": "fact_7e40a1749c444ab7",
+      "id": "fact_3c38cd4e9ecf83a9",
       "about": "inspection:fda-inspection:834331",
       "predicate": "classification",
       "value": "VAI",
@@ -1200,9 +1366,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:27:27.466Z"
+       "at": "2026-10-22T11:32:32.782Z"
       },
-      "assertedAt": "2026-10-22T07:27:27.466Z"
+      "assertedAt": "2026-10-22T11:32:32.782Z"
      }
     ],
     "depth": 4
@@ -1225,11 +1391,11 @@
     "from": "hospital-item:hospital-item:CG-155",
     "to": "package:ndc-package:50090-7494-0",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:27:24.534Z",
+    "validFrom": "2026-10-22T11:32:30.418Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:27:24.534Z"
+     "at": "2026-10-22T11:32:30.418Z"
     }
    },
    {
@@ -1237,11 +1403,11 @@
     "from": "hospital-item:hospital-item:EA-E-000172",
     "to": "package:ndc-package:50090-7494-0",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:27:24.534Z",
+    "validFrom": "2026-10-22T11:32:30.418Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:27:24.534Z"
+     "at": "2026-10-22T11:32:30.418Z"
     }
    },
    {
@@ -1249,11 +1415,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0079",
     "to": "package:ndc-package:50090-7494-0",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:27:24.534Z",
+    "validFrom": "2026-10-22T11:32:30.418Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:27:24.534Z"
+     "at": "2026-10-22T11:32:30.418Z"
     }
    },
    {
@@ -1261,11 +1427,11 @@
     "from": "package:ndc-package:50090-7494-0",
     "to": "product:ndc-product:50090-7494",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:27:24.534Z",
+    "validFrom": "2026-10-22T11:32:30.418Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:27:24.534Z"
+     "at": "2026-10-22T11:32:30.418Z"
     }
    },
    {
@@ -1273,11 +1439,11 @@
     "from": "product:ndc-product:50090-7494",
     "to": "drug:generic:aztreonam",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:27:24.534Z",
+    "validFrom": "2026-10-22T11:32:30.418Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:27:24.534Z"
+     "at": "2026-10-22T11:32:30.418Z"
     }
    },
    {
@@ -1285,11 +1451,11 @@
     "from": "product:ndc-product:50090-7494",
     "to": "labeler:ndc-labeler:50090",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:27:24.534Z",
+    "validFrom": "2026-10-22T11:32:30.418Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:27:24.534Z"
+     "at": "2026-10-22T11:32:30.418Z"
     }
    },
    {
@@ -1297,11 +1463,11 @@
     "from": "product:ndc-product:50090-7494",
     "to": "site:fei:1450743",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:27:27.466Z",
+    "validFrom": "2026-10-22T11:32:32.782Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:27:27.466Z"
+     "at": "2026-10-22T11:32:32.782Z"
     }
    },
    {
@@ -1309,11 +1475,11 @@
     "from": "inspection:fda-inspection:628529",
     "to": "site:fei:1450743",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:27:27.466Z",
+    "validFrom": "2026-10-22T11:32:32.782Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:27:27.466Z"
+     "at": "2026-10-22T11:32:32.782Z"
     }
    },
    {
@@ -1321,11 +1487,11 @@
     "from": "inspection:fda-inspection:770191",
     "to": "site:fei:1450743",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:27:27.466Z",
+    "validFrom": "2026-10-22T11:32:32.782Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:27:27.466Z"
+     "at": "2026-10-22T11:32:32.782Z"
     }
    },
    {
@@ -1333,11 +1499,11 @@
     "from": "inspection:fda-inspection:834331",
     "to": "site:fei:1450743",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:27:27.466Z",
+    "validFrom": "2026-10-22T11:32:32.782Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:27:27.466Z"
+     "at": "2026-10-22T11:32:32.782Z"
     }
    },
    {
@@ -1345,11 +1511,11 @@
     "from": "inspection:fda-inspection:1054512",
     "to": "site:fei:1450743",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:27:27.466Z",
+    "validFrom": "2026-10-22T11:32:32.782Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:27:27.466Z"
+     "at": "2026-10-22T11:32:32.782Z"
     }
    },
    {
@@ -1357,11 +1523,11 @@
     "from": "inspection:fda-inspection:1331612",
     "to": "site:fei:1450743",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:27:27.466Z",
+    "validFrom": "2026-10-22T11:32:32.782Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:27:27.466Z"
+     "at": "2026-10-22T11:32:32.782Z"
     }
    },
    {
@@ -1369,11 +1535,11 @@
     "from": "warning-letter:fda-warning-letter:522197",
     "to": "site:fei:1450743",
     "type": "issued-to",
-    "validFrom": "2026-10-22T07:27:27.466Z",
+    "validFrom": "2026-10-22T11:32:32.782Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:27:27.466Z"
+     "at": "2026-10-22T11:32:32.782Z"
     }
    }
   ],

@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-4224c6",
+ "id": "case-2026-10-22-de7121",
  "question": "Why is dulaglutide short, and what do we do?",
- "askedAt": "2026-10-22T07:43:00.337Z",
+ "askedAt": "2026-10-22T11:54:35.346Z",
  "asOf": "2026-10-21",
  "molecule": "dulaglutide",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H903XKAN5W61YYAQWN2RMX",
+  "contractId": "01M5HQCQPPCSEEMXQ8GXX1NTY8",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-6b5580"
+    "Q-9d1988"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2839,
+   "ms": 4758,
    "rows": 1,
-   "finding": "1 stock lines across 1 hospitals.",
+   "finding": "1 stock lines across 1 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-3c764f"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 493,
+   "ms": 502,
    "rows": 0,
    "finding": "0 plant links on 1 labels; 0 placed in FDA's registration file.",
    "status": "empty"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-9f1011",
-    "Q-eb64fa"
+    "Q-0421d5",
+    "Q-f1bb8a"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 364,
+   "ms": 355,
    "rows": 2,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-19e929"
+    "Q-8c7bcd"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1982,
+   "ms": 1680,
    "rows": 11,
    "finding": "2 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-808a5c",
     "Q-de2bfd",
     "Q-4794e1",
-    "Q-24377e"
+    "Q-af4094"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1025,
+   "ms": 852,
    "rows": 0,
    "finding": "0 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "empty"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1350,
+   "ms": 1196,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-208b8d"
+    "Q-1a7761"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1479,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1660,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 1,
+   "ms": 0,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -153,9 +164,37 @@
    "onHand": 151,
    "dailyUse": 3.418,
    "days": 44.2,
-   "unit": "package",
+   "unit": "syringe",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 4, converted to units",
+   "presentation": "dulaglutide|0.75mg/0.5ml|injection|0.5ml|syringe",
+   "presentationLabel": "0.75 mg/0.5 mL injection, 0.5 mL syringe",
    "evidence": "E1"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "dulaglutide|0.75mg/0.5ml|injection|0.5ml|syringe",
+   "label": "0.75 mg/0.5 mL injection, 0.5 mL syringe",
+   "short": "0.75 mg/0.5 mL, 0.5 mL",
+   "unit": "syringe",
+   "onHand": 151,
+   "dailyUse": 3.418,
+   "days": 44.2,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 151,
+     "dailyUse": 3.418,
+     "days": 44.2,
+     "lines": [
+      "EA-E-000170"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -234,24 +273,24 @@
  ],
  "explanation": {
   "state": "no_signal",
-  "headline": "FDA's shortage list shows dulaglutide has been listed for 46 months as of 2026-10-21",
+  "headline": "FDA's shortage list shows dulaglutide posted 2022-12-15 and still listed as of 2026-10-21",
   "sentences": [
    {
-    "text": "FDA's shortage list shows dulaglutide has been listed since 2022-12-15 and remained on the list for 46 months as of 2026-10-21.",
+    "text": "FDA's shortage list shows dulaglutide was first posted on 2022-12-15 and remained listed as of 2026-10-21, a duration of 46 months.",
     "cites": [
-     "D3"
+     "D2"
     ]
    },
    {
-    "text": "Corvale East holds 151 units with a daily use of 3.4, providing 44 days on hand.",
+    "text": "Corvale East holds 151 syringes of the 0.75 mg/0.5 mL presentation with a daily use of 3.4, providing 44.2 days on hand.",
     "cites": [
      "D1"
     ]
    },
    {
-    "text": "The rule-based best option is to buy from Eli Lilly and Company, which is not on FDA's shortage list today.",
+    "text": "The rule‑selected option is to buy from Eli Lilly and Company, which is not on FDA's shortage list today and operates the plant ELI LILLY AND CO.",
     "cites": [
-     "D2"
+     "D3"
     ]
    }
   ],
@@ -259,7 +298,7 @@
    "checked": 5,
    "rejected": [
     {
-     "text": "No public FDA signal exists at our plants for this shortage.",
+     "text": "No public FDA signal has been issued for our plants.",
      "reason": "cites nothing"
     }
    ],
@@ -270,45 +309,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -323,80 +383,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:42:50.803Z",
+   "at": "2026-10-22T11:54:24.342Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract AQWN2RMX scope"
+   "reason": "in contract GXX1NTY8 scope"
   },
   {
-   "at": "2026-10-22T07:42:50.803Z",
+   "at": "2026-10-22T11:54:24.342Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract AQWN2RMX scope"
+   "reason": "in contract GXX1NTY8 scope"
   },
   {
-   "at": "2026-10-22T07:42:53.643Z",
+   "at": "2026-10-22T11:54:29.100Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract AQWN2RMX scope"
+   "reason": "in contract GXX1NTY8 scope"
   },
   {
-   "at": "2026-10-22T07:42:54.136Z",
+   "at": "2026-10-22T11:54:29.603Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract AQWN2RMX scope"
+   "reason": "in contract GXX1NTY8 scope"
   },
   {
-   "at": "2026-10-22T07:42:54.501Z",
+   "at": "2026-10-22T11:54:29.957Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract AQWN2RMX scope"
+   "reason": "in contract GXX1NTY8 scope"
   },
   {
-   "at": "2026-10-22T07:42:56.482Z",
+   "at": "2026-10-22T11:54:31.637Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract AQWN2RMX scope"
+   "reason": "in contract GXX1NTY8 scope"
   },
   {
-   "at": "2026-10-22T07:42:57.508Z",
+   "at": "2026-10-22T11:54:32.489Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract AQWN2RMX scope"
+   "reason": "in contract GXX1NTY8 scope"
   },
   {
-   "at": "2026-10-22T07:42:58.857Z",
+   "at": "2026-10-22T11:54:33.685Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract AQWN2RMX scope"
+   "reason": "in contract GXX1NTY8 scope"
   },
   {
-   "at": "2026-10-22T07:43:00.336Z",
+   "at": "2026-10-22T11:54:35.346Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract AQWN2RMX scope"
+   "reason": "in contract GXX1NTY8 scope"
   },
   {
-   "at": "2026-10-22T07:43:00.337Z",
+   "at": "2026-10-22T11:54:35.347Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract AQWN2RMX scope"
+   "reason": "in contract GXX1NTY8 scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-6b5580",
+   "queryId": "Q-9d1988",
    "row": 0,
    "label": "Corvale East: DULAGLUTIDE 0.75MG/0.5ML 5ML SYR",
    "fields": {
@@ -407,40 +467,36 @@
     "description": "DULAGLUTIDE 0.75MG/0.5ML 5ML SYR",
     "on_hand": "151.00",
     "daily_use": "3.418",
-    "unit": "package",
+    "unit": "syringe",
+    "pkg_units": "4.00",
+    "unit_basis": "packages of 4, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Dulaglutide",
     "labeler_name": "A-S Medication Solutions",
     "package_ndc": "50090-6453-0",
     "spl_set_id": "a923e467-fea3-431c-b7e4-c9669af607b7",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "SUBCUTANEOUS"
+    "route": "SUBCUTANEOUS",
+    "strength": "DULAGLUTIDE .75 mg/.5mL",
+    "unit_content": ".5 mL",
+    "pkg_unit": "syringe"
    }
   },
   "D1": {
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 151 units of dulaglutide at 3.4 a day: 44 days on hand",
+   "label": "Corvale East holds 151 syringes of dulaglutide 0.75 mg/0.5 mL, 0.5 mL at 3.4 a day: 44.2 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "0.75 mg/0.5 mL injection, 0.5 mL syringe",
     "on_hand": 151,
     "daily_use": 3.4,
-    "days_on_hand": 44
+    "days_on_hand": 44.2
    }
   },
   "D2": {
    "id": "D2",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 2 by rule: Buy from Eli Lilly and Company. Not on FDA's shortage list today. Plants: ELI LILLY AND CO.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
-   }
-  },
-  "D3": {
-   "id": "D3",
    "queryId": "derived",
    "row": -1,
    "label": "As of 2026-10-21 the shortage has been on FDA's list for 46 months",
@@ -449,166 +505,195 @@
     "posted": "2022-12-15",
     "months": 46
    }
+  },
+  "D3": {
+   "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from Eli Lilly and Company. Not on FDA's shortage list today. Plants: ELI LILLY AND CO.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
   }
  },
  "queries": {
-  "Q-6b5580": {
-   "id": "Q-6b5580",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%dulaglutide%' OR lower(s.description) LIKE '%dulaglutide%' ORDER BY s.hospital, s.item_key",
-   "ms": 2837,
+  "Q-9d1988": {
+   "id": "Q-9d1988",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*dulaglutide(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*dulaglutide(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 4756,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:42:53.640Z",
+   "ranAt": "2026-10-22T11:54:29.098Z",
    "rows": 1
   },
   "Q-3c764f": {
    "id": "Q-3c764f",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('a923e467-fea3-431c-b7e4-c9669af607b7') ORDER BY ps.set_id, ps.establishment",
-   "ms": 491,
+   "ms": 501,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:42:54.134Z",
+   "ranAt": "2026-10-22T11:54:29.601Z",
    "rows": 0
   },
-  "Q-9f1011": {
-   "id": "Q-9f1011",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%dulaglutide%' ORDER BY status, company_name, package_ndc",
-   "ms": 185,
+  "Q-0421d5": {
+   "id": "Q-0421d5",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*dulaglutide(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 173,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:42:54.321Z",
+   "ranAt": "2026-10-22T11:54:29.775Z",
    "rows": 0
   },
-  "Q-eb64fa": {
-   "id": "Q-eb64fa",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%dulaglutide%' ORDER BY first_posting",
-   "ms": 176,
+  "Q-f1bb8a": {
+   "id": "Q-f1bb8a",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*dulaglutide(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 179,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:42:54.498Z",
+   "ranAt": "2026-10-22T11:54:29.956Z",
    "rows": 2
   },
-  "Q-19e929": {
-   "id": "Q-19e929",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%dulaglutide%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 1978,
+  "Q-8c7bcd": {
+   "id": "Q-8c7bcd",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*dulaglutide(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1678,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:42:56.479Z",
+   "ranAt": "2026-10-22T11:54:31.635Z",
    "rows": 11
   },
   "Q-808a5c": {
    "id": "Q-808a5c",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('') ORDER BY fei, end_date",
-   "ms": 421,
+   "ms": 314,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:42:56.903Z",
+   "ranAt": "2026-10-22T11:54:31.951Z",
    "rows": 0
   },
   "Q-de2bfd": {
    "id": "Q-de2bfd",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('') ORDER BY fei, action_date",
-   "ms": 186,
+   "ms": 169,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:42:57.091Z",
+   "ranAt": "2026-10-22T11:54:32.121Z",
    "rows": 0
   },
   "Q-4794e1": {
    "id": "Q-4794e1",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('') OR (fei_match <> 'name_and_city' AND firm_key IN ('')) ORDER BY date_published",
-   "ms": 172,
+   "ms": 149,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:42:57.264Z",
+   "ranAt": "2026-10-22T11:54:32.272Z",
    "rows": 0
   },
-  "Q-24377e": {
-   "id": "Q-24377e",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('a s medication solutions') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%dulaglutide%' ORDER BY initiation_date",
-   "ms": 239,
+  "Q-af4094": {
+   "id": "Q-af4094",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('a s medication solutions') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*dulaglutide(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 215,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:42:57.505Z",
+   "ranAt": "2026-10-22T11:54:32.488Z",
    "rows": 0
   },
   "Q-e5947e": {
    "id": "Q-e5947e",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('50090645300')",
-   "ms": 1347,
+   "ms": 1193,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:42:58.855Z",
+   "ranAt": "2026-10-22T11:54:33.683Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-208b8d": {
-   "id": "Q-208b8d",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%dulaglutide%'",
-   "ms": 1476,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:43:00.334Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-1a7761": {
+   "id": "Q-1a7761",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*dulaglutide(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1659,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:54:35.344Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 14879,
+  "zetarisMs": 21194,
   "modelCalls": 1,
-  "tokensIn": 505,
-  "tokensOut": 239,
+  "tokensIn": 663,
+  "tokensOut": 276,
   "mode": "live"
  },
  "slug": "dulaglutide",
@@ -679,11 +764,11 @@
     "from": "hospital-item:hospital-item:EA-E-000170",
     "to": "package:ndc-package:50090-6453-0",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:42:53.642Z",
+    "validFrom": "2026-10-22T11:54:29.100Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:42:53.642Z"
+     "at": "2026-10-22T11:54:29.100Z"
     }
    },
    {
@@ -691,11 +776,11 @@
     "from": "package:ndc-package:50090-6453-0",
     "to": "product:ndc-product:50090-6453",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:42:53.642Z",
+    "validFrom": "2026-10-22T11:54:29.100Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:42:53.642Z"
+     "at": "2026-10-22T11:54:29.100Z"
     }
    },
    {
@@ -703,11 +788,11 @@
     "from": "product:ndc-product:50090-6453",
     "to": "drug:generic:dulaglutide",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:42:53.642Z",
+    "validFrom": "2026-10-22T11:54:29.100Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:42:53.642Z"
+     "at": "2026-10-22T11:54:29.100Z"
     }
    },
    {
@@ -715,11 +800,11 @@
     "from": "product:ndc-product:50090-6453",
     "to": "labeler:ndc-labeler:50090",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:42:53.643Z",
+    "validFrom": "2026-10-22T11:54:29.100Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:42:53.643Z"
+     "at": "2026-10-22T11:54:29.100Z"
     }
    }
   ],

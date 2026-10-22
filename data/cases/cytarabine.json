@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-c273ab",
+ "id": "case-2026-10-22-7f8f30",
  "question": "Why is cytarabine short, and what do we do?",
- "askedAt": "2026-10-22T07:37:38.511Z",
+ "askedAt": "2026-10-22T11:41:58.679Z",
  "asOf": "2026-10-21",
  "molecule": "cytarabine",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H8P8JD7JB4PH22682C3785",
+  "contractId": "01M5HPNQMT7W9BN8974FTEJMCT",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-16a22b"
+    "Q-e92899"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3280,
+   "ms": 3439,
    "rows": 6,
-   "finding": "6 stock lines across 3 hospitals.",
+   "finding": "6 stock lines across 3 hospitals, 3 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-7eaf8f"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 656,
+   "ms": 397,
    "rows": 2,
    "finding": "2 plant links on 2 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-284867",
-    "Q-14b39c"
+    "Q-e3daf4",
+    "Q-06ec64"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 434,
+   "ms": 211,
    "rows": 1,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,14 +68,16 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-8e3f43"
+    "Q-cfb58a"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2145,
-   "rows": 16,
-   "finding": "6 labelers make it in this form.",
+   "ms": 1149,
+   "rows": 14,
+   "finding": "5 labelers make it in this form.",
    "status": "ok"
   },
   {
@@ -81,15 +88,15 @@
     "Q-73c828",
     "Q-25e310",
     "Q-5d57e3",
-    "Q-6f8750"
+    "Q-0b4f93"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1105,
+   "ms": 554,
    "rows": 14,
    "finding": "14 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1501,
+   "ms": 875,
    "rows": 2,
    "finding": "2 approved interchanges on file.",
    "status": "ok"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-e02318"
+    "Q-0abb71"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1494,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1434,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 5,
+   "ms": 1,
    "rows": 3,
    "finding": "3 past decisions recalled.",
    "status": "ok"
@@ -153,8 +164,11 @@
    "onHand": 25,
    "dailyUse": 2.882,
    "days": 8.7,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "cytarabine|100mg/ml|injection|20ml|vial",
+   "presentationLabel": "100 mg/mL injection, 20 mL vial",
    "evidence": "E1"
   },
   {
@@ -166,47 +180,59 @@
    "onHand": 45,
    "dailyUse": 3.141,
    "days": 14.3,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 5, converted to units",
+   "presentation": "cytarabine|20mg/ml|injection|5ml|vial",
+   "presentationLabel": "20 mg/mL injection, 5 mL vial",
    "evidence": "E2"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-189",
    "ndc11": "68083034305",
-   "description": "Cytarabine",
+   "description": "Cytarabine 20 mg/mL",
    "labeler": "Gland Pharma Limited",
-   "onHand": 76.41,
+   "onHand": 76,
    "dailyUse": 2.831,
-   "days": 27,
+   "days": 26.8,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "cytarabine|20mg/ml|injection|5ml|vial",
+   "presentationLabel": "20 mg/mL injection, 5 mL vial",
    "evidence": "E3"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-22",
    "ndc11": "25021022320",
-   "description": "cytarabine",
+   "description": "cytarabine 100 mg/mL",
    "labeler": "Sagent Pharmaceuticals",
-   "onHand": 67.3,
+   "onHand": 67,
    "dailyUse": 2.738,
-   "days": 24.6,
+   "days": 24.5,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "cytarabine|100mg/ml|injection|20ml|vial",
+   "presentationLabel": "100 mg/mL injection, 20 mL vial",
    "evidence": "E4"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-23",
    "ndc11": "61703030346",
-   "description": "CYTARABINE",
+   "description": "CYTARABINE 20 mg/mL",
    "labeler": "Hospira, Inc.",
-   "onHand": 51.32,
+   "onHand": 51,
    "dailyUse": 2.783,
-   "days": 18.4,
+   "days": 18.3,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "cytarabine|20mg/ml|injection|50ml|vial",
+   "presentationLabel": "20 mg/mL injection, 50 mL vial",
    "evidence": "E5"
   },
   {
@@ -220,7 +246,117 @@
    "days": 15.2,
    "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "cytarabine|20mg/ml|injection|5ml|vial",
+   "presentationLabel": "20 mg/mL injection, 5 mL vial",
    "evidence": "E6"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "cytarabine|100mg/ml|injection|20ml|vial",
+   "label": "100 mg/mL injection, 20 mL vial",
+   "short": "100 mg/mL, 20 mL",
+   "unit": "vial",
+   "onHand": 92,
+   "dailyUse": 5.62,
+   "days": 16.4,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 25,
+     "dailyUse": 2.882,
+     "days": 8.7,
+     "lines": [
+      "EA-E-000143"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 67,
+     "dailyUse": 2.738,
+     "days": 24.5,
+     "lines": [
+      "CG-22"
+     ],
+     "evidence": [
+      "E4"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "cytarabine|20mg/ml|injection|5ml|vial",
+   "label": "20 mg/mL injection, 5 mL vial",
+   "short": "20 mg/mL, 5 mL",
+   "unit": "vial",
+   "onHand": 136,
+   "dailyUse": 6.959,
+   "days": 19.5,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 45,
+     "dailyUse": 3.141,
+     "days": 14.3,
+     "lines": [
+      "EA-E-000246"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 76,
+     "dailyUse": 2.831,
+     "days": 26.8,
+     "lines": [
+      "CG-189"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 15,
+     "dailyUse": 0.987,
+     "days": 15.2,
+     "lines": [
+      "LS-LS-0112"
+     ],
+     "evidence": [
+      "E6"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "cytarabine|20mg/ml|injection|50ml|vial",
+   "label": "20 mg/mL injection, 50 mL vial",
+   "short": "20 mg/mL, 50 mL",
+   "unit": "vial",
+   "onHand": 51,
+   "dailyUse": 2.783,
+   "days": 18.3,
+   "hospitals": [
+    {
+     "hospital": "Corvale General",
+     "onHand": 51,
+     "dailyUse": 2.783,
+     "days": 18.3,
+     "lines": [
+      "CG-23"
+     ],
+     "evidence": [
+      "E5"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -370,14 +506,6 @@
    "inOurStock": true
   },
   {
-   "labeler": "Jazz Pharmaceuticals, Inc.",
-   "ndc11": "68727074501",
-   "dosageForm": "INJECTION, POWDER, LYOPHILIZED, FOR SUSPENSION",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
    "labeler": "Meitheal Pharmaceuticals Inc.",
    "ndc11": "71288010806",
    "dosageForm": "INJECTION, SOLUTION",
@@ -412,6 +540,29 @@
  ],
  "options": [
   {
+   "kind": "transfer",
+   "rank": 1,
+   "title": "Transfer 16 vials of 100 mg/mL, 20 mL from Corvale General to Corvale East",
+   "detail": "Corvale General has 24 days of 100 mg/mL injection, 20 mL vials on hand and can spare 16 vials while keeping two weeks; Corvale East has 8.7 days and would reach 14.",
+   "why": "Same presentation, no clinical change, no new supplier.",
+   "needs": "pharmacy director (transfer request)",
+   "evidence": [
+    "E4",
+    "E1"
+   ],
+   "transfer": {
+    "qty": 16,
+    "unit": "vial",
+    "presentation": "100 mg/mL injection, 20 mL vial",
+    "from": "Corvale General",
+    "to": "Corvale East",
+    "fromDays": 24.5,
+    "toDays": 8.7,
+    "fromAfter": 19,
+    "toAfter": 14
+   }
+  },
+  {
    "kind": "alternate_manufacturer",
    "rank": 2,
    "title": "Buy from Meitheal Pharmaceuticals Inc.",
@@ -419,17 +570,6 @@
    "why": "Same product, no clinical change, plant record clear.",
    "needs": "buyer",
    "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 2,
-   "title": "Same product, alternate manufacturer: Cytarabine 20 mg/mL from Gland Pharma Limited",
-   "detail": "Same product from Gland Pharma Limited; substitute NDC, no clinical change. Approved by Riley Brooks, PharmD on 2026-01-15.",
-   "why": "Already approved by the P&T committee.",
-   "needs": "pharmacist",
-   "evidence": [
-    "E12"
-   ]
   },
   {
    "kind": "alternate_manufacturer",
@@ -441,13 +581,15 @@
    "evidence": []
   },
   {
-   "kind": "alternate_manufacturer",
+   "kind": "alternate_concentration",
    "rank": 3,
-   "title": "Buy from Jazz Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
+   "title": "Same molecule, alternate concentration or vial size: Cytarabine 20 mg/mL from Gland Pharma Limited",
+   "detail": "Same product from Gland Pharma Limited; substitute NDC, no clinical change. Approved by Riley Brooks, PharmD on 2026-01-15.",
+   "why": "Already approved by the P&T committee.",
+   "needs": "pharmacist",
+   "evidence": [
+    "E12"
+   ]
   },
   {
    "kind": "alternate_concentration",
@@ -489,53 +631,57 @@
   "headline": "FDA's records trace our supply to a plant classified VAI 693 days before the shortage posting",
   "sentences": [
    {
-    "text": "FDA inspection 1110628 of Gland Pharma Limited ended on 2019-11-01 and was classified VAI, with the classification letter dated 2019-12-10.",
-    "cites": [
-     "E10"
-    ]
-   },
-   {
-    "text": "That inspection occurred 693 days before FDA posted the cytarabine shortage on 2021-09-24.",
-    "cites": [
-     "D4"
-    ]
-   },
-   {
-    "text": "As of 2026-10-21 the shortage has been on FDA's list for 61 months.",
+    "text": "Cytarabine has been on FDA's shortage list since 2021-09-24 and as of 2026-10-21 has remained listed for 61 months.",
     "cites": [
      "D8"
     ]
    },
    {
-    "text": "The rule-based best option is to buy from Meitheal Pharmaceuticals Inc., which is not on FDA's shortage list today and uses Kindos Pharmaceuticals Co., Ltd. (last inspection VAI 2024-07-19).",
+    "text": "The product used at Corvale General and Corvale East carries NDC 25021022320 and is labeled by Sagent Pharmaceuticals with manufacturing at a plant identified as GLAND.",
     "cites": [
-     "D5"
+     "E4",
+     "E1",
+     "E7"
     ]
    },
    {
-    "text": "An alternate manufacturer option is the same product from Gland Pharma Limited (NDC 68083034305), approved for P&T interchange on 2026-01-15.",
+    "text": "GLAND corresponds to Gland Pharma Limited (FEI 3009056604), which FDA inspected most recently on 2019-11-01 and classified VAI, with the classification letter dated 2019-12-10 — 693 days before FDA posted the shortage on 2021-09-24.",
     "cites": [
-     "D6",
-     "E12"
+     "E11",
+     "E10",
+     "D7"
     ]
    },
    {
-    "text": "Current on-hand supply across Corvale sites ranges from 12 to 23 days at present usage rates.",
+    "text": "Earlier FDA inspections of the same plant in 2013-08-05 and 2015-06-30 were also classified VAI.",
+    "cites": [
+     "E8",
+     "E9"
+    ]
+   },
+   {
+    "text": "A more recent inspection of Gland Pharma Limited on 2023-07-28 was classified NAI.",
+    "cites": [
+     "E11"
+    ]
+   },
+   {
+    "text": "Corvale East holds 25 vials of the 100 mg/mL, 20 mL presentation at 2.9 vials per day, giving 8.7 days on hand, while Corvale General holds 67 vials at 2.7 vials per day, giving 24.5 days on hand.",
     "cites": [
      "D1",
-     "D2",
-     "D3"
+     "D2"
+    ]
+   },
+   {
+    "text": "The top-ranked action is to transfer 16 vials of 100 mg/mL, 20 mL from Corvale General to Corvale East, which would bring Corvale East to about 14 days on hand while Corvale General retains roughly two weeks of supply.",
+    "cites": [
+     "D9"
     ]
    }
   ],
   "verifier": {
    "checked": 8,
-   "rejected": [
-    {
-     "text": "A label for cytarabine 20 mg/mL names Gland Pharma Limited as the manufacturing plant (FEI 3009056604).",
-     "reason": "number 20 is not in the cited evidence"
-    }
-   ],
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -543,45 +689,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -610,80 +777,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:37:27.886Z",
+   "at": "2026-10-22T11:41:50.618Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract 682C3785 scope"
+   "reason": "in contract 4FTEJMCT scope"
   },
   {
-   "at": "2026-10-22T07:37:27.886Z",
+   "at": "2026-10-22T11:41:50.618Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 682C3785 scope"
+   "reason": "in contract 4FTEJMCT scope"
   },
   {
-   "at": "2026-10-22T07:37:31.171Z",
+   "at": "2026-10-22T11:41:54.058Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 682C3785 scope"
+   "reason": "in contract 4FTEJMCT scope"
   },
   {
-   "at": "2026-10-22T07:37:31.827Z",
+   "at": "2026-10-22T11:41:54.456Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 682C3785 scope"
+   "reason": "in contract 4FTEJMCT scope"
   },
   {
-   "at": "2026-10-22T07:37:32.261Z",
+   "at": "2026-10-22T11:41:54.666Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 682C3785 scope"
+   "reason": "in contract 4FTEJMCT scope"
   },
   {
-   "at": "2026-10-22T07:37:34.405Z",
+   "at": "2026-10-22T11:41:55.815Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 682C3785 scope"
+   "reason": "in contract 4FTEJMCT scope"
   },
   {
-   "at": "2026-10-22T07:37:35.511Z",
+   "at": "2026-10-22T11:41:56.369Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 682C3785 scope"
+   "reason": "in contract 4FTEJMCT scope"
   },
   {
-   "at": "2026-10-22T07:37:37.012Z",
+   "at": "2026-10-22T11:41:57.244Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 682C3785 scope"
+   "reason": "in contract 4FTEJMCT scope"
   },
   {
-   "at": "2026-10-22T07:37:38.506Z",
+   "at": "2026-10-22T11:41:58.678Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract 682C3785 scope"
+   "reason": "in contract 4FTEJMCT scope"
   },
   {
-   "at": "2026-10-22T07:37:38.512Z",
+   "at": "2026-10-22T11:41:58.679Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract 682C3785 scope"
+   "reason": "in contract 4FTEJMCT scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-16a22b",
+   "queryId": "Q-e92899",
    "row": 0,
    "label": "Corvale East: CYTARABINE 100MG/ML 20ML SDV",
    "fields": {
@@ -694,19 +861,24 @@
     "description": "CYTARABINE 100MG/ML 20ML SDV",
     "on_hand": "25.00",
     "daily_use": "2.882",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "cytarabine",
     "labeler_name": "Sagent Pharmaceuticals",
     "package_ndc": "25021-223-20",
     "spl_set_id": "9bc7f6c2-4b16-449b-b383-76106540206c",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRATHECAL|INTRAVENOUS|SUBCUTANEOUS"
+    "route": "INTRATHECAL|INTRAVENOUS|SUBCUTANEOUS",
+    "strength": "CYTARABINE 100 mg/mL",
+    "unit_content": "20 mL",
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-16a22b",
+   "queryId": "Q-e92899",
    "row": 1,
    "label": "Corvale East: CYTARABINE 20MG/ML 5ML SDV",
    "fields": {
@@ -717,88 +889,108 @@
     "description": "CYTARABINE 20MG/ML 5ML SDV",
     "on_hand": "45.00",
     "daily_use": "3.141",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "5.00",
+    "unit_basis": "packages of 5, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Cytarabine",
     "labeler_name": "Gland Pharma Limited",
     "package_ndc": "68083-343-05",
     "spl_set_id": "7ab50348-ca78-46a5-aba6-c35b6b21fbfe",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRATHECAL|INTRAVENOUS|SUBCUTANEOUS"
+    "route": "INTRATHECAL|INTRAVENOUS|SUBCUTANEOUS",
+    "strength": "CYTARABINE 20 mg/mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-16a22b",
+   "queryId": "Q-e92899",
    "row": 2,
-   "label": "Corvale General: Cytarabine",
+   "label": "Corvale General: Cytarabine 20 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-189",
     "ndc11": "68083034305",
     "ndc_as_recorded": "68083034305",
-    "description": "Cytarabine",
-    "on_hand": "76.41",
+    "description": "Cytarabine 20 mg/mL",
+    "on_hand": "76.00",
     "daily_use": "2.831",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Cytarabine",
     "labeler_name": "Gland Pharma Limited",
     "package_ndc": "68083-343-05",
     "spl_set_id": "7ab50348-ca78-46a5-aba6-c35b6b21fbfe",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRATHECAL|INTRAVENOUS|SUBCUTANEOUS"
+    "route": "INTRATHECAL|INTRAVENOUS|SUBCUTANEOUS",
+    "strength": "CYTARABINE 20 mg/mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-16a22b",
+   "queryId": "Q-e92899",
    "row": 3,
-   "label": "Corvale General: cytarabine",
+   "label": "Corvale General: cytarabine 100 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-22",
     "ndc11": "25021022320",
     "ndc_as_recorded": "25021022320",
-    "description": "cytarabine",
-    "on_hand": "67.30",
+    "description": "cytarabine 100 mg/mL",
+    "on_hand": "67.00",
     "daily_use": "2.738",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "cytarabine",
     "labeler_name": "Sagent Pharmaceuticals",
     "package_ndc": "25021-223-20",
     "spl_set_id": "9bc7f6c2-4b16-449b-b383-76106540206c",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRATHECAL|INTRAVENOUS|SUBCUTANEOUS"
+    "route": "INTRATHECAL|INTRAVENOUS|SUBCUTANEOUS",
+    "strength": "CYTARABINE 100 mg/mL",
+    "unit_content": "20 mL",
+    "pkg_unit": "vial"
    }
   },
   "E5": {
    "id": "E5",
-   "queryId": "Q-16a22b",
+   "queryId": "Q-e92899",
    "row": 4,
-   "label": "Corvale General: CYTARABINE",
+   "label": "Corvale General: CYTARABINE 20 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-23",
     "ndc11": "61703030346",
     "ndc_as_recorded": "61703030346",
-    "description": "CYTARABINE",
-    "on_hand": "51.32",
+    "description": "CYTARABINE 20 mg/mL",
+    "on_hand": "51.00",
     "daily_use": "2.783",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "CYTARABINE",
     "labeler_name": "Hospira, Inc.",
     "package_ndc": "61703-303-46",
     "spl_set_id": null,
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "CYTARABINE 20 mg/mL",
+    "unit_content": "50 mL",
+    "pkg_unit": "vial"
    }
   },
   "E6": {
    "id": "E6",
-   "queryId": "Q-16a22b",
+   "queryId": "Q-e92899",
    "row": 5,
    "label": "Corvale Lakeside: Cytarabine 20 mg/mL 5 mL vial",
    "fields": {
@@ -810,13 +1002,18 @@
     "on_hand": "15.00",
     "daily_use": "0.987",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Cytarabine",
     "labeler_name": "Gland Pharma Limited",
     "package_ndc": "68083-343-05",
     "spl_set_id": "7ab50348-ca78-46a5-aba6-c35b6b21fbfe",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRATHECAL|INTRAVENOUS|SUBCUTANEOUS"
+    "route": "INTRATHECAL|INTRAVENOUS|SUBCUTANEOUS",
+    "strength": "CYTARABINE 20 mg/mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E7": {
@@ -939,40 +1136,82 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 70 units of cytarabine at 6 a day: 12 days on hand",
+   "label": "Corvale East holds 25 vials of cytarabine 100 mg/mL, 20 mL at 2.9 a day: 8.7 days on hand",
    "fields": {
     "hospital": "Corvale East",
-    "on_hand": 70,
-    "daily_use": 6,
-    "days_on_hand": 12
+    "presentation": "100 mg/mL injection, 20 mL vial",
+    "on_hand": 25,
+    "daily_use": 2.9,
+    "days_on_hand": 8.7
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 195 units of cytarabine at 8.4 a day: 23 days on hand",
+   "label": "Corvale General holds 67 vials of cytarabine 100 mg/mL, 20 mL at 2.7 a day: 24.5 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 195,
-    "daily_use": 8.4,
-    "days_on_hand": 23
+    "presentation": "100 mg/mL injection, 20 mL vial",
+    "on_hand": 67,
+    "daily_use": 2.7,
+    "days_on_hand": 24.5
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 15 units of cytarabine at 1 a day: 15 days on hand",
+   "label": "Corvale East holds 45 vials of cytarabine 20 mg/mL, 5 mL at 3.1 a day: 14.3 days on hand",
    "fields": {
-    "hospital": "Corvale Lakeside",
-    "on_hand": 15,
-    "daily_use": 1,
-    "days_on_hand": 15
+    "hospital": "Corvale East",
+    "presentation": "20 mg/mL injection, 5 mL vial",
+    "on_hand": 45,
+    "daily_use": 3.1,
+    "days_on_hand": 14.3
    }
   },
   "D4": {
    "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 76 vials of cytarabine 20 mg/mL, 5 mL at 2.8 a day: 26.8 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "20 mg/mL injection, 5 mL vial",
+    "on_hand": 76,
+    "daily_use": 2.8,
+    "days_on_hand": 26.8
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale Lakeside holds 15 vials of cytarabine 20 mg/mL, 5 mL at 1 a day: 15.2 days on hand",
+   "fields": {
+    "hospital": "Corvale Lakeside",
+    "presentation": "20 mg/mL injection, 5 mL vial",
+    "on_hand": 15,
+    "daily_use": 1,
+    "days_on_hand": 15.2
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 51 vials of cytarabine 20 mg/mL, 50 mL at 2.8 a day: 18.3 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "20 mg/mL injection, 50 mL vial",
+    "on_hand": 51,
+    "daily_use": 2.8,
+    "days_on_hand": 18.3
+   }
+  },
+  "D7": {
+   "id": "D7",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 1110628 ended 2019-11-01, classified VAI; classification letter 2019-12-10 — 693 days before FDA posted the shortage on 2021-09-24",
@@ -980,36 +1219,6 @@
     "date": "2019-11-01",
     "posted": "2021-09-24",
     "days": 693
-   }
-  },
-  "D5": {
-   "id": "D5",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 2 by rule: Buy from Meitheal Pharmaceuticals Inc.. Not on FDA's shortage list today. Plants: Kindos Pharmaceuticals Co., Ltd. (last inspection VAI 2024-07-19).",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
-   }
-  },
-  "D6": {
-   "id": "D6",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 2 by rule: Same product, alternate manufacturer: Cytarabine 20 mg/mL from Gland Pharma Limited. Same product from Gland Pharma Limited; substitute NDC, no clinical change. Approved by Riley Brooks, PharmD on 2026-01-15.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "pharmacist"
-   }
-  },
-  "D7": {
-   "id": "D7",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 3 by rule: Buy from Fresenius Kabi USA, LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
    }
   },
   "D8": {
@@ -1022,166 +1231,215 @@
     "posted": "2021-09-24",
     "months": 61
    }
+  },
+  "D9": {
+   "id": "D9",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 16 vials of 100 mg/mL, 20 mL from Corvale General to Corvale East. Corvale General has 24 days of 100 mg/mL injection, 20 mL vials on hand and can spare 16 vials while keeping two weeks; Corvale East has 8.7 days and would reach 14.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D10": {
+   "id": "D10",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from Meitheal Pharmaceuticals Inc.. Not on FDA's shortage list today. Plants: Kindos Pharmaceuticals Co., Ltd. (last inspection VAI 2024-07-19).",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D11": {
+   "id": "D11",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Fresenius Kabi USA, LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
   }
  },
  "queries": {
-  "Q-16a22b": {
-   "id": "Q-16a22b",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%cytarabine%' OR lower(s.description) LIKE '%cytarabine%' ORDER BY s.hospital, s.item_key",
-   "ms": 3277,
+  "Q-e92899": {
+   "id": "Q-e92899",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cytarabine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cytarabine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3438,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:37:31.163Z",
+   "ranAt": "2026-10-22T11:41:54.056Z",
    "rows": 6
   },
   "Q-7eaf8f": {
    "id": "Q-7eaf8f",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('9bc7f6c2-4b16-449b-b383-76106540206c', '7ab50348-ca78-46a5-aba6-c35b6b21fbfe') ORDER BY ps.set_id, ps.establishment",
-   "ms": 652,
+   "ms": 396,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:37:31.823Z",
+   "ranAt": "2026-10-22T11:41:54.454Z",
    "rows": 2
   },
-  "Q-284867": {
-   "id": "Q-284867",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%cytarabine%' ORDER BY status, company_name, package_ndc",
-   "ms": 221,
+  "Q-e3daf4": {
+   "id": "Q-e3daf4",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cytarabine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 102,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:37:32.048Z",
+   "ranAt": "2026-10-22T11:41:54.558Z",
    "rows": 0
   },
-  "Q-14b39c": {
-   "id": "Q-14b39c",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%cytarabine%' ORDER BY first_posting",
-   "ms": 206,
+  "Q-06ec64": {
+   "id": "Q-06ec64",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cytarabine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 106,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:37:32.257Z",
+   "ranAt": "2026-10-22T11:41:54.665Z",
    "rows": 1
   },
-  "Q-8e3f43": {
-   "id": "Q-8e3f43",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%cytarabine%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2141,
+  "Q-cfb58a": {
+   "id": "Q-cfb58a",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cytarabine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1147,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:37:34.402Z",
-   "rows": 16
+   "ranAt": "2026-10-22T11:41:55.813Z",
+   "rows": 14
   },
   "Q-73c828": {
    "id": "Q-73c828",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3009056604', '3008865184') ORDER BY fei, end_date",
-   "ms": 469,
+   "ms": 233,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:37:34.874Z",
+   "ranAt": "2026-10-22T11:41:56.048Z",
    "rows": 14
   },
   "Q-25e310": {
    "id": "Q-25e310",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3009056604', '3008865184') ORDER BY fei, action_date",
-   "ms": 175,
+   "ms": 104,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:37:35.051Z",
+   "ranAt": "2026-10-22T11:41:56.154Z",
    "rows": 0
   },
   "Q-5d57e3": {
    "id": "Q-5d57e3",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3009056604') OR (fei_match <> 'name_and_city' AND firm_key IN ('gland')) ORDER BY date_published",
-   "ms": 192,
+   "ms": 93,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:37:35.248Z",
+   "ranAt": "2026-10-22T11:41:56.247Z",
    "rows": 0
   },
-  "Q-6f8750": {
-   "id": "Q-6f8750",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('gland', 'sagent', 'hospira') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%cytarabine%' ORDER BY initiation_date",
-   "ms": 256,
+  "Q-0b4f93": {
+   "id": "Q-0b4f93",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('gland', 'sagent', 'hospira') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cytarabine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 120,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:37:35.508Z",
+   "ranAt": "2026-10-22T11:41:56.368Z",
    "rows": 0
   },
   "Q-b077c0": {
    "id": "Q-b077c0",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('25021022320', '68083034305', '61703030346')",
-   "ms": 1497,
+   "ms": 873,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:37:37.008Z",
+   "ranAt": "2026-10-22T11:41:57.243Z",
    "rows": 2
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-e02318": {
-   "id": "Q-e02318",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%cytarabine%'",
-   "ms": 1490,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:37:38.503Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-0abb71": {
+   "id": "Q-0abb71",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*cytarabine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1433,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:41:58.677Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 15947,
+  "zetarisMs": 18253,
   "modelCalls": 1,
-  "tokensIn": 1506,
-  "tokensOut": 461,
+  "tokensIn": 2626,
+  "tokensOut": 578,
   "mode": "live"
  },
  "slug": "cytarabine",
@@ -1199,7 +1457,7 @@
     "id": "hospital-item:hospital-item:CG-189",
     "type": "HospitalItem",
     "key": "hospital-item:CG-189",
-    "label": "Corvale General: Cytarabine",
+    "label": "Corvale General: Cytarabine 20 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-189"
     },
@@ -1210,7 +1468,7 @@
     "id": "hospital-item:hospital-item:CG-22",
     "type": "HospitalItem",
     "key": "hospital-item:CG-22",
-    "label": "Corvale General: cytarabine",
+    "label": "Corvale General: cytarabine 100 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-22"
     },
@@ -1221,7 +1479,7 @@
     "id": "hospital-item:hospital-item:CG-23",
     "type": "HospitalItem",
     "key": "hospital-item:CG-23",
-    "label": "Corvale General: CYTARABINE",
+    "label": "Corvale General: CYTARABINE 20 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-23"
     },
@@ -1393,7 +1651,7 @@
     },
     "facts": [
      {
-      "id": "fact_ce968ecba8eb4db5",
+      "id": "fact_c70ac041bc2382ee",
       "about": "inspection:fda-inspection:1110628",
       "predicate": "classification",
       "value": "VAI",
@@ -1401,9 +1659,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:37:35.511Z"
+       "at": "2026-10-22T11:41:56.369Z"
       },
-      "assertedAt": "2026-10-22T07:37:35.511Z"
+      "assertedAt": "2026-10-22T11:41:56.369Z"
      }
     ],
     "depth": 4
@@ -1419,7 +1677,7 @@
     },
     "facts": [
      {
-      "id": "fact_4a97eabb7bda03cd",
+      "id": "fact_18f7863bfa6819f3",
       "about": "inspection:fda-inspection:848025",
       "predicate": "classification",
       "value": "VAI",
@@ -1427,9 +1685,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:37:35.510Z"
+       "at": "2026-10-22T11:41:56.369Z"
       },
-      "assertedAt": "2026-10-22T07:37:35.510Z"
+      "assertedAt": "2026-10-22T11:41:56.369Z"
      }
     ],
     "depth": 4
@@ -1445,7 +1703,7 @@
     },
     "facts": [
      {
-      "id": "fact_806c5779709350ba",
+      "id": "fact_f2e458ff80ef4b59",
       "about": "inspection:fda-inspection:936901",
       "predicate": "classification",
       "value": "VAI",
@@ -1453,9 +1711,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:37:35.510Z"
+       "at": "2026-10-22T11:41:56.369Z"
       },
-      "assertedAt": "2026-10-22T07:37:35.510Z"
+      "assertedAt": "2026-10-22T11:41:56.369Z"
      }
     ],
     "depth": 4
@@ -1467,11 +1725,11 @@
     "from": "hospital-item:hospital-item:CG-189",
     "to": "package:ndc-package:68083-343-05",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:37:31.168Z",
+    "validFrom": "2026-10-22T11:41:54.058Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:31.168Z"
+     "at": "2026-10-22T11:41:54.058Z"
     }
    },
    {
@@ -1479,11 +1737,11 @@
     "from": "hospital-item:hospital-item:CG-22",
     "to": "package:ndc-package:25021-223-20",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:37:31.169Z",
+    "validFrom": "2026-10-22T11:41:54.058Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:31.169Z"
+     "at": "2026-10-22T11:41:54.058Z"
     }
    },
    {
@@ -1491,11 +1749,11 @@
     "from": "hospital-item:hospital-item:CG-23",
     "to": "package:ndc-package:61703-303-46",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:37:31.169Z",
+    "validFrom": "2026-10-22T11:41:54.058Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:31.169Z"
+     "at": "2026-10-22T11:41:54.058Z"
     }
    },
    {
@@ -1503,11 +1761,11 @@
     "from": "hospital-item:hospital-item:EA-E-000143",
     "to": "package:ndc-package:25021-223-20",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:37:31.167Z",
+    "validFrom": "2026-10-22T11:41:54.057Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:31.167Z"
+     "at": "2026-10-22T11:41:54.057Z"
     }
    },
    {
@@ -1515,11 +1773,11 @@
     "from": "hospital-item:hospital-item:EA-E-000246",
     "to": "package:ndc-package:68083-343-05",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:37:31.168Z",
+    "validFrom": "2026-10-22T11:41:54.058Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:31.168Z"
+     "at": "2026-10-22T11:41:54.058Z"
     }
    },
    {
@@ -1527,11 +1785,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0112",
     "to": "package:ndc-package:68083-343-05",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:37:31.170Z",
+    "validFrom": "2026-10-22T11:41:54.058Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:31.170Z"
+     "at": "2026-10-22T11:41:54.058Z"
     }
    },
    {
@@ -1539,11 +1797,11 @@
     "from": "package:ndc-package:68083-343-05",
     "to": "product:ndc-product:68083-343",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:37:31.168Z",
+    "validFrom": "2026-10-22T11:41:54.058Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:31.168Z"
+     "at": "2026-10-22T11:41:54.058Z"
     }
    },
    {
@@ -1551,11 +1809,11 @@
     "from": "package:ndc-package:25021-223-20",
     "to": "product:ndc-product:25021-223",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:37:31.167Z",
+    "validFrom": "2026-10-22T11:41:54.057Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:31.167Z"
+     "at": "2026-10-22T11:41:54.057Z"
     }
    },
    {
@@ -1563,11 +1821,11 @@
     "from": "package:ndc-package:61703-303-46",
     "to": "product:ndc-product:61703-303",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:37:31.170Z",
+    "validFrom": "2026-10-22T11:41:54.058Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:31.170Z"
+     "at": "2026-10-22T11:41:54.058Z"
     }
    },
    {
@@ -1575,11 +1833,11 @@
     "from": "product:ndc-product:68083-343",
     "to": "drug:generic:cytarabine",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:37:31.168Z",
+    "validFrom": "2026-10-22T11:41:54.058Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:31.168Z"
+     "at": "2026-10-22T11:41:54.058Z"
     }
    },
    {
@@ -1587,11 +1845,11 @@
     "from": "product:ndc-product:68083-343",
     "to": "labeler:ndc-labeler:68083",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:37:31.168Z",
+    "validFrom": "2026-10-22T11:41:54.058Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:31.168Z"
+     "at": "2026-10-22T11:41:54.058Z"
     }
    },
    {
@@ -1599,11 +1857,11 @@
     "from": "product:ndc-product:68083-343",
     "to": "site:fei:3009056604",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:37:35.510Z",
+    "validFrom": "2026-10-22T11:41:56.369Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:35.510Z"
+     "at": "2026-10-22T11:41:56.369Z"
     }
    },
    {
@@ -1611,11 +1869,11 @@
     "from": "product:ndc-product:25021-223",
     "to": "drug:generic:cytarabine",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:37:31.167Z",
+    "validFrom": "2026-10-22T11:41:54.058Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:31.167Z"
+     "at": "2026-10-22T11:41:54.058Z"
     }
    },
    {
@@ -1623,11 +1881,11 @@
     "from": "product:ndc-product:25021-223",
     "to": "labeler:ndc-labeler:25021",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:37:31.167Z",
+    "validFrom": "2026-10-22T11:41:54.058Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:31.167Z"
+     "at": "2026-10-22T11:41:54.058Z"
     }
    },
    {
@@ -1635,11 +1893,11 @@
     "from": "product:ndc-product:61703-303",
     "to": "drug:generic:cytarabine",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:37:31.170Z",
+    "validFrom": "2026-10-22T11:41:54.058Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:31.170Z"
+     "at": "2026-10-22T11:41:54.058Z"
     }
    },
    {
@@ -1647,11 +1905,11 @@
     "from": "product:ndc-product:61703-303",
     "to": "labeler:ndc-labeler:61703",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:37:31.170Z",
+    "validFrom": "2026-10-22T11:41:54.058Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:31.170Z"
+     "at": "2026-10-22T11:41:54.058Z"
     }
    },
    {
@@ -1659,11 +1917,11 @@
     "from": "inspection:fda-inspection:848025",
     "to": "site:fei:3009056604",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:37:35.510Z",
+    "validFrom": "2026-10-22T11:41:56.369Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:35.510Z"
+     "at": "2026-10-22T11:41:56.369Z"
     }
    },
    {
@@ -1671,11 +1929,11 @@
     "from": "inspection:fda-inspection:936901",
     "to": "site:fei:3009056604",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:37:35.510Z",
+    "validFrom": "2026-10-22T11:41:56.369Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:35.510Z"
+     "at": "2026-10-22T11:41:56.369Z"
     }
    },
    {
@@ -1683,11 +1941,11 @@
     "from": "inspection:fda-inspection:1110628",
     "to": "site:fei:3009056604",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:37:35.511Z",
+    "validFrom": "2026-10-22T11:41:56.369Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:37:35.511Z"
+     "at": "2026-10-22T11:41:56.369Z"
     }
    }
   ],

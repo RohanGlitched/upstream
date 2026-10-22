@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-b26bc7",
+ "id": "case-2026-10-22-6403df",
  "question": "Why is sulfamethoxazole and trimethoprim short, and what do we do?",
- "askedAt": "2026-10-22T09:04:17.282Z",
+ "askedAt": "2026-10-22T12:45:34.534Z",
  "asOf": "2026-10-21",
  "molecule": "sulfamethoxazole and trimethoprim",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5HDMTQN3TVH2MEF0GF7KYD8",
+  "contractId": "01M5HTA6WMPSSB2W84MNS423NC",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-134233"
+    "Q-ce5cda"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2904,
+   "ms": 3141,
    "rows": 2,
-   "finding": "2 stock lines across 2 hospitals.",
+   "finding": "2 stock lines across 2 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-70e005"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1033,
+   "ms": 421,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-c68ccf",
-    "Q-80bdb1"
+    "Q-b19ec4",
+    "Q-1ce99c"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 422,
+   "ms": 200,
    "rows": 0,
    "finding": "Not on FDA's current shortage list.",
    "status": "empty"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-0d49e3"
+    "Q-7326b4"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2242,
+   "ms": 1134,
    "rows": 257,
    "finding": "38 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-4e29ef",
     "Q-54cfbe",
     "Q-827b3d",
-    "Q-8c6f6b"
+    "Q-b13772"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 2133,
+   "ms": 545,
    "rows": 15,
    "finding": "14 inspections (0 OAI at our plants), 1 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 2277,
+   "ms": 550,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-858af7"
+    "Q-a6977b"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2438,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1225,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 2,
+   "ms": 1,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -153,22 +164,65 @@
    "onHand": 401,
    "dailyUse": 14.884,
    "days": 26.9,
-   "unit": "package",
+   "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "sulfamethoxazole and trimethoprim|800mg+160mg|tablet||tablet",
+   "presentationLabel": "800 mg + 160 mg tablet",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-343",
    "ndc11": "66267019610",
-   "description": "Sulfamethoxazole and Trimethoprim",
+   "description": "Sulfamethoxazole and Trimethoprim 800 mg/1",
    "labeler": "NuCare Pharmaceuticals, Inc.",
-   "onHand": 469.28,
+   "onHand": 469,
    "dailyUse": 15.893,
    "days": 29.5,
    "unit": "tablet",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "sulfamethoxazole and trimethoprim|800mg+160mg|tablet||tablet",
+   "presentationLabel": "800 mg + 160 mg tablet",
    "evidence": "E2"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "sulfamethoxazole and trimethoprim|800mg+160mg|tablet||tablet",
+   "label": "800 mg + 160 mg tablet",
+   "short": "800 mg + 160 mg",
+   "unit": "tablet",
+   "onHand": 870,
+   "dailyUse": 30.777,
+   "days": 28.3,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 401,
+     "dailyUse": 14.884,
+     "days": 26.9,
+     "lines": [
+      "EA-E-000232"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 469,
+     "dailyUse": 15.893,
+     "days": 29.5,
+     "lines": [
+      "CG-343"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -624,34 +678,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from A-S Medication Solutions",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Advanced Rx Pharmacy of Tennessee, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from American Health Packaging",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Asclemed USA, Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -687,24 +714,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Bryant Ranch Prepack",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Cardinal Health 107, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Chartwell RX, LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -732,24 +741,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Denton Pharma, Inc. DBA Northwind Pharmaceuticals",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Golden State Medical Supply, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Major Pharmaceuticals",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -760,33 +751,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from NCS HealthCare of KY, LLC dba Vangard Labs",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Northwind Health Company, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals,Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from PD-Rx Pharmaceuticals, Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -813,43 +777,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Preferred Pharmaceuticals Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Proficient Rx LP",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from QPharma, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Quality Care Products LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from REMEDYREPACK INC.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -982,52 +910,60 @@
   }
  ],
  "explanation": {
-  "state": "confirmed",
-  "headline": "FDA's records trace this shortage to a plant on our own labels",
+  "state": "check",
+  "headline": "Sulfamethoxazole and trimethoprim is not on FDA's shortage list as of 2026-10-21; current inventory shows 26.9 days at Corvale East and 29.5 days at Corvale General",
   "sentences": [
    {
-    "text": "The product label identifies NuCare Pharmaceuticals, Inc. as the registered plant for this drug.",
+    "text": "FDA's drug shortage list does not include sulfamethoxazole and trimethoprim as of 2026-10-21.",
     "cites": [
-     "E9"
+     "D3"
     ]
    },
    {
-    "text": "FDA issued a Warning Letter to NuCare Pharmaceuticals, Inc. on 2019-09-27.",
-    "cites": [
-     "E8"
-    ]
-   },
-   {
-    "text": "The plant's most recent inspection was classified NAI on 2025-03-12.",
-    "cites": [
-     "E9"
-    ]
-   },
-   {
-    "text": "Corvale East has 27 days of supply on hand at current usage.",
+    "text": "Corvale East holds 401 tablets of the 800 mg + 160 mg presentation with 14.9 tablets used per day, providing 26.9 days on hand.",
     "cites": [
      "D1"
     ]
    },
    {
-    "text": "Corvale General has 30 days of supply on hand at current usage.",
+    "text": "Corvale General holds 469 tablets of the same presentation with 15.9 tablets used per day, providing 29.5 days on hand.",
     "cites": [
      "D2"
+    ]
+   },
+   {
+    "text": "The product label identifies NuCare Pharmaceuticals, Inc. as the labeler and a registered repack plant (FEI 3003294404) last inspected with NAI classification on 2025-03-12.",
+    "cites": [
+     "E9"
+    ]
+   },
+   {
+    "text": "FDA inspection records for that plant show multiple VAI classifications from 2010 through 2020 and a Warning Letter issued on 2019-09-27.",
+    "cites": [
+     "E3",
+     "E4",
+     "E5",
+     "E7",
+     "E8"
+    ]
+   },
+   {
+    "text": "The rule-based alternate manufacturer ranked first is Amneal Pharmaceuticals LLC, whose plant Amneal Pharmaceuticals Private Limited received an NAI classification on 2024-07-19.",
+    "cites": [
+     "D4"
+    ]
+   },
+   {
+    "text": "Buyer should verify current allocation status with Amneal Pharmaceuticals LLC and monitor the NuCare plant's inspection history for any future regulatory actions.",
+    "cites": [
+     "D4",
+     "E9"
     ]
    }
   ],
   "verifier": {
-   "checked": 7,
-   "rejected": [
-    {
-     "text": "That Warning Letter was issued 2551 days before the posting date of 2026-10-21.",
-     "reason": "date 2026-10-21 is not in the cited evidence"
-    },
-    {
-     "text": "FDA's records trace our supply to a plant that received a Warning Letter 2551 days before the posting",
-     "reason": "headline: number 2551 is not in the cited evidence"
-    }
-   ],
+   "checked": 8,
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -1035,45 +971,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -1088,80 +1045,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T09:04:03.829Z",
+   "at": "2026-10-22T12:45:27.316Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract 0GF7KYD8 scope"
+   "reason": "in contract MNS423NC scope"
   },
   {
-   "at": "2026-10-22T09:04:03.829Z",
+   "at": "2026-10-22T12:45:27.316Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 0GF7KYD8 scope"
+   "reason": "in contract MNS423NC scope"
   },
   {
-   "at": "2026-10-22T09:04:06.734Z",
+   "at": "2026-10-22T12:45:30.457Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 0GF7KYD8 scope"
+   "reason": "in contract MNS423NC scope"
   },
   {
-   "at": "2026-10-22T09:04:07.767Z",
+   "at": "2026-10-22T12:45:30.879Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 0GF7KYD8 scope"
+   "reason": "in contract MNS423NC scope"
   },
   {
-   "at": "2026-10-22T09:04:08.189Z",
+   "at": "2026-10-22T12:45:31.078Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 0GF7KYD8 scope"
+   "reason": "in contract MNS423NC scope"
   },
   {
-   "at": "2026-10-22T09:04:10.432Z",
+   "at": "2026-10-22T12:45:32.212Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 0GF7KYD8 scope"
+   "reason": "in contract MNS423NC scope"
   },
   {
-   "at": "2026-10-22T09:04:12.566Z",
+   "at": "2026-10-22T12:45:32.758Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 0GF7KYD8 scope"
+   "reason": "in contract MNS423NC scope"
   },
   {
-   "at": "2026-10-22T09:04:14.842Z",
+   "at": "2026-10-22T12:45:33.309Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 0GF7KYD8 scope"
+   "reason": "in contract MNS423NC scope"
   },
   {
-   "at": "2026-10-22T09:04:17.280Z",
+   "at": "2026-10-22T12:45:34.533Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract 0GF7KYD8 scope"
+   "reason": "in contract MNS423NC scope"
   },
   {
-   "at": "2026-10-22T09:04:17.282Z",
+   "at": "2026-10-22T12:45:34.534Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract 0GF7KYD8 scope"
+   "reason": "in contract MNS423NC scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-134233",
+   "queryId": "Q-ce5cda",
    "row": 0,
    "label": "Corvale East: SULFAMETHOXAZOLE AND TRIMETHOPRIM 800MG TAB",
    "fields": {
@@ -1172,37 +1129,47 @@
     "description": "SULFAMETHOXAZOLE AND TRIMETHOPRIM 800MG TAB",
     "on_hand": "401.00",
     "daily_use": "14.884",
-    "unit": "package",
+    "unit": "tablet",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Sulfamethoxazole and Trimethoprim",
     "labeler_name": "NuCare Pharmaceuticals, Inc.",
     "package_ndc": "66267-196-10",
     "spl_set_id": "3ed6bf70-2841-04f8-e054-00144ff8d46c",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "SULFAMETHOXAZOLE 800 mg/1; TRIMETHOPRIM 160 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-134233",
+   "queryId": "Q-ce5cda",
    "row": 1,
-   "label": "Corvale General: Sulfamethoxazole and Trimethoprim",
+   "label": "Corvale General: Sulfamethoxazole and Trimethoprim 800 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-343",
     "ndc11": "66267019610",
     "ndc_as_recorded": "66267019610",
-    "description": "Sulfamethoxazole and Trimethoprim",
-    "on_hand": "469.28",
+    "description": "Sulfamethoxazole and Trimethoprim 800 mg/1",
+    "on_hand": "469.00",
     "daily_use": "15.893",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Sulfamethoxazole and Trimethoprim",
     "labeler_name": "NuCare Pharmaceuticals, Inc.",
     "package_ndc": "66267-196-10",
     "spl_set_id": "3ed6bf70-2841-04f8-e054-00144ff8d46c",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "SULFAMETHOXAZOLE 800 mg/1; TRIMETHOPRIM 160 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E3": {
@@ -1319,185 +1286,246 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 401 units of sulfamethoxazole and trimethoprim at 14.9 a day: 27 days on hand",
+   "label": "Corvale East holds 401 tablets of sulfamethoxazole and trimethoprim 800 mg + 160 mg at 14.9 a day: 26.9 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "800 mg + 160 mg tablet",
     "on_hand": 401,
     "daily_use": 14.9,
-    "days_on_hand": 27
+    "days_on_hand": 26.9
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 469 units of sulfamethoxazole and trimethoprim at 15.9 a day: 30 days on hand",
+   "label": "Corvale General holds 469 tablets of sulfamethoxazole and trimethoprim 800 mg + 160 mg at 15.9 a day: 29.5 days on hand",
    "fields": {
     "hospital": "Corvale General",
+    "presentation": "800 mg + 160 mg tablet",
     "on_hand": 469,
     "daily_use": 15.9,
-    "days_on_hand": 30
+    "days_on_hand": 29.5
+   }
+  },
+  "D3": {
+   "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "sulfamethoxazole and trimethoprim is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from Amneal Pharmaceuticals LLC. Not on FDA's shortage list today. Plants: Amneal Pharmaceuticals Private Limited (last inspection NAI 2024-07-19).",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from Amneal Pharmaceuticals of New York LLC. Not on FDA's shortage list today. Plants: AMNEAL PHARMS NY.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Advanced Rx Pharmacy of Tennessee, LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-134233": {
-   "id": "Q-134233",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%sulfamethoxazole%' OR lower(s.description) LIKE '%sulfamethoxazole%' ORDER BY s.hospital, s.item_key",
-   "ms": 2903,
+  "Q-ce5cda": {
+   "id": "Q-ce5cda",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*sulfamethoxazole(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*sulfamethoxazole(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3139,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T09:04:06.732Z",
+   "ranAt": "2026-10-22T12:45:30.455Z",
    "rows": 2
   },
   "Q-70e005": {
    "id": "Q-70e005",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('3ed6bf70-2841-04f8-e054-00144ff8d46c') ORDER BY ps.set_id, ps.establishment",
-   "ms": 1032,
+   "ms": 420,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T09:04:07.766Z",
+   "ranAt": "2026-10-22T12:45:30.877Z",
    "rows": 1
   },
-  "Q-c68ccf": {
-   "id": "Q-c68ccf",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%sulfamethoxazole%' ORDER BY status, company_name, package_ndc",
-   "ms": 200,
+  "Q-b19ec4": {
+   "id": "Q-b19ec4",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*sulfamethoxazole(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 96,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T09:04:07.967Z",
+   "ranAt": "2026-10-22T12:45:30.975Z",
    "rows": 0
   },
-  "Q-80bdb1": {
-   "id": "Q-80bdb1",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%sulfamethoxazole%' ORDER BY first_posting",
-   "ms": 219,
+  "Q-1ce99c": {
+   "id": "Q-1ce99c",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*sulfamethoxazole(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 101,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T09:04:08.187Z",
+   "ranAt": "2026-10-22T12:45:31.077Z",
    "rows": 0
   },
-  "Q-0d49e3": {
-   "id": "Q-0d49e3",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%sulfamethoxazole%' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2240,
+  "Q-7326b4": {
+   "id": "Q-7326b4",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*sulfamethoxazole(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1133,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T09:04:10.429Z",
+   "ranAt": "2026-10-22T12:45:32.211Z",
    "rows": 257
   },
   "Q-4e29ef": {
    "id": "Q-4e29ef",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3003294404', '3010661577') ORDER BY fei, end_date",
-   "ms": 846,
+   "ms": 224,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T09:04:11.277Z",
+   "ranAt": "2026-10-22T12:45:32.437Z",
    "rows": 14
   },
   "Q-54cfbe": {
    "id": "Q-54cfbe",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3003294404', '3010661577') ORDER BY fei, action_date",
-   "ms": 458,
+   "ms": 110,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T09:04:11.737Z",
+   "ranAt": "2026-10-22T12:45:32.548Z",
    "rows": 1
   },
   "Q-827b3d": {
    "id": "Q-827b3d",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3003294404') OR (fei_match <> 'name_and_city' AND firm_key IN ('nucare')) ORDER BY date_published",
-   "ms": 386,
+   "ms": 90,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T09:04:12.125Z",
+   "ranAt": "2026-10-22T12:45:32.640Z",
    "rows": 0
   },
-  "Q-8c6f6b": {
-   "id": "Q-8c6f6b",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('nucare') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%sulfamethoxazole%' ORDER BY initiation_date",
-   "ms": 431,
+  "Q-b13772": {
+   "id": "Q-b13772",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('nucare') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*sulfamethoxazole(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 116,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T09:04:12.559Z",
+   "ranAt": "2026-10-22T12:45:32.756Z",
    "rows": 0
   },
   "Q-475ea4": {
    "id": "Q-475ea4",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('66267019610')",
-   "ms": 2272,
+   "ms": 548,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T09:04:14.838Z",
+   "ranAt": "2026-10-22T12:45:33.306Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2522,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T09:00:21.184Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 2080,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T09:00:23.265Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 2458,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T09:00:25.725Z",
-   "rows": 2
-  },
-  "Q-858af7": {
-   "id": "Q-858af7",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%sulfamethoxazole%'",
-   "ms": 2435,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T09:04:17.277Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-a6977b": {
+   "id": "Q-a6977b",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*sulfamethoxazole(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1223,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:45:34.532Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 20482,
+  "zetarisMs": 17408,
   "modelCalls": 1,
-  "tokensIn": 1200,
-  "tokensOut": 288,
+  "tokensIn": 1594,
+  "tokensOut": 514,
   "mode": "live"
  },
  "slug": "sulfamethoxazole",
@@ -1511,7 +1539,7 @@
     "id": "hospital-item:hospital-item:CG-343",
     "type": "HospitalItem",
     "key": "hospital-item:CG-343",
-    "label": "Corvale General: Sulfamethoxazole and Trimethoprim",
+    "label": "Corvale General: Sulfamethoxazole and Trimethoprim 800 mg/1",
     "attrs": {
      "key": "hospital-item:CG-343"
     },
@@ -1595,7 +1623,7 @@
     },
     "facts": [
      {
-      "id": "fact_4c54b798e36e22a9",
+      "id": "fact_58a6fff47bc24847",
       "about": "inspection:fda-inspection:1045177",
       "predicate": "classification",
       "value": "VAI",
@@ -1603,9 +1631,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:04:12.565Z"
+       "at": "2026-10-22T12:45:32.757Z"
       },
-      "assertedAt": "2026-10-22T09:04:12.565Z"
+      "assertedAt": "2026-10-22T12:45:32.757Z"
      }
     ],
     "depth": 4
@@ -1621,7 +1649,7 @@
     },
     "facts": [
      {
-      "id": "fact_5f643e3ea551e775",
+      "id": "fact_e1ff79384e56ee7a",
       "about": "inspection:fda-inspection:1114915",
       "predicate": "classification",
       "value": "VAI",
@@ -1629,9 +1657,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:04:12.565Z"
+       "at": "2026-10-22T12:45:32.758Z"
       },
-      "assertedAt": "2026-10-22T09:04:12.565Z"
+      "assertedAt": "2026-10-22T12:45:32.758Z"
      }
     ],
     "depth": 4
@@ -1647,7 +1675,7 @@
     },
     "facts": [
      {
-      "id": "fact_5b5a49284033194b",
+      "id": "fact_57cdf07365fcd6e1",
       "about": "inspection:fda-inspection:666991",
       "predicate": "classification",
       "value": "VAI",
@@ -1655,9 +1683,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:04:12.564Z"
+       "at": "2026-10-22T12:45:32.757Z"
       },
-      "assertedAt": "2026-10-22T09:04:12.564Z"
+      "assertedAt": "2026-10-22T12:45:32.757Z"
      }
     ],
     "depth": 4
@@ -1673,7 +1701,7 @@
     },
     "facts": [
      {
-      "id": "fact_7ee121bc3837be6a",
+      "id": "fact_9bbc07645e907430",
       "about": "inspection:fda-inspection:920340",
       "predicate": "classification",
       "value": "VAI",
@@ -1681,9 +1709,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T09:04:12.565Z"
+       "at": "2026-10-22T12:45:32.757Z"
       },
-      "assertedAt": "2026-10-22T09:04:12.565Z"
+      "assertedAt": "2026-10-22T12:45:32.757Z"
      }
     ],
     "depth": 4
@@ -1706,11 +1734,11 @@
     "from": "hospital-item:hospital-item:CG-343",
     "to": "package:ndc-package:66267-196-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T09:04:06.734Z",
+    "validFrom": "2026-10-22T12:45:30.457Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:04:06.734Z"
+     "at": "2026-10-22T12:45:30.457Z"
     }
    },
    {
@@ -1718,11 +1746,11 @@
     "from": "hospital-item:hospital-item:EA-E-000232",
     "to": "package:ndc-package:66267-196-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T09:04:06.734Z",
+    "validFrom": "2026-10-22T12:45:30.457Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:04:06.734Z"
+     "at": "2026-10-22T12:45:30.457Z"
     }
    },
    {
@@ -1730,11 +1758,11 @@
     "from": "package:ndc-package:66267-196-10",
     "to": "product:ndc-product:66267-196",
     "type": "package-of",
-    "validFrom": "2026-10-22T09:04:06.734Z",
+    "validFrom": "2026-10-22T12:45:30.457Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:04:06.734Z"
+     "at": "2026-10-22T12:45:30.457Z"
     }
    },
    {
@@ -1742,11 +1770,11 @@
     "from": "product:ndc-product:66267-196",
     "to": "drug:generic:sulfamethoxazole and trimethoprim",
     "type": "of-drug",
-    "validFrom": "2026-10-22T09:04:06.734Z",
+    "validFrom": "2026-10-22T12:45:30.457Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:04:06.734Z"
+     "at": "2026-10-22T12:45:30.457Z"
     }
    },
    {
@@ -1754,11 +1782,11 @@
     "from": "product:ndc-product:66267-196",
     "to": "labeler:ndc-labeler:66267",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T09:04:06.734Z",
+    "validFrom": "2026-10-22T12:45:30.457Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:04:06.734Z"
+     "at": "2026-10-22T12:45:30.457Z"
     }
    },
    {
@@ -1766,11 +1794,11 @@
     "from": "product:ndc-product:66267-196",
     "to": "site:fei:3003294404",
     "type": "made-at",
-    "validFrom": "2026-10-22T09:04:12.564Z",
+    "validFrom": "2026-10-22T12:45:32.757Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:04:12.564Z"
+     "at": "2026-10-22T12:45:32.757Z"
     }
    },
    {
@@ -1778,11 +1806,11 @@
     "from": "inspection:fda-inspection:666991",
     "to": "site:fei:3003294404",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:04:12.564Z",
+    "validFrom": "2026-10-22T12:45:32.757Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:04:12.564Z"
+     "at": "2026-10-22T12:45:32.757Z"
     }
    },
    {
@@ -1790,11 +1818,11 @@
     "from": "inspection:fda-inspection:920340",
     "to": "site:fei:3003294404",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:04:12.565Z",
+    "validFrom": "2026-10-22T12:45:32.757Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:04:12.565Z"
+     "at": "2026-10-22T12:45:32.757Z"
     }
    },
    {
@@ -1802,11 +1830,11 @@
     "from": "inspection:fda-inspection:1045177",
     "to": "site:fei:3003294404",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:04:12.565Z",
+    "validFrom": "2026-10-22T12:45:32.757Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:04:12.565Z"
+     "at": "2026-10-22T12:45:32.757Z"
     }
    },
    {
@@ -1814,11 +1842,11 @@
     "from": "inspection:fda-inspection:1114915",
     "to": "site:fei:3003294404",
     "type": "inspected",
-    "validFrom": "2026-10-22T09:04:12.565Z",
+    "validFrom": "2026-10-22T12:45:32.758Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:04:12.565Z"
+     "at": "2026-10-22T12:45:32.758Z"
     }
    },
    {
@@ -1826,11 +1854,11 @@
     "from": "warning-letter:fda-warning-letter:588096",
     "to": "site:fei:3003294404",
     "type": "issued-to",
-    "validFrom": "2026-10-22T09:04:12.565Z",
+    "validFrom": "2026-10-22T12:45:32.758Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T09:04:12.565Z"
+     "at": "2026-10-22T12:45:32.758Z"
     }
    }
   ],

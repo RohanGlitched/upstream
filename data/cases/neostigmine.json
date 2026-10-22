@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-f3c05d",
+ "id": "case-2026-10-22-a35af8",
  "question": "Why is neostigmine methylsulfate short, and what do we do?",
- "askedAt": "2026-10-22T08:06:03.840Z",
+ "askedAt": "2026-10-22T12:24:48.621Z",
  "asOf": "2026-10-21",
  "molecule": "neostigmine methylsulfate",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5HAA62FAQHP7CF4TGZTW6W2",
+  "contractId": "01M5HS44KYAC989M9RHCJKXHKM",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-1b13fd"
+    "Q-16c548"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 4297,
+   "ms": 4029,
    "rows": 2,
-   "finding": "2 stock lines across 2 hospitals.",
+   "finding": "2 stock lines across 2 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-339324"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1015,
+   "ms": 449,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-213fb0",
-    "Q-2b6868"
+    "Q-38dacc",
+    "Q-62377a"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 865,
+   "ms": 219,
    "rows": 2,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-d94f73"
+    "Q-53d5f4"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2967,
+   "ms": 1201,
    "rows": 59,
    "finding": "24 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-641b8b",
     "Q-7d7684",
     "Q-7c749e",
-    "Q-760fdb"
+    "Q-bd6a7f"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1450,
+   "ms": 644,
    "rows": 18,
    "finding": "18 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1733,
+   "ms": 632,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-f1768a"
+    "Q-f17064"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2240,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1639,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 1,
+   "ms": 0,
    "rows": 0,
    "finding": "No past decisions on this drug.",
    "status": "empty"
@@ -153,22 +164,65 @@
    "onHand": 57,
    "dailyUse": 3.806,
    "days": 15,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "neostigmine methylsulfate|0.5mg/ml|injection|10ml|vial",
+   "presentationLabel": "0.5 mg/mL injection, 10 mL vial",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-285",
    "ndc11": "00641615010",
-   "description": "Neostigmine Methylsulfate",
+   "description": "Neostigmine Methylsulfate 0.5 mg/mL",
    "labeler": "Hikma Pharmaceuticals USA Inc.",
-   "onHand": 109.39,
+   "onHand": 109,
    "dailyUse": 3.874,
-   "days": 28.2,
+   "days": 28.1,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "neostigmine methylsulfate|0.5mg/ml|injection|10ml|vial",
+   "presentationLabel": "0.5 mg/mL injection, 10 mL vial",
    "evidence": "E2"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "neostigmine methylsulfate|0.5mg/ml|injection|10ml|vial",
+   "label": "0.5 mg/mL injection, 10 mL vial",
+   "short": "0.5 mg/mL, 10 mL",
+   "unit": "vial",
+   "onHand": 166,
+   "dailyUse": 7.68,
+   "days": 21.6,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 57,
+     "dailyUse": 3.806,
+     "days": 15,
+     "lines": [
+      "EA-E-000117"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 109,
+     "dailyUse": 3.874,
+     "days": 28.1,
+     "lines": [
+      "CG-285"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -384,7 +438,7 @@
    "ndc11": "63323041310",
    "dosageForm": "INJECTION, SOLUTION",
    "plants": [],
-   "onShortageList": false,
+   "onShortageList": true,
    "inOurStock": false
   },
   {
@@ -595,15 +649,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Fresenius Kabi USA, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Gland Pharma Limited",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -761,34 +806,28 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "FDA shortage list shows Fresenius Kabi USA, LLC neostigmine methylsulfate injection to be discontinued as of 2026-01-12; Hikma label lists a plant last inspected NAI 2026-05-13",
+  "headline": "Neostigmine methylsulfate is not on FDA's shortage list as of 2026-10-21; Fresenius Kabi USA, LLC posted a discontinuation on 2026-01-12",
   "sentences": [
    {
-    "text": "FDA's shortage list records Fresenius Kabi USA, LLC neostigmine methylsulfate injection as To Be Discontinued with an initial posting date of 2026-01-12.",
+    "text": "FDA's drug shortage list shows neostigmine methylsulfate is not listed as of 2026-10-21.",
+    "cites": [
+     "D3"
+    ]
+   },
+   {
+    "text": "Fresenius Kabi USA, LLC posted a discontinuation for neostigmine methylsulfate injection on 2026-01-12.",
     "cites": [
      "E11"
     ]
    },
    {
-    "text": "The listed reason is discontinuation of the manufacture of the drug.",
-    "cites": [
-     "E11"
-    ]
-   },
-   {
-    "text": "A current product label names Hikma Pharmaceuticals USA Inc. as the labeler and manufacturer at FEI 2220525.",
+    "text": "The label for NDC 00641615010 names Hikma Pharmaceuticals USA Inc. as the registered plant (FEI 2220525) with a last inspection classified NAI on 2026-05-13.",
     "cites": [
      "E10"
     ]
    },
    {
-    "text": "That plant's most recent inspection classification in FDA's records is NAI dated 2026-05-13.",
-    "cites": [
-     "E10"
-    ]
-   },
-   {
-    "text": "Earlier inspections of the same plant from 2009 through 2024 were classified VAI.",
+    "text": "FDA inspection records for that plant show multiple VAI classifications from 2009 through 2024.",
     "cites": [
      "E3",
      "E4",
@@ -800,17 +839,21 @@
     ]
    },
    {
-    "text": "Corvale East has 15 days on hand and Corvale General has 28 days on hand at current usage rates.",
+    "text": "Corvale East holds 57 vials of the 0.5 mg/mL 10 mL presentation with 15 days on hand at current use.",
     "cites": [
-     "D1",
+     "D1"
+    ]
+   },
+   {
+    "text": "Corvale General holds 109 vials of the same presentation with 28.1 days on hand at current use.",
+    "cites": [
      "D2"
     ]
    },
    {
-    "text": "Check whether Hikma's supply can cover the gap left by Fresenius Kabi's discontinuation and confirm Amneal Pharmaceuticals LLC availability as the rule-suggested alternative.",
+    "text": "The rule ranks buying from Amneal Pharmaceuticals LLC as the best option; it is not on FDA's shortage list today and its label names no plant we could place.",
     "cites": [
-     "E10",
-     "E11"
+     "D4"
     ]
    }
   ],
@@ -824,125 +867,146 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [],
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T08:05:49.264Z",
+   "at": "2026-10-22T12:24:39.806Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract TGZTW6W2 scope"
+   "reason": "in contract HCJKXHKM scope"
   },
   {
-   "at": "2026-10-22T08:05:49.265Z",
+   "at": "2026-10-22T12:24:39.806Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract TGZTW6W2 scope"
+   "reason": "in contract HCJKXHKM scope"
   },
   {
-   "at": "2026-10-22T08:05:53.565Z",
+   "at": "2026-10-22T12:24:43.836Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract TGZTW6W2 scope"
+   "reason": "in contract HCJKXHKM scope"
   },
   {
-   "at": "2026-10-22T08:05:54.579Z",
+   "at": "2026-10-22T12:24:44.285Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract TGZTW6W2 scope"
+   "reason": "in contract HCJKXHKM scope"
   },
   {
-   "at": "2026-10-22T08:05:55.445Z",
+   "at": "2026-10-22T12:24:44.504Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract TGZTW6W2 scope"
+   "reason": "in contract HCJKXHKM scope"
   },
   {
-   "at": "2026-10-22T08:05:58.412Z",
+   "at": "2026-10-22T12:24:45.705Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract TGZTW6W2 scope"
+   "reason": "in contract HCJKXHKM scope"
   },
   {
-   "at": "2026-10-22T08:05:59.865Z",
+   "at": "2026-10-22T12:24:46.350Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract TGZTW6W2 scope"
+   "reason": "in contract HCJKXHKM scope"
   },
   {
-   "at": "2026-10-22T08:06:01.598Z",
+   "at": "2026-10-22T12:24:46.981Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract TGZTW6W2 scope"
+   "reason": "in contract HCJKXHKM scope"
   },
   {
-   "at": "2026-10-22T08:06:03.839Z",
+   "at": "2026-10-22T12:24:48.621Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract TGZTW6W2 scope"
+   "reason": "in contract HCJKXHKM scope"
   },
   {
-   "at": "2026-10-22T08:06:03.841Z",
+   "at": "2026-10-22T12:24:48.621Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract TGZTW6W2 scope"
+   "reason": "in contract HCJKXHKM scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-1b13fd",
+   "queryId": "Q-16c548",
    "row": 0,
    "label": "Corvale East: NEOSTIGMINE METHYLSULFATE 0.5MG/ML 10ML MDV",
    "fields": {
@@ -953,37 +1017,47 @@
     "description": "NEOSTIGMINE METHYLSULFATE 0.5MG/ML 10ML MDV",
     "on_hand": "57.00",
     "daily_use": "3.806",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Neostigmine Methylsulfate",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0641-6150-10",
     "spl_set_id": "7a9d996f-aecb-455f-95fc-1010e461d75d",
     "dosage_form": "INJECTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "NEOSTIGMINE METHYLSULFATE .5 mg/mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-1b13fd",
+   "queryId": "Q-16c548",
    "row": 1,
-   "label": "Corvale General: Neostigmine Methylsulfate",
+   "label": "Corvale General: Neostigmine Methylsulfate 0.5 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-285",
     "ndc11": "00641615010",
     "ndc_as_recorded": "00641615010",
-    "description": "Neostigmine Methylsulfate",
-    "on_hand": "109.39",
+    "description": "Neostigmine Methylsulfate 0.5 mg/mL",
+    "on_hand": "109.00",
     "daily_use": "3.874",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Neostigmine Methylsulfate",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0641-6150-10",
     "spl_set_id": "7a9d996f-aecb-455f-95fc-1010e461d75d",
     "dosage_form": "INJECTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "NEOSTIGMINE METHYLSULFATE .5 mg/mL",
+    "unit_content": "10 mL",
+    "pkg_unit": "vial"
    }
   },
   "E3": {
@@ -1116,7 +1190,7 @@
   },
   "E11": {
    "id": "E11",
-   "queryId": "Q-213fb0",
+   "queryId": "Q-38dacc",
    "row": 0,
    "label": "FDA shortage list: Fresenius Kabi USA, LLC, To Be Discontinued",
    "fields": {
@@ -1133,9 +1207,10 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 57 units of neostigmine methylsulfate at 3.8 a day: 15 days on hand",
+   "label": "Corvale East holds 57 vials of neostigmine methylsulfate 0.5 mg/mL, 10 mL at 3.8 a day: 15 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "0.5 mg/mL injection, 10 mL vial",
     "on_hand": 57,
     "daily_use": 3.8,
     "days_on_hand": 15
@@ -1145,173 +1220,233 @@
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 109 units of neostigmine methylsulfate at 3.9 a day: 28 days on hand",
+   "label": "Corvale General holds 109 vials of neostigmine methylsulfate 0.5 mg/mL, 10 mL at 3.9 a day: 28.1 days on hand",
    "fields": {
     "hospital": "Corvale General",
+    "presentation": "0.5 mg/mL injection, 10 mL vial",
     "on_hand": 109,
     "daily_use": 3.9,
-    "days_on_hand": 28
+    "days_on_hand": 28.1
+   }
+  },
+  "D3": {
+   "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "neostigmine methylsulfate is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Amneal Pharmaceuticals LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Amphastar Pharmaceuticals, Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from BE Pharmaceuticals Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-1b13fd": {
-   "id": "Q-1b13fd",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%neostigmine%' OR lower(s.description) LIKE '%neostigmine%' ORDER BY s.hospital, s.item_key",
-   "ms": 4294,
+  "Q-16c548": {
+   "id": "Q-16c548",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*neostigmine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*neostigmine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 4027,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T08:05:53.560Z",
+   "ranAt": "2026-10-22T12:24:43.834Z",
    "rows": 2
   },
   "Q-339324": {
    "id": "Q-339324",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('7a9d996f-aecb-455f-95fc-1010e461d75d') ORDER BY ps.set_id, ps.establishment",
-   "ms": 1011,
+   "ms": 448,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:05:54.576Z",
+   "ranAt": "2026-10-22T12:24:44.284Z",
    "rows": 1
   },
-  "Q-213fb0": {
-   "id": "Q-213fb0",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%neostigmine%' ORDER BY status, company_name, package_ndc",
-   "ms": 339,
+  "Q-38dacc": {
+   "id": "Q-38dacc",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*neostigmine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 109,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T08:05:54.918Z",
+   "ranAt": "2026-10-22T12:24:44.394Z",
    "rows": 1
   },
-  "Q-2b6868": {
-   "id": "Q-2b6868",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%neostigmine%' ORDER BY first_posting",
-   "ms": 515,
+  "Q-62377a": {
+   "id": "Q-62377a",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*neostigmine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 109,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T08:05:55.440Z",
+   "ranAt": "2026-10-22T12:24:44.503Z",
    "rows": 1
   },
-  "Q-d94f73": {
-   "id": "Q-d94f73",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%neostigmine%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2963,
+  "Q-53d5f4": {
+   "id": "Q-53d5f4",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*neostigmine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1200,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:05:58.408Z",
+   "ranAt": "2026-10-22T12:24:45.704Z",
    "rows": 59
   },
   "Q-641b8b": {
    "id": "Q-641b8b",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('2220525') ORDER BY fei, end_date",
-   "ms": 629,
+   "ms": 269,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T08:05:59.040Z",
+   "ranAt": "2026-10-22T12:24:45.974Z",
    "rows": 18
   },
   "Q-7d7684": {
    "id": "Q-7d7684",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('2220525') ORDER BY fei, action_date",
-   "ms": 268,
+   "ms": 125,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T08:05:59.313Z",
+   "ranAt": "2026-10-22T12:24:46.100Z",
    "rows": 0
   },
   "Q-7c749e": {
    "id": "Q-7c749e",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('2220525') OR (fei_match <> 'name_and_city' AND firm_key IN ('hikma')) ORDER BY date_published",
-   "ms": 206,
+   "ms": 112,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T08:05:59.523Z",
+   "ranAt": "2026-10-22T12:24:46.212Z",
    "rows": 0
   },
-  "Q-760fdb": {
-   "id": "Q-760fdb",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('hikma') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%neostigmine%' ORDER BY initiation_date",
-   "ms": 330,
+  "Q-bd6a7f": {
+   "id": "Q-bd6a7f",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('hikma') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*neostigmine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 134,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T08:05:59.857Z",
+   "ranAt": "2026-10-22T12:24:46.348Z",
    "rows": 0
   },
   "Q-0206e8": {
    "id": "Q-0206e8",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('00641615010')",
-   "ms": 1726,
+   "ms": 630,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:06:01.591Z",
+   "ranAt": "2026-10-22T12:24:46.980Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-f1768a": {
-   "id": "Q-f1768a",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%neostigmine%'",
-   "ms": 2236,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:06:03.835Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-f17064": {
+   "id": "Q-f17064",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*neostigmine(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1638,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:24:48.619Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 19888,
+  "zetarisMs": 19009,
   "modelCalls": 1,
-  "tokensIn": 1426,
-  "tokensOut": 458,
+  "tokensIn": 1807,
+  "tokensOut": 486,
   "mode": "live"
  },
  "slug": "neostigmine",
@@ -1325,7 +1460,7 @@
     "id": "hospital-item:hospital-item:CG-285",
     "type": "HospitalItem",
     "key": "hospital-item:CG-285",
-    "label": "Corvale General: Neostigmine Methylsulfate",
+    "label": "Corvale General: Neostigmine Methylsulfate 0.5 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-285"
     },
@@ -1409,7 +1544,7 @@
     },
     "facts": [
      {
-      "id": "fact_98a6c28bf49caa90",
+      "id": "fact_d4c94fcc90a080f7",
       "about": "inspection:fda-inspection:1106822",
       "predicate": "classification",
       "value": "VAI",
@@ -1417,9 +1552,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:05:59.862Z"
+       "at": "2026-10-22T12:24:46.349Z"
       },
-      "assertedAt": "2026-10-22T08:05:59.862Z"
+      "assertedAt": "2026-10-22T12:24:46.349Z"
      }
     ],
     "depth": 4
@@ -1435,7 +1570,7 @@
     },
     "facts": [
      {
-      "id": "fact_487c1192c585be9f",
+      "id": "fact_f463df06f7338886",
       "about": "inspection:fda-inspection:1222115",
       "predicate": "classification",
       "value": "VAI",
@@ -1443,9 +1578,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:05:59.863Z"
+       "at": "2026-10-22T12:24:46.349Z"
       },
-      "assertedAt": "2026-10-22T08:05:59.863Z"
+      "assertedAt": "2026-10-22T12:24:46.349Z"
      }
     ],
     "depth": 4
@@ -1461,7 +1596,7 @@
     },
     "facts": [
      {
-      "id": "fact_4ae633cd153eb881",
+      "id": "fact_152ec1bdaa9d4603",
       "about": "inspection:fda-inspection:1237333",
       "predicate": "classification",
       "value": "VAI",
@@ -1469,9 +1604,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:05:59.863Z"
+       "at": "2026-10-22T12:24:46.349Z"
       },
-      "assertedAt": "2026-10-22T08:05:59.863Z"
+      "assertedAt": "2026-10-22T12:24:46.349Z"
      }
     ],
     "depth": 4
@@ -1487,7 +1622,7 @@
     },
     "facts": [
      {
-      "id": "fact_b4594a32e688da64",
+      "id": "fact_a41f5e354a7ade00",
       "about": "inspection:fda-inspection:567761",
       "predicate": "classification",
       "value": "VAI",
@@ -1495,9 +1630,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:05:59.861Z"
+       "at": "2026-10-22T12:24:46.349Z"
       },
-      "assertedAt": "2026-10-22T08:05:59.861Z"
+      "assertedAt": "2026-10-22T12:24:46.349Z"
      }
     ],
     "depth": 4
@@ -1513,7 +1648,7 @@
     },
     "facts": [
      {
-      "id": "fact_6f444a6de1855908",
+      "id": "fact_a83f8772dbd7e549",
       "about": "inspection:fda-inspection:695392",
       "predicate": "classification",
       "value": "VAI",
@@ -1521,9 +1656,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:05:59.862Z"
+       "at": "2026-10-22T12:24:46.349Z"
       },
-      "assertedAt": "2026-10-22T08:05:59.862Z"
+      "assertedAt": "2026-10-22T12:24:46.349Z"
      }
     ],
     "depth": 4
@@ -1539,7 +1674,7 @@
     },
     "facts": [
      {
-      "id": "fact_4c8179189eb4cac9",
+      "id": "fact_17408b7c62bbcb85",
       "about": "inspection:fda-inspection:719344",
       "predicate": "classification",
       "value": "VAI",
@@ -1547,9 +1682,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:05:59.862Z"
+       "at": "2026-10-22T12:24:46.349Z"
       },
-      "assertedAt": "2026-10-22T08:05:59.862Z"
+      "assertedAt": "2026-10-22T12:24:46.349Z"
      }
     ],
     "depth": 4
@@ -1565,7 +1700,7 @@
     },
     "facts": [
      {
-      "id": "fact_56cd9905604fdc15",
+      "id": "fact_1c7eacbf0d872903",
       "about": "inspection:fda-inspection:837934",
       "predicate": "classification",
       "value": "VAI",
@@ -1573,9 +1708,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:05:59.862Z"
+       "at": "2026-10-22T12:24:46.349Z"
       },
-      "assertedAt": "2026-10-22T08:05:59.862Z"
+      "assertedAt": "2026-10-22T12:24:46.349Z"
      }
     ],
     "depth": 4
@@ -1587,11 +1722,11 @@
     "from": "hospital-item:hospital-item:CG-285",
     "to": "package:ndc-package:0641-6150-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:05:53.564Z",
+    "validFrom": "2026-10-22T12:24:43.836Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:53.564Z"
+     "at": "2026-10-22T12:24:43.836Z"
     }
    },
    {
@@ -1599,11 +1734,11 @@
     "from": "hospital-item:hospital-item:EA-E-000117",
     "to": "package:ndc-package:0641-6150-10",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:05:53.563Z",
+    "validFrom": "2026-10-22T12:24:43.836Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:53.563Z"
+     "at": "2026-10-22T12:24:43.836Z"
     }
    },
    {
@@ -1611,11 +1746,11 @@
     "from": "package:ndc-package:0641-6150-10",
     "to": "product:ndc-product:0641-6150",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:05:53.563Z",
+    "validFrom": "2026-10-22T12:24:43.836Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:53.563Z"
+     "at": "2026-10-22T12:24:43.836Z"
     }
    },
    {
@@ -1623,11 +1758,11 @@
     "from": "product:ndc-product:0641-6150",
     "to": "drug:generic:neostigmine methylsulfate",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:05:53.563Z",
+    "validFrom": "2026-10-22T12:24:43.836Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:53.563Z"
+     "at": "2026-10-22T12:24:43.836Z"
     }
    },
    {
@@ -1635,11 +1770,11 @@
     "from": "product:ndc-product:0641-6150",
     "to": "labeler:ndc-labeler:0641",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:05:53.563Z",
+    "validFrom": "2026-10-22T12:24:43.836Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:53.563Z"
+     "at": "2026-10-22T12:24:43.836Z"
     }
    },
    {
@@ -1647,11 +1782,11 @@
     "from": "product:ndc-product:0641-6150",
     "to": "site:fei:2220525",
     "type": "made-at",
-    "validFrom": "2026-10-22T08:05:59.861Z",
+    "validFrom": "2026-10-22T12:24:46.349Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:59.861Z"
+     "at": "2026-10-22T12:24:46.349Z"
     }
    },
    {
@@ -1659,11 +1794,11 @@
     "from": "inspection:fda-inspection:567761",
     "to": "site:fei:2220525",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:05:59.861Z",
+    "validFrom": "2026-10-22T12:24:46.349Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:59.861Z"
+     "at": "2026-10-22T12:24:46.349Z"
     }
    },
    {
@@ -1671,11 +1806,11 @@
     "from": "inspection:fda-inspection:695392",
     "to": "site:fei:2220525",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:05:59.861Z",
+    "validFrom": "2026-10-22T12:24:46.349Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:59.861Z"
+     "at": "2026-10-22T12:24:46.349Z"
     }
    },
    {
@@ -1683,11 +1818,11 @@
     "from": "inspection:fda-inspection:719344",
     "to": "site:fei:2220525",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:05:59.862Z",
+    "validFrom": "2026-10-22T12:24:46.349Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:59.862Z"
+     "at": "2026-10-22T12:24:46.349Z"
     }
    },
    {
@@ -1695,11 +1830,11 @@
     "from": "inspection:fda-inspection:837934",
     "to": "site:fei:2220525",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:05:59.862Z",
+    "validFrom": "2026-10-22T12:24:46.349Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:59.862Z"
+     "at": "2026-10-22T12:24:46.349Z"
     }
    },
    {
@@ -1707,11 +1842,11 @@
     "from": "inspection:fda-inspection:1106822",
     "to": "site:fei:2220525",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:05:59.862Z",
+    "validFrom": "2026-10-22T12:24:46.349Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:59.862Z"
+     "at": "2026-10-22T12:24:46.349Z"
     }
    },
    {
@@ -1719,11 +1854,11 @@
     "from": "inspection:fda-inspection:1222115",
     "to": "site:fei:2220525",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:05:59.863Z",
+    "validFrom": "2026-10-22T12:24:46.349Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:59.863Z"
+     "at": "2026-10-22T12:24:46.349Z"
     }
    },
    {
@@ -1731,11 +1866,11 @@
     "from": "inspection:fda-inspection:1237333",
     "to": "site:fei:2220525",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:05:59.863Z",
+    "validFrom": "2026-10-22T12:24:46.349Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:05:59.863Z"
+     "at": "2026-10-22T12:24:46.349Z"
     }
    }
   ],

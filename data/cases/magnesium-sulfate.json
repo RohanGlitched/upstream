@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-a0e4c0",
+ "id": "case-2026-10-22-fa25e0",
  "question": "Why is magnesium sulfate short, and what do we do?",
- "askedAt": "2026-10-22T07:59:31.266Z",
+ "askedAt": "2026-10-22T12:17:31.744Z",
  "asOf": "2026-10-21",
  "molecule": "magnesium sulfate",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H9YA2MK9TT16C5524F3TKM",
+  "contractId": "01M5HRPTP83Q3Z0V9FQK8K7H70",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-b5c72a"
+    "Q-3f0e46"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3688,
+   "ms": 3485,
    "rows": 2,
-   "finding": "2 stock lines across 2 hospitals.",
+   "finding": "2 stock lines across 2 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-72d466"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 946,
+   "ms": 441,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,31 +51,33 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-6e482d",
-    "Q-813b91"
+    "Q-dfdca6",
+    "Q-24bb3e"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 537,
-   "rows": 26,
+   "ms": 233,
+   "rows": 0,
    "finding": "Not on FDA's current shortage list.",
-   "status": "ok"
+   "status": "empty"
   },
   {
    "key": "market",
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-17d6ce"
+    "Q-759dda"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2660,
-   "rows": 273,
-   "finding": "25 labelers make it in this form.",
+   "ms": 1289,
+   "rows": 82,
+   "finding": "19 labelers make it in this form.",
    "status": "ok"
   },
   {
@@ -78,20 +85,20 @@
    "title": "What FDA found at those plants",
    "purpose": "Read every FDA drug inspection, warning letter, import alert and recall for these plants.",
    "queryIds": [
-    "Q-eaf56f",
-    "Q-2dd0d0",
+    "Q-4871d0",
+    "Q-6549c5",
     "Q-f403c1",
-    "Q-336bbe"
+    "Q-abdb45"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1065,
-   "rows": 77,
-   "finding": "71 inspections (0 OAI at our plants), 6 compliance actions, 0 import-alert listings, 0 recalls.",
+   "ms": 665,
+   "rows": 29,
+   "finding": "27 inspections (0 OAI at our plants), 2 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
   },
   {
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1092,
+   "ms": 656,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-9501e3"
+    "Q-2987fd"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1119,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1315,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,9 +148,9 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 2,
-   "rows": 1,
-   "finding": "1 past decisions recalled.",
+   "ms": 1,
+   "rows": 2,
+   "finding": "2 past decisions recalled.",
    "status": "ok"
   }
  ],
@@ -151,24 +162,67 @@
    "description": "MAGNESIUM SULFATE 40MG/ML 50ML BAG",
    "labeler": "HF Acquisition Co LLC, DBA HealthFirst",
    "onHand": 336,
-   "dailyUse": 12.218,
+   "dailyUse": 12.217,
    "days": 27.5,
-   "unit": "package",
+   "unit": "bag",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 24, converted to units",
+   "presentation": "magnesium sulfate|40mg/ml|injection|50ml|bag",
+   "presentationLabel": "40 mg/mL injection, 50 mL bag",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-265",
    "ndc11": "51662135203",
-   "description": "MAGNESIUM SULFATE",
+   "description": "MAGNESIUM SULFATE 40 mg/mL",
    "labeler": "HF Acquisition Co LLC, DBA HealthFirst",
-   "onHand": 235.05,
+   "onHand": 235,
    "dailyUse": 13.369,
    "days": 17.6,
    "unit": "bag",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "magnesium sulfate|40mg/ml|injection|50ml|bag",
+   "presentationLabel": "40 mg/mL injection, 50 mL bag",
    "evidence": "E2"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "magnesium sulfate|40mg/ml|injection|50ml|bag",
+   "label": "40 mg/mL injection, 50 mL bag",
+   "short": "40 mg/mL, 50 mL",
+   "unit": "bag",
+   "onHand": 571,
+   "dailyUse": 25.586,
+   "days": 22.3,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 336,
+     "dailyUse": 12.217,
+     "days": 27.5,
+     "lines": [
+      "EA-E-000181"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 235,
+     "dailyUse": 13.369,
+     "days": 17.6,
+     "lines": [
+      "CG-265"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -276,31 +330,9 @@
  ],
  "shortage": {
   "listed": false,
-  "status": "To Be Discontinued",
+  "status": null,
   "firstPosting": null,
-  "companies": [
-   {
-    "company": "Fresenius Kabi USA, LLC",
-    "status": "To Be Discontinued",
-    "updated": "2026-08-31",
-    "info": "Discontinuation of the manufacture of the drug",
-    "evidence": "E11"
-   },
-   {
-    "company": "Fresenius Medical Care North America",
-    "status": "To Be Discontinued",
-    "updated": "2026-09-10",
-    "info": "A business decision was made to discontinue manufacture of the drug.",
-    "evidence": "E12"
-   },
-   {
-    "company": "Vantive US Healthcare LLC",
-    "status": "To Be Discontinued",
-    "updated": "2026-08-03",
-    "info": "A business decision was made to discontinue manufacture of the drug.",
-    "evidence": "E13"
-   }
-  ],
+  "companies": [],
   "reasons": [],
   "ourNdcsListed": []
  },
@@ -354,31 +386,8 @@
    "inOurStock": false
   },
   {
-   "labeler": "Baxter Healthcare Company",
-   "ndc11": "00338014303",
-   "dosageForm": "INJECTION",
-   "plants": [
-    {
-     "name": "Baxter Healthcare Corporation",
-     "fei": "1025114",
-     "country": "USA",
-     "health": "signal",
-     "last": "OAI 2024-02-09"
-    },
-    {
-     "name": "Baxter SA",
-     "fei": "3005468265",
-     "country": "BEL",
-     "health": "clear",
-     "last": "VAI 2023-11-17"
-    }
-   ],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
    "labeler": "Baxter Healthcare Corporation",
-   "ndc11": "00338022103",
+   "ndc11": "00338170840",
    "dosageForm": "INJECTION, SOLUTION",
    "plants": [],
    "onShortageList": false,
@@ -421,14 +430,6 @@
      "last": "VAI 2023-05-10"
     }
    ],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
-   "labeler": "Fresenius Kabi, USA, LLC",
-   "ndc11": "65219025810",
-   "dosageForm": "INJECTION, SOLUTION",
-   "plants": [],
    "onShortageList": false,
    "inOurStock": false
   },
@@ -489,41 +490,9 @@
    "inOurStock": false
   },
   {
-   "labeler": "ICU Medical Inc.",
-   "ndc11": "00990737203",
-   "dosageForm": "INJECTION, SOLUTION",
-   "plants": [
-    {
-     "name": "OTSUKA ICU MEDCL",
-     "fei": null,
-     "country": null,
-     "health": "unknown",
-     "last": null
-    }
-   ],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
-   "labeler": "Lukare Medical, LLC",
-   "ndc11": "55792000710",
-   "dosageForm": "INJECTION",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
    "labeler": "Medical Purchasing Solutions, LLC",
    "ndc11": "71872714201",
    "dosageForm": "INJECTION, SOLUTION",
-   "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
-   "labeler": "Mylan Institutional LLC",
-   "ndc11": "67457013450",
-   "dosageForm": "INJECTION",
    "plants": [],
    "onShortageList": false,
    "inOurStock": false
@@ -565,29 +534,6 @@
    "ndc11": "47335099201",
    "dosageForm": "INJECTION, SOLUTION",
    "plants": [],
-   "onShortageList": false,
-   "inOurStock": false
-  },
-  {
-   "labeler": "Vantive US Healthcare LLC",
-   "ndc11": "00941040901",
-   "dosageForm": "INJECTION, SOLUTION",
-   "plants": [
-    {
-     "name": "Vantive Limited",
-     "fei": "1000358697",
-     "country": "GBR",
-     "health": "unknown",
-     "last": "VAI 2016-06-17"
-    },
-    {
-     "name": "Baxter, S.A. de C.V.",
-     "fei": "6898",
-     "country": "MEX",
-     "health": "unknown",
-     "last": "NAI 2018-12-14"
-    }
-   ],
    "onShortageList": false,
    "inOurStock": false
   },
@@ -640,26 +586,8 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 2,
-   "title": "Buy from ICU Medical Inc.",
-   "detail": "Not on FDA's shortage list today. Plants: OTSUKA ICU MEDCL.",
-   "why": "Same product, no clinical change, plant record clear.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 2,
    "title": "Buy from ProPharma Distribution",
    "detail": "Not on FDA's shortage list today. Plants: ProPharma Distribution.",
-   "why": "Same product, no clinical change, plant record clear.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 2,
-   "title": "Buy from Vantive US Healthcare LLC",
-   "detail": "Not on FDA's shortage list today. Plants: Vantive Limited (last inspection VAI 2016-06-17); Baxter, S.A. de C.V. (last inspection NAI 2018-12-14).",
    "why": "Same product, no clinical change, plant record clear.",
    "needs": "buyer",
    "evidence": []
@@ -703,15 +631,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Fresenius Kabi, USA, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Gland Pharma Limited",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -730,43 +649,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Henry Schein, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Lukare Medical, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Medical Purchasing Solutions, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Mylan Institutional LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from REMEDYREPACK INC.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -860,36 +743,34 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "Magnesium sulfate is not on FDA's shortage list today; two hospital sites hold 18 to 28 days of supply and the labeled plant for one NDC shows only VAI inspections through 2025-06-26",
+  "headline": "Magnesium sulfate is not on FDA's shortage list as of 2026-10-21; Corvale East has 27.5 days on hand and Corvale General has 17.6 days on hand",
   "sentences": [
    {
-    "text": "FDA's current shortage list contains no entry for magnesium sulfate, only discontinued multi‑electrolyte products from Fresenius Kabi, Fresenius Medical Care, and Vantive.",
+    "text": "FDA's drug shortage list does not include magnesium sulfate as of 2026-10-21.",
     "cites": [
-     "E11",
-     "E12",
-     "E13"
+     "D3"
     ]
    },
    {
-    "text": "Corvale East reports 336 units on hand at 12.2 units per day, giving 28 days of supply.",
+    "text": "Corvale East holds 336 bags of the 40 mg/mL 50 mL presentation with a daily use of 12.2 bags, providing 27.5 days on hand.",
     "cites": [
      "D1"
     ]
    },
    {
-    "text": "Corvale General reports 235 units on hand at 13.4 units per day, giving 18 days of supply.",
+    "text": "Corvale General holds 235 bags of the same presentation with a daily use of 13.4 bags, providing 17.6 days on hand.",
     "cites": [
      "D2"
     ]
    },
    {
-    "text": "The label for NDC 51662135203 identifies HF Acquisition Co LLC (DBA HealthFirst) as the registered plant with FEI 3014534.",
+    "text": "The current label for NDC 51662135203 names HF Acquisition Co LLC, DBA HealthFirst as the registered plant with a VAI inspection on 2025-06-26.",
     "cites": [
      "E10"
     ]
    },
    {
-    "text": "FDA inspection records for that FEI show only Voluntary Action Indicated (VAI) classifications, the most recent ending 2025-06-26.",
+    "text": "FDA inspection records for that plant (FEI 3014534) show a series of VAI classifications from 2008 through 2025.",
     "cites": [
      "E3",
      "E4",
@@ -901,11 +782,9 @@
     ]
    },
    {
-    "text": "Because the links between the hospital NDCs and the inspected plant are weak, verify the actual manufacturer and lot‑level sourcing for each site's magnesium sulfate inventory.",
+    "text": "The rule-based best option is to buy from B. Braun Medical Inc., which is also not on FDA's shortage list today.",
     "cites": [
-     "E10",
-     "D1",
-     "D2"
+     "D4"
     ]
    }
   ],
@@ -919,133 +798,161 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
+  {
+   "id": "mem-1",
+   "text": "Decision on carboplatin: restrict carboplatin to curative-intent regimens while on allocation; oncology reviews each palliative order. Rationale: Two suppliers on allocation and under 10 days on hand at Corvale General (demo history). Approved by Jordan Hale, PharmD.",
+   "approvedBy": "Jordan Hale, PharmD",
+   "when": "2023-05-16",
+   "score": 0.251
+  },
   {
    "id": "mem-4",
    "text": "Decision on lidocaine: switch lidocaine 1% 30 mL vials to 5 mL vials in the ED to reduce waste during the shortage. Rationale: Single-dose waste was a third of use (demo history). Approved by Alex Morgan, PharmD.",
    "approvedBy": "Alex Morgan, PharmD",
    "when": "2025-11-20",
-   "score": 0.276
+   "score": 0.251
   }
  ],
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:59:20.149Z",
+   "at": "2026-10-22T12:17:23.657Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract 524F3TKM scope"
+   "reason": "in contract QK8K7H70 scope"
   },
   {
-   "at": "2026-10-22T07:59:20.149Z",
+   "at": "2026-10-22T12:17:23.657Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 524F3TKM scope"
+   "reason": "in contract QK8K7H70 scope"
   },
   {
-   "at": "2026-10-22T07:59:23.839Z",
+   "at": "2026-10-22T12:17:27.142Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 524F3TKM scope"
+   "reason": "in contract QK8K7H70 scope"
   },
   {
-   "at": "2026-10-22T07:59:24.785Z",
+   "at": "2026-10-22T12:17:27.584Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 524F3TKM scope"
+   "reason": "in contract QK8K7H70 scope"
   },
   {
-   "at": "2026-10-22T07:59:25.322Z",
+   "at": "2026-10-22T12:17:27.816Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 524F3TKM scope"
+   "reason": "in contract QK8K7H70 scope"
   },
   {
-   "at": "2026-10-22T07:59:27.983Z",
+   "at": "2026-10-22T12:17:29.106Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 524F3TKM scope"
+   "reason": "in contract QK8K7H70 scope"
   },
   {
-   "at": "2026-10-22T07:59:29.053Z",
+   "at": "2026-10-22T12:17:29.771Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 524F3TKM scope"
+   "reason": "in contract QK8K7H70 scope"
   },
   {
-   "at": "2026-10-22T07:59:30.145Z",
+   "at": "2026-10-22T12:17:30.428Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 524F3TKM scope"
+   "reason": "in contract QK8K7H70 scope"
   },
   {
-   "at": "2026-10-22T07:59:31.264Z",
+   "at": "2026-10-22T12:17:31.743Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract 524F3TKM scope"
+   "reason": "in contract QK8K7H70 scope"
   },
   {
-   "at": "2026-10-22T07:59:31.266Z",
+   "at": "2026-10-22T12:17:31.745Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract 524F3TKM scope"
+   "reason": "in contract QK8K7H70 scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-b5c72a",
+   "queryId": "Q-3f0e46",
    "row": 0,
    "label": "Corvale East: MAGNESIUM SULFATE 40MG/ML 50ML BAG",
    "fields": {
@@ -1055,44 +962,54 @@
     "ndc_as_recorded": "51662-1352-3",
     "description": "MAGNESIUM SULFATE 40MG/ML 50ML BAG",
     "on_hand": "336.00",
-    "daily_use": "12.218",
-    "unit": "package",
+    "daily_use": "12.217",
+    "unit": "bag",
+    "pkg_units": "24.00",
+    "unit_basis": "packages of 24, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "MAGNESIUM SULFATE",
     "labeler_name": "HF Acquisition Co LLC, DBA HealthFirst",
     "package_ndc": "51662-1352-3",
     "spl_set_id": "7d94995b-9e2a-0345-e053-2991aa0a62d0",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "MAGNESIUM SULFATE HEPTAHYDRATE 40 mg/mL",
+    "unit_content": "50 mL",
+    "pkg_unit": "pouch"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-b5c72a",
+   "queryId": "Q-3f0e46",
    "row": 1,
-   "label": "Corvale General: MAGNESIUM SULFATE",
+   "label": "Corvale General: MAGNESIUM SULFATE 40 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-265",
     "ndc11": "51662135203",
     "ndc_as_recorded": "51662135203",
-    "description": "MAGNESIUM SULFATE",
-    "on_hand": "235.05",
+    "description": "MAGNESIUM SULFATE 40 mg/mL",
+    "on_hand": "235.00",
     "daily_use": "13.369",
     "unit": "bag",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "MAGNESIUM SULFATE",
     "labeler_name": "HF Acquisition Co LLC, DBA HealthFirst",
     "package_ndc": "51662-1352-3",
     "spl_set_id": "7d94995b-9e2a-0345-e053-2991aa0a62d0",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "MAGNESIUM SULFATE HEPTAHYDRATE 40 mg/mL",
+    "unit_content": "50 mL",
+    "pkg_unit": "pouch"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-eaf56f",
-   "row": 60,
+   "queryId": "Q-4871d0",
+   "row": 18,
    "label": "FDA inspection 551506 (VAI)",
    "fields": {
     "inspection_id": "551506",
@@ -1107,8 +1024,8 @@
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-eaf56f",
-   "row": 61,
+   "queryId": "Q-4871d0",
+   "row": 19,
    "label": "FDA inspection 640966 (VAI)",
    "fields": {
     "inspection_id": "640966",
@@ -1123,8 +1040,8 @@
   },
   "E5": {
    "id": "E5",
-   "queryId": "Q-eaf56f",
-   "row": 62,
+   "queryId": "Q-4871d0",
+   "row": 20,
    "label": "FDA inspection 700724 (VAI)",
    "fields": {
     "inspection_id": "700724",
@@ -1139,8 +1056,8 @@
   },
   "E6": {
    "id": "E6",
-   "queryId": "Q-eaf56f",
-   "row": 64,
+   "queryId": "Q-4871d0",
+   "row": 22,
    "label": "FDA inspection 854656 (VAI)",
    "fields": {
     "inspection_id": "854656",
@@ -1155,8 +1072,8 @@
   },
   "E7": {
    "id": "E7",
-   "queryId": "Q-eaf56f",
-   "row": 65,
+   "queryId": "Q-4871d0",
+   "row": 23,
    "label": "FDA inspection 902654 (VAI)",
    "fields": {
     "inspection_id": "902654",
@@ -1171,8 +1088,8 @@
   },
   "E8": {
    "id": "E8",
-   "queryId": "Q-eaf56f",
-   "row": 66,
+   "queryId": "Q-4871d0",
+   "row": 24,
    "label": "FDA inspection 1041019 (VAI)",
    "fields": {
     "inspection_id": "1041019",
@@ -1187,8 +1104,8 @@
   },
   "E9": {
    "id": "E9",
-   "queryId": "Q-eaf56f",
-   "row": 68,
+   "queryId": "Q-4871d0",
+   "row": 26,
    "label": "FDA inspection 1273927 (VAI)",
    "fields": {
     "inspection_id": "1273927",
@@ -1217,234 +1134,250 @@
     "last_inspection": "VAI 2025-06-26"
    }
   },
-  "E11": {
-   "id": "E11",
-   "queryId": "Q-6e482d",
-   "row": 0,
-   "label": "FDA shortage list: Fresenius Kabi USA, LLC, To Be Discontinued",
-   "fields": {
-    "generic_name": "Potassium Chloride, Sodium Chloride, Calcium Chloride, and Magnesium Chloride Injection, Solution",
-    "company_name": "Fresenius Kabi USA, LLC",
-    "status": "To Be Discontinued",
-    "package_ndc": "65219-258-10",
-    "initial_posting_date": "2026-08-31",
-    "update_date": "2026-08-31",
-    "related_info": "Discontinuation of the manufacture of the drug"
-   }
-  },
-  "E12": {
-   "id": "E12",
-   "queryId": "Q-6e482d",
-   "row": 1,
-   "label": "FDA shortage list: Fresenius Medical Care North America, To Be Discontinued",
-   "fields": {
-    "generic_name": "Dextrose Monohydrate, Sodium Chloride, Sodium Lactate, Calcium Chloride, Magnesium Chloride Solution",
-    "company_name": "Fresenius Medical Care North America",
-    "status": "To Be Discontinued",
-    "package_ndc": "46163-212-95",
-    "initial_posting_date": "2026-09-10",
-    "update_date": "2026-09-10",
-    "related_info": "A business decision was made to discontinue manufacture of the drug."
-   }
-  },
-  "E13": {
-   "id": "E13",
-   "queryId": "Q-6e482d",
-   "row": 2,
-   "label": "FDA shortage list: Vantive US Healthcare LLC, To Be Discontinued",
-   "fields": {
-    "generic_name": "Calcium Chloride; Dextrose; Magnesium Chloride; Sodium Chloride; Sodium Lactate Intraperitoneal Injection, Solution",
-    "company_name": "Vantive US Healthcare LLC",
-    "status": "To Be Discontinued",
-    "package_ndc": "0941-0409-07",
-    "initial_posting_date": "2026-08-03",
-    "update_date": "2026-08-03",
-    "related_info": "A business decision was made to discontinue manufacture of the drug."
-   }
-  },
   "D1": {
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 336 units of magnesium sulfate at 12.2 a day: 28 days on hand",
+   "label": "Corvale East holds 336 bags of magnesium sulfate 40 mg/mL, 50 mL at 12.2 a day: 27.5 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "40 mg/mL injection, 50 mL bag",
     "on_hand": 336,
     "daily_use": 12.2,
-    "days_on_hand": 28
+    "days_on_hand": 27.5
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 235 units of magnesium sulfate at 13.4 a day: 18 days on hand",
+   "label": "Corvale General holds 235 bags of magnesium sulfate 40 mg/mL, 50 mL at 13.4 a day: 17.6 days on hand",
    "fields": {
     "hospital": "Corvale General",
+    "presentation": "40 mg/mL injection, 50 mL bag",
     "on_hand": 235,
     "daily_use": 13.4,
-    "days_on_hand": 18
+    "days_on_hand": 17.6
+   }
+  },
+  "D3": {
+   "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "magnesium sulfate is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from B. Braun Medical Inc.. Not on FDA's shortage list today. Plants: B BRAUN MEDICAL.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from Civica, Inc.. Not on FDA's shortage list today. Plants: Baxter Healthcare Corporation Deerfield.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from Fresenius Kabi USA, LLC. Not on FDA's shortage list today. Plants: HP Halden Pharma AS (last inspection VAI 2023-05-10).",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-b5c72a": {
-   "id": "Q-b5c72a",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%magnesium%' OR lower(s.description) LIKE '%magnesium%' ORDER BY s.hospital, s.item_key",
-   "ms": 3684,
+  "Q-3f0e46": {
+   "id": "Q-3f0e46",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*magnesium(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*[^a-z0-9-]+sulfate(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*magnesium(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*[^a-z0-9-]+sulfate(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3483,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:59:23.833Z",
+   "ranAt": "2026-10-22T12:17:27.140Z",
    "rows": 2
   },
   "Q-72d466": {
    "id": "Q-72d466",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('7d94995b-9e2a-0345-e053-2991aa0a62d0') ORDER BY ps.set_id, ps.establishment",
-   "ms": 942,
+   "ms": 440,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:59:24.781Z",
+   "ranAt": "2026-10-22T12:17:27.582Z",
    "rows": 1
   },
-  "Q-6e482d": {
-   "id": "Q-6e482d",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%magnesium%' ORDER BY status, company_name, package_ndc",
-   "ms": 251,
+  "Q-dfdca6": {
+   "id": "Q-dfdca6",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*magnesium(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*[^a-z0-9-]+sulfate(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 116,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:59:25.036Z",
-   "rows": 20
+   "ranAt": "2026-10-22T12:17:27.699Z",
+   "rows": 0
   },
-  "Q-813b91": {
-   "id": "Q-813b91",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%magnesium%' ORDER BY first_posting",
-   "ms": 277,
+  "Q-24bb3e": {
+   "id": "Q-24bb3e",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*magnesium(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*[^a-z0-9-]+sulfate(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 114,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:59:25.318Z",
-   "rows": 6
+   "ranAt": "2026-10-22T12:17:27.815Z",
+   "rows": 0
   },
-  "Q-17d6ce": {
-   "id": "Q-17d6ce",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%magnesium%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2653,
+  "Q-759dda": {
+   "id": "Q-759dda",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*magnesium(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*[^a-z0-9-]+sulfate(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1288,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:59:27.976Z",
-   "rows": 273
+   "ranAt": "2026-10-22T12:17:29.104Z",
+   "rows": 82
   },
-  "Q-eaf56f": {
-   "id": "Q-eaf56f",
-   "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3014534', '3018907202', '1025114', '1416980', '3005468265', '2618677', '3002608066', '1021343', '3031467812', '1000358697', '6898') ORDER BY fei, end_date",
-   "ms": 463,
+  "Q-4871d0": {
+   "id": "Q-4871d0",
+   "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3014534', '3018907202', '3002608066', '1021343', '3031467812') ORDER BY fei, end_date",
+   "ms": 251,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:59:28.446Z",
-   "rows": 71
+   "ranAt": "2026-10-22T12:17:29.356Z",
+   "rows": 27
   },
-  "Q-2dd0d0": {
-   "id": "Q-2dd0d0",
-   "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3014534', '3018907202', '1025114', '1416980', '3005468265', '2618677', '3002608066', '1021343', '3031467812', '1000358697', '6898') ORDER BY fei, action_date",
-   "ms": 200,
+  "Q-6549c5": {
+   "id": "Q-6549c5",
+   "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3014534', '3018907202', '3002608066', '1021343', '3031467812') ORDER BY fei, action_date",
+   "ms": 129,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:59:28.650Z",
-   "rows": 6
+   "ranAt": "2026-10-22T12:17:29.487Z",
+   "rows": 2
   },
   "Q-f403c1": {
    "id": "Q-f403c1",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3014534') OR (fei_match <> 'name_and_city' AND firm_key IN ('hf acquisition dba healthfirst', 'hf acquisition')) ORDER BY date_published",
-   "ms": 179,
+   "ms": 120,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:59:28.833Z",
+   "ranAt": "2026-10-22T12:17:29.607Z",
    "rows": 0
   },
-  "Q-336bbe": {
-   "id": "Q-336bbe",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('hf acquisition dba healthfirst', 'hf acquisition') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%magnesium%' ORDER BY initiation_date",
-   "ms": 207,
+  "Q-abdb45": {
+   "id": "Q-abdb45",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('hf acquisition dba healthfirst', 'hf acquisition') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*magnesium(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*[^a-z0-9-]+sulfate(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 161,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:59:29.043Z",
+   "ranAt": "2026-10-22T12:17:29.769Z",
    "rows": 0
   },
   "Q-57f6d2": {
    "id": "Q-57f6d2",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('51662135203')",
-   "ms": 1088,
+   "ms": 655,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:59:30.141Z",
+   "ranAt": "2026-10-22T12:17:30.426Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-9501e3": {
-   "id": "Q-9501e3",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%magnesium%'",
-   "ms": 1114,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:59:31.260Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-2987fd": {
+   "id": "Q-2987fd",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*magnesium(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*[^a-z0-9-]+sulfate(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1314,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:17:31.742Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 16429,
+  "zetarisMs": 18279,
   "modelCalls": 1,
-  "tokensIn": 1652,
-  "tokensOut": 472,
+  "tokensIn": 1645,
+  "tokensOut": 437,
   "mode": "live"
  },
  "slug": "magnesium-sulfate",
@@ -1458,7 +1391,7 @@
     "id": "hospital-item:hospital-item:CG-265",
     "type": "HospitalItem",
     "key": "hospital-item:CG-265",
-    "label": "Corvale General: MAGNESIUM SULFATE",
+    "label": "Corvale General: MAGNESIUM SULFATE 40 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-265"
     },
@@ -1542,7 +1475,7 @@
     },
     "facts": [
      {
-      "id": "fact_286c1db10b4bd0fd",
+      "id": "fact_9f159c82ea8256ac",
       "about": "inspection:fda-inspection:1041019",
       "predicate": "classification",
       "value": "VAI",
@@ -1550,9 +1483,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:59:29.050Z"
+       "at": "2026-10-22T12:17:29.771Z"
       },
-      "assertedAt": "2026-10-22T07:59:29.050Z"
+      "assertedAt": "2026-10-22T12:17:29.771Z"
      }
     ],
     "depth": 4
@@ -1568,7 +1501,7 @@
     },
     "facts": [
      {
-      "id": "fact_a838a92cc97179cd",
+      "id": "fact_208059ccc5b6891c",
       "about": "inspection:fda-inspection:1273927",
       "predicate": "classification",
       "value": "VAI",
@@ -1576,9 +1509,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:59:29.050Z"
+       "at": "2026-10-22T12:17:29.771Z"
       },
-      "assertedAt": "2026-10-22T07:59:29.050Z"
+      "assertedAt": "2026-10-22T12:17:29.771Z"
      }
     ],
     "depth": 4
@@ -1594,7 +1527,7 @@
     },
     "facts": [
      {
-      "id": "fact_c719074cebc67a2f",
+      "id": "fact_86461a33c6f24ea8",
       "about": "inspection:fda-inspection:551506",
       "predicate": "classification",
       "value": "VAI",
@@ -1602,9 +1535,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:59:29.048Z"
+       "at": "2026-10-22T12:17:29.770Z"
       },
-      "assertedAt": "2026-10-22T07:59:29.048Z"
+      "assertedAt": "2026-10-22T12:17:29.770Z"
      }
     ],
     "depth": 4
@@ -1620,7 +1553,7 @@
     },
     "facts": [
      {
-      "id": "fact_922f7ff5ab302632",
+      "id": "fact_b51d33d1f5825003",
       "about": "inspection:fda-inspection:640966",
       "predicate": "classification",
       "value": "VAI",
@@ -1628,9 +1561,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:59:29.049Z"
+       "at": "2026-10-22T12:17:29.770Z"
       },
-      "assertedAt": "2026-10-22T07:59:29.049Z"
+      "assertedAt": "2026-10-22T12:17:29.770Z"
      }
     ],
     "depth": 4
@@ -1646,7 +1579,7 @@
     },
     "facts": [
      {
-      "id": "fact_21f7216d8aed5f52",
+      "id": "fact_c3db1d78aa5e01c5",
       "about": "inspection:fda-inspection:700724",
       "predicate": "classification",
       "value": "VAI",
@@ -1654,9 +1587,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:59:29.049Z"
+       "at": "2026-10-22T12:17:29.770Z"
       },
-      "assertedAt": "2026-10-22T07:59:29.049Z"
+      "assertedAt": "2026-10-22T12:17:29.770Z"
      }
     ],
     "depth": 4
@@ -1672,7 +1605,7 @@
     },
     "facts": [
      {
-      "id": "fact_058c961bf0cda4ae",
+      "id": "fact_b353c23990446918",
       "about": "inspection:fda-inspection:854656",
       "predicate": "classification",
       "value": "VAI",
@@ -1680,9 +1613,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:59:29.049Z"
+       "at": "2026-10-22T12:17:29.771Z"
       },
-      "assertedAt": "2026-10-22T07:59:29.049Z"
+      "assertedAt": "2026-10-22T12:17:29.771Z"
      }
     ],
     "depth": 4
@@ -1698,7 +1631,7 @@
     },
     "facts": [
      {
-      "id": "fact_098eee0a4d331595",
+      "id": "fact_e145f0a384562186",
       "about": "inspection:fda-inspection:902654",
       "predicate": "classification",
       "value": "VAI",
@@ -1706,9 +1639,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:59:29.049Z"
+       "at": "2026-10-22T12:17:29.771Z"
       },
-      "assertedAt": "2026-10-22T07:59:29.049Z"
+      "assertedAt": "2026-10-22T12:17:29.771Z"
      }
     ],
     "depth": 4
@@ -1720,11 +1653,11 @@
     "from": "hospital-item:hospital-item:CG-265",
     "to": "package:ndc-package:51662-1352-3",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:59:23.838Z",
+    "validFrom": "2026-10-22T12:17:27.142Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:59:23.838Z"
+     "at": "2026-10-22T12:17:27.142Z"
     }
    },
    {
@@ -1732,11 +1665,11 @@
     "from": "hospital-item:hospital-item:EA-E-000181",
     "to": "package:ndc-package:51662-1352-3",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:59:23.838Z",
+    "validFrom": "2026-10-22T12:17:27.142Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:59:23.838Z"
+     "at": "2026-10-22T12:17:27.142Z"
     }
    },
    {
@@ -1744,11 +1677,11 @@
     "from": "package:ndc-package:51662-1352-3",
     "to": "product:ndc-product:51662-1352",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:59:23.838Z",
+    "validFrom": "2026-10-22T12:17:27.142Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:59:23.838Z"
+     "at": "2026-10-22T12:17:27.142Z"
     }
    },
    {
@@ -1756,11 +1689,11 @@
     "from": "product:ndc-product:51662-1352",
     "to": "drug:generic:magnesium sulfate",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:59:23.838Z",
+    "validFrom": "2026-10-22T12:17:27.142Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:59:23.838Z"
+     "at": "2026-10-22T12:17:27.142Z"
     }
    },
    {
@@ -1768,11 +1701,11 @@
     "from": "product:ndc-product:51662-1352",
     "to": "labeler:ndc-labeler:51662",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:59:23.838Z",
+    "validFrom": "2026-10-22T12:17:27.142Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:59:23.838Z"
+     "at": "2026-10-22T12:17:27.142Z"
     }
    },
    {
@@ -1780,11 +1713,11 @@
     "from": "product:ndc-product:51662-1352",
     "to": "site:fei:3014534",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:59:29.048Z",
+    "validFrom": "2026-10-22T12:17:29.770Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:59:29.048Z"
+     "at": "2026-10-22T12:17:29.770Z"
     }
    },
    {
@@ -1792,11 +1725,11 @@
     "from": "inspection:fda-inspection:551506",
     "to": "site:fei:3014534",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:59:29.048Z",
+    "validFrom": "2026-10-22T12:17:29.770Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:59:29.048Z"
+     "at": "2026-10-22T12:17:29.770Z"
     }
    },
    {
@@ -1804,11 +1737,11 @@
     "from": "inspection:fda-inspection:640966",
     "to": "site:fei:3014534",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:59:29.048Z",
+    "validFrom": "2026-10-22T12:17:29.770Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:59:29.048Z"
+     "at": "2026-10-22T12:17:29.770Z"
     }
    },
    {
@@ -1816,11 +1749,11 @@
     "from": "inspection:fda-inspection:700724",
     "to": "site:fei:3014534",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:59:29.049Z",
+    "validFrom": "2026-10-22T12:17:29.770Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:59:29.049Z"
+     "at": "2026-10-22T12:17:29.770Z"
     }
    },
    {
@@ -1828,11 +1761,11 @@
     "from": "inspection:fda-inspection:854656",
     "to": "site:fei:3014534",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:59:29.049Z",
+    "validFrom": "2026-10-22T12:17:29.771Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:59:29.049Z"
+     "at": "2026-10-22T12:17:29.771Z"
     }
    },
    {
@@ -1840,11 +1773,11 @@
     "from": "inspection:fda-inspection:902654",
     "to": "site:fei:3014534",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:59:29.049Z",
+    "validFrom": "2026-10-22T12:17:29.771Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:59:29.049Z"
+     "at": "2026-10-22T12:17:29.771Z"
     }
    },
    {
@@ -1852,11 +1785,11 @@
     "from": "inspection:fda-inspection:1041019",
     "to": "site:fei:3014534",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:59:29.050Z",
+    "validFrom": "2026-10-22T12:17:29.771Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:59:29.050Z"
+     "at": "2026-10-22T12:17:29.771Z"
     }
    },
    {
@@ -1864,11 +1797,11 @@
     "from": "inspection:fda-inspection:1273927",
     "to": "site:fei:3014534",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:59:29.050Z",
+    "validFrom": "2026-10-22T12:17:29.771Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:59:29.050Z"
+     "at": "2026-10-22T12:17:29.771Z"
     }
    }
   ],

@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-be9b0a",
+ "id": "case-2026-10-22-55e7a5",
  "question": "Why is spironolactone short, and what do we do?",
- "askedAt": "2026-10-22T08:30:07.734Z",
+ "askedAt": "2026-10-22T12:43:30.101Z",
  "asOf": "2026-10-21",
  "molecule": "spironolactone",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5HBMR5ETDJC2PJG3TPAFYSP",
+  "contractId": "01M5HT6D6JTWEWRGY68QPG9QY1",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-d7ee43"
+    "Q-8382bd"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 15884,
+   "ms": 3030,
    "rows": 5,
-   "finding": "5 stock lines across 3 hospitals.",
+   "finding": "5 stock lines across 3 hospitals, 2 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-bd83b0"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 11175,
+   "ms": 395,
    "rows": 2,
    "finding": "2 plant links on 2 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,15 +51,15 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-912083",
-    "Q-a56d33"
+    "Q-47830c",
+    "Q-17c165"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 5530,
-   "rows": 5,
+   "ms": 211,
+   "rows": 4,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
   },
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-15d8a0"
+    "Q-18b9ed"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 14760,
+   "ms": 1163,
    "rows": 531,
    "finding": "40 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-cb1e99",
     "Q-911252",
     "Q-7cc5fb",
-    "Q-557061"
+    "Q-6f18db"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 7147,
+   "ms": 588,
    "rows": 10,
    "finding": "9 inspections (1 OAI at our plants), 1 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,7 +111,7 @@
    "sources": [
     "fda.citations"
    ],
-   "ms": 1284,
+   "ms": 134,
    "rows": 6,
    "finding": "6 Form 483 observations recorded.",
    "status": "ok"
@@ -119,9 +126,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 3456,
+   "ms": 590,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -129,19 +136,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-c5f45c"
+    "Q-ef0463"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 4415,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1281,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -152,7 +163,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 8,
+   "ms": 0,
    "rows": 0,
    "finding": "No past decisions on this drug.",
    "status": "empty"
@@ -168,8 +179,11 @@
    "onHand": 106,
    "dailyUse": 12.484,
    "days": 8.5,
-   "unit": "package",
+   "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 100, converted to units",
+   "presentation": "spironolactone|100mg|tablet||tablet",
+   "presentationLabel": "100 mg tablet",
    "evidence": "E1"
   },
   {
@@ -181,34 +195,43 @@
    "onHand": 242,
    "dailyUse": 13.555,
    "days": 17.9,
-   "unit": "package",
+   "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 60, converted to units",
+   "presentation": "spironolactone|25mg|tablet||tablet",
+   "presentationLabel": "25 mg tablet",
    "evidence": "E2"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-338",
    "ndc11": "70518372103",
-   "description": "Spironolactone",
+   "description": "Spironolactone 100 mg/1",
    "labeler": "REMEDYREPACK INC.",
-   "onHand": 375.61,
+   "onHand": 375,
    "dailyUse": 13.864,
-   "days": 27.1,
+   "days": 27,
    "unit": "tablet",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "spironolactone|100mg|tablet||tablet",
+   "presentationLabel": "100 mg tablet",
    "evidence": "E3"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-339",
    "ndc11": "72162162406",
-   "description": "SPIRONOLACTONE",
+   "description": "SPIRONOLACTONE 25 mg/1",
    "labeler": "Bryant Ranch Prepack",
-   "onHand": 302.53,
+   "onHand": 302,
    "dailyUse": 13.663,
    "days": 22.1,
    "unit": "tablet",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "spironolactone|25mg|tablet||tablet",
+   "presentationLabel": "25 mg tablet",
    "evidence": "E4"
   },
   {
@@ -222,7 +245,94 @@
    "days": 10,
    "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "spironolactone|25mg|tablet||tablet",
+   "presentationLabel": "25 mg tablet",
    "evidence": "E5"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "spironolactone|100mg|tablet||tablet",
+   "label": "100 mg tablet",
+   "short": "100 mg",
+   "unit": "tablet",
+   "onHand": 481,
+   "dailyUse": 26.348,
+   "days": 18.3,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 106,
+     "dailyUse": 12.484,
+     "days": 8.5,
+     "lines": [
+      "EA-E-000267"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 375,
+     "dailyUse": 13.864,
+     "days": 27,
+     "lines": [
+      "CG-338"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "spironolactone|25mg|tablet||tablet",
+   "label": "25 mg tablet",
+   "short": "25 mg",
+   "unit": "tablet",
+   "onHand": 572,
+   "dailyUse": 30.005,
+   "days": 19.1,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 242,
+     "dailyUse": 13.555,
+     "days": 17.9,
+     "lines": [
+      "EA-E-000302"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 302,
+     "dailyUse": 13.663,
+     "days": 22.1,
+     "lines": [
+      "CG-339"
+     ],
+     "evidence": [
+      "E4"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 28,
+     "dailyUse": 2.787,
+     "days": 10,
+     "lines": [
+      "LS-LS-0130"
+     ],
+     "evidence": [
+      "E5"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -615,7 +725,7 @@
    "ndc11": "00025100131",
    "dosageForm": "TABLET, FILM COATED",
    "plants": [],
-   "onShortageList": false,
+   "onShortageList": true,
    "inOurStock": false
   },
   {
@@ -741,13 +851,27 @@
  ],
  "options": [
   {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from A-S Medication Solutions",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
+   "kind": "transfer",
+   "rank": 1,
+   "title": "Transfer 69 tablets of 100 mg from Corvale General to Corvale East",
+   "detail": "Corvale General has 27 days of 100 mg tablets on hand and can spare 69 tablets while keeping two weeks; Corvale East has 8.5 days and would reach 14.",
+   "why": "Same presentation, no clinical change, no new supplier.",
+   "needs": "pharmacy director (transfer request)",
+   "evidence": [
+    "E3",
+    "E1"
+   ],
+   "transfer": {
+    "qty": 69,
+    "unit": "tablet",
+    "presentation": "100 mg tablet",
+    "from": "Corvale General",
+    "to": "Corvale East",
+    "fromDays": 27,
+    "toDays": 8.5,
+    "fromAfter": 22,
+    "toAfter": 14
+   }
   },
   {
    "kind": "alternate_manufacturer",
@@ -762,15 +886,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Advagen Pharma Ltd.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from American Health Packaging",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -797,24 +912,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Aphena Pharma Solutions - Tennessee, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Asclemed USA, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Aurobindo Pharma Limited",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -833,25 +930,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Cardinal Health 107, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Coupler LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Direct_Rx",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -914,52 +993,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Northwind Health Company, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from NuCare Pharmaceuticals,Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Oxford Pharmaceuticals, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from PD-Rx Pharmaceuticals, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Pfizer Laboratories Div Pfizer Inc",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -978,33 +1012,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Prasco Laboratories",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Preferred Pharmaceuticals Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Preferred Pharmaceuticals, Inc",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Proficient Rx LP",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -1041,15 +1048,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Rising Pharma Holdings, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Safecor Health LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -1163,63 +1161,49 @@
   }
  ],
  "explanation": {
-  "state": "confirmed",
-  "headline": "FDA's records show a registered plant on our spironolactone labels received a Warning Letter 2010-04-08 and an OAI inspection 2009-06-11; the most recent inspection 2026-07-16 was VAI",
+  "state": "check",
+  "headline": "Spironolactone is not on FDA's shortage list as of 2026-10-21; internal supply at Corvale East is 8.5 days on hand for 100 mg tablets",
   "sentences": [
    {
-    "text": "Our spironolactone supply includes product labeled by Bryant Ranch Prepack, which operates a registered plant at FEI 1000519407.",
+    "text": "FDA's drug shortage list shows spironolactone is not listed as of 2026-10-21.",
     "cites": [
-     "E18"
+     "D6"
     ]
    },
    {
-    "text": "FDA inspected that plant on 2009-06-11 and classified the inspection OAI, with the classification known on 2009-09-09.",
+    "text": "Corvale East holds 106 tablets of spironolactone 100 mg with a daily use of 12.5 tablets, giving 8.5 days on hand.",
     "cites": [
-     "E8"
+     "D1"
     ]
    },
    {
-    "text": "FDA issued a Warning Letter to the same plant on 2010-04-08.",
+    "text": "Corvale General holds 375 tablets of the same 100 mg presentation with a daily use of 13.9 tablets, giving 27 days on hand.",
     "cites": [
-     "E17"
+     "D2"
     ]
    },
    {
-    "text": "Subsequent inspections in 2010, 2011, 2013, 2016, 2019, 2022, 2024, and 2026 were all classified VAI.",
+    "text": "Both sites' 100 mg tablets carry NDC 70518372103 labeled by REMEDYREPACK INC. and the SPL set ID 7646ca22-710e-4a5c-9613-b829e2f9d5ce.",
     "cites": [
-     "E9",
-     "E10",
-     "E11",
-     "E12",
-     "E13",
-     "E14",
-     "E15",
-     "E16"
+     "E1",
+     "E3"
     ]
    },
    {
-    "text": "The most recent inspection ended 2026-07-16 and was classified VAI, with the classification known on 2026-10-14.",
+    "text": "The label for that SPL set names OXFORD PHARMS as the manufacturing plant.",
     "cites": [
-     "E16"
+     "E6"
     ]
    },
    {
-    "text": "FDA's shortage list shows Pfizer Inc. spironolactone tablets posted as To Be Discontinued on 2025-12-10.",
+    "text": "The top-ranked option by rule is to transfer 69 tablets of 100 mg from Corvale General to Corvale East, which would raise Corvale East to 14 days on hand while Corvale General retains two weeks of supply.",
     "cites": [
-     "E19"
-    ]
-   },
-   {
-    "text": "Corvale East has 13 days on hand, Corvale General 25 days, and Corvale Lakeside 10 days.",
-    "cites": [
-     "D1",
-     "D2",
-     "D3"
+     "D7"
     ]
    }
   ],
   "verifier": {
-   "checked": 8,
+   "checked": 7,
    "rejected": [],
    "repaired": 0
   },
@@ -1228,132 +1212,153 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [],
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T08:29:04.050Z",
+   "at": "2026-10-22T12:43:22.707Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract 3TPAFYSP scope"
+   "reason": "in contract 8QPG9QY1 scope"
   },
   {
-   "at": "2026-10-22T08:29:04.050Z",
+   "at": "2026-10-22T12:43:22.707Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 3TPAFYSP scope"
+   "reason": "in contract 8QPG9QY1 scope"
   },
   {
-   "at": "2026-10-22T08:29:19.938Z",
+   "at": "2026-10-22T12:43:25.738Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 3TPAFYSP scope"
+   "reason": "in contract 8QPG9QY1 scope"
   },
   {
-   "at": "2026-10-22T08:29:31.117Z",
+   "at": "2026-10-22T12:43:26.133Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 3TPAFYSP scope"
+   "reason": "in contract 8QPG9QY1 scope"
   },
   {
-   "at": "2026-10-22T08:29:36.645Z",
+   "at": "2026-10-22T12:43:26.344Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 3TPAFYSP scope"
+   "reason": "in contract 8QPG9QY1 scope"
   },
   {
-   "at": "2026-10-22T08:29:51.406Z",
+   "at": "2026-10-22T12:43:27.507Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 3TPAFYSP scope"
+   "reason": "in contract 8QPG9QY1 scope"
   },
   {
-   "at": "2026-10-22T08:29:58.557Z",
+   "at": "2026-10-22T12:43:28.095Z",
    "action": "What FDA wrote at the OAI inspections",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 3TPAFYSP scope"
+   "reason": "in contract 8QPG9QY1 scope"
   },
   {
-   "at": "2026-10-22T08:29:59.852Z",
+   "at": "2026-10-22T12:43:28.230Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 3TPAFYSP scope"
+   "reason": "in contract 8QPG9QY1 scope"
   },
   {
-   "at": "2026-10-22T08:30:03.309Z",
+   "at": "2026-10-22T12:43:28.820Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 3TPAFYSP scope"
+   "reason": "in contract 8QPG9QY1 scope"
   },
   {
-   "at": "2026-10-22T08:30:07.725Z",
+   "at": "2026-10-22T12:43:30.101Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract 3TPAFYSP scope"
+   "reason": "in contract 8QPG9QY1 scope"
   },
   {
-   "at": "2026-10-22T08:30:07.737Z",
+   "at": "2026-10-22T12:43:30.101Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract 3TPAFYSP scope"
+   "reason": "in contract 8QPG9QY1 scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-d7ee43",
+   "queryId": "Q-8382bd",
    "row": 0,
    "label": "Corvale East: SPIRONOLACTONE 100MG TAB",
    "fields": {
@@ -1364,19 +1369,24 @@
     "description": "SPIRONOLACTONE 100MG TAB",
     "on_hand": "106.00",
     "daily_use": "12.484",
-    "unit": "package",
+    "unit": "tablet",
+    "pkg_units": "100.00",
+    "unit_basis": "packages of 100, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Spironolactone",
     "labeler_name": "REMEDYREPACK INC.",
     "package_ndc": "70518-3721-3",
     "spl_set_id": "7646ca22-710e-4a5c-9613-b829e2f9d5ce",
     "dosage_form": "TABLET, COATED",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "SPIRONOLACTONE 100 mg/1",
+    "unit_content": null,
+    "pkg_unit": "pouch"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-d7ee43",
+   "queryId": "Q-8382bd",
    "row": 1,
    "label": "Corvale East: SPIRONOLACTONE 25MG TAB",
    "fields": {
@@ -1387,65 +1397,80 @@
     "description": "SPIRONOLACTONE 25MG TAB",
     "on_hand": "242.00",
     "daily_use": "13.555",
-    "unit": "package",
+    "unit": "tablet",
+    "pkg_units": "60.00",
+    "unit_basis": "packages of 60, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "SPIRONOLACTONE",
     "labeler_name": "Bryant Ranch Prepack",
     "package_ndc": "72162-1624-6",
     "spl_set_id": "3791d79c-d960-4790-b689-ea32ddf7226a",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "SPIRONOLACTONE 25 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-d7ee43",
+   "queryId": "Q-8382bd",
    "row": 2,
-   "label": "Corvale General: Spironolactone",
+   "label": "Corvale General: Spironolactone 100 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-338",
     "ndc11": "70518372103",
     "ndc_as_recorded": "70518372103",
-    "description": "Spironolactone",
-    "on_hand": "375.61",
+    "description": "Spironolactone 100 mg/1",
+    "on_hand": "375.00",
     "daily_use": "13.864",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Spironolactone",
     "labeler_name": "REMEDYREPACK INC.",
     "package_ndc": "70518-3721-3",
     "spl_set_id": "7646ca22-710e-4a5c-9613-b829e2f9d5ce",
     "dosage_form": "TABLET, COATED",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "SPIRONOLACTONE 100 mg/1",
+    "unit_content": null,
+    "pkg_unit": "pouch"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-d7ee43",
+   "queryId": "Q-8382bd",
    "row": 3,
-   "label": "Corvale General: SPIRONOLACTONE",
+   "label": "Corvale General: SPIRONOLACTONE 25 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-339",
     "ndc11": "72162162406",
     "ndc_as_recorded": "72162162406",
-    "description": "SPIRONOLACTONE",
-    "on_hand": "302.53",
+    "description": "SPIRONOLACTONE 25 mg/1",
+    "on_hand": "302.00",
     "daily_use": "13.663",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "SPIRONOLACTONE",
     "labeler_name": "Bryant Ranch Prepack",
     "package_ndc": "72162-1624-6",
     "spl_set_id": "3791d79c-d960-4790-b689-ea32ddf7226a",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "SPIRONOLACTONE 25 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E5": {
    "id": "E5",
-   "queryId": "Q-d7ee43",
+   "queryId": "Q-8382bd",
    "row": 4,
    "label": "Corvale Lakeside: SPIRONOLACTONE 25 mg/1",
    "fields": {
@@ -1457,13 +1482,18 @@
     "on_hand": "28.00",
     "daily_use": "2.787",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "SPIRONOLACTONE",
     "labeler_name": "Bryant Ranch Prepack",
     "package_ndc": "72162-1624-6",
     "spl_set_id": "3791d79c-d960-4790-b689-ea32ddf7226a",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "SPIRONOLACTONE 25 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E6": {
@@ -1671,7 +1701,7 @@
   },
   "E19": {
    "id": "E19",
-   "queryId": "Q-912083",
+   "queryId": "Q-47830c",
    "row": 0,
    "label": "FDA shortage list: Pfizer Inc., To Be Discontinued",
    "fields": {
@@ -1688,208 +1718,296 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 348 units of spironolactone at 26 a day: 13 days on hand",
+   "label": "Corvale East holds 106 tablets of spironolactone 100 mg at 12.5 a day: 8.5 days on hand",
    "fields": {
     "hospital": "Corvale East",
-    "on_hand": 348,
-    "daily_use": 26,
-    "days_on_hand": 13
+    "presentation": "100 mg tablet",
+    "on_hand": 106,
+    "daily_use": 12.5,
+    "days_on_hand": 8.5
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 678 units of spironolactone at 27.5 a day: 25 days on hand",
+   "label": "Corvale General holds 375 tablets of spironolactone 100 mg at 13.9 a day: 27 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 678,
-    "daily_use": 27.5,
-    "days_on_hand": 25
+    "presentation": "100 mg tablet",
+    "on_hand": 375,
+    "daily_use": 13.9,
+    "days_on_hand": 27
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 28 units of spironolactone at 2.8 a day: 10 days on hand",
+   "label": "Corvale East holds 242 tablets of spironolactone 25 mg at 13.6 a day: 17.9 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "25 mg tablet",
+    "on_hand": 242,
+    "daily_use": 13.6,
+    "days_on_hand": 17.9
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 302 tablets of spironolactone 25 mg at 13.7 a day: 22.1 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "25 mg tablet",
+    "on_hand": 302,
+    "daily_use": 13.7,
+    "days_on_hand": 22.1
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale Lakeside holds 28 tablets of spironolactone 25 mg at 2.8 a day: 10 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
+    "presentation": "25 mg tablet",
     "on_hand": 28,
     "daily_use": 2.8,
     "days_on_hand": 10
    }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "spironolactone is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 69 tablets of 100 mg from Corvale General to Corvale East. Corvale General has 27 days of 100 mg tablets on hand and can spare 69 tablets while keeping two weeks; Corvale East has 8.5 days and would reach 14.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D8": {
+   "id": "D8",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Accord Healthcare, Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D9": {
+   "id": "D9",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Advagen Pharma Ltd.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
   }
  },
  "queries": {
-  "Q-d7ee43": {
-   "id": "Q-d7ee43",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%spironolactone%' OR lower(s.description) LIKE '%spironolactone%' ORDER BY s.hospital, s.item_key",
-   "ms": 15882,
+  "Q-8382bd": {
+   "id": "Q-8382bd",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*spironolactone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*spironolactone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3029,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T08:29:19.932Z",
+   "ranAt": "2026-10-22T12:43:25.736Z",
    "rows": 5
   },
   "Q-bd83b0": {
    "id": "Q-bd83b0",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('7646ca22-710e-4a5c-9613-b829e2f9d5ce', '3791d79c-d960-4790-b689-ea32ddf7226a') ORDER BY ps.set_id, ps.establishment",
-   "ms": 11170,
+   "ms": 394,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:29:31.108Z",
+   "ranAt": "2026-10-22T12:43:26.132Z",
    "rows": 2
   },
-  "Q-912083": {
-   "id": "Q-912083",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%spironolactone%' ORDER BY status, company_name, package_ndc",
-   "ms": 3919,
+  "Q-47830c": {
+   "id": "Q-47830c",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*spironolactone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 106,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T08:29:35.037Z",
+   "ranAt": "2026-10-22T12:43:26.239Z",
    "rows": 2
   },
-  "Q-a56d33": {
-   "id": "Q-a56d33",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%spironolactone%' ORDER BY first_posting",
-   "ms": 1600,
+  "Q-17c165": {
+   "id": "Q-17c165",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*spironolactone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 103,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T08:29:36.641Z",
-   "rows": 3
+   "ranAt": "2026-10-22T12:43:26.343Z",
+   "rows": 2
   },
-  "Q-15d8a0": {
-   "id": "Q-15d8a0",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%spironolactone%' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 14754,
+  "Q-18b9ed": {
+   "id": "Q-18b9ed",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*spironolactone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1161,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:29:51.398Z",
+   "ranAt": "2026-10-22T12:43:27.505Z",
    "rows": 531
   },
   "Q-cb1e99": {
    "id": "Q-cb1e99",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('1000519407') ORDER BY fei, end_date",
-   "ms": 2494,
+   "ms": 229,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T08:29:53.900Z",
+   "ranAt": "2026-10-22T12:43:27.736Z",
    "rows": 9
   },
   "Q-911252": {
    "id": "Q-911252",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('1000519407') ORDER BY fei, action_date",
-   "ms": 1101,
+   "ms": 129,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T08:29:55.003Z",
+   "ranAt": "2026-10-22T12:43:27.866Z",
    "rows": 1
   },
   "Q-7cc5fb": {
    "id": "Q-7cc5fb",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('1000519407') OR (fei_match <> 'name_and_city' AND firm_key IN ('bryant ranch prepack', 'oxford pharms')) ORDER BY date_published",
-   "ms": 1158,
+   "ms": 96,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T08:29:56.164Z",
+   "ranAt": "2026-10-22T12:43:27.963Z",
    "rows": 0
   },
-  "Q-557061": {
-   "id": "Q-557061",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('bryant ranch prepack', 'oxford pharms', 'remedyrepack') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%spironolactone%' ORDER BY initiation_date",
-   "ms": 2377,
+  "Q-6f18db": {
+   "id": "Q-6f18db",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('bryant ranch prepack', 'oxford pharms', 'remedyrepack') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*spironolactone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 130,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T08:29:58.547Z",
+   "ranAt": "2026-10-22T12:43:28.094Z",
    "rows": 0
   },
   "Q-7ba5bd": {
    "id": "Q-7ba5bd",
    "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('590126') ORDER BY inspection_id, cfr",
-   "ms": 1277,
+   "ms": 133,
    "mode": "live",
    "sources": [
     "fda.citations"
    ],
-   "ranAt": "2026-10-22T08:29:59.834Z",
+   "ranAt": "2026-10-22T12:43:28.228Z",
    "rows": 6
   },
   "Q-b85543": {
    "id": "Q-b85543",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('70518372103', '72162162406')",
-   "ms": 3454,
+   "ms": 589,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:30:03.306Z",
+   "ranAt": "2026-10-22T12:43:28.819Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-c5f45c": {
-   "id": "Q-c5f45c",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%spironolactone%'",
-   "ms": 4412,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:30:07.722Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-ef0463": {
+   "id": "Q-ef0463",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*spironolactone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1279,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:43:30.100Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 15,
-  "zetarisMs": 68969,
+  "zetarisMs": 17586,
   "modelCalls": 1,
-  "tokensIn": 1870,
-  "tokensOut": 535,
+  "tokensIn": 2982,
+  "tokensOut": 446,
   "mode": "live"
  },
  "slug": "spironolactone",
@@ -1906,7 +2024,7 @@
     "id": "hospital-item:hospital-item:CG-338",
     "type": "HospitalItem",
     "key": "hospital-item:CG-338",
-    "label": "Corvale General: Spironolactone",
+    "label": "Corvale General: Spironolactone 100 mg/1",
     "attrs": {
      "key": "hospital-item:CG-338"
     },
@@ -1917,7 +2035,7 @@
     "id": "hospital-item:hospital-item:CG-339",
     "type": "HospitalItem",
     "key": "hospital-item:CG-339",
-    "label": "Corvale General: SPIRONOLACTONE",
+    "label": "Corvale General: SPIRONOLACTONE 25 mg/1",
     "attrs": {
      "key": "hospital-item:CG-339"
     },
@@ -2056,7 +2174,7 @@
     },
     "facts": [
      {
-      "id": "fact_ef6fc6a65e099c09",
+      "id": "fact_b7b5c538623efa28",
       "about": "inspection:fda-inspection:1110509",
       "predicate": "classification",
       "value": "VAI",
@@ -2064,9 +2182,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:29:59.849Z"
+       "at": "2026-10-22T12:43:28.230Z"
       },
-      "assertedAt": "2026-10-22T08:29:59.849Z"
+      "assertedAt": "2026-10-22T12:43:28.230Z"
      }
     ],
     "depth": 4
@@ -2082,7 +2200,7 @@
     },
     "facts": [
      {
-      "id": "fact_4cd5aaef3d66ccc0",
+      "id": "fact_3a292843ec632962",
       "about": "inspection:fda-inspection:1165537",
       "predicate": "classification",
       "value": "VAI",
@@ -2090,9 +2208,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:29:59.849Z"
+       "at": "2026-10-22T12:43:28.230Z"
       },
-      "assertedAt": "2026-10-22T08:29:59.849Z"
+      "assertedAt": "2026-10-22T12:43:28.230Z"
      }
     ],
     "depth": 4
@@ -2108,7 +2226,7 @@
     },
     "facts": [
      {
-      "id": "fact_37938b2d3093c996",
+      "id": "fact_1facb95b5f178652",
       "about": "inspection:fda-inspection:1228907",
       "predicate": "classification",
       "value": "VAI",
@@ -2116,9 +2234,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:29:59.849Z"
+       "at": "2026-10-22T12:43:28.230Z"
       },
-      "assertedAt": "2026-10-22T08:29:59.849Z"
+      "assertedAt": "2026-10-22T12:43:28.230Z"
      }
     ],
     "depth": 4
@@ -2134,7 +2252,7 @@
     },
     "facts": [
      {
-      "id": "fact_0b005670df5c9fd7",
+      "id": "fact_5f3e33fab3239ab1",
       "about": "inspection:fda-inspection:1326578",
       "predicate": "classification",
       "value": "VAI",
@@ -2142,9 +2260,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:29:59.850Z"
+       "at": "2026-10-22T12:43:28.230Z"
       },
-      "assertedAt": "2026-10-22T08:29:59.850Z"
+      "assertedAt": "2026-10-22T12:43:28.230Z"
      }
     ],
     "depth": 4
@@ -2160,7 +2278,7 @@
     },
     "facts": [
      {
-      "id": "fact_c67b63a7106b75fd",
+      "id": "fact_5a6021b9f270ab78",
       "about": "inspection:fda-inspection:590126",
       "predicate": "classification",
       "value": "OAI",
@@ -2168,9 +2286,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:29:59.848Z"
+       "at": "2026-10-22T12:43:28.229Z"
       },
-      "assertedAt": "2026-10-22T08:29:59.848Z"
+      "assertedAt": "2026-10-22T12:43:28.229Z"
      }
     ],
     "depth": 4
@@ -2186,7 +2304,7 @@
     },
     "facts": [
      {
-      "id": "fact_e6c3b90b834b2e02",
+      "id": "fact_6ea3d9eee91a4cec",
       "about": "inspection:fda-inspection:682974",
       "predicate": "classification",
       "value": "VAI",
@@ -2194,9 +2312,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:29:59.849Z"
+       "at": "2026-10-22T12:43:28.229Z"
       },
-      "assertedAt": "2026-10-22T08:29:59.849Z"
+      "assertedAt": "2026-10-22T12:43:28.229Z"
      }
     ],
     "depth": 4
@@ -2212,7 +2330,7 @@
     },
     "facts": [
      {
-      "id": "fact_5ed794f5c847fd56",
+      "id": "fact_e4050341bd977756",
       "about": "inspection:fda-inspection:732513",
       "predicate": "classification",
       "value": "VAI",
@@ -2220,9 +2338,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:29:59.849Z"
+       "at": "2026-10-22T12:43:28.229Z"
       },
-      "assertedAt": "2026-10-22T08:29:59.849Z"
+      "assertedAt": "2026-10-22T12:43:28.229Z"
      }
     ],
     "depth": 4
@@ -2238,7 +2356,7 @@
     },
     "facts": [
      {
-      "id": "fact_c6a9020b6effdfb5",
+      "id": "fact_b58f0f6ca37670fa",
       "about": "inspection:fda-inspection:840224",
       "predicate": "classification",
       "value": "VAI",
@@ -2246,9 +2364,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:29:59.849Z"
+       "at": "2026-10-22T12:43:28.229Z"
       },
-      "assertedAt": "2026-10-22T08:29:59.849Z"
+      "assertedAt": "2026-10-22T12:43:28.229Z"
      }
     ],
     "depth": 4
@@ -2264,7 +2382,7 @@
     },
     "facts": [
      {
-      "id": "fact_89164bd73ba7300b",
+      "id": "fact_4e48d91b9cf9e103",
       "about": "inspection:fda-inspection:995337",
       "predicate": "classification",
       "value": "VAI",
@@ -2272,9 +2390,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:29:59.849Z"
+       "at": "2026-10-22T12:43:28.229Z"
       },
-      "assertedAt": "2026-10-22T08:29:59.849Z"
+      "assertedAt": "2026-10-22T12:43:28.229Z"
      }
     ],
     "depth": 4
@@ -2297,11 +2415,11 @@
     "from": "hospital-item:hospital-item:CG-338",
     "to": "package:ndc-package:70518-3721-3",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:29:19.937Z",
+    "validFrom": "2026-10-22T12:43:25.737Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:29:19.937Z"
+     "at": "2026-10-22T12:43:25.737Z"
     }
    },
    {
@@ -2309,11 +2427,11 @@
     "from": "hospital-item:hospital-item:CG-339",
     "to": "package:ndc-package:72162-1624-6",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:29:19.938Z",
+    "validFrom": "2026-10-22T12:43:25.738Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:29:19.938Z"
+     "at": "2026-10-22T12:43:25.738Z"
     }
    },
    {
@@ -2321,11 +2439,11 @@
     "from": "hospital-item:hospital-item:EA-E-000267",
     "to": "package:ndc-package:70518-3721-3",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:29:19.937Z",
+    "validFrom": "2026-10-22T12:43:25.737Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:29:19.937Z"
+     "at": "2026-10-22T12:43:25.737Z"
     }
    },
    {
@@ -2333,11 +2451,11 @@
     "from": "hospital-item:hospital-item:EA-E-000302",
     "to": "package:ndc-package:72162-1624-6",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:29:19.937Z",
+    "validFrom": "2026-10-22T12:43:25.737Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:29:19.937Z"
+     "at": "2026-10-22T12:43:25.737Z"
     }
    },
    {
@@ -2345,11 +2463,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0130",
     "to": "package:ndc-package:72162-1624-6",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:29:19.938Z",
+    "validFrom": "2026-10-22T12:43:25.738Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:29:19.938Z"
+     "at": "2026-10-22T12:43:25.738Z"
     }
    },
    {
@@ -2357,11 +2475,11 @@
     "from": "package:ndc-package:70518-3721-3",
     "to": "product:ndc-product:70518-3721",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:29:19.937Z",
+    "validFrom": "2026-10-22T12:43:25.737Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:29:19.937Z"
+     "at": "2026-10-22T12:43:25.737Z"
     }
    },
    {
@@ -2369,11 +2487,11 @@
     "from": "package:ndc-package:72162-1624-6",
     "to": "product:ndc-product:72162-1624",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:29:19.937Z",
+    "validFrom": "2026-10-22T12:43:25.737Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:29:19.937Z"
+     "at": "2026-10-22T12:43:25.737Z"
     }
    },
    {
@@ -2381,11 +2499,11 @@
     "from": "product:ndc-product:70518-3721",
     "to": "drug:generic:spironolactone",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:29:19.937Z",
+    "validFrom": "2026-10-22T12:43:25.737Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:29:19.937Z"
+     "at": "2026-10-22T12:43:25.737Z"
     }
    },
    {
@@ -2393,11 +2511,11 @@
     "from": "product:ndc-product:70518-3721",
     "to": "labeler:ndc-labeler:70518",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:29:19.937Z",
+    "validFrom": "2026-10-22T12:43:25.737Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:29:19.937Z"
+     "at": "2026-10-22T12:43:25.737Z"
     }
    },
    {
@@ -2405,11 +2523,11 @@
     "from": "product:ndc-product:72162-1624",
     "to": "drug:generic:spironolactone",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:29:19.937Z",
+    "validFrom": "2026-10-22T12:43:25.737Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:29:19.937Z"
+     "at": "2026-10-22T12:43:25.737Z"
     }
    },
    {
@@ -2417,11 +2535,11 @@
     "from": "product:ndc-product:72162-1624",
     "to": "labeler:ndc-labeler:72162",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:29:19.937Z",
+    "validFrom": "2026-10-22T12:43:25.737Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:29:19.937Z"
+     "at": "2026-10-22T12:43:25.737Z"
     }
    },
    {
@@ -2429,11 +2547,11 @@
     "from": "product:ndc-product:72162-1624",
     "to": "site:fei:1000519407",
     "type": "made-at",
-    "validFrom": "2026-10-22T08:29:59.846Z",
+    "validFrom": "2026-10-22T12:43:28.229Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:29:59.846Z"
+     "at": "2026-10-22T12:43:28.229Z"
     }
    },
    {
@@ -2441,11 +2559,11 @@
     "from": "inspection:fda-inspection:590126",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:29:59.848Z",
+    "validFrom": "2026-10-22T12:43:28.229Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:29:59.848Z"
+     "at": "2026-10-22T12:43:28.229Z"
     }
    },
    {
@@ -2453,11 +2571,11 @@
     "from": "inspection:fda-inspection:682974",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:29:59.849Z",
+    "validFrom": "2026-10-22T12:43:28.229Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:29:59.849Z"
+     "at": "2026-10-22T12:43:28.229Z"
     }
    },
    {
@@ -2465,11 +2583,11 @@
     "from": "inspection:fda-inspection:732513",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:29:59.849Z",
+    "validFrom": "2026-10-22T12:43:28.229Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:29:59.849Z"
+     "at": "2026-10-22T12:43:28.229Z"
     }
    },
    {
@@ -2477,11 +2595,11 @@
     "from": "inspection:fda-inspection:840224",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:29:59.849Z",
+    "validFrom": "2026-10-22T12:43:28.229Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:29:59.849Z"
+     "at": "2026-10-22T12:43:28.229Z"
     }
    },
    {
@@ -2489,11 +2607,11 @@
     "from": "inspection:fda-inspection:995337",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:29:59.849Z",
+    "validFrom": "2026-10-22T12:43:28.229Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:29:59.849Z"
+     "at": "2026-10-22T12:43:28.229Z"
     }
    },
    {
@@ -2501,11 +2619,11 @@
     "from": "inspection:fda-inspection:1110509",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:29:59.849Z",
+    "validFrom": "2026-10-22T12:43:28.229Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:29:59.849Z"
+     "at": "2026-10-22T12:43:28.229Z"
     }
    },
    {
@@ -2513,11 +2631,11 @@
     "from": "inspection:fda-inspection:1165537",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:29:59.849Z",
+    "validFrom": "2026-10-22T12:43:28.230Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:29:59.849Z"
+     "at": "2026-10-22T12:43:28.230Z"
     }
    },
    {
@@ -2525,11 +2643,11 @@
     "from": "inspection:fda-inspection:1228907",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:29:59.849Z",
+    "validFrom": "2026-10-22T12:43:28.230Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:29:59.849Z"
+     "at": "2026-10-22T12:43:28.230Z"
     }
    },
    {
@@ -2537,11 +2655,11 @@
     "from": "inspection:fda-inspection:1326578",
     "to": "site:fei:1000519407",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:29:59.850Z",
+    "validFrom": "2026-10-22T12:43:28.230Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:29:59.850Z"
+     "at": "2026-10-22T12:43:28.230Z"
     }
    },
    {
@@ -2549,11 +2667,11 @@
     "from": "warning-letter:fda-warning-letter:72525",
     "to": "site:fei:1000519407",
     "type": "issued-to",
-    "validFrom": "2026-10-22T08:29:59.848Z",
+    "validFrom": "2026-10-22T12:43:28.229Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:29:59.848Z"
+     "at": "2026-10-22T12:43:28.229Z"
     }
    }
   ],

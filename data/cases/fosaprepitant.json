@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-8ad563",
+ "id": "case-2026-10-22-9098f4",
  "question": "Why is fosaprepitant dimeglumine short, and what do we do?",
- "askedAt": "2026-10-22T07:47:25.112Z",
+ "askedAt": "2026-10-22T12:01:19.551Z",
  "asOf": "2026-10-21",
  "molecule": "fosaprepitant dimeglumine",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H985GHHT2W0FMBFGW6BSQP",
+  "contractId": "01M5HQS61Y5ETRBN4BRZE8RWFF",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-38fe19"
+    "Q-c550b6"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3193,
+   "ms": 3225,
    "rows": 2,
-   "finding": "2 stock lines across 2 hospitals.",
+   "finding": "2 stock lines across 2 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-08e66c"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 884,
+   "ms": 397,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-21ea22",
-    "Q-153d2c"
+    "Q-506604",
+    "Q-dcf408"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 599,
+   "ms": 220,
    "rows": 2,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-790946"
+    "Q-94d83d"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2434,
+   "ms": 1065,
    "rows": 26,
    "finding": "21 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-6a9bf2",
     "Q-20d2e7",
     "Q-a38d22",
-    "Q-8e01d5"
+    "Q-8a70af"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1279,
+   "ms": 589,
    "rows": 1,
    "finding": "1 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 934,
+   "ms": 667,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-a3982a"
+    "Q-07ee79"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1205,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1132,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 2,
+   "ms": 0,
    "rows": 2,
    "finding": "2 past decisions recalled.",
    "status": "ok"
@@ -153,22 +164,65 @@
    "onHand": 94,
    "dailyUse": 8.309,
    "days": 11.3,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "fosaprepitant dimeglumine|150mg/5ml|injection|5ml|vial",
+   "presentationLabel": "150 mg/5 mL injection, 5 mL vial",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-223",
    "ndc11": "16714024801",
-   "description": "Fosaprepitant dimeglumine",
+   "description": "Fosaprepitant dimeglumine 150 mg/5mL",
    "labeler": "NorthStar RxLLC",
-   "onHand": 166.5,
+   "onHand": 166,
    "dailyUse": 8.904,
-   "days": 18.7,
+   "days": 18.6,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "fosaprepitant dimeglumine|150mg/5ml|injection|5ml|vial",
+   "presentationLabel": "150 mg/5 mL injection, 5 mL vial",
    "evidence": "E2"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "fosaprepitant dimeglumine|150mg/5ml|injection|5ml|vial",
+   "label": "150 mg/5 mL injection, 5 mL vial",
+   "short": "150 mg/5 mL, 5 mL",
+   "unit": "vial",
+   "onHand": 260,
+   "dailyUse": 17.213,
+   "days": 15.1,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 94,
+     "dailyUse": 8.309,
+     "days": 11.3,
+     "lines": [
+      "EA-E-000134"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 166,
+     "dailyUse": 8.904,
+     "days": 18.6,
+     "lines": [
+      "CG-223"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -332,7 +386,7 @@
    "ndc11": "63323097210",
    "dosageForm": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
    "plants": [],
-   "onShortageList": false,
+   "onShortageList": true,
    "inOurStock": false
   },
   {
@@ -475,15 +529,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Bryant Ranch Prepack",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Camber Pharmaceuticals, Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -512,15 +557,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Eugia US LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Fresenius Kabi USA, LLC",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -608,47 +644,49 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "FDA shortage list shows Fresenius Kabi USA, LLC discontinued manufacture of fosaprepitant dimeglumine injection on 2026-04-08",
+  "headline": "Fosaprepitant dimeglumine is not on FDA's shortage list as of 2026-10-21; Fresenius Kabi USA, LLC posted a discontinuation on 2026-04-08",
   "sentences": [
    {
-    "text": "FDA's shortage list records Fresenius Kabi USA, LLC as discontinuing manufacture of fosaprepitant dimeglumine injection with an initial posting date of 2026-04-08.",
+    "text": "FDA's drug shortage list does not include fosaprepitant dimeglumine as of 2026-10-21.",
+    "cites": [
+     "D3"
+    ]
+   },
+   {
+    "text": "Fresenius Kabi USA, LLC posted a discontinuation of manufacture for fosaprepitant dimeglumine injection on 2026-04-08.",
     "cites": [
      "E5"
     ]
    },
    {
-    "text": "The label for NorthStar Rx LLC's product (NDC 16714024801) names Aspiro Pharma Limited in India as the registered manufacturing plant.",
-    "cites": [
-     "E4"
-    ]
-   },
-   {
-    "text": "FDA inspection 1215606 of Aspiro Pharma Limited ended on 2023-08-11 and was classified VAI, with the classification known to FDA on 2023-11-17.",
-    "cites": [
-     "E3"
-    ]
-   },
-   {
-    "text": "Corvale East has 94 units on hand at 8.3 units per day, providing 11 days of supply.",
+    "text": "Corvale East holds 94 vials of the 150 mg/5 mL presentation with 11.3 days on hand at current use.",
     "cites": [
      "D1"
     ]
    },
    {
-    "text": "Corvale General has 167 units on hand at 8.9 units per day, providing 19 days of supply.",
+    "text": "Corvale General holds 166 vials of the same presentation with 18.6 days on hand at current use.",
     "cites": [
      "D2"
+    ]
+   },
+   {
+    "text": "The label for NDC 16714024801 names Aspiro Pharma Limited in India as the registered manufacturing plant, last inspected by FDA with a VAI classification on 2023-08-11.",
+    "cites": [
+     "E4",
+     "E3"
+    ]
+   },
+   {
+    "text": "The rule-based best option is to buy from AVYXA Pharma, LLC, which is not on FDA's shortage list today, though its label names no plant we could place.",
+    "cites": [
+     "D4"
     ]
    }
   ],
   "verifier": {
    "checked": 7,
-   "rejected": [
-    {
-     "text": "The recommended option is to buy from AVYXA Pharma, LLC, which is not on FDA's shortage list today, though its label names no plant we could place.",
-     "reason": "cites nothing"
-    }
-   ],
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -656,45 +694,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -716,80 +775,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:47:14.579Z",
+   "at": "2026-10-22T12:01:12.254Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract FGW6BSQP scope"
+   "reason": "in contract RZE8RWFF scope"
   },
   {
-   "at": "2026-10-22T07:47:14.579Z",
+   "at": "2026-10-22T12:01:12.254Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FGW6BSQP scope"
+   "reason": "in contract RZE8RWFF scope"
   },
   {
-   "at": "2026-10-22T07:47:17.774Z",
+   "at": "2026-10-22T12:01:15.480Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FGW6BSQP scope"
+   "reason": "in contract RZE8RWFF scope"
   },
   {
-   "at": "2026-10-22T07:47:18.657Z",
+   "at": "2026-10-22T12:01:15.877Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FGW6BSQP scope"
+   "reason": "in contract RZE8RWFF scope"
   },
   {
-   "at": "2026-10-22T07:47:19.257Z",
+   "at": "2026-10-22T12:01:16.097Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FGW6BSQP scope"
+   "reason": "in contract RZE8RWFF scope"
   },
   {
-   "at": "2026-10-22T07:47:21.691Z",
+   "at": "2026-10-22T12:01:17.162Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FGW6BSQP scope"
+   "reason": "in contract RZE8RWFF scope"
   },
   {
-   "at": "2026-10-22T07:47:22.973Z",
+   "at": "2026-10-22T12:01:17.751Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FGW6BSQP scope"
+   "reason": "in contract RZE8RWFF scope"
   },
   {
-   "at": "2026-10-22T07:47:23.905Z",
+   "at": "2026-10-22T12:01:18.419Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract FGW6BSQP scope"
+   "reason": "in contract RZE8RWFF scope"
   },
   {
-   "at": "2026-10-22T07:47:25.110Z",
+   "at": "2026-10-22T12:01:19.550Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract FGW6BSQP scope"
+   "reason": "in contract RZE8RWFF scope"
   },
   {
-   "at": "2026-10-22T07:47:25.113Z",
+   "at": "2026-10-22T12:01:19.551Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract FGW6BSQP scope"
+   "reason": "in contract RZE8RWFF scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-38fe19",
+   "queryId": "Q-c550b6",
    "row": 0,
    "label": "Corvale East: FOSAPREPITANT DIMEGLUMINE 150MG/5ML 5ML SDV",
    "fields": {
@@ -800,37 +859,47 @@
     "description": "FOSAPREPITANT DIMEGLUMINE 150MG/5ML 5ML SDV",
     "on_hand": "94.00",
     "daily_use": "8.309",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Fosaprepitant dimeglumine",
     "labeler_name": "NorthStar RxLLC",
     "package_ndc": "16714-248-01",
     "spl_set_id": "df341f63-0fef-4411-a89b-6df6b9e792be",
     "dosage_form": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "FOSAPREPITANT DIMEGLUMINE 150 mg/5mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-38fe19",
+   "queryId": "Q-c550b6",
    "row": 1,
-   "label": "Corvale General: Fosaprepitant dimeglumine",
+   "label": "Corvale General: Fosaprepitant dimeglumine 150 mg/5mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-223",
     "ndc11": "16714024801",
     "ndc_as_recorded": "16714024801",
-    "description": "Fosaprepitant dimeglumine",
-    "on_hand": "166.50",
+    "description": "Fosaprepitant dimeglumine 150 mg/5mL",
+    "on_hand": "166.00",
     "daily_use": "8.904",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Fosaprepitant dimeglumine",
     "labeler_name": "NorthStar RxLLC",
     "package_ndc": "16714-248-01",
     "spl_set_id": "df341f63-0fef-4411-a89b-6df6b9e792be",
     "dosage_form": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "FOSAPREPITANT DIMEGLUMINE 150 mg/5mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E3": {
@@ -867,7 +936,7 @@
   },
   "E5": {
    "id": "E5",
-   "queryId": "Q-21ea22",
+   "queryId": "Q-506604",
    "row": 0,
    "label": "FDA shortage list: Fresenius Kabi USA, LLC, To Be Discontinued",
    "fields": {
@@ -884,185 +953,246 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 94 units of fosaprepitant dimeglumine at 8.3 a day: 11 days on hand",
+   "label": "Corvale East holds 94 vials of fosaprepitant dimeglumine 150 mg/5 mL, 5 mL at 8.3 a day: 11.3 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "150 mg/5 mL injection, 5 mL vial",
     "on_hand": 94,
     "daily_use": 8.3,
-    "days_on_hand": 11
+    "days_on_hand": 11.3
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 167 units of fosaprepitant dimeglumine at 8.9 a day: 19 days on hand",
+   "label": "Corvale General holds 166 vials of fosaprepitant dimeglumine 150 mg/5 mL, 5 mL at 8.9 a day: 18.6 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 167,
+    "presentation": "150 mg/5 mL injection, 5 mL vial",
+    "on_hand": 166,
     "daily_use": 8.9,
-    "days_on_hand": 19
+    "days_on_hand": 18.6
+   }
+  },
+  "D3": {
+   "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "fosaprepitant dimeglumine is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from AVYXA Pharma, LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Actavis Pharma, Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Amneal Pharmaceuticals LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-38fe19": {
-   "id": "Q-38fe19",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%fosaprepitant%' OR lower(s.description) LIKE '%fosaprepitant%' ORDER BY s.hospital, s.item_key",
-   "ms": 3189,
+  "Q-c550b6": {
+   "id": "Q-c550b6",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*fosaprepitant(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*fosaprepitant(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3224,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:47:17.768Z",
+   "ranAt": "2026-10-22T12:01:15.478Z",
    "rows": 2
   },
   "Q-08e66c": {
    "id": "Q-08e66c",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('df341f63-0fef-4411-a89b-6df6b9e792be') ORDER BY ps.set_id, ps.establishment",
-   "ms": 879,
+   "ms": 396,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:47:18.653Z",
+   "ranAt": "2026-10-22T12:01:15.876Z",
    "rows": 1
   },
-  "Q-21ea22": {
-   "id": "Q-21ea22",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%fosaprepitant%' ORDER BY status, company_name, package_ndc",
-   "ms": 311,
+  "Q-506604": {
+   "id": "Q-506604",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*fosaprepitant(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 109,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:47:18.968Z",
+   "ranAt": "2026-10-22T12:01:15.986Z",
    "rows": 1
   },
-  "Q-153d2c": {
-   "id": "Q-153d2c",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%fosaprepitant%' ORDER BY first_posting",
-   "ms": 280,
+  "Q-dcf408": {
+   "id": "Q-dcf408",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*fosaprepitant(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 109,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:47:19.252Z",
+   "ranAt": "2026-10-22T12:01:16.096Z",
    "rows": 1
   },
-  "Q-790946": {
-   "id": "Q-790946",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%fosaprepitant%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2430,
+  "Q-94d83d": {
+   "id": "Q-94d83d",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*fosaprepitant(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1063,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:47:21.687Z",
+   "ranAt": "2026-10-22T12:01:17.161Z",
    "rows": 26
   },
   "Q-6a9bf2": {
    "id": "Q-6a9bf2",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3014483338') ORDER BY fei, end_date",
-   "ms": 552,
+   "ms": 231,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:47:22.243Z",
+   "ranAt": "2026-10-22T12:01:17.393Z",
    "rows": 1
   },
   "Q-20d2e7": {
    "id": "Q-20d2e7",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3014483338') ORDER BY fei, action_date",
-   "ms": 294,
+   "ms": 116,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:47:22.542Z",
+   "ranAt": "2026-10-22T12:01:17.510Z",
    "rows": 0
   },
   "Q-a38d22": {
    "id": "Q-a38d22",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3014483338') OR (fei_match <> 'name_and_city' AND firm_key IN ('aspiro')) ORDER BY date_published",
-   "ms": 176,
+   "ms": 99,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:47:22.721Z",
+   "ranAt": "2026-10-22T12:01:17.611Z",
    "rows": 0
   },
-  "Q-8e01d5": {
-   "id": "Q-8e01d5",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('aspiro', 'northstar rxllc') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%fosaprepitant%' ORDER BY initiation_date",
-   "ms": 243,
+  "Q-8a70af": {
+   "id": "Q-8a70af",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('aspiro', 'northstar rxllc') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*fosaprepitant(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 138,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:47:22.967Z",
+   "ranAt": "2026-10-22T12:01:17.750Z",
    "rows": 0
   },
   "Q-3ab448": {
    "id": "Q-3ab448",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('16714024801')",
-   "ms": 928,
+   "ms": 666,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:47:23.901Z",
+   "ranAt": "2026-10-22T12:01:18.417Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-a3982a": {
-   "id": "Q-a3982a",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%fosaprepitant%'",
-   "ms": 1202,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:47:25.107Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-07ee79": {
+   "id": "Q-07ee79",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*fosaprepitant(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1130,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:01:19.549Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 15855,
+  "zetarisMs": 17489,
   "modelCalls": 1,
-  "tokensIn": 796,
-  "tokensOut": 399,
+  "tokensIn": 1188,
+  "tokensOut": 417,
   "mode": "live"
  },
  "slug": "fosaprepitant",
@@ -1076,7 +1206,7 @@
     "id": "hospital-item:hospital-item:CG-223",
     "type": "HospitalItem",
     "key": "hospital-item:CG-223",
-    "label": "Corvale General: Fosaprepitant dimeglumine",
+    "label": "Corvale General: Fosaprepitant dimeglumine 150 mg/5mL",
     "attrs": {
      "key": "hospital-item:CG-223"
     },
@@ -1160,7 +1290,7 @@
     },
     "facts": [
      {
-      "id": "fact_ce1948f6d2fea565",
+      "id": "fact_89c36154cdea05c0",
       "about": "inspection:fda-inspection:1215606",
       "predicate": "classification",
       "value": "VAI",
@@ -1168,9 +1298,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:47:22.971Z"
+       "at": "2026-10-22T12:01:17.751Z"
       },
-      "assertedAt": "2026-10-22T07:47:22.971Z"
+      "assertedAt": "2026-10-22T12:01:17.751Z"
      }
     ],
     "depth": 4
@@ -1182,11 +1312,11 @@
     "from": "hospital-item:hospital-item:CG-223",
     "to": "package:ndc-package:16714-248-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:47:17.773Z",
+    "validFrom": "2026-10-22T12:01:15.480Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:47:17.773Z"
+     "at": "2026-10-22T12:01:15.480Z"
     }
    },
    {
@@ -1194,11 +1324,11 @@
     "from": "hospital-item:hospital-item:EA-E-000134",
     "to": "package:ndc-package:16714-248-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:47:17.773Z",
+    "validFrom": "2026-10-22T12:01:15.479Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:47:17.773Z"
+     "at": "2026-10-22T12:01:15.479Z"
     }
    },
    {
@@ -1206,11 +1336,11 @@
     "from": "package:ndc-package:16714-248-01",
     "to": "product:ndc-product:16714-248",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:47:17.773Z",
+    "validFrom": "2026-10-22T12:01:15.479Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:47:17.773Z"
+     "at": "2026-10-22T12:01:15.479Z"
     }
    },
    {
@@ -1218,11 +1348,11 @@
     "from": "product:ndc-product:16714-248",
     "to": "drug:generic:fosaprepitant dimeglumine",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:47:17.773Z",
+    "validFrom": "2026-10-22T12:01:15.480Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:47:17.773Z"
+     "at": "2026-10-22T12:01:15.480Z"
     }
    },
    {
@@ -1230,11 +1360,11 @@
     "from": "product:ndc-product:16714-248",
     "to": "labeler:ndc-labeler:16714",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:47:17.773Z",
+    "validFrom": "2026-10-22T12:01:15.480Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:47:17.773Z"
+     "at": "2026-10-22T12:01:15.480Z"
     }
    },
    {
@@ -1242,11 +1372,11 @@
     "from": "product:ndc-product:16714-248",
     "to": "site:fei:3014483338",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:47:22.970Z",
+    "validFrom": "2026-10-22T12:01:17.751Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:47:22.970Z"
+     "at": "2026-10-22T12:01:17.751Z"
     }
    },
    {
@@ -1254,11 +1384,11 @@
     "from": "inspection:fda-inspection:1215606",
     "to": "site:fei:3014483338",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:47:22.970Z",
+    "validFrom": "2026-10-22T12:01:17.751Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:47:22.970Z"
+     "at": "2026-10-22T12:01:17.751Z"
     }
    }
   ],

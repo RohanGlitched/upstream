@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-7f828f",
+ "id": "case-2026-10-22-f47b91",
  "question": "Why is dexamethasone short, and what do we do?",
- "askedAt": "2026-10-22T07:39:05.554Z",
+ "askedAt": "2026-10-22T11:43:07.741Z",
  "asOf": "2026-10-21",
  "molecule": "dexamethasone sodium phosphate",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H8RWZ1FH9G1HEAXA9KYS95",
+  "contractId": "01M5HPQT1AHJT3DSGZKPSG6QNC",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-a699c8"
+    "Q-6749dc"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3080,
+   "ms": 3720,
    "rows": 7,
-   "finding": "7 stock lines across 2 hospitals.",
+   "finding": "7 stock lines across 2 hospitals, 4 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-6e3c75"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 670,
+   "ms": 512,
    "rows": 3,
    "finding": "3 plant links on 3 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,15 +51,15 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-d29403",
-    "Q-aca712"
+    "Q-986b3d",
+    "Q-98408b"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 391,
-   "rows": 22,
+   "ms": 332,
+   "rows": 21,
    "finding": "On FDA's list as Current for 5 companies.",
    "status": "ok"
   },
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-339a1a"
+    "Q-88b6cf"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2195,
+   "ms": 1348,
    "rows": 113,
    "finding": "25 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-8b4ccd",
     "Q-80108e",
     "Q-94939f",
-    "Q-f58852"
+    "Q-9dc1a7"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1369,
+   "ms": 713,
    "rows": 56,
    "finding": "50 inspections (2 OAI at our plants), 5 compliance actions, 0 import-alert listings, 1 recalls.",
    "status": "ok"
@@ -104,7 +111,7 @@
    "sources": [
     "fda.citations"
    ],
-   "ms": 317,
+   "ms": 174,
    "rows": 20,
    "finding": "20 Form 483 observations recorded.",
    "status": "ok"
@@ -119,9 +126,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1683,
+   "ms": 1024,
    "rows": 2,
    "finding": "2 approved interchanges on file.",
    "status": "ok"
@@ -129,19 +136,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-fd8f1e"
+    "Q-4e52d5"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1533,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1311,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -168,8 +179,11 @@
    "onHand": 91,
    "dailyUse": 14.385,
    "days": 6.3,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 25, converted to units",
+   "presentation": "dexamethasone sodium phosphate|10mg/ml|injection|1ml|vial",
+   "presentationLabel": "10 mg/mL injection, 1 mL vial",
    "evidence": "E1"
   },
   {
@@ -181,8 +195,11 @@
    "onHand": 89,
    "dailyUse": 11.481,
    "days": 7.8,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 25, converted to units",
+   "presentation": "dexamethasone sodium phosphate|4mg/ml|injection|5ml|vial",
+   "presentationLabel": "4 mg/mL injection, 5 mL vial",
    "evidence": "E2"
   },
   {
@@ -194,61 +211,206 @@
    "onHand": 36,
    "dailyUse": 6.528,
    "days": 5.5,
-   "unit": "package",
+   "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 60, converted to units",
+   "presentation": "dexamethasone|1mg|tablet||tablet",
+   "presentationLabel": "1 mg tablet",
    "evidence": "E3"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-193",
    "ndc11": "69306011160",
-   "description": "Dexamethasone",
+   "description": "Dexamethasone 1 mg/1",
    "labeler": "Doc Rx",
-   "onHand": 169.78,
+   "onHand": 169,
    "dailyUse": 6.534,
-   "days": 26,
+   "days": 25.9,
    "unit": "tablet",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "dexamethasone|1mg|tablet||tablet",
+   "presentationLabel": "1 mg tablet",
    "evidence": "E4"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-194",
    "ndc11": "00641614625",
-   "description": "Dexamethasone Sodium Phosphate",
+   "description": "Dexamethasone Sodium Phosphate 4 mg/mL",
    "labeler": "Hikma Pharmaceuticals USA Inc.",
-   "onHand": 241.95,
+   "onHand": 241,
    "dailyUse": 12.706,
    "days": 19,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "dexamethasone sodium phosphate|4mg/ml|injection|5ml|vial",
+   "presentationLabel": "4 mg/mL injection, 5 mL vial",
    "evidence": "E5"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-26",
    "ndc11": "00641036725",
-   "description": "Dexamethasone Sodium Phosphate",
+   "description": "Dexamethasone Sodium Phosphate 10 mg/mL",
    "labeler": "Hikma Pharmaceuticals USA Inc.",
-   "onHand": 199.27,
+   "onHand": 199,
    "dailyUse": 13.043,
    "days": 15.3,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "dexamethasone sodium phosphate|10mg/ml|injection|1ml|vial",
+   "presentationLabel": "10 mg/mL injection, 1 mL vial",
    "evidence": "E6"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-27",
    "ndc11": "55150023701",
-   "description": "DEXAMETHASONE SODIUM PHOSPHATE",
+   "description": "DEXAMETHASONE SODIUM PHOSPHATE 4 mg/mL",
    "labeler": "Eugia US LLC",
-   "onHand": 189.28,
+   "onHand": 189,
    "dailyUse": 13.066,
    "days": 14.5,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "dexamethasone sodium phosphate|4mg/ml|injection|1ml|vial",
+   "presentationLabel": "4 mg/mL injection, 1 mL vial",
    "evidence": "E7"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "dexamethasone|1mg|tablet||tablet",
+   "label": "1 mg tablet",
+   "short": "1 mg",
+   "unit": "tablet",
+   "onHand": 205,
+   "dailyUse": 13.062,
+   "days": 15.7,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 36,
+     "dailyUse": 6.528,
+     "days": 5.5,
+     "lines": [
+      "EA-E-000256"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 169,
+     "dailyUse": 6.534,
+     "days": 25.9,
+     "lines": [
+      "CG-193"
+     ],
+     "evidence": [
+      "E4"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "dexamethasone sodium phosphate|10mg/ml|injection|1ml|vial",
+   "label": "10 mg/mL injection, 1 mL vial",
+   "short": "10 mg/mL, 1 mL",
+   "unit": "vial",
+   "onHand": 290,
+   "dailyUse": 27.428,
+   "days": 10.6,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 91,
+     "dailyUse": 14.385,
+     "days": 6.3,
+     "lines": [
+      "EA-E-000108"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 199,
+     "dailyUse": 13.043,
+     "days": 15.3,
+     "lines": [
+      "CG-26"
+     ],
+     "evidence": [
+      "E6"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "dexamethasone sodium phosphate|4mg/ml|injection|5ml|vial",
+   "label": "4 mg/mL injection, 5 mL vial",
+   "short": "4 mg/mL, 5 mL",
+   "unit": "vial",
+   "onHand": 330,
+   "dailyUse": 24.187,
+   "days": 13.6,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 89,
+     "dailyUse": 11.481,
+     "days": 7.8,
+     "lines": [
+      "EA-E-000116"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 241,
+     "dailyUse": 12.706,
+     "days": 19,
+     "lines": [
+      "CG-194"
+     ],
+     "evidence": [
+      "E5"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "dexamethasone sodium phosphate|4mg/ml|injection|1ml|vial",
+   "label": "4 mg/mL injection, 1 mL vial",
+   "short": "4 mg/mL, 1 mL",
+   "unit": "vial",
+   "onHand": 189,
+   "dailyUse": 13.066,
+   "days": 14.5,
+   "hospitals": [
+    {
+     "hospital": "Corvale General",
+     "onHand": 189,
+     "dailyUse": 13.066,
+     "days": 14.5,
+     "lines": [
+      "CG-27"
+     ],
+     "evidence": [
+      "E7"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -741,37 +903,71 @@
   {
    "kind": "transfer",
    "rank": 1,
-   "title": "Transfer 165 from Corvale General to Corvale East",
-   "detail": "Corvale General has 18 days on hand and can spare 165 while keeping two weeks; Corvale East has 6.7 days and would reach 12.",
-   "why": "Same product, no clinical change, no new supplier.",
+   "title": "Transfer 56 tablets of 1 mg from Corvale General to Corvale East",
+   "detail": "Corvale General has 26 days of 1 mg tablets on hand and can spare 56 tablets while keeping two weeks; Corvale East has 5.5 days and would reach 14.",
+   "why": "Same presentation, no clinical change, no new supplier.",
    "needs": "pharmacy director (transfer request)",
    "evidence": [
     "E4",
-    "E5",
-    "E6",
-    "E7",
-    "E1",
-    "E2",
     "E3"
-   ]
+   ],
+   "transfer": {
+    "qty": 56,
+    "unit": "tablet",
+    "presentation": "1 mg tablet",
+    "from": "Corvale General",
+    "to": "Corvale East",
+    "fromDays": 25.9,
+    "toDays": 5.5,
+    "fromAfter": 17,
+    "toAfter": 14
+   }
   },
   {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from A-S Medication Solutions",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
+   "kind": "transfer",
+   "rank": 1,
+   "title": "Transfer 16 vials of 10 mg/mL, 1 mL from Corvale General to Corvale East",
+   "detail": "Corvale General has 15 days of 10 mg/mL injection, 1 mL vials on hand and can spare 16 vials while keeping two weeks; Corvale East has 6.3 days and would reach 7.",
+   "why": "Same presentation, no clinical change, no new supplier.",
+   "needs": "pharmacy director (transfer request)",
+   "evidence": [
+    "E6",
+    "E1"
+   ],
+   "transfer": {
+    "qty": 16,
+    "unit": "vial",
+    "presentation": "10 mg/mL injection, 1 mL vial",
+    "from": "Corvale General",
+    "to": "Corvale East",
+    "fromDays": 15.3,
+    "toDays": 6.3,
+    "fromAfter": 14,
+    "toAfter": 7
+   }
   },
   {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from ASCLEMED USA INC.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
+   "kind": "transfer",
+   "rank": 1,
+   "title": "Transfer 63 vials of 4 mg/mL, 5 mL from Corvale General to Corvale East",
+   "detail": "Corvale General has 19 days of 4 mg/mL injection, 5 mL vials on hand and can spare 63 vials while keeping two weeks; Corvale East has 7.8 days and would reach 13.",
+   "why": "Same presentation, no clinical change, no new supplier.",
+   "needs": "pharmacy director (transfer request)",
+   "evidence": [
+    "E5",
+    "E2"
+   ],
+   "transfer": {
+    "qty": 63,
+    "unit": "vial",
+    "presentation": "4 mg/mL injection, 5 mL vial",
+    "from": "Corvale General",
+    "to": "Corvale East",
+    "fromDays": 19,
+    "toDays": 7.8,
+    "fromAfter": 14,
+    "toAfter": 13
+   }
   },
   {
    "kind": "alternate_manufacturer",
@@ -812,24 +1008,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from Asclemed USA, Inc.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Cardinal Health 107, LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Civica, Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -849,15 +1027,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from HF Acquisition Co LLC, DBA HealthFirst",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Henry Schein, Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -911,15 +1080,6 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from REMEDYREPACK INC.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Sagent Pharmaceuticals",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
@@ -948,9 +1108,9 @@
   },
   {
    "kind": "alternate_concentration",
-   "rank": 3,
+   "rank": 5,
    "title": "Same molecule, alternate concentration or vial size: Dexamethasone Sodium Phosphate 10 mg/mL from Hikma Pharmaceuticals USA Inc.",
-   "detail": "Recalculate dose and volume; pharmacist verification required. Approved by Sam Rivera, MD on 2025-10-22.",
+   "detail": "Recalculate dose and volume; pharmacist verification required. Approved by Sam Rivera, MD on 2025-10-22. FDA lists this product Current (posted 2019-02-08).",
    "why": "Already approved by the P&T committee.",
    "needs": "pharmacist",
    "evidence": [
@@ -996,43 +1156,20 @@
   }
  ],
  "explanation": {
-  "state": "confirmed",
+  "state": "check",
   "headline": "FDA's records trace our supply to a plant classified OAI 2782 days after the shortage posting",
   "sentences": [
    {
-    "text": "FDA first posted the dexamethasone sodium phosphate shortage on 2019-02-08 and it remains current as of 2026-10-21.",
+    "text": "FDA first posted the dexamethasone sodium phosphate shortage on 2019-02-08 and it remains Current as of 2026-10-21.",
     "cites": [
      "E26",
+     "D12"
+    ]
+   },
+   {
+    "text": "The shortage lists five manufacturers including Eugia US LLC, Fresenius Kabi USA LLC, Hikma Pharmaceuticals USA Inc., Mylan Institutional, and Somerset Therapeutics LLC.",
+    "cites": [
      "E21",
-     "D10"
-    ]
-   },
-   {
-    "text": "A registered plant on our product labels, EUGIA PHARMA SPECIALITIES LIMITED (FEI 3008461619), received an OAI classification letter dated 2026-09-21, which is 2782 days after the shortage posting.",
-    "cites": [
-     "E19",
-     "D6"
-    ]
-   },
-   {
-    "text": "That plant had prior VAI inspections ending 2016-09-16, 2018-02-20, and 2018-12-14, and two recent OAI inspections ending 2024-02-02 and 2026-02-06.",
-    "cites": [
-     "E11",
-     "E12",
-     "E13",
-     "E15",
-     "E17"
-    ]
-   },
-   {
-    "text": "A Warning Letter was issued to the same plant on 2024-08-15.",
-    "cites": [
-     "E18"
-    ]
-   },
-   {
-    "text": "Other manufacturers on the FDA shortage list include Hikma Pharmaceuticals USA Inc., Fresenius Kabi USA LLC, Mylan Institutional, and Somerset Therapeutics LLC.",
-    "cites": [
      "E22",
      "E23",
      "E24",
@@ -1040,22 +1177,36 @@
     ]
    },
    {
-    "text": "Corvale General holds 800 units with 18 days on hand and can spare 165 units while keeping two weeks of supply; Corvale East holds 216 units with 7 days on hand and would reach 12 days after the transfer.",
+    "text": "Eugia Pharma Specialities Limited, the registered plant for Eugia US LLC, received an OAI classification letter dated 2026-09-21, which is 2782 days after the initial shortage posting.",
     "cites": [
-     "D2",
-     "D1",
-     "D7"
+     "D11",
+     "E19"
     ]
    },
    {
-    "text": "The rule‑ranked option is to transfer 165 units from Corvale General to Corvale East, which requires a pharmacy director transfer request.",
+    "text": "Earlier inspections of the same plant in 2016, 2018, and 2018 were classified VAI, occurring 875, 353, and 56 days before the shortage posting respectively.",
     "cites": [
-     "D7"
+     "D8",
+     "D9",
+     "D10"
+    ]
+   },
+   {
+    "text": "Corvale East holds 36 tablets of 1 mg dexamethasone with 5.5 days on hand, while Corvale General holds 169 tablets with 25.9 days on hand.",
+    "cites": [
+     "D1",
+     "D2"
+    ]
+   },
+   {
+    "text": "The rule-based best option is to transfer 56 tablets of 1 mg from Corvale General to Corvale East, which would give Corvale East 14 days of supply while Corvale General retains two weeks.",
+    "cites": [
+     "D13"
     ]
    }
   ],
   "verifier": {
-   "checked": 8,
+   "checked": 7,
    "rejected": [],
    "repaired": 1
   },
@@ -1064,132 +1215,153 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [],
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:38:54.305Z",
+   "at": "2026-10-22T11:42:58.602Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract XA9KYS95 scope"
+   "reason": "in contract KPSG6QNC scope"
   },
   {
-   "at": "2026-10-22T07:38:54.306Z",
+   "at": "2026-10-22T11:42:58.603Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XA9KYS95 scope"
+   "reason": "in contract KPSG6QNC scope"
   },
   {
-   "at": "2026-10-22T07:38:57.391Z",
+   "at": "2026-10-22T11:43:02.325Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XA9KYS95 scope"
+   "reason": "in contract KPSG6QNC scope"
   },
   {
-   "at": "2026-10-22T07:38:58.060Z",
+   "at": "2026-10-22T11:43:02.837Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XA9KYS95 scope"
+   "reason": "in contract KPSG6QNC scope"
   },
   {
-   "at": "2026-10-22T07:38:58.451Z",
+   "at": "2026-10-22T11:43:03.169Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XA9KYS95 scope"
+   "reason": "in contract KPSG6QNC scope"
   },
   {
-   "at": "2026-10-22T07:39:00.646Z",
+   "at": "2026-10-22T11:43:04.517Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XA9KYS95 scope"
+   "reason": "in contract KPSG6QNC scope"
   },
   {
-   "at": "2026-10-22T07:39:02.015Z",
+   "at": "2026-10-22T11:43:05.230Z",
    "action": "What FDA wrote at the OAI inspections",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XA9KYS95 scope"
+   "reason": "in contract KPSG6QNC scope"
   },
   {
-   "at": "2026-10-22T07:39:02.337Z",
+   "at": "2026-10-22T11:43:05.405Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XA9KYS95 scope"
+   "reason": "in contract KPSG6QNC scope"
   },
   {
-   "at": "2026-10-22T07:39:04.021Z",
+   "at": "2026-10-22T11:43:06.429Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract XA9KYS95 scope"
+   "reason": "in contract KPSG6QNC scope"
   },
   {
-   "at": "2026-10-22T07:39:05.553Z",
+   "at": "2026-10-22T11:43:07.740Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract XA9KYS95 scope"
+   "reason": "in contract KPSG6QNC scope"
   },
   {
-   "at": "2026-10-22T07:39:05.555Z",
+   "at": "2026-10-22T11:43:07.741Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract XA9KYS95 scope"
+   "reason": "in contract KPSG6QNC scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-a699c8",
+   "queryId": "Q-6749dc",
    "row": 0,
    "label": "Corvale East: DEXAMETHASONE SODIUM PHOSPHATE 10MG/ML 1ML SDV",
    "fields": {
@@ -1200,19 +1372,24 @@
     "description": "DEXAMETHASONE SODIUM PHOSPHATE 10MG/ML 1ML SDV",
     "on_hand": "91.00",
     "daily_use": "14.385",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "25.00",
+    "unit_basis": "packages of 25, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Dexamethasone Sodium Phosphate",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0641-0367-25",
     "spl_set_id": "0277cc0a-2fd4-4605-a310-b613be84ee26",
     "dosage_form": "INJECTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "DEXAMETHASONE SODIUM PHOSPHATE 10 mg/mL",
+    "unit_content": "1 mL",
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-a699c8",
+   "queryId": "Q-6749dc",
    "row": 1,
    "label": "Corvale East: DEXAMETHASONE SODIUM PHOSPHATE 4MG/ML 5ML SDV",
    "fields": {
@@ -1223,19 +1400,24 @@
     "description": "DEXAMETHASONE SODIUM PHOSPHATE 4MG/ML 5ML SDV",
     "on_hand": "89.00",
     "daily_use": "11.481",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "25.00",
+    "unit_basis": "packages of 25, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Dexamethasone Sodium Phosphate",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0641-6146-25",
     "spl_set_id": "0277cc0a-2fd4-4605-a310-b613be84ee26",
     "dosage_form": "INJECTION",
-    "route": "INTRA-ARTICULAR|INTRALESIONAL|INTRAMUSCULAR|INTRAVENOUS|SOFT TISSUE"
+    "route": "INTRA-ARTICULAR|INTRALESIONAL|INTRAMUSCULAR|INTRAVENOUS|SOFT TISSUE",
+    "strength": "DEXAMETHASONE SODIUM PHOSPHATE 4 mg/mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-a699c8",
+   "queryId": "Q-6749dc",
    "row": 2,
    "label": "Corvale East: DEXAMETHASONE 1MG TAB",
    "fields": {
@@ -1246,106 +1428,131 @@
     "description": "DEXAMETHASONE 1MG TAB",
     "on_hand": "36.00",
     "daily_use": "6.528",
-    "unit": "package",
+    "unit": "tablet",
+    "pkg_units": "60.00",
+    "unit_basis": "packages of 60, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Dexamethasone",
     "labeler_name": "Doc Rx",
     "package_ndc": "69306-111-60",
     "spl_set_id": "f1c30431-554b-4161-9d8c-5795c689e0bd",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "DEXAMETHASONE 1 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-a699c8",
+   "queryId": "Q-6749dc",
    "row": 3,
-   "label": "Corvale General: Dexamethasone",
+   "label": "Corvale General: Dexamethasone 1 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-193",
     "ndc11": "69306011160",
     "ndc_as_recorded": "69306011160",
-    "description": "Dexamethasone",
-    "on_hand": "169.78",
+    "description": "Dexamethasone 1 mg/1",
+    "on_hand": "169.00",
     "daily_use": "6.534",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Dexamethasone",
     "labeler_name": "Doc Rx",
     "package_ndc": "69306-111-60",
     "spl_set_id": "f1c30431-554b-4161-9d8c-5795c689e0bd",
     "dosage_form": "TABLET",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "DEXAMETHASONE 1 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E5": {
    "id": "E5",
-   "queryId": "Q-a699c8",
+   "queryId": "Q-6749dc",
    "row": 4,
-   "label": "Corvale General: Dexamethasone Sodium Phosphate",
+   "label": "Corvale General: Dexamethasone Sodium Phosphate 4 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-194",
     "ndc11": "00641614625",
     "ndc_as_recorded": "00641614625",
-    "description": "Dexamethasone Sodium Phosphate",
-    "on_hand": "241.95",
+    "description": "Dexamethasone Sodium Phosphate 4 mg/mL",
+    "on_hand": "241.00",
     "daily_use": "12.706",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Dexamethasone Sodium Phosphate",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0641-6146-25",
     "spl_set_id": "0277cc0a-2fd4-4605-a310-b613be84ee26",
     "dosage_form": "INJECTION",
-    "route": "INTRA-ARTICULAR|INTRALESIONAL|INTRAMUSCULAR|INTRAVENOUS|SOFT TISSUE"
+    "route": "INTRA-ARTICULAR|INTRALESIONAL|INTRAMUSCULAR|INTRAVENOUS|SOFT TISSUE",
+    "strength": "DEXAMETHASONE SODIUM PHOSPHATE 4 mg/mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E6": {
    "id": "E6",
-   "queryId": "Q-a699c8",
+   "queryId": "Q-6749dc",
    "row": 5,
-   "label": "Corvale General: Dexamethasone Sodium Phosphate",
+   "label": "Corvale General: Dexamethasone Sodium Phosphate 10 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-26",
     "ndc11": "00641036725",
     "ndc_as_recorded": "00641036725",
-    "description": "Dexamethasone Sodium Phosphate",
-    "on_hand": "199.27",
+    "description": "Dexamethasone Sodium Phosphate 10 mg/mL",
+    "on_hand": "199.00",
     "daily_use": "13.043",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Dexamethasone Sodium Phosphate",
     "labeler_name": "Hikma Pharmaceuticals USA Inc.",
     "package_ndc": "0641-0367-25",
     "spl_set_id": "0277cc0a-2fd4-4605-a310-b613be84ee26",
     "dosage_form": "INJECTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "DEXAMETHASONE SODIUM PHOSPHATE 10 mg/mL",
+    "unit_content": "1 mL",
+    "pkg_unit": "vial"
    }
   },
   "E7": {
    "id": "E7",
-   "queryId": "Q-a699c8",
+   "queryId": "Q-6749dc",
    "row": 6,
-   "label": "Corvale General: DEXAMETHASONE SODIUM PHOSPHATE",
+   "label": "Corvale General: DEXAMETHASONE SODIUM PHOSPHATE 4 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-27",
     "ndc11": "55150023701",
     "ndc_as_recorded": "55150023701",
-    "description": "DEXAMETHASONE SODIUM PHOSPHATE",
-    "on_hand": "189.28",
+    "description": "DEXAMETHASONE SODIUM PHOSPHATE 4 mg/mL",
+    "on_hand": "189.00",
     "daily_use": "13.066",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "DEXAMETHASONE SODIUM PHOSPHATE",
     "labeler_name": "Eugia US LLC",
     "package_ndc": "55150-237-01",
     "spl_set_id": "ce7ad5a4-a9c5-42d6-87cc-ca16556208d2",
     "dosage_form": "INJECTION, SOLUTION",
-    "route": "INTRA-ARTICULAR|INTRALESIONAL|INTRAMUSCULAR|INTRAVENOUS|SOFT TISSUE"
+    "route": "INTRA-ARTICULAR|INTRALESIONAL|INTRAMUSCULAR|INTRAVENOUS|SOFT TISSUE",
+    "strength": "DEXAMETHASONE SODIUM PHOSPHATE 4 mg/mL",
+    "unit_content": "1 mL",
+    "pkg_unit": "vial"
    }
   },
   "E8": {
@@ -1534,7 +1741,7 @@
   },
   "E20": {
    "id": "E20",
-   "queryId": "Q-f58852",
+   "queryId": "Q-9dc1a7",
    "row": 0,
    "label": "Recall D-0555-2024",
    "fields": {
@@ -1552,7 +1759,7 @@
   },
   "E21": {
    "id": "E21",
-   "queryId": "Q-d29403",
+   "queryId": "Q-986b3d",
    "row": 0,
    "label": "FDA shortage list: Eugia US LLC, Current",
    "fields": {
@@ -1567,7 +1774,7 @@
   },
   "E22": {
    "id": "E22",
-   "queryId": "Q-d29403",
+   "queryId": "Q-986b3d",
    "row": 1,
    "label": "FDA shortage list: Fresenius Kabi USA, LLC, Current",
    "fields": {
@@ -1582,7 +1789,7 @@
   },
   "E23": {
    "id": "E23",
-   "queryId": "Q-d29403",
+   "queryId": "Q-986b3d",
    "row": 10,
    "label": "FDA shortage list: Hikma Pharmaceuticals USA, Inc., Current",
    "fields": {
@@ -1597,7 +1804,7 @@
   },
   "E24": {
    "id": "E24",
-   "queryId": "Q-d29403",
+   "queryId": "Q-986b3d",
    "row": 13,
    "label": "FDA shortage list: Mylan Institutional, a Viatris Company, Current",
    "fields": {
@@ -1612,7 +1819,7 @@
   },
   "E25": {
    "id": "E25",
-   "queryId": "Q-d29403",
+   "queryId": "Q-986b3d",
    "row": 17,
    "label": "FDA shortage list: Somerset Therapeutics, LLC, Current",
    "fields": {
@@ -1627,7 +1834,7 @@
   },
   "E26": {
    "id": "E26",
-   "queryId": "Q-d29403",
+   "queryId": "Q-986b3d",
    "row": 0,
    "label": "FDA first posted the shortage 2019-02-08",
    "fields": {
@@ -1680,28 +1887,95 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 216 units of dexamethasone sodium phosphate at 32.4 a day: 7 days on hand",
+   "label": "Corvale East holds 36 tablets of dexamethasone sodium phosphate 1 mg at 6.5 a day: 5.5 days on hand",
    "fields": {
     "hospital": "Corvale East",
-    "on_hand": 216,
-    "daily_use": 32.4,
-    "days_on_hand": 7
+    "presentation": "1 mg tablet",
+    "on_hand": 36,
+    "daily_use": 6.5,
+    "days_on_hand": 5.5
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 800 units of dexamethasone sodium phosphate at 45.3 a day: 18 days on hand",
+   "label": "Corvale General holds 169 tablets of dexamethasone sodium phosphate 1 mg at 6.5 a day: 25.9 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 800,
-    "daily_use": 45.3,
-    "days_on_hand": 18
+    "presentation": "1 mg tablet",
+    "on_hand": 169,
+    "daily_use": 6.5,
+    "days_on_hand": 25.9
    }
   },
   "D3": {
    "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale East holds 91 vials of dexamethasone sodium phosphate 10 mg/mL, 1 mL at 14.4 a day: 6.3 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "10 mg/mL injection, 1 mL vial",
+    "on_hand": 91,
+    "daily_use": 14.4,
+    "days_on_hand": 6.3
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 199 vials of dexamethasone sodium phosphate 10 mg/mL, 1 mL at 13 a day: 15.3 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "10 mg/mL injection, 1 mL vial",
+    "on_hand": 199,
+    "daily_use": 13,
+    "days_on_hand": 15.3
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale East holds 89 vials of dexamethasone sodium phosphate 4 mg/mL, 5 mL at 11.5 a day: 7.8 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "4 mg/mL injection, 5 mL vial",
+    "on_hand": 89,
+    "daily_use": 11.5,
+    "days_on_hand": 7.8
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 241 vials of dexamethasone sodium phosphate 4 mg/mL, 5 mL at 12.7 a day: 19 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "4 mg/mL injection, 5 mL vial",
+    "on_hand": 241,
+    "daily_use": 12.7,
+    "days_on_hand": 19
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 189 vials of dexamethasone sodium phosphate 4 mg/mL, 1 mL at 13.1 a day: 14.5 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "4 mg/mL injection, 1 mL vial",
+    "on_hand": 189,
+    "daily_use": 13.1,
+    "days_on_hand": 14.5
+   }
+  },
+  "D8": {
+   "id": "D8",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 989530 ended 2016-09-16, classified VAI; classification letter 2017-03-17 — 875 days before FDA posted the shortage on 2019-02-08",
@@ -1711,8 +1985,8 @@
     "days": 875
    }
   },
-  "D4": {
-   "id": "D4",
+  "D9": {
+   "id": "D9",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 1041554 ended 2018-02-20, classified VAI; classification letter 2018-05-21 — 353 days before FDA posted the shortage on 2019-02-08",
@@ -1722,8 +1996,8 @@
     "days": 353
    }
   },
-  "D5": {
-   "id": "D5",
+  "D10": {
+   "id": "D10",
    "queryId": "derived",
    "row": -1,
    "label": "FDA inspection 1074573 ended 2018-12-14, classified VAI — 56 days before FDA posted the shortage on 2019-02-08",
@@ -1733,8 +2007,8 @@
     "days": 56
    }
   },
-  "D6": {
-   "id": "D6",
+  "D11": {
+   "id": "D11",
    "queryId": "derived",
    "row": -1,
    "label": "FDA's OAI classification letter to EUGIA PHARMA SPECIALITIES LIMITED is dated 2026-09-21, 2782 days after FDA posted the shortage on 2019-02-08",
@@ -1744,38 +2018,8 @@
     "days": 2782
    }
   },
-  "D7": {
-   "id": "D7",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 1 by rule: Transfer 165 from Corvale General to Corvale East. Corvale General has 18 days on hand and can spare 165 while keeping two weeks; Corvale East has 6.7 days and would reach 12.",
-   "fields": {
-    "kind": "transfer",
-    "needs": "pharmacy director (transfer request)"
-   }
-  },
-  "D8": {
-   "id": "D8",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 3 by rule: Buy from A-S Medication Solutions. Not on FDA's shortage list today. Its label names no plant we could place.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
-   }
-  },
-  "D9": {
-   "id": "D9",
-   "queryId": "derived",
-   "row": -1,
-   "label": "Option ranked 3 by rule: Buy from ASCLEMED USA INC.. Not on FDA's shortage list today. Its label names no plant we could place.",
-   "fields": {
-    "kind": "alternate_manufacturer",
-    "needs": "buyer"
-   }
-  },
-  "D10": {
-   "id": "D10",
+  "D12": {
+   "id": "D12",
    "queryId": "derived",
    "row": -1,
    "label": "As of 2026-10-21 the shortage has been on FDA's list for 93 months",
@@ -1784,177 +2028,226 @@
     "posted": "2019-02-08",
     "months": 93
    }
+  },
+  "D13": {
+   "id": "D13",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 56 tablets of 1 mg from Corvale General to Corvale East. Corvale General has 26 days of 1 mg tablets on hand and can spare 56 tablets while keeping two weeks; Corvale East has 5.5 days and would reach 14.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D14": {
+   "id": "D14",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 16 vials of 10 mg/mL, 1 mL from Corvale General to Corvale East. Corvale General has 15 days of 10 mg/mL injection, 1 mL vials on hand and can spare 16 vials while keeping two weeks; Corvale East has 6.3 days and would reach 7.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D15": {
+   "id": "D15",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 63 vials of 4 mg/mL, 5 mL from Corvale General to Corvale East. Corvale General has 19 days of 4 mg/mL injection, 5 mL vials on hand and can spare 63 vials while keeping two weeks; Corvale East has 7.8 days and would reach 13.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
   }
  },
  "queries": {
-  "Q-a699c8": {
-   "id": "Q-a699c8",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%dexamethasone%' OR lower(s.description) LIKE '%dexamethasone%' ORDER BY s.hospital, s.item_key",
-   "ms": 3076,
+  "Q-6749dc": {
+   "id": "Q-6749dc",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*dexamethasone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*dexamethasone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3719,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:38:57.382Z",
+   "ranAt": "2026-10-22T11:43:02.322Z",
    "rows": 7
   },
   "Q-6e3c75": {
    "id": "Q-6e3c75",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('0277cc0a-2fd4-4605-a310-b613be84ee26', 'f1c30431-554b-4161-9d8c-5795c689e0bd', 'ce7ad5a4-a9c5-42d6-87cc-ca16556208d2') ORDER BY ps.set_id, ps.establishment",
-   "ms": 666,
+   "ms": 510,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:38:58.056Z",
+   "ranAt": "2026-10-22T11:43:02.835Z",
    "rows": 3
   },
-  "Q-d29403": {
-   "id": "Q-d29403",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%dexamethasone%' ORDER BY status, company_name, package_ndc",
-   "ms": 181,
+  "Q-986b3d": {
+   "id": "Q-986b3d",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*dexamethasone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 162,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:38:58.241Z",
+   "ranAt": "2026-10-22T11:43:02.999Z",
    "rows": 19
   },
-  "Q-aca712": {
-   "id": "Q-aca712",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%dexamethasone%' ORDER BY first_posting",
-   "ms": 203,
+  "Q-98408b": {
+   "id": "Q-98408b",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*dexamethasone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 167,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:38:58.447Z",
-   "rows": 3
+   "ranAt": "2026-10-22T11:43:03.168Z",
+   "rows": 2
   },
-  "Q-339a1a": {
-   "id": "Q-339a1a",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%dexamethasone%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2189,
+  "Q-88b6cf": {
+   "id": "Q-88b6cf",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*dexamethasone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1346,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:39:00.640Z",
+   "ranAt": "2026-10-22T11:43:04.515Z",
    "rows": 113
   },
   "Q-8b4ccd": {
    "id": "Q-8b4ccd",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3008461619', '1450022', '3001833549', '3008887707', '3003821988', '3014362214') ORDER BY fei, end_date",
-   "ms": 531,
+   "ms": 290,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:39:01.177Z",
+   "ranAt": "2026-10-22T11:43:04.807Z",
    "rows": 50
   },
   "Q-80108e": {
    "id": "Q-80108e",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3008461619', '1450022', '3001833549', '3008887707', '3003821988', '3014362214') ORDER BY fei, action_date",
-   "ms": 280,
+   "ms": 128,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:39:01.460Z",
+   "ranAt": "2026-10-22T11:43:04.937Z",
    "rows": 5
   },
   "Q-94939f": {
    "id": "Q-94939f",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3008461619') OR (fei_match <> 'name_and_city' AND firm_key IN ('hikma berkeley heights', 'eugia specialities', 'hikma')) ORDER BY date_published",
-   "ms": 229,
+   "ms": 117,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:39:01.693Z",
+   "ranAt": "2026-10-22T11:43:05.054Z",
    "rows": 0
   },
-  "Q-f58852": {
-   "id": "Q-f58852",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('hikma berkeley heights', 'eugia specialities', 'hikma', 'doc rx', 'eugia') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%dexamethasone%' ORDER BY initiation_date",
-   "ms": 312,
+  "Q-9dc1a7": {
+   "id": "Q-9dc1a7",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('hikma berkeley heights', 'eugia specialities', 'hikma', 'doc rx', 'eugia') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*dexamethasone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 174,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:39:02.008Z",
+   "ranAt": "2026-10-22T11:43:05.229Z",
    "rows": 1
   },
   "Q-a1dfda": {
    "id": "Q-a1dfda",
    "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('1228546', '1301166') ORDER BY inspection_id, cfr",
-   "ms": 313,
+   "ms": 173,
    "mode": "live",
    "sources": [
     "fda.citations"
    ],
-   "ranAt": "2026-10-22T07:39:02.328Z",
+   "ranAt": "2026-10-22T11:43:05.403Z",
    "rows": 20
   },
   "Q-bacda4": {
    "id": "Q-bacda4",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('00641036725', '00641614625', '69306011160', '55150023701')",
-   "ms": 1679,
+   "ms": 1022,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:39:04.017Z",
+   "ranAt": "2026-10-22T11:43:06.428Z",
    "rows": 2
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-fd8f1e": {
-   "id": "Q-fd8f1e",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%dexamethasone%'",
-   "ms": 1529,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:39:05.550Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-4e52d5": {
+   "id": "Q-4e52d5",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*dexamethasone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1310,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:43:07.739Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 15,
-  "zetarisMs": 16559,
-  "modelCalls": 1,
-  "tokensIn": 3162,
-  "tokensOut": 557,
+  "zetarisMs": 19326,
+  "modelCalls": 0,
+  "tokensIn": 0,
+  "tokensOut": 0,
   "mode": "live"
  },
  "slug": "dexamethasone",
@@ -1973,7 +2266,7 @@
     "id": "hospital-item:hospital-item:CG-193",
     "type": "HospitalItem",
     "key": "hospital-item:CG-193",
-    "label": "Corvale General: Dexamethasone",
+    "label": "Corvale General: Dexamethasone 1 mg/1",
     "attrs": {
      "key": "hospital-item:CG-193"
     },
@@ -1984,7 +2277,7 @@
     "id": "hospital-item:hospital-item:CG-194",
     "type": "HospitalItem",
     "key": "hospital-item:CG-194",
-    "label": "Corvale General: Dexamethasone Sodium Phosphate",
+    "label": "Corvale General: Dexamethasone Sodium Phosphate 4 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-194"
     },
@@ -1995,7 +2288,7 @@
     "id": "hospital-item:hospital-item:CG-26",
     "type": "HospitalItem",
     "key": "hospital-item:CG-26",
-    "label": "Corvale General: Dexamethasone Sodium Phosphate",
+    "label": "Corvale General: Dexamethasone Sodium Phosphate 10 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-26"
     },
@@ -2006,7 +2299,7 @@
     "id": "hospital-item:hospital-item:CG-27",
     "type": "HospitalItem",
     "key": "hospital-item:CG-27",
-    "label": "Corvale General: DEXAMETHASONE SODIUM PHOSPHATE",
+    "label": "Corvale General: DEXAMETHASONE SODIUM PHOSPHATE 4 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-27"
     },
@@ -2200,7 +2493,7 @@
     },
     "facts": [
      {
-      "id": "fact_375960cdf19030d0",
+      "id": "fact_c298f2db0cda71f2",
       "about": "inspection:fda-inspection:1041554",
       "predicate": "classification",
       "value": "VAI",
@@ -2208,9 +2501,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:39:02.333Z"
+       "at": "2026-10-22T11:43:05.404Z"
       },
-      "assertedAt": "2026-10-22T07:39:02.333Z"
+      "assertedAt": "2026-10-22T11:43:05.404Z"
      }
     ],
     "depth": 4
@@ -2226,7 +2519,7 @@
     },
     "facts": [
      {
-      "id": "fact_b7b0709f70f43f11",
+      "id": "fact_be58a3397b9588e3",
       "about": "inspection:fda-inspection:1074573",
       "predicate": "classification",
       "value": "VAI",
@@ -2234,9 +2527,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:39:02.334Z"
+       "at": "2026-10-22T11:43:05.404Z"
       },
-      "assertedAt": "2026-10-22T07:39:02.334Z"
+      "assertedAt": "2026-10-22T11:43:05.404Z"
      }
     ],
     "depth": 4
@@ -2252,7 +2545,7 @@
     },
     "facts": [
      {
-      "id": "fact_25a0c3d3f70362da",
+      "id": "fact_ce00381eecb8e43d",
       "about": "inspection:fda-inspection:1228546",
       "predicate": "classification",
       "value": "OAI",
@@ -2260,9 +2553,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:39:02.334Z"
+       "at": "2026-10-22T11:43:05.404Z"
       },
-      "assertedAt": "2026-10-22T07:39:02.334Z"
+      "assertedAt": "2026-10-22T11:43:05.404Z"
      }
     ],
     "depth": 4
@@ -2278,7 +2571,7 @@
     },
     "facts": [
      {
-      "id": "fact_9531a3a41b61ad29",
+      "id": "fact_45be8f22269289d9",
       "about": "inspection:fda-inspection:1301166",
       "predicate": "classification",
       "value": "OAI",
@@ -2286,9 +2579,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:39:02.335Z"
+       "at": "2026-10-22T11:43:05.404Z"
       },
-      "assertedAt": "2026-10-22T07:39:02.335Z"
+      "assertedAt": "2026-10-22T11:43:05.404Z"
      }
     ],
     "depth": 4
@@ -2304,7 +2597,7 @@
     },
     "facts": [
      {
-      "id": "fact_f94a221e5a7e0e18",
+      "id": "fact_973fb629b1ac2f0b",
       "about": "inspection:fda-inspection:901293",
       "predicate": "classification",
       "value": "VAI",
@@ -2312,9 +2605,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:39:02.333Z"
+       "at": "2026-10-22T11:43:05.404Z"
       },
-      "assertedAt": "2026-10-22T07:39:02.333Z"
+      "assertedAt": "2026-10-22T11:43:05.404Z"
      }
     ],
     "depth": 4
@@ -2330,7 +2623,7 @@
     },
     "facts": [
      {
-      "id": "fact_5fd5dc3e4c8ab179",
+      "id": "fact_41133711be1cc8e9",
       "about": "inspection:fda-inspection:989530",
       "predicate": "classification",
       "value": "VAI",
@@ -2338,9 +2631,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:39:02.333Z"
+       "at": "2026-10-22T11:43:05.404Z"
       },
-      "assertedAt": "2026-10-22T07:39:02.333Z"
+      "assertedAt": "2026-10-22T11:43:05.404Z"
      }
     ],
     "depth": 4
@@ -2374,11 +2667,11 @@
     "from": "hospital-item:hospital-item:CG-193",
     "to": "package:ndc-package:69306-111-60",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:38:57.388Z",
+    "validFrom": "2026-10-22T11:43:02.324Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:38:57.388Z"
+     "at": "2026-10-22T11:43:02.324Z"
     }
    },
    {
@@ -2386,11 +2679,11 @@
     "from": "hospital-item:hospital-item:CG-194",
     "to": "package:ndc-package:0641-6146-25",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:38:57.388Z",
+    "validFrom": "2026-10-22T11:43:02.324Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:38:57.388Z"
+     "at": "2026-10-22T11:43:02.324Z"
     }
    },
    {
@@ -2398,11 +2691,11 @@
     "from": "hospital-item:hospital-item:CG-26",
     "to": "package:ndc-package:0641-0367-25",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:38:57.388Z",
+    "validFrom": "2026-10-22T11:43:02.324Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:38:57.388Z"
+     "at": "2026-10-22T11:43:02.324Z"
     }
    },
    {
@@ -2410,11 +2703,11 @@
     "from": "hospital-item:hospital-item:CG-27",
     "to": "package:ndc-package:55150-237-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:38:57.389Z",
+    "validFrom": "2026-10-22T11:43:02.325Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:38:57.389Z"
+     "at": "2026-10-22T11:43:02.325Z"
     }
    },
    {
@@ -2422,11 +2715,11 @@
     "from": "hospital-item:hospital-item:EA-E-000108",
     "to": "package:ndc-package:0641-0367-25",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:38:57.386Z",
+    "validFrom": "2026-10-22T11:43:02.324Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:38:57.386Z"
+     "at": "2026-10-22T11:43:02.324Z"
     }
    },
    {
@@ -2434,11 +2727,11 @@
     "from": "hospital-item:hospital-item:EA-E-000116",
     "to": "package:ndc-package:0641-6146-25",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:38:57.387Z",
+    "validFrom": "2026-10-22T11:43:02.324Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:38:57.387Z"
+     "at": "2026-10-22T11:43:02.324Z"
     }
    },
    {
@@ -2446,11 +2739,11 @@
     "from": "hospital-item:hospital-item:EA-E-000256",
     "to": "package:ndc-package:69306-111-60",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:38:57.388Z",
+    "validFrom": "2026-10-22T11:43:02.324Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:38:57.388Z"
+     "at": "2026-10-22T11:43:02.324Z"
     }
    },
    {
@@ -2458,11 +2751,11 @@
     "from": "package:ndc-package:69306-111-60",
     "to": "product:ndc-product:69306-111",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:38:57.388Z",
+    "validFrom": "2026-10-22T11:43:02.324Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:38:57.388Z"
+     "at": "2026-10-22T11:43:02.324Z"
     }
    },
    {
@@ -2470,11 +2763,11 @@
     "from": "package:ndc-package:0641-6146-25",
     "to": "product:ndc-product:0641-6146",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:38:57.387Z",
+    "validFrom": "2026-10-22T11:43:02.324Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:38:57.387Z"
+     "at": "2026-10-22T11:43:02.324Z"
     }
    },
    {
@@ -2482,11 +2775,11 @@
     "from": "package:ndc-package:0641-0367-25",
     "to": "product:ndc-product:0641-0367",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:38:57.386Z",
+    "validFrom": "2026-10-22T11:43:02.324Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:38:57.386Z"
+     "at": "2026-10-22T11:43:02.324Z"
     }
    },
    {
@@ -2494,11 +2787,11 @@
     "from": "package:ndc-package:55150-237-01",
     "to": "product:ndc-product:55150-237",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:38:57.389Z",
+    "validFrom": "2026-10-22T11:43:02.325Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:38:57.389Z"
+     "at": "2026-10-22T11:43:02.325Z"
     }
    },
    {
@@ -2506,11 +2799,11 @@
     "from": "product:ndc-product:69306-111",
     "to": "drug:generic:dexamethasone sodium phosphate",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:38:57.388Z",
+    "validFrom": "2026-10-22T11:43:02.324Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:38:57.388Z"
+     "at": "2026-10-22T11:43:02.324Z"
     }
    },
    {
@@ -2518,11 +2811,11 @@
     "from": "product:ndc-product:69306-111",
     "to": "labeler:ndc-labeler:69306",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:38:57.388Z",
+    "validFrom": "2026-10-22T11:43:02.324Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:38:57.388Z"
+     "at": "2026-10-22T11:43:02.324Z"
     }
    },
    {
@@ -2530,11 +2823,11 @@
     "from": "product:ndc-product:0641-6146",
     "to": "drug:generic:dexamethasone sodium phosphate",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:38:57.387Z",
+    "validFrom": "2026-10-22T11:43:02.324Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:38:57.387Z"
+     "at": "2026-10-22T11:43:02.324Z"
     }
    },
    {
@@ -2542,11 +2835,11 @@
     "from": "product:ndc-product:0641-6146",
     "to": "labeler:ndc-labeler:0641",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:38:57.387Z",
+    "validFrom": "2026-10-22T11:43:02.324Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:38:57.387Z"
+     "at": "2026-10-22T11:43:02.324Z"
     }
    },
    {
@@ -2554,11 +2847,11 @@
     "from": "product:ndc-product:0641-0367",
     "to": "drug:generic:dexamethasone sodium phosphate",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:38:57.386Z",
+    "validFrom": "2026-10-22T11:43:02.324Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:38:57.386Z"
+     "at": "2026-10-22T11:43:02.324Z"
     }
    },
    {
@@ -2566,11 +2859,11 @@
     "from": "product:ndc-product:0641-0367",
     "to": "labeler:ndc-labeler:0641",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:38:57.386Z",
+    "validFrom": "2026-10-22T11:43:02.324Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:38:57.386Z"
+     "at": "2026-10-22T11:43:02.324Z"
     }
    },
    {
@@ -2578,11 +2871,11 @@
     "from": "product:ndc-product:55150-237",
     "to": "drug:generic:dexamethasone sodium phosphate",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:38:57.389Z",
+    "validFrom": "2026-10-22T11:43:02.325Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:38:57.389Z"
+     "at": "2026-10-22T11:43:02.325Z"
     }
    },
    {
@@ -2590,11 +2883,11 @@
     "from": "product:ndc-product:55150-237",
     "to": "labeler:ndc-labeler:55150",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:38:57.389Z",
+    "validFrom": "2026-10-22T11:43:02.325Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:38:57.389Z"
+     "at": "2026-10-22T11:43:02.325Z"
     }
    },
    {
@@ -2602,11 +2895,11 @@
     "from": "product:ndc-product:55150-237",
     "to": "site:fei:3008461619",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:39:02.333Z",
+    "validFrom": "2026-10-22T11:43:05.404Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:39:02.333Z"
+     "at": "2026-10-22T11:43:05.404Z"
     }
    },
    {
@@ -2614,11 +2907,11 @@
     "from": "shortage:fda-shortage:dexamethasone-2019-02-08",
     "to": "drug:generic:dexamethasone sodium phosphate",
     "type": "affects",
-    "validFrom": "2026-10-22T07:39:02.335Z",
+    "validFrom": "2026-10-22T11:43:05.405Z",
     "source": {
      "kind": "fda-shortage-db",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:39:02.335Z"
+     "at": "2026-10-22T11:43:05.405Z"
     }
    },
    {
@@ -2626,11 +2919,11 @@
     "from": "inspection:fda-inspection:901293",
     "to": "site:fei:3008461619",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:39:02.333Z",
+    "validFrom": "2026-10-22T11:43:05.404Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:39:02.333Z"
+     "at": "2026-10-22T11:43:05.404Z"
     }
    },
    {
@@ -2638,11 +2931,11 @@
     "from": "inspection:fda-inspection:989530",
     "to": "site:fei:3008461619",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:39:02.333Z",
+    "validFrom": "2026-10-22T11:43:05.404Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:39:02.333Z"
+     "at": "2026-10-22T11:43:05.404Z"
     }
    },
    {
@@ -2650,11 +2943,11 @@
     "from": "inspection:fda-inspection:1041554",
     "to": "site:fei:3008461619",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:39:02.333Z",
+    "validFrom": "2026-10-22T11:43:05.404Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:39:02.333Z"
+     "at": "2026-10-22T11:43:05.404Z"
     }
    },
    {
@@ -2662,11 +2955,11 @@
     "from": "inspection:fda-inspection:1074573",
     "to": "site:fei:3008461619",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:39:02.334Z",
+    "validFrom": "2026-10-22T11:43:05.404Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:39:02.334Z"
+     "at": "2026-10-22T11:43:05.404Z"
     }
    },
    {
@@ -2674,11 +2967,11 @@
     "from": "inspection:fda-inspection:1228546",
     "to": "site:fei:3008461619",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:39:02.334Z",
+    "validFrom": "2026-10-22T11:43:05.404Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:39:02.334Z"
+     "at": "2026-10-22T11:43:05.404Z"
     }
    },
    {
@@ -2686,11 +2979,11 @@
     "from": "inspection:fda-inspection:1301166",
     "to": "site:fei:3008461619",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:39:02.335Z",
+    "validFrom": "2026-10-22T11:43:05.404Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:39:02.335Z"
+     "at": "2026-10-22T11:43:05.404Z"
     }
    },
    {
@@ -2698,11 +2991,11 @@
     "from": "warning-letter:fda-warning-letter:681905",
     "to": "site:fei:3008461619",
     "type": "issued-to",
-    "validFrom": "2026-10-22T07:39:02.334Z",
+    "validFrom": "2026-10-22T11:43:05.404Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:39:02.334Z"
+     "at": "2026-10-22T11:43:05.404Z"
     }
    }
   ],

@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-37fb76",
+ "id": "case-2026-10-22-915e76",
  "question": "Why is ceftriaxone short, and what do we do?",
- "askedAt": "2026-10-22T07:32:54.182Z",
+ "askedAt": "2026-10-22T11:37:44.936Z",
  "asOf": "2026-10-21",
  "molecule": "ceftriaxone sodium",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H8DKT1W2RH63KCX9YTN39W",
+  "contractId": "01M5HPDXVTS2TWPEPTERD43C9D",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-c8e0cf"
+    "Q-541977"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 2957,
+   "ms": 3759,
    "rows": 4,
-   "finding": "4 stock lines across 3 hospitals.",
+   "finding": "4 stock lines across 3 hospitals, 2 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-4a3d4d"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 620,
+   "ms": 536,
    "rows": 2,
    "finding": "2 plant links on 2 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-b04c71",
-    "Q-544fd8"
+    "Q-e636ee",
+    "Q-f7bf44"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 437,
+   "ms": 276,
    "rows": 0,
    "finding": "Not on FDA's current shortage list.",
    "status": "empty"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-45a8df"
+    "Q-afba93"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1847,
+   "ms": 1611,
    "rows": 78,
    "finding": "17 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-fa94cf",
     "Q-926827",
     "Q-fdf36b",
-    "Q-9c09f5"
+    "Q-9a3659"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1066,
+   "ms": 857,
    "rows": 17,
    "finding": "16 inspections (0 OAI at our plants), 1 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1149,
+   "ms": 962,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-063660"
+    "Q-710b89"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1618,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 2088,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 0,
+   "ms": 1,
    "rows": 0,
    "finding": "No past decisions on this drug.",
    "status": "empty"
@@ -153,34 +164,43 @@
    "onHand": 253,
    "dailyUse": 12.941,
    "days": 19.6,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "ceftriaxone sodium|1g|injection||vial",
+   "presentationLabel": "1 g injection",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-174",
    "ndc11": "71205059301",
-   "description": "Ceftriaxone",
+   "description": "Ceftriaxone 2 g/1",
    "labeler": "Proficient Rx LP",
-   "onHand": 287.23,
+   "onHand": 287,
    "dailyUse": 15.918,
    "days": 18,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "ceftriaxone|2g|injection||vial",
+   "presentationLabel": "2 g injection",
    "evidence": "E2"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-175",
    "ndc11": "70518249900",
-   "description": "Ceftriaxone Sodium",
+   "description": "Ceftriaxone Sodium 1 g/1",
    "labeler": "REMEDYREPACK INC.",
-   "onHand": 298.05,
+   "onHand": 298,
    "dailyUse": 15.78,
    "days": 18.9,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "ceftriaxone sodium|1g|injection||vial",
+   "presentationLabel": "1 g injection",
    "evidence": "E3"
   },
   {
@@ -194,7 +214,82 @@
    "days": 8.8,
    "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "units of use, as exported",
+   "presentation": "ceftriaxone sodium|1g|injection||vial",
+   "presentationLabel": "1 g injection",
    "evidence": "E4"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "ceftriaxone sodium|1g|injection||vial",
+   "label": "1 g injection",
+   "short": "1 g",
+   "unit": "vial",
+   "onHand": 588,
+   "dailyUse": 32.931,
+   "days": 17.9,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 253,
+     "dailyUse": 12.941,
+     "days": 19.6,
+     "lines": [
+      "EA-E-000266"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 298,
+     "dailyUse": 15.78,
+     "days": 18.9,
+     "lines": [
+      "CG-175"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    },
+    {
+     "hospital": "Corvale Lakeside",
+     "onHand": 37,
+     "dailyUse": 4.21,
+     "days": 8.8,
+     "lines": [
+      "LS-LS-0116"
+     ],
+     "evidence": [
+      "E4"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "ceftriaxone|2g|injection||vial",
+   "label": "2 g injection",
+   "short": "2 g",
+   "unit": "vial",
+   "onHand": 287,
+   "dailyUse": 15.918,
+   "days": 18,
+   "hospitals": [
+    {
+     "hospital": "Corvale General",
+     "onHand": 287,
+     "dailyUse": 15.918,
+     "days": 18,
+     "lines": [
+      "CG-174"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -491,27 +586,48 @@
   {
    "kind": "transfer",
    "rank": 1,
-   "title": "Transfer 22 from Corvale East to Corvale Lakeside",
-   "detail": "Corvale East has 20 days on hand and can spare 22 while keeping two weeks; Corvale Lakeside has 8.8 days and would reach 14.",
-   "why": "Same product, no clinical change, no new supplier.",
+   "title": "Transfer 22 vials of 1 g from Corvale East to Corvale Lakeside",
+   "detail": "Corvale East has 20 days of 1 g injection on hand and can spare 22 vials while keeping two weeks; Corvale Lakeside has 8.8 days and would reach 14.",
+   "why": "Same presentation, no clinical change, no new supplier.",
    "needs": "pharmacy director (transfer request)",
    "evidence": [
     "E1",
     "E4"
-   ]
+   ],
+   "transfer": {
+    "qty": 22,
+    "unit": "vial",
+    "presentation": "1 g injection",
+    "from": "Corvale East",
+    "to": "Corvale Lakeside",
+    "fromDays": 19.6,
+    "toDays": 8.8,
+    "fromAfter": 18,
+    "toAfter": 14
+   }
   },
   {
    "kind": "transfer",
    "rank": 1,
-   "title": "Transfer 22 from Corvale General to Corvale Lakeside",
-   "detail": "Corvale General has 18 days on hand and can spare 22 while keeping two weeks; Corvale Lakeside has 8.8 days and would reach 14.",
-   "why": "Same product, no clinical change, no new supplier.",
+   "title": "Transfer 22 vials of 1 g from Corvale General to Corvale Lakeside",
+   "detail": "Corvale General has 19 days of 1 g injection on hand and can spare 22 vials while keeping two weeks; Corvale Lakeside has 8.8 days and would reach 14.",
+   "why": "Same presentation, no clinical change, no new supplier.",
    "needs": "pharmacy director (transfer request)",
    "evidence": [
-    "E2",
     "E3",
     "E4"
-   ]
+   ],
+   "transfer": {
+    "qty": 22,
+    "unit": "vial",
+    "presentation": "1 g injection",
+    "from": "Corvale General",
+    "to": "Corvale Lakeside",
+    "fromDays": 18.9,
+    "toDays": 8.8,
+    "fromAfter": 17,
+    "toAfter": 14
+   }
   },
   {
    "kind": "alternate_manufacturer",
@@ -561,25 +677,7 @@
   {
    "kind": "alternate_manufacturer",
    "rank": 3,
-   "title": "Buy from A-S Medication Solutions",
-   "detail": "Not on FDA's shortage list today. Plants: A-S Medication Solutions (last inspection VAI 2026-08-12).",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
    "title": "Buy from Apotex Corp.",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Asclemed USA, Inc.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -674,56 +772,60 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "FDA's records show Corvale East and Corvale Lakeside share the same NDC (70518249900) from REMEDYREPACK INC. with plant SANDOZ (sponsor only); Corvale General uses a different NDC (71205059301) from Proficient Rx LP (VAI 2022-12-08)",
+  "headline": "Ceftriaxone sodium is not on FDA's shortage list as of 2026-10-21; internal supply shows Corvale Lakeside at 8.8 days on hand for 1 g injection",
   "sentences": [
    {
-    "text": "Corvale East and Corvale Lakeside both stock ceftriaxone sodium under NDC 70518249900 labeled by REMEDYREPACK INC. and manufactured at the SANDOZ plant, which is linked as sponsor only.",
+    "text": "FDA's records show ceftriaxone sodium is not on the drug shortage list as of 2026-10-21.",
+    "cites": [
+     "D5"
+    ]
+   },
+   {
+    "text": "Corvale Lakeside holds 37 vials of the 1 g injection with 4.2 vials used per day, giving 8.8 days on hand.",
+    "cites": [
+     "D3"
+    ]
+   },
+   {
+    "text": "Corvale East holds 253 vials at 12.9 vials per day for 19.6 days on hand, and Corvale General holds 298 vials at 15.8 vials per day for 18.9 days on hand.",
+    "cites": [
+     "D1",
+     "D2"
+    ]
+   },
+   {
+    "text": "All three sites use product labeled by REMEDYREPACK INC. (NDC 70518249900) manufactured by SANDOZ.",
     "cites": [
      "E1",
+     "E3",
      "E4",
      "E5"
     ]
    },
    {
-    "text": "Corvale General carries two NDCs: 70518249900 from REMEDYREPACK INC. and 71205059301 from Proficient Rx LP, the latter inspected by FDA and classified VAI on 2022-12-08.",
+    "text": "An alternate manufacturer option from Civica, Inc. uses Hikma Farmacêutica (Portugal), which is not on FDA's shortage list today.",
     "cites": [
-     "E2",
-     "E3",
+     "D8"
+    ]
+   },
+   {
+    "text": "Proficient Rx LP, a relabeler for a different NDC, has a registered plant inspected by FDA with VAI classifications in 2015 and 2022.",
+    "cites": [
+     "E6",
+     "E7",
      "E8"
     ]
    },
    {
-    "text": "Proficient Rx LP (FEI 3011557028) also received a VAI classification on 2015-10-22 per FDA inspection 948193.",
+    "text": "The top-ranked internal action is to transfer 22 vials of 1 g from Corvale East to Corvale Lakeside, which would raise Lakeside to 14 days on hand while East retains two weeks.",
     "cites": [
-     "E6"
-    ]
-   },
-   {
-    "text": "Current inventory shows Corvale East with 20 days on hand, Corvale General with 18 days, and Corvale Lakeside with 9 days.",
-    "cites": [
-     "D1",
-     "D2",
-     "D3"
-    ]
-   },
-   {
-    "text": "Because the SANDOZ plant link is sponsor only and the Proficient Rx LP plant has only VAI inspections, verify whether any OAI actions or supply disruptions exist for these facilities.",
-    "cites": [
-     "E5",
-     "E8",
-     "E6",
-     "E7"
+     "D6"
     ]
    }
   ],
   "verifier": {
-   "checked": 7,
-   "rejected": [
-    {
-     "text": "Transferring 22 units from Corvale East to Corvale Lakeside would leave East with roughly two weeks of supply and bring Lakeside to about 14 days.",
-     "reason": "number 22 is not in the cited evidence"
-    }
-   ],
+   "checked": 8,
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -731,125 +833,146 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [],
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:32:44.482Z",
+   "at": "2026-10-22T11:37:34.843Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract X9YTN39W scope"
+   "reason": "in contract ERD43C9D scope"
   },
   {
-   "at": "2026-10-22T07:32:44.482Z",
+   "at": "2026-10-22T11:37:34.843Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract X9YTN39W scope"
+   "reason": "in contract ERD43C9D scope"
   },
   {
-   "at": "2026-10-22T07:32:47.442Z",
+   "at": "2026-10-22T11:37:38.602Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract X9YTN39W scope"
+   "reason": "in contract ERD43C9D scope"
   },
   {
-   "at": "2026-10-22T07:32:48.063Z",
+   "at": "2026-10-22T11:37:39.139Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract X9YTN39W scope"
+   "reason": "in contract ERD43C9D scope"
   },
   {
-   "at": "2026-10-22T07:32:48.499Z",
+   "at": "2026-10-22T11:37:39.415Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract X9YTN39W scope"
+   "reason": "in contract ERD43C9D scope"
   },
   {
-   "at": "2026-10-22T07:32:50.347Z",
+   "at": "2026-10-22T11:37:41.027Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract X9YTN39W scope"
+   "reason": "in contract ERD43C9D scope"
   },
   {
-   "at": "2026-10-22T07:32:51.416Z",
+   "at": "2026-10-22T11:37:41.885Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract X9YTN39W scope"
+   "reason": "in contract ERD43C9D scope"
   },
   {
-   "at": "2026-10-22T07:32:52.564Z",
+   "at": "2026-10-22T11:37:42.847Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract X9YTN39W scope"
+   "reason": "in contract ERD43C9D scope"
   },
   {
-   "at": "2026-10-22T07:32:54.182Z",
+   "at": "2026-10-22T11:37:44.935Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract X9YTN39W scope"
+   "reason": "in contract ERD43C9D scope"
   },
   {
-   "at": "2026-10-22T07:32:54.185Z",
+   "at": "2026-10-22T11:37:44.936Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract X9YTN39W scope"
+   "reason": "in contract ERD43C9D scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-c8e0cf",
+   "queryId": "Q-541977",
    "row": 0,
    "label": "Corvale East: CEFTRIAXONE SODIUM 1G",
    "fields": {
@@ -860,65 +983,80 @@
     "description": "CEFTRIAXONE SODIUM 1G",
     "on_hand": "253.00",
     "daily_use": "12.941",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Ceftriaxone Sodium",
     "labeler_name": "REMEDYREPACK INC.",
     "package_ndc": "70518-2499-0",
     "spl_set_id": "9c801096-ca61-4b29-a1e1-5f7e7813b191",
     "dosage_form": "INJECTION, POWDER, FOR SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "CEFTRIAXONE SODIUM 1 g/1",
+    "unit_content": null,
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-c8e0cf",
+   "queryId": "Q-541977",
    "row": 1,
-   "label": "Corvale General: Ceftriaxone",
+   "label": "Corvale General: Ceftriaxone 2 g/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-174",
     "ndc11": "71205059301",
     "ndc_as_recorded": "71205059301",
-    "description": "Ceftriaxone",
-    "on_hand": "287.23",
+    "description": "Ceftriaxone 2 g/1",
+    "on_hand": "287.00",
     "daily_use": "15.918",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Ceftriaxone",
     "labeler_name": "Proficient Rx LP",
     "package_ndc": "71205-593-01",
     "spl_set_id": "fcf401df-bcdc-4773-a63b-9741c0f74b3d",
     "dosage_form": "INJECTION, POWDER, FOR SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "CEFTRIAXONE SODIUM 2 g/1",
+    "unit_content": null,
+    "pkg_unit": "vial"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-c8e0cf",
+   "queryId": "Q-541977",
    "row": 2,
-   "label": "Corvale General: Ceftriaxone Sodium",
+   "label": "Corvale General: Ceftriaxone Sodium 1 g/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-175",
     "ndc11": "70518249900",
     "ndc_as_recorded": "70518249900",
-    "description": "Ceftriaxone Sodium",
-    "on_hand": "298.05",
+    "description": "Ceftriaxone Sodium 1 g/1",
+    "on_hand": "298.00",
     "daily_use": "15.780",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Ceftriaxone Sodium",
     "labeler_name": "REMEDYREPACK INC.",
     "package_ndc": "70518-2499-0",
     "spl_set_id": "9c801096-ca61-4b29-a1e1-5f7e7813b191",
     "dosage_form": "INJECTION, POWDER, FOR SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "CEFTRIAXONE SODIUM 1 g/1",
+    "unit_content": null,
+    "pkg_unit": "vial"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-c8e0cf",
+   "queryId": "Q-541977",
    "row": 3,
    "label": "Corvale Lakeside: Ceftriaxone Sodium 1 g/1 10 mL vial",
    "fields": {
@@ -930,13 +1068,18 @@
     "on_hand": "37.00",
     "daily_use": "4.210",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, as exported",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Ceftriaxone Sodium",
     "labeler_name": "REMEDYREPACK INC.",
     "package_ndc": "70518-2499-0",
     "spl_set_id": "9c801096-ca61-4b29-a1e1-5f7e7813b191",
     "dosage_form": "INJECTION, POWDER, FOR SOLUTION",
-    "route": "INTRAMUSCULAR|INTRAVENOUS"
+    "route": "INTRAMUSCULAR|INTRAVENOUS",
+    "strength": "CEFTRIAXONE SODIUM 1 g/1",
+    "unit_content": null,
+    "pkg_unit": "vial"
    }
   },
   "E5": {
@@ -1007,197 +1150,272 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 253 units of ceftriaxone sodium at 12.9 a day: 20 days on hand",
+   "label": "Corvale East holds 253 vials of ceftriaxone sodium 1 g at 12.9 a day: 19.6 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "1 g injection",
     "on_hand": 253,
     "daily_use": 12.9,
-    "days_on_hand": 20
+    "days_on_hand": 19.6
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 585 units of ceftriaxone sodium at 31.7 a day: 18 days on hand",
+   "label": "Corvale General holds 298 vials of ceftriaxone sodium 1 g at 15.8 a day: 18.9 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 585,
-    "daily_use": 31.7,
-    "days_on_hand": 18
+    "presentation": "1 g injection",
+    "on_hand": 298,
+    "daily_use": 15.8,
+    "days_on_hand": 18.9
    }
   },
   "D3": {
    "id": "D3",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale Lakeside holds 37 units of ceftriaxone sodium at 4.2 a day: 9 days on hand",
+   "label": "Corvale Lakeside holds 37 vials of ceftriaxone sodium 1 g at 4.2 a day: 8.8 days on hand",
    "fields": {
     "hospital": "Corvale Lakeside",
+    "presentation": "1 g injection",
     "on_hand": 37,
     "daily_use": 4.2,
-    "days_on_hand": 9
+    "days_on_hand": 8.8
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 287 vials of ceftriaxone sodium 2 g at 15.9 a day: 18 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "2 g injection",
+    "on_hand": 287,
+    "daily_use": 15.9,
+    "days_on_hand": 18
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "ceftriaxone sodium is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 22 vials of 1 g from Corvale East to Corvale Lakeside. Corvale East has 20 days of 1 g injection on hand and can spare 22 vials while keeping two weeks; Corvale Lakeside has 8.8 days and would reach 14.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 22 vials of 1 g from Corvale General to Corvale Lakeside. Corvale General has 19 days of 1 g injection on hand and can spare 22 vials while keeping two weeks; Corvale Lakeside has 8.8 days and would reach 14.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D8": {
+   "id": "D8",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 2 by rule: Buy from Civica, Inc.. Not on FDA's shortage list today. Plants: Hikma Farmacêutica (Portugal).",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-c8e0cf": {
-   "id": "Q-c8e0cf",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%ceftriaxone%' OR lower(s.description) LIKE '%ceftriaxone%' ORDER BY s.hospital, s.item_key",
-   "ms": 2954,
+  "Q-541977": {
+   "id": "Q-541977",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*ceftriaxone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*ceftriaxone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 3758,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:32:47.436Z",
+   "ranAt": "2026-10-22T11:37:38.601Z",
    "rows": 4
   },
   "Q-4a3d4d": {
    "id": "Q-4a3d4d",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('9c801096-ca61-4b29-a1e1-5f7e7813b191', 'fcf401df-bcdc-4773-a63b-9741c0f74b3d') ORDER BY ps.set_id, ps.establishment",
-   "ms": 617,
+   "ms": 535,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:32:48.060Z",
+   "ranAt": "2026-10-22T11:37:39.138Z",
    "rows": 2
   },
-  "Q-b04c71": {
-   "id": "Q-b04c71",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%ceftriaxone%' ORDER BY status, company_name, package_ndc",
-   "ms": 217,
+  "Q-e636ee": {
+   "id": "Q-e636ee",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*ceftriaxone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 131,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:32:48.279Z",
+   "ranAt": "2026-10-22T11:37:39.270Z",
    "rows": 0
   },
-  "Q-544fd8": {
-   "id": "Q-544fd8",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%ceftriaxone%' ORDER BY first_posting",
-   "ms": 213,
+  "Q-f7bf44": {
+   "id": "Q-f7bf44",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*ceftriaxone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 143,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:32:48.496Z",
+   "ranAt": "2026-10-22T11:37:39.414Z",
    "rows": 0
   },
-  "Q-45a8df": {
-   "id": "Q-45a8df",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%ceftriaxone%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 1843,
+  "Q-afba93": {
+   "id": "Q-afba93",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*ceftriaxone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1610,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:32:50.343Z",
+   "ranAt": "2026-10-22T11:37:41.025Z",
    "rows": 78
   },
   "Q-fa94cf": {
    "id": "Q-fa94cf",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3011557028', '1450743', '3002807084') ORDER BY fei, end_date",
-   "ms": 447,
+   "ms": 357,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:32:50.795Z",
+   "ranAt": "2026-10-22T11:37:41.384Z",
    "rows": 16
   },
   "Q-926827": {
    "id": "Q-926827",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3011557028', '1450743', '3002807084') ORDER BY fei, action_date",
-   "ms": 200,
+   "ms": 167,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:32:50.997Z",
+   "ranAt": "2026-10-22T11:37:41.552Z",
    "rows": 1
   },
   "Q-fdf36b": {
    "id": "Q-fdf36b",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3011557028') OR (fei_match <> 'name_and_city' AND firm_key IN ('sandoz', 'proficient rx')) ORDER BY date_published",
-   "ms": 171,
+   "ms": 147,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:32:51.172Z",
+   "ranAt": "2026-10-22T11:37:41.700Z",
    "rows": 0
   },
-  "Q-9c09f5": {
-   "id": "Q-9c09f5",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('sandoz', 'proficient rx', 'remedyrepack') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%ceftriaxone%' ORDER BY initiation_date",
-   "ms": 236,
+  "Q-9a3659": {
+   "id": "Q-9a3659",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('sandoz', 'proficient rx', 'remedyrepack') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*ceftriaxone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 182,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:32:51.410Z",
+   "ranAt": "2026-10-22T11:37:41.883Z",
    "rows": 0
   },
   "Q-14cf32": {
    "id": "Q-14cf32",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('70518249900', '71205059301')",
-   "ms": 1144,
+   "ms": 961,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:32:52.560Z",
+   "ranAt": "2026-10-22T11:37:42.846Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-063660": {
-   "id": "Q-063660",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%ceftriaxone%'",
-   "ms": 1614,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:32:54.178Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-710b89": {
+   "id": "Q-710b89",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*ceftriaxone(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 2086,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:37:44.933Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 15027,
+  "zetarisMs": 20285,
   "modelCalls": 1,
-  "tokensIn": 1842,
-  "tokensOut": 575,
+  "tokensIn": 2292,
+  "tokensOut": 512,
   "mode": "live"
  },
  "slug": "ceftriaxone",
@@ -1213,7 +1431,7 @@
     "id": "hospital-item:hospital-item:CG-174",
     "type": "HospitalItem",
     "key": "hospital-item:CG-174",
-    "label": "Corvale General: Ceftriaxone",
+    "label": "Corvale General: Ceftriaxone 2 g/1",
     "attrs": {
      "key": "hospital-item:CG-174"
     },
@@ -1224,7 +1442,7 @@
     "id": "hospital-item:hospital-item:CG-175",
     "type": "HospitalItem",
     "key": "hospital-item:CG-175",
-    "label": "Corvale General: Ceftriaxone Sodium",
+    "label": "Corvale General: Ceftriaxone Sodium 1 g/1",
     "attrs": {
      "key": "hospital-item:CG-175"
     },
@@ -1352,7 +1570,7 @@
     },
     "facts": [
      {
-      "id": "fact_3a1df68206c113ae",
+      "id": "fact_f8778ef2ee354865",
       "about": "inspection:fda-inspection:1194148",
       "predicate": "classification",
       "value": "VAI",
@@ -1360,9 +1578,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:32:51.414Z"
+       "at": "2026-10-22T11:37:41.884Z"
       },
-      "assertedAt": "2026-10-22T07:32:51.414Z"
+      "assertedAt": "2026-10-22T11:37:41.884Z"
      }
     ],
     "depth": 4
@@ -1378,7 +1596,7 @@
     },
     "facts": [
      {
-      "id": "fact_326b84d6cec78c0b",
+      "id": "fact_f3118faf67214b3b",
       "about": "inspection:fda-inspection:948193",
       "predicate": "classification",
       "value": "VAI",
@@ -1386,9 +1604,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:32:51.414Z"
+       "at": "2026-10-22T11:37:41.884Z"
       },
-      "assertedAt": "2026-10-22T07:32:51.414Z"
+      "assertedAt": "2026-10-22T11:37:41.884Z"
      }
     ],
     "depth": 4
@@ -1400,11 +1618,11 @@
     "from": "hospital-item:hospital-item:CG-174",
     "to": "package:ndc-package:71205-593-01",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:32:47.441Z",
+    "validFrom": "2026-10-22T11:37:38.602Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:32:47.441Z"
+     "at": "2026-10-22T11:37:38.602Z"
     }
    },
    {
@@ -1412,11 +1630,11 @@
     "from": "hospital-item:hospital-item:CG-175",
     "to": "package:ndc-package:70518-2499-0",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:32:47.441Z",
+    "validFrom": "2026-10-22T11:37:38.602Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:32:47.441Z"
+     "at": "2026-10-22T11:37:38.602Z"
     }
    },
    {
@@ -1424,11 +1642,11 @@
     "from": "hospital-item:hospital-item:EA-E-000266",
     "to": "package:ndc-package:70518-2499-0",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:32:47.440Z",
+    "validFrom": "2026-10-22T11:37:38.602Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:32:47.440Z"
+     "at": "2026-10-22T11:37:38.602Z"
     }
    },
    {
@@ -1436,11 +1654,11 @@
     "from": "hospital-item:hospital-item:LS-LS-0116",
     "to": "package:ndc-package:70518-2499-0",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:32:47.442Z",
+    "validFrom": "2026-10-22T11:37:38.602Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:32:47.442Z"
+     "at": "2026-10-22T11:37:38.602Z"
     }
    },
    {
@@ -1448,11 +1666,11 @@
     "from": "package:ndc-package:71205-593-01",
     "to": "product:ndc-product:71205-593",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:32:47.441Z",
+    "validFrom": "2026-10-22T11:37:38.602Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:32:47.441Z"
+     "at": "2026-10-22T11:37:38.602Z"
     }
    },
    {
@@ -1460,11 +1678,11 @@
     "from": "package:ndc-package:70518-2499-0",
     "to": "product:ndc-product:70518-2499",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:32:47.440Z",
+    "validFrom": "2026-10-22T11:37:38.602Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:32:47.440Z"
+     "at": "2026-10-22T11:37:38.602Z"
     }
    },
    {
@@ -1472,11 +1690,11 @@
     "from": "product:ndc-product:71205-593",
     "to": "drug:generic:ceftriaxone sodium",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:32:47.441Z",
+    "validFrom": "2026-10-22T11:37:38.602Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:32:47.441Z"
+     "at": "2026-10-22T11:37:38.602Z"
     }
    },
    {
@@ -1484,11 +1702,11 @@
     "from": "product:ndc-product:71205-593",
     "to": "labeler:ndc-labeler:71205",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:32:47.441Z",
+    "validFrom": "2026-10-22T11:37:38.602Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:32:47.441Z"
+     "at": "2026-10-22T11:37:38.602Z"
     }
    },
    {
@@ -1496,11 +1714,11 @@
     "from": "product:ndc-product:71205-593",
     "to": "site:fei:3011557028",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:32:51.414Z",
+    "validFrom": "2026-10-22T11:37:41.884Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:32:51.414Z"
+     "at": "2026-10-22T11:37:41.884Z"
     }
    },
    {
@@ -1508,11 +1726,11 @@
     "from": "product:ndc-product:70518-2499",
     "to": "drug:generic:ceftriaxone sodium",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:32:47.440Z",
+    "validFrom": "2026-10-22T11:37:38.602Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:32:47.440Z"
+     "at": "2026-10-22T11:37:38.602Z"
     }
    },
    {
@@ -1520,11 +1738,11 @@
     "from": "product:ndc-product:70518-2499",
     "to": "labeler:ndc-labeler:70518",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:32:47.440Z",
+    "validFrom": "2026-10-22T11:37:38.602Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:32:47.440Z"
+     "at": "2026-10-22T11:37:38.602Z"
     }
    },
    {
@@ -1532,11 +1750,11 @@
     "from": "inspection:fda-inspection:948193",
     "to": "site:fei:3011557028",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:32:51.414Z",
+    "validFrom": "2026-10-22T11:37:41.884Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:32:51.414Z"
+     "at": "2026-10-22T11:37:41.884Z"
     }
    },
    {
@@ -1544,11 +1762,11 @@
     "from": "inspection:fda-inspection:1194148",
     "to": "site:fei:3011557028",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:32:51.414Z",
+    "validFrom": "2026-10-22T11:37:41.884Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:32:51.414Z"
+     "at": "2026-10-22T11:37:41.884Z"
     }
    }
   ],

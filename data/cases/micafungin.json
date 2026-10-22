@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-aae649",
+ "id": "case-2026-10-22-d4bdb8",
  "question": "Why is micafungin short, and what do we do?",
- "askedAt": "2026-10-22T08:03:18.935Z",
+ "askedAt": "2026-10-22T12:22:32.138Z",
  "asOf": "2026-10-21",
  "molecule": "micafungin",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5HA56GH8HBHJS3TK81K05RV",
+  "contractId": "01M5HRZYXCR3NANAXJ136T6RHX",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-8b9ef9"
+    "Q-86eaa0"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 3928,
+   "ms": 4015,
    "rows": 4,
-   "finding": "4 stock lines across 2 hospitals.",
+   "finding": "4 stock lines across 2 hospitals, 2 presentations, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-84c44c"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 852,
+   "ms": 495,
    "rows": 2,
    "finding": "2 plant links on 2 labels; 2 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-587fd0",
-    "Q-718611"
+    "Q-ce4512",
+    "Q-e27939"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 618,
+   "ms": 294,
    "rows": 3,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-51c96b"
+    "Q-f893f9"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 2442,
+   "ms": 1302,
    "rows": 40,
    "finding": "11 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-742fc2",
     "Q-083641",
     "Q-6fbcd5",
-    "Q-669c3c"
+    "Q-98cc2c"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1295,
+   "ms": 810,
    "rows": 5,
    "finding": "2 inspections (1 OAI at our plants), 1 compliance actions, 0 import-alert listings, 2 recalls.",
    "status": "ok"
@@ -104,7 +111,7 @@
    "sources": [
     "fda.citations"
    ],
-   "ms": 446,
+   "ms": 180,
    "rows": 10,
    "finding": "10 Form 483 observations recorded.",
    "status": "ok"
@@ -119,9 +126,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1724,
+   "ms": 831,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -129,19 +136,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-8fbc0e"
+    "Q-93b643"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1748,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 1317,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -152,7 +163,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 2,
+   "ms": 1,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -168,8 +179,11 @@
    "onHand": 192,
    "dailyUse": 14.439,
    "days": 13.3,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 10, converted to units",
+   "presentation": "micafungin|20mg/ml|injection|5ml|vial",
+   "presentationLabel": "20 mg/mL injection, 5 mL vial",
    "evidence": "E1"
   },
   {
@@ -181,35 +195,116 @@
    "onHand": 216,
    "dailyUse": 14.921,
    "days": 14.5,
-   "unit": "package",
+   "unit": "vial",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 1, converted to units",
+   "presentation": "micafungin|10mg/ml|injection|5ml|vial",
+   "presentationLabel": "10 mg/mL injection, 5 mL vial",
    "evidence": "E2"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-276",
    "ndc11": "70710172506",
-   "description": "Micafungin",
+   "description": "Micafungin 20 mg/mL",
    "labeler": "Zydus Pharmaceuticals USA Inc.",
-   "onHand": 512.45,
+   "onHand": 512,
    "dailyUse": 16.533,
    "days": 31,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "micafungin|20mg/ml|injection|5ml|vial",
+   "presentationLabel": "20 mg/mL injection, 5 mL vial",
    "evidence": "E3"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-277",
    "ndc11": "70771168301",
-   "description": "Micafungin",
+   "description": "Micafungin 10 mg/mL",
    "labeler": "Zydus Lifesciences Limited",
-   "onHand": 486.22,
+   "onHand": 486,
    "dailyUse": 16.098,
    "days": 30.2,
    "unit": "vial",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "micafungin|10mg/ml|injection|5ml|vial",
+   "presentationLabel": "10 mg/mL injection, 5 mL vial",
    "evidence": "E4"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "micafungin|20mg/ml|injection|5ml|vial",
+   "label": "20 mg/mL injection, 5 mL vial",
+   "short": "20 mg/mL, 5 mL",
+   "unit": "vial",
+   "onHand": 704,
+   "dailyUse": 30.972,
+   "days": 22.7,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 192,
+     "dailyUse": 14.439,
+     "days": 13.3,
+     "lines": [
+      "EA-E-000271"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 512,
+     "dailyUse": 16.533,
+     "days": 31,
+     "lines": [
+      "CG-276"
+     ],
+     "evidence": [
+      "E3"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "micafungin|10mg/ml|injection|5ml|vial",
+   "label": "10 mg/mL injection, 5 mL vial",
+   "short": "10 mg/mL, 5 mL",
+   "unit": "vial",
+   "onHand": 702,
+   "dailyUse": 31.019,
+   "days": 22.6,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 216,
+     "dailyUse": 14.921,
+     "days": 14.5,
+     "lines": [
+      "EA-E-000274"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 486,
+     "dailyUse": 16.098,
+     "days": 30.2,
+     "lines": [
+      "CG-277"
+     ],
+     "evidence": [
+      "E4"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -579,59 +674,64 @@
   }
  ],
  "explanation": {
-  "state": "confirmed",
-  "headline": "FDA's records trace this shortage to a plant on our own labels",
+  "state": "check",
+  "headline": "Micafungin is not on FDA's shortage list as of 2026-10-21; Corvale East has 13.3 days on hand of the 20 mg/mL presentation and 14.5 days of the 10 mg/mL presentation",
   "sentences": [
    {
-    "text": "The FDA shortage list shows Par Health, USA LLC discontinued micafungin sodium injection with an initial posting date of 2026-09-11.",
+    "text": "FDA's drug shortage list shows micafungin is not listed as of 2026-10-21.",
     "cites": [
-     "E12"
+     "D5"
     ]
    },
    {
-    "text": "Our product label identifies Zydus Lifesciences Limited (FEI 3013712903) as the manufacturing plant.",
+    "text": "Corvale East holds 192 vials of micafungin 20 mg/mL, 5 mL with 13.3 days on hand at 14.4 vials per day.",
     "cites": [
-     "E9"
+     "D1"
     ]
    },
    {
-    "text": "FDA inspection 1236639 of that plant ended on 2024-04-23 and was classified OAI with 10 observations including absence of written procedures and validation lacking for sterile drug products.",
+    "text": "Corvale East holds 216 vials of micafungin 10 mg/mL, 5 mL with 14.5 days on hand at 14.9 vials per day.",
     "cites": [
-     "E7"
+     "D3"
     ]
    },
    {
-    "text": "A Warning Letter was issued to Zydus Lifesciences Limited on 2024-08-29 following the OAI inspection.",
+    "text": "Corvale General holds 512 vials of the 20 mg/mL presentation with 31 days on hand and 486 vials of the 10 mg/mL presentation with 30.2 days on hand.",
     "cites": [
+     "D2",
+     "D4"
+    ]
+   },
+   {
+    "text": "A label for micafungin names Zydus Lifesciences Limited as the registered plant (FEI 3013712903) with an OAI inspection ending 2024-04-23 and a Warning Letter dated 2024-08-29.",
+    "cites": [
+     "E9",
+     "E7",
      "E8"
     ]
    },
    {
-    "text": "A Class III recall (D-0596-2024) for micafungin for injection 100 mg/vial manufactured for Northstar Rx LLC was initiated on 2024-07-02 due to cross contamination with other products.",
+    "text": "A Class III recall by Zydus Pharmaceuticals (USA) Inc. for micafungin 100 mg/vial was initiated 2024-07-02 for cross contamination.",
     "cites": [
      "E10"
     ]
    },
    {
-    "text": "Corvale East has 14 days on hand and Corvale General has 31 days on hand at current usage rates.",
+    "text": "Par Health, USA LLC posted a discontinuation of micafungin sodium injection on 2026-09-11.",
     "cites": [
-     "D1",
-     "D2"
+     "E12"
+    ]
+   },
+   {
+    "text": "The rule ranks buying from Baxter Healthcare Corporation as the best option; it is not on FDA's shortage list today and its label names no plant we could place.",
+    "cites": [
+     "D6"
     ]
    }
   ],
   "verifier": {
-   "checked": 8,
-   "rejected": [
-    {
-     "text": "The OAI classification became known on 2024-07-22, which was 181 days before the shortage posting date of 2026-09-11.",
-     "reason": "number 181 is not in the cited evidence"
-    },
-    {
-     "text": "FDA's records trace our supply to a plant classified OAI 181 days before the posting",
-     "reason": "headline: number 181 is not in the cited evidence"
-    }
-   ],
+   "checked": 9,
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -639,45 +739,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -692,87 +813,87 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T08:03:05.875Z",
+   "at": "2026-10-22T12:22:22.892Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract K81K05RV scope"
+   "reason": "in contract 136T6RHX scope"
   },
   {
-   "at": "2026-10-22T08:03:05.875Z",
+   "at": "2026-10-22T12:22:22.892Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract K81K05RV scope"
+   "reason": "in contract 136T6RHX scope"
   },
   {
-   "at": "2026-10-22T08:03:09.805Z",
+   "at": "2026-10-22T12:22:26.908Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract K81K05RV scope"
+   "reason": "in contract 136T6RHX scope"
   },
   {
-   "at": "2026-10-22T08:03:10.656Z",
+   "at": "2026-10-22T12:22:27.403Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract K81K05RV scope"
+   "reason": "in contract 136T6RHX scope"
   },
   {
-   "at": "2026-10-22T08:03:11.274Z",
+   "at": "2026-10-22T12:22:27.697Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract K81K05RV scope"
+   "reason": "in contract 136T6RHX scope"
   },
   {
-   "at": "2026-10-22T08:03:13.716Z",
+   "at": "2026-10-22T12:22:28.999Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract K81K05RV scope"
+   "reason": "in contract 136T6RHX scope"
   },
   {
-   "at": "2026-10-22T08:03:15.011Z",
+   "at": "2026-10-22T12:22:29.810Z",
    "action": "What FDA wrote at the OAI inspections",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract K81K05RV scope"
+   "reason": "in contract 136T6RHX scope"
   },
   {
-   "at": "2026-10-22T08:03:15.461Z",
+   "at": "2026-10-22T12:22:29.990Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract K81K05RV scope"
+   "reason": "in contract 136T6RHX scope"
   },
   {
-   "at": "2026-10-22T08:03:17.184Z",
+   "at": "2026-10-22T12:22:30.820Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract K81K05RV scope"
+   "reason": "in contract 136T6RHX scope"
   },
   {
-   "at": "2026-10-22T08:03:18.933Z",
+   "at": "2026-10-22T12:22:32.137Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract K81K05RV scope"
+   "reason": "in contract 136T6RHX scope"
   },
   {
-   "at": "2026-10-22T08:03:18.936Z",
+   "at": "2026-10-22T12:22:32.138Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract K81K05RV scope"
+   "reason": "in contract 136T6RHX scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-8b9ef9",
+   "queryId": "Q-86eaa0",
    "row": 0,
    "label": "Corvale East: MICAFUNGIN 20MG/ML 5ML SDV",
    "fields": {
@@ -783,19 +904,24 @@
     "description": "MICAFUNGIN 20MG/ML 5ML SDV",
     "on_hand": "192.00",
     "daily_use": "14.439",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "10.00",
+    "unit_basis": "packages of 10, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Micafungin",
     "labeler_name": "Zydus Pharmaceuticals USA Inc.",
     "package_ndc": "70710-1725-6",
     "spl_set_id": "29f17423-5787-47d0-a83b-bbdc0198fbfa",
     "dosage_form": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "MICAFUNGIN SODIUM 20 mg/mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-8b9ef9",
+   "queryId": "Q-86eaa0",
    "row": 1,
    "label": "Corvale East: MICAFUNGIN 10MG/ML 5ML SDV",
    "fields": {
@@ -806,60 +932,75 @@
     "description": "MICAFUNGIN 10MG/ML 5ML SDV",
     "on_hand": "216.00",
     "daily_use": "14.921",
-    "unit": "package",
+    "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "packages of 1, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Micafungin",
     "labeler_name": "Zydus Lifesciences Limited",
     "package_ndc": "70771-1683-1",
     "spl_set_id": "72bc5dd6-6052-4483-9b13-afdeaaa8cc69",
     "dosage_form": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "MICAFUNGIN SODIUM 10 mg/mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E3": {
    "id": "E3",
-   "queryId": "Q-8b9ef9",
+   "queryId": "Q-86eaa0",
    "row": 2,
-   "label": "Corvale General: Micafungin",
+   "label": "Corvale General: Micafungin 20 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-276",
     "ndc11": "70710172506",
     "ndc_as_recorded": "70710172506",
-    "description": "Micafungin",
-    "on_hand": "512.45",
+    "description": "Micafungin 20 mg/mL",
+    "on_hand": "512.00",
     "daily_use": "16.533",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Micafungin",
     "labeler_name": "Zydus Pharmaceuticals USA Inc.",
     "package_ndc": "70710-1725-6",
     "spl_set_id": "29f17423-5787-47d0-a83b-bbdc0198fbfa",
     "dosage_form": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "MICAFUNGIN SODIUM 20 mg/mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E4": {
    "id": "E4",
-   "queryId": "Q-8b9ef9",
+   "queryId": "Q-86eaa0",
    "row": 3,
-   "label": "Corvale General: Micafungin",
+   "label": "Corvale General: Micafungin 10 mg/mL",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-277",
     "ndc11": "70771168301",
     "ndc_as_recorded": "70771168301",
-    "description": "Micafungin",
-    "on_hand": "486.22",
+    "description": "Micafungin 10 mg/mL",
+    "on_hand": "486.00",
     "daily_use": "16.098",
     "unit": "vial",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Micafungin",
     "labeler_name": "Zydus Lifesciences Limited",
     "package_ndc": "70771-1683-1",
     "spl_set_id": "72bc5dd6-6052-4483-9b13-afdeaaa8cc69",
     "dosage_form": "INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION",
-    "route": "INTRAVENOUS"
+    "route": "INTRAVENOUS",
+    "strength": "MICAFUNGIN SODIUM 10 mg/mL",
+    "unit_content": "5 mL",
+    "pkg_unit": "vial"
    }
   },
   "E5": {
@@ -939,7 +1080,7 @@
   },
   "E10": {
    "id": "E10",
-   "queryId": "Q-669c3c",
+   "queryId": "Q-98cc2c",
    "row": 0,
    "label": "Recall D-0596-2024",
    "fields": {
@@ -957,7 +1098,7 @@
   },
   "E11": {
    "id": "E11",
-   "queryId": "Q-669c3c",
+   "queryId": "Q-98cc2c",
    "row": 1,
    "label": "Recall D-0595-2024",
    "fields": {
@@ -975,7 +1116,7 @@
   },
   "E12": {
    "id": "E12",
-   "queryId": "Q-587fd0",
+   "queryId": "Q-ce4512",
    "row": 0,
    "label": "FDA shortage list: Par Health, USA LLC, To Be Discontinued",
    "fields": {
@@ -992,196 +1133,283 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 408 units of micafungin at 29.4 a day: 14 days on hand",
+   "label": "Corvale East holds 192 vials of micafungin 20 mg/mL, 5 mL at 14.4 a day: 13.3 days on hand",
    "fields": {
     "hospital": "Corvale East",
-    "on_hand": 408,
-    "daily_use": 29.4,
-    "days_on_hand": 14
+    "presentation": "20 mg/mL injection, 5 mL vial",
+    "on_hand": 192,
+    "daily_use": 14.4,
+    "days_on_hand": 13.3
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 999 units of micafungin at 32.6 a day: 31 days on hand",
+   "label": "Corvale General holds 512 vials of micafungin 20 mg/mL, 5 mL at 16.5 a day: 31 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 999,
-    "daily_use": 32.6,
+    "presentation": "20 mg/mL injection, 5 mL vial",
+    "on_hand": 512,
+    "daily_use": 16.5,
     "days_on_hand": 31
+   }
+  },
+  "D3": {
+   "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale East holds 216 vials of micafungin 10 mg/mL, 5 mL at 14.9 a day: 14.5 days on hand",
+   "fields": {
+    "hospital": "Corvale East",
+    "presentation": "10 mg/mL injection, 5 mL vial",
+    "on_hand": 216,
+    "daily_use": 14.9,
+    "days_on_hand": 14.5
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Corvale General holds 486 vials of micafungin 10 mg/mL, 5 mL at 16.1 a day: 30.2 days on hand",
+   "fields": {
+    "hospital": "Corvale General",
+    "presentation": "10 mg/mL injection, 5 mL vial",
+    "on_hand": 486,
+    "daily_use": 16.1,
+    "days_on_hand": 30.2
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "micafungin is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Baxter Healthcare Corporation. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D7": {
+   "id": "D7",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Biocon Pharma Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D8": {
+   "id": "D8",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Fresenius Kabi USA, LLC. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-8b9ef9": {
-   "id": "Q-8b9ef9",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%micafungin%' OR lower(s.description) LIKE '%micafungin%' ORDER BY s.hospital, s.item_key",
-   "ms": 3924,
+  "Q-86eaa0": {
+   "id": "Q-86eaa0",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*micafungin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*micafungin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 4014,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T08:03:09.799Z",
+   "ranAt": "2026-10-22T12:22:26.906Z",
    "rows": 4
   },
   "Q-84c44c": {
    "id": "Q-84c44c",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('29f17423-5787-47d0-a83b-bbdc0198fbfa', '72bc5dd6-6052-4483-9b13-afdeaaa8cc69') ORDER BY ps.set_id, ps.establishment",
-   "ms": 847,
+   "ms": 493,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:03:10.652Z",
+   "ranAt": "2026-10-22T12:22:27.401Z",
    "rows": 2
   },
-  "Q-587fd0": {
-   "id": "Q-587fd0",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%micafungin%' ORDER BY status, company_name, package_ndc",
-   "ms": 284,
+  "Q-ce4512": {
+   "id": "Q-ce4512",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*micafungin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 136,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T08:03:10.940Z",
+   "ranAt": "2026-10-22T12:22:27.539Z",
    "rows": 2
   },
-  "Q-718611": {
-   "id": "Q-718611",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%micafungin%' ORDER BY first_posting",
-   "ms": 325,
+  "Q-e27939": {
+   "id": "Q-e27939",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*micafungin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 156,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T08:03:11.269Z",
+   "ranAt": "2026-10-22T12:22:27.696Z",
    "rows": 1
   },
-  "Q-51c96b": {
-   "id": "Q-51c96b",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%micafungin%' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 2438,
+  "Q-f893f9": {
+   "id": "Q-f893f9",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*micafungin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%inject%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1301,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T08:03:13.712Z",
+   "ranAt": "2026-10-22T12:22:28.998Z",
    "rows": 40
   },
   "Q-742fc2": {
    "id": "Q-742fc2",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3013712903') ORDER BY fei, end_date",
-   "ms": 477,
+   "ms": 291,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T08:03:14.194Z",
+   "ranAt": "2026-10-22T12:22:29.290Z",
    "rows": 2
   },
   "Q-083641": {
    "id": "Q-083641",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3013712903') ORDER BY fei, action_date",
-   "ms": 253,
+   "ms": 208,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T08:03:14.449Z",
+   "ranAt": "2026-10-22T12:22:29.500Z",
    "rows": 1
   },
   "Q-6fbcd5": {
    "id": "Q-6fbcd5",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3013712903') OR (fei_match <> 'name_and_city' AND firm_key IN ('zydus lifesciences')) ORDER BY date_published",
-   "ms": 249,
+   "ms": 140,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T08:03:14.702Z",
+   "ranAt": "2026-10-22T12:22:29.641Z",
    "rows": 0
   },
-  "Q-669c3c": {
-   "id": "Q-669c3c",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('zydus lifesciences', 'zydus') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%micafungin%' ORDER BY initiation_date",
-   "ms": 300,
+  "Q-98cc2c": {
+   "id": "Q-98cc2c",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('zydus lifesciences', 'zydus') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*micafungin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 167,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T08:03:15.005Z",
+   "ranAt": "2026-10-22T12:22:29.809Z",
    "rows": 2
   },
   "Q-4b74c3": {
    "id": "Q-4b74c3",
    "sql": "SELECT inspection_id, fei, end_date, cfr, short_description FROM fda.citations WHERE inspection_id IN ('1236639') ORDER BY inspection_id, cfr",
-   "ms": 442,
+   "ms": 178,
    "mode": "live",
    "sources": [
     "fda.citations"
    ],
-   "ranAt": "2026-10-22T08:03:15.454Z",
+   "ranAt": "2026-10-22T12:22:29.988Z",
    "rows": 10
   },
   "Q-037213": {
    "id": "Q-037213",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('70710172506', '70771168301')",
-   "ms": 1719,
+   "ms": 828,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:03:17.180Z",
+   "ranAt": "2026-10-22T12:22:30.819Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-8fbc0e": {
-   "id": "Q-8fbc0e",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%micafungin%'",
-   "ms": 1744,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T08:03:18.929Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-93b643": {
+   "id": "Q-93b643",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*micafungin(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 1316,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:22:32.136Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 15,
-  "zetarisMs": 18373,
+  "zetarisMs": 19436,
   "modelCalls": 1,
-  "tokensIn": 1164,
-  "tokensOut": 466,
+  "tokensIn": 1711,
+  "tokensOut": 595,
   "mode": "live"
  },
  "slug": "micafungin",
@@ -1197,7 +1425,7 @@
     "id": "hospital-item:hospital-item:CG-276",
     "type": "HospitalItem",
     "key": "hospital-item:CG-276",
-    "label": "Corvale General: Micafungin",
+    "label": "Corvale General: Micafungin 20 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-276"
     },
@@ -1208,7 +1436,7 @@
     "id": "hospital-item:hospital-item:CG-277",
     "type": "HospitalItem",
     "key": "hospital-item:CG-277",
-    "label": "Corvale General: Micafungin",
+    "label": "Corvale General: Micafungin 10 mg/mL",
     "attrs": {
      "key": "hospital-item:CG-277"
     },
@@ -1336,7 +1564,7 @@
     },
     "facts": [
      {
-      "id": "fact_cc8a02876e315e1d",
+      "id": "fact_d8a45914768a3920",
       "about": "inspection:fda-inspection:1164108",
       "predicate": "classification",
       "value": "VAI",
@@ -1344,23 +1572,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:03:15.458Z"
+       "at": "2026-10-22T12:22:29.989Z"
       },
-      "assertedAt": "2026-10-22T08:03:15.458Z",
-      "supersededBy": "fact_15d948bd1d89de59"
-     },
-     {
-      "id": "fact_15d948bd1d89de59",
-      "about": "inspection:fda-inspection:1164108",
-      "predicate": "classification",
-      "value": "VAI",
-      "confidence": 0.5,
-      "source": {
-       "kind": "fda-inspection",
-       "by": "upstream-investigator",
-       "at": "2026-10-22T08:03:15.459Z"
-      },
-      "assertedAt": "2026-10-22T08:03:15.459Z"
+      "assertedAt": "2026-10-22T12:22:29.989Z"
      }
     ],
     "depth": 4
@@ -1376,7 +1590,7 @@
     },
     "facts": [
      {
-      "id": "fact_e585f9f6bc79f979",
+      "id": "fact_2c01cb202a92c25e",
       "about": "inspection:fda-inspection:1236639",
       "predicate": "classification",
       "value": "OAI",
@@ -1384,9 +1598,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T08:03:15.459Z"
+       "at": "2026-10-22T12:22:29.989Z"
       },
-      "assertedAt": "2026-10-22T08:03:15.459Z"
+      "assertedAt": "2026-10-22T12:22:29.989Z"
      }
     ],
     "depth": 4
@@ -1409,11 +1623,11 @@
     "from": "hospital-item:hospital-item:CG-276",
     "to": "package:ndc-package:70710-1725-6",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:03:09.804Z",
+    "validFrom": "2026-10-22T12:22:26.908Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:03:09.804Z"
+     "at": "2026-10-22T12:22:26.908Z"
     }
    },
    {
@@ -1421,11 +1635,11 @@
     "from": "hospital-item:hospital-item:CG-277",
     "to": "package:ndc-package:70771-1683-1",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:03:09.804Z",
+    "validFrom": "2026-10-22T12:22:26.908Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:03:09.804Z"
+     "at": "2026-10-22T12:22:26.908Z"
     }
    },
    {
@@ -1433,11 +1647,11 @@
     "from": "hospital-item:hospital-item:EA-E-000271",
     "to": "package:ndc-package:70710-1725-6",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:03:09.803Z",
+    "validFrom": "2026-10-22T12:22:26.908Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:03:09.803Z"
+     "at": "2026-10-22T12:22:26.908Z"
     }
    },
    {
@@ -1445,11 +1659,11 @@
     "from": "hospital-item:hospital-item:EA-E-000274",
     "to": "package:ndc-package:70771-1683-1",
     "type": "stocks",
-    "validFrom": "2026-10-22T08:03:09.803Z",
+    "validFrom": "2026-10-22T12:22:26.908Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:03:09.803Z"
+     "at": "2026-10-22T12:22:26.908Z"
     }
    },
    {
@@ -1457,11 +1671,11 @@
     "from": "package:ndc-package:70710-1725-6",
     "to": "product:ndc-product:70710-1725",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:03:09.803Z",
+    "validFrom": "2026-10-22T12:22:26.908Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:03:09.803Z"
+     "at": "2026-10-22T12:22:26.908Z"
     }
    },
    {
@@ -1469,11 +1683,11 @@
     "from": "package:ndc-package:70771-1683-1",
     "to": "product:ndc-product:70771-1683",
     "type": "package-of",
-    "validFrom": "2026-10-22T08:03:09.803Z",
+    "validFrom": "2026-10-22T12:22:26.908Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:03:09.803Z"
+     "at": "2026-10-22T12:22:26.908Z"
     }
    },
    {
@@ -1481,11 +1695,11 @@
     "from": "product:ndc-product:70710-1725",
     "to": "drug:generic:micafungin",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:03:09.803Z",
+    "validFrom": "2026-10-22T12:22:26.908Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:03:09.803Z"
+     "at": "2026-10-22T12:22:26.908Z"
     }
    },
    {
@@ -1493,11 +1707,11 @@
     "from": "product:ndc-product:70710-1725",
     "to": "labeler:ndc-labeler:70710",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:03:09.803Z",
+    "validFrom": "2026-10-22T12:22:26.908Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:03:09.803Z"
+     "at": "2026-10-22T12:22:26.908Z"
     }
    },
    {
@@ -1505,11 +1719,11 @@
     "from": "product:ndc-product:70710-1725",
     "to": "site:fei:3013712903",
     "type": "made-at",
-    "validFrom": "2026-10-22T08:03:15.458Z",
+    "validFrom": "2026-10-22T12:22:29.989Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:03:15.458Z"
+     "at": "2026-10-22T12:22:29.989Z"
     }
    },
    {
@@ -1517,11 +1731,11 @@
     "from": "product:ndc-product:70771-1683",
     "to": "drug:generic:micafungin",
     "type": "of-drug",
-    "validFrom": "2026-10-22T08:03:09.803Z",
+    "validFrom": "2026-10-22T12:22:26.908Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:03:09.803Z"
+     "at": "2026-10-22T12:22:26.908Z"
     }
    },
    {
@@ -1529,11 +1743,11 @@
     "from": "product:ndc-product:70771-1683",
     "to": "labeler:ndc-labeler:70771",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T08:03:09.804Z",
+    "validFrom": "2026-10-22T12:22:26.908Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:03:09.804Z"
+     "at": "2026-10-22T12:22:26.908Z"
     }
    },
    {
@@ -1541,11 +1755,11 @@
     "from": "product:ndc-product:70771-1683",
     "to": "site:fei:3013712903",
     "type": "made-at",
-    "validFrom": "2026-10-22T08:03:15.459Z",
+    "validFrom": "2026-10-22T12:22:29.989Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:03:15.459Z"
+     "at": "2026-10-22T12:22:29.989Z"
     }
    },
    {
@@ -1553,11 +1767,11 @@
     "from": "inspection:fda-inspection:1164108",
     "to": "site:fei:3013712903",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:03:15.458Z",
+    "validFrom": "2026-10-22T12:22:29.989Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:03:15.458Z"
+     "at": "2026-10-22T12:22:29.989Z"
     }
    },
    {
@@ -1565,11 +1779,11 @@
     "from": "inspection:fda-inspection:1236639",
     "to": "site:fei:3013712903",
     "type": "inspected",
-    "validFrom": "2026-10-22T08:03:15.458Z",
+    "validFrom": "2026-10-22T12:22:29.989Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:03:15.458Z"
+     "at": "2026-10-22T12:22:29.989Z"
     }
    },
    {
@@ -1577,11 +1791,11 @@
     "from": "warning-letter:fda-warning-letter:685224",
     "to": "site:fei:3013712903",
     "type": "issued-to",
-    "validFrom": "2026-10-22T08:03:15.459Z",
+    "validFrom": "2026-10-22T12:22:29.989Z",
     "source": {
      "kind": "fda-warning-letter",
      "by": "upstream-investigator",
-     "at": "2026-10-22T08:03:15.459Z"
+     "at": "2026-10-22T12:22:29.989Z"
     }
    }
   ],

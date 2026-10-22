@@ -1,13 +1,13 @@
 {
- "id": "case-2026-10-22-23dc21",
+ "id": "case-2026-10-22-f76426",
  "question": "Why is linezolid short, and what do we do?",
- "askedAt": "2026-10-22T07:58:01.164Z",
+ "askedAt": "2026-10-22T12:15:28.491Z",
  "asOf": "2026-10-21",
  "molecule": "linezolid",
  "intent": {
   "name": "shortage.investigate",
   "risk": "low",
-  "contractId": "01M5H9VC1S46FH2FMW4F75H89R",
+  "contractId": "01M5HRK05QR11QZN2KY2J58T7Y",
   "clarification": null
  },
  "steps": [
@@ -16,14 +16,18 @@
    "title": "Our stock in three hospitals",
    "purpose": "Read on-hand stock and 28-day use where each hospital keeps it.",
    "queryIds": [
-    "Q-e410a9"
+    "Q-bf657e"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 4552,
+   "ms": 4015,
    "rows": 2,
-   "finding": "2 stock lines across 2 hospitals.",
+   "finding": "2 stock lines across 2 hospitals, 1 presentation, in units of use.",
    "status": "ok"
   },
   {
@@ -34,9 +38,10 @@
     "Q-398057"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 1533,
+   "ms": 594,
    "rows": 1,
    "finding": "1 plant links on 1 labels; 1 placed in FDA's registration file.",
    "status": "ok"
@@ -46,14 +51,14 @@
    "title": "What FDA says about this shortage",
    "purpose": "Read FDA's current shortage list and its history for this drug.",
    "queryIds": [
-    "Q-7770e1",
-    "Q-7965e4"
+    "Q-92dabc",
+    "Q-62b19a"
    ],
    "sources": [
     "fda.shortage_current",
     "fda.shortage_episodes"
    ],
-   "ms": 1783,
+   "ms": 320,
    "rows": 4,
    "finding": "Not on FDA's current shortage list.",
    "status": "ok"
@@ -63,12 +68,14 @@
    "title": "Who else makes it",
    "purpose": "List every labeler of this drug in the same form, and the plants their labels name.",
    "queryIds": [
-    "Q-ff71fe"
+    "Q-48e2b1"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ms": 4251,
+   "ms": 1490,
    "rows": 43,
    "finding": "15 labelers make it in this form.",
    "status": "ok"
@@ -81,15 +88,15 @@
     "Q-dcab82",
     "Q-07c07f",
     "Q-ef2768",
-    "Q-dd74d6"
+    "Q-4aa60c"
    ],
    "sources": [
-    "lightning.metastore.upstream",
+    "fda.inspections",
     "fda.compliance_actions",
     "fda.import_alerts",
     "fda.recalls"
    ],
-   "ms": 1861,
+   "ms": 780,
    "rows": 6,
    "finding": "6 inspections (0 OAI at our plants), 0 compliance actions, 0 import-alert listings, 0 recalls.",
    "status": "ok"
@@ -104,9 +111,9 @@
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ms": 1677,
+   "ms": 752,
    "rows": 0,
    "finding": "0 approved interchanges on file.",
    "status": "empty"
@@ -114,19 +121,23 @@
   {
    "key": "data_quality",
    "title": "Which links can't be trusted",
-   "purpose": "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
+   "purpose": "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
    "queryIds": [
     "Q-02442a",
     "Q-376615",
     "Q-265662",
-    "Q-c63779"
+    "Q-b1984a"
    ],
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "fda.ndc_packages",
+    "corvale_east.stock_position",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ms": 1631,
-   "rows": 6,
-   "finding": "12 stock rows across the system fail the NDC rule; 0 of them are this drug.",
+   "ms": 2339,
+   "rows": 9,
+   "finding": "11 stock rows across the system fail the NDC rule; 0 of them are this drug. Every row is in a shared unit of use.",
    "status": "ok"
   },
   {
@@ -137,7 +148,7 @@
    "sources": [
     "meterless.hmem"
    ],
-   "ms": 3,
+   "ms": 0,
    "rows": 1,
    "finding": "1 past decisions recalled.",
    "status": "ok"
@@ -153,22 +164,65 @@
    "onHand": 76,
    "dailyUse": 14.435,
    "days": 5.3,
-   "unit": "package",
+   "unit": "tablet",
    "ndcMatch": "dashed 10-digit, converted",
+   "unitBasis": "packages of 20, converted to units",
+   "presentation": "linezolid|600mg|tablet||tablet",
+   "presentationLabel": "600 mg tablet",
    "evidence": "E1"
   },
   {
    "hospital": "Corvale General",
    "itemKey": "CG-261",
    "ndc11": "67877041920",
-   "description": "Linezolid",
+   "description": "Linezolid 600 mg/1",
    "labeler": "Ascend Laboratories, LLC",
-   "onHand": 387.76,
+   "onHand": 387,
    "dailyUse": 16.105,
-   "days": 24.1,
+   "days": 24,
    "unit": "tablet",
    "ndcMatch": "11-digit as recorded",
+   "unitBasis": "units of use, whole units only",
+   "presentation": "linezolid|600mg|tablet||tablet",
+   "presentationLabel": "600 mg tablet",
    "evidence": "E2"
+  }
+ ],
+ "presentations": [
+  {
+   "key": "linezolid|600mg|tablet||tablet",
+   "label": "600 mg tablet",
+   "short": "600 mg",
+   "unit": "tablet",
+   "onHand": 463,
+   "dailyUse": 30.54,
+   "days": 15.2,
+   "hospitals": [
+    {
+     "hospital": "Corvale East",
+     "onHand": 76,
+     "dailyUse": 14.435,
+     "days": 5.3,
+     "lines": [
+      "EA-E-000237"
+     ],
+     "evidence": [
+      "E1"
+     ]
+    },
+    {
+     "hospital": "Corvale General",
+     "onHand": 387,
+     "dailyUse": 16.105,
+     "days": 24,
+     "lines": [
+      "CG-261"
+     ],
+     "evidence": [
+      "E2"
+     ]
+    }
+   ]
   }
  ],
  "chain": [
@@ -386,23 +440,25 @@
   {
    "kind": "transfer",
    "rank": 1,
-   "title": "Transfer 127 from Corvale General to Corvale East",
-   "detail": "Corvale General has 24 days on hand and can spare 127 while keeping two weeks; Corvale East has 5.3 days and would reach 14.",
-   "why": "Same product, no clinical change, no new supplier.",
+   "title": "Transfer 127 tablets of 600 mg from Corvale General to Corvale East",
+   "detail": "Corvale General has 24 days of 600 mg tablets on hand and can spare 127 tablets while keeping two weeks; Corvale East has 5.3 days and would reach 14.",
+   "why": "Same presentation, no clinical change, no new supplier.",
    "needs": "pharmacy director (transfer request)",
    "evidence": [
     "E2",
     "E1"
-   ]
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from A-S Medication Solutions",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
+   ],
+   "transfer": {
+    "qty": 127,
+    "unit": "tablet",
+    "presentation": "600 mg tablet",
+    "from": "Corvale General",
+    "to": "Corvale East",
+    "fromDays": 24,
+    "toDays": 5.3,
+    "fromAfter": 16,
+    "toAfter": 14
+   }
   },
   {
    "kind": "alternate_manufacturer",
@@ -417,24 +473,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Alembic Pharmaceuticals Limited",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from American Health Packaging",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from Bryant Ranch Prepack",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -489,15 +527,6 @@
    "kind": "alternate_manufacturer",
    "rank": 3,
    "title": "Buy from Pharmacia & Upjohn Company LLC",
-   "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
-   "why": "Same product, but the plant record is thin or recent.",
-   "needs": "buyer",
-   "evidence": []
-  },
-  {
-   "kind": "alternate_manufacturer",
-   "rank": 3,
-   "title": "Buy from REMEDYREPACK INC.",
    "detail": "Not on FDA's shortage list today. Its label names no plant we could place.",
    "why": "Same product, but the plant record is thin or recent.",
    "needs": "buyer",
@@ -561,59 +590,58 @@
  ],
  "explanation": {
   "state": "check",
-  "headline": "FDA records show the linezolid supply is manufactured at Alkem Laboratories Limited (FEI 3006370524) with the most recent inspection classified VAI on 2018-03-27",
+  "headline": "Linezolid is not on FDA's shortage list; internal supply imbalance shows Corvale East at 5.3 days on hand versus Corvale General at 24 days",
   "sentences": [
    {
-    "text": "The drug label for NDC 67877041920 identifies Alkem Laboratories Limited as the manufacturing plant (FEI 3006370524) for linezolid supplied to both Corvale sites.",
+    "text": "FDA's records show linezolid is not on the drug shortage list as of 2026-10-21.",
     "cites": [
-     "E7"
+     "D3"
     ]
    },
    {
-    "text": "FDA inspection records for this facility show a series of Voluntary Action Indicated (VAI) classifications, with the most recent inspection ending 2018-03-27 and known to FDA by 2018-06-25.",
+    "text": "Corvale East holds 76 tablets of the 600 mg presentation with a daily use of 14.4, giving 5.3 days on hand.",
     "cites": [
-     "E3",
-     "E4",
-     "E5",
-     "E6"
+     "D1"
     ]
    },
    {
-    "text": "No FDA inspection records after 2018-03-27 are provided in the evidence, and the label registration lists the last inspection as NAI on 2019-08-30 without a corresponding FDA inspection record in the supplied data.",
+    "text": "Corvale General holds 387 tablets of the same presentation with a daily use of 16.1, giving 24 days on hand.",
     "cites": [
-     "E7",
-     "E3",
-     "E4",
-     "E5",
-     "E6"
-    ]
-   },
-   {
-    "text": "Corvale East holds 76 units at 14.4 per day, giving 5 days on hand, while Corvale General holds 388 units at 16.1 per day, giving 24 days on hand.",
-    "cites": [
-     "D1",
      "D2"
     ]
    },
    {
-    "text": "Because the evidence links are weak and no recent FDA inspection or shortage cause is documented, verify current FDA inspection status for FEI 3006370524 and confirm allocation availability with both sites before executing the transfer.",
+    "text": "Both sites' product carries NDC 67877041920 labeled by Ascend Laboratories, LLC and linked to SPL set 7402aa01.",
+    "cites": [
+     "E1",
+     "E2"
+    ]
+   },
+   {
+    "text": "That SPL set names Alkem Laboratories Limited (FEI 3006370524) as the registered manufacturing plant.",
+    "cites": [
+     "E7"
+    ]
+   },
+   {
+    "text": "FDA inspection history for that plant shows VAI classifications in 2011, 2013, 2016, and 2018 with no OAI or recent NAI posted.",
     "cites": [
      "E3",
      "E4",
      "E5",
-     "E6",
-     "E7"
+     "E6"
+    ]
+   },
+   {
+    "text": "The ranked transfer option moves 127 tablets from Corvale General to Corvale East, leaving the sender above two weeks and bringing the receiver to 14 days.",
+    "cites": [
+     "D4"
     ]
    }
   ],
   "verifier": {
-   "checked": 7,
-   "rejected": [
-    {
-     "text": "Transferring 127 units from Corvale General to Corvale East would leave Corvale General with approximately 14 days on hand and bring Corvale East to approximately 14 days on hand.",
-     "reason": "number 127 is not in the cited evidence"
-    }
-   ],
+   "checked": 8,
+   "rejected": [],
    "repaired": 0
   },
   "model": "nvidia/nemotron-3-ultra-550b-a55b"
@@ -621,45 +649,66 @@
  "dataQuality": [
   {
    "table": "stock_general",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_general",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 360,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_general",
+   "rule": "Foreign Key Constraint on unit",
    "total": 360,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_east",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
+   "total": 326,
+   "invalid": 0,
+   "note": "every row passes"
+  },
+  {
+   "table": "stock_east",
+   "rule": "Foreign Key Constraint on unit",
    "total": 326,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Primary Key Constraint",
+   "rule": "Primary Key Constraint on item_key",
    "total": 140,
    "invalid": 0,
    "note": "every row passes"
   },
   {
    "table": "stock_lakeside",
-   "rule": "Foreign Key Constraint",
+   "rule": "Foreign Key Constraint on ndc11",
    "total": 140,
-   "invalid": 12,
-   "note": "12 of 140 rows break this rule"
+   "invalid": 11,
+   "note": "11 of 140 rows break this rule"
+  },
+  {
+   "table": "stock_lakeside",
+   "rule": "Foreign Key Constraint on unit",
+   "total": 140,
+   "invalid": 0,
+   "note": "every row passes"
   }
  ],
  "memory": [
@@ -674,80 +723,80 @@
  "memo": null,
  "gate": [
   {
-   "at": "2026-10-22T07:57:43.867Z",
+   "at": "2026-10-22T12:15:18.199Z",
    "action": "record the supply chain in World Model",
    "capability": "world.write",
    "decision": "allowed",
-   "reason": "in contract 4F75H89R scope"
+   "reason": "in contract Y2J58T7Y scope"
   },
   {
-   "at": "2026-10-22T07:57:43.867Z",
+   "at": "2026-10-22T12:15:18.199Z",
    "action": "Our stock in three hospitals",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 4F75H89R scope"
+   "reason": "in contract Y2J58T7Y scope"
   },
   {
-   "at": "2026-10-22T07:57:48.422Z",
+   "at": "2026-10-22T12:15:22.215Z",
    "action": "Where our supply is made",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 4F75H89R scope"
+   "reason": "in contract Y2J58T7Y scope"
   },
   {
-   "at": "2026-10-22T07:57:49.955Z",
+   "at": "2026-10-22T12:15:22.809Z",
    "action": "What FDA says about this shortage",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 4F75H89R scope"
+   "reason": "in contract Y2J58T7Y scope"
   },
   {
-   "at": "2026-10-22T07:57:51.737Z",
+   "at": "2026-10-22T12:15:23.129Z",
    "action": "Who else makes it",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 4F75H89R scope"
+   "reason": "in contract Y2J58T7Y scope"
   },
   {
-   "at": "2026-10-22T07:57:55.988Z",
+   "at": "2026-10-22T12:15:24.619Z",
    "action": "What FDA found at those plants",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 4F75H89R scope"
+   "reason": "in contract Y2J58T7Y scope"
   },
   {
-   "at": "2026-10-22T07:57:57.853Z",
+   "at": "2026-10-22T12:15:25.400Z",
    "action": "What our P&T committee already approved",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 4F75H89R scope"
+   "reason": "in contract Y2J58T7Y scope"
   },
   {
-   "at": "2026-10-22T07:57:59.530Z",
+   "at": "2026-10-22T12:15:26.152Z",
    "action": "Which links can't be trusted",
    "capability": "zetaris.read",
    "decision": "allowed",
-   "reason": "in contract 4F75H89R scope"
+   "reason": "in contract Y2J58T7Y scope"
   },
   {
-   "at": "2026-10-22T07:58:01.161Z",
+   "at": "2026-10-22T12:15:28.491Z",
    "action": "recall past decisions on this drug",
    "capability": "hmem.read",
    "decision": "allowed",
-   "reason": "in contract 4F75H89R scope"
+   "reason": "in contract Y2J58T7Y scope"
   },
   {
-   "at": "2026-10-22T07:58:01.165Z",
+   "at": "2026-10-22T12:15:28.492Z",
    "action": "write the explanation from recorded evidence",
    "capability": "world.read",
    "decision": "allowed",
-   "reason": "in contract 4F75H89R scope"
+   "reason": "in contract Y2J58T7Y scope"
   }
  ],
  "evidence": {
   "E1": {
    "id": "E1",
-   "queryId": "Q-e410a9",
+   "queryId": "Q-bf657e",
    "row": 0,
    "label": "Corvale East: LINEZOLID 600MG TAB",
    "fields": {
@@ -758,37 +807,47 @@
     "description": "LINEZOLID 600MG TAB",
     "on_hand": "76.00",
     "daily_use": "14.435",
-    "unit": "package",
+    "unit": "tablet",
+    "pkg_units": "20.00",
+    "unit_basis": "packages of 20, converted to units",
     "ndc_match": "dashed 10-digit, converted",
     "generic_name": "Linezolid",
     "labeler_name": "Ascend Laboratories, LLC",
     "package_ndc": "67877-419-20",
     "spl_set_id": "7402aa01-50de-46c8-a341-d30da5b32b1c",
     "dosage_form": "TABLET, FILM COATED",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "LINEZOLID 600 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E2": {
    "id": "E2",
-   "queryId": "Q-e410a9",
+   "queryId": "Q-bf657e",
    "row": 1,
-   "label": "Corvale General: Linezolid",
+   "label": "Corvale General: Linezolid 600 mg/1",
    "fields": {
     "hospital": "Corvale General",
     "item_key": "CG-261",
     "ndc11": "67877041920",
     "ndc_as_recorded": "67877041920",
-    "description": "Linezolid",
-    "on_hand": "387.76",
+    "description": "Linezolid 600 mg/1",
+    "on_hand": "387.00",
     "daily_use": "16.105",
     "unit": "tablet",
+    "pkg_units": "1.00",
+    "unit_basis": "units of use, whole units only",
     "ndc_match": "11-digit as recorded",
     "generic_name": "Linezolid",
     "labeler_name": "Ascend Laboratories, LLC",
     "package_ndc": "67877-419-20",
     "spl_set_id": "7402aa01-50de-46c8-a341-d30da5b32b1c",
     "dosage_form": "TABLET, FILM COATED",
-    "route": "ORAL"
+    "route": "ORAL",
+    "strength": "LINEZOLID 600 mg/1",
+    "unit_content": null,
+    "pkg_unit": "tablet"
    }
   },
   "E3": {
@@ -875,185 +934,246 @@
    "id": "D1",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale East holds 76 units of linezolid at 14.4 a day: 5 days on hand",
+   "label": "Corvale East holds 76 tablets of linezolid 600 mg at 14.4 a day: 5.3 days on hand",
    "fields": {
     "hospital": "Corvale East",
+    "presentation": "600 mg tablet",
     "on_hand": 76,
     "daily_use": 14.4,
-    "days_on_hand": 5
+    "days_on_hand": 5.3
    }
   },
   "D2": {
    "id": "D2",
    "queryId": "derived",
    "row": -1,
-   "label": "Corvale General holds 388 units of linezolid at 16.1 a day: 24 days on hand",
+   "label": "Corvale General holds 387 tablets of linezolid 600 mg at 16.1 a day: 24 days on hand",
    "fields": {
     "hospital": "Corvale General",
-    "on_hand": 388,
+    "presentation": "600 mg tablet",
+    "on_hand": 387,
     "daily_use": 16.1,
     "days_on_hand": 24
+   }
+  },
+  "D3": {
+   "id": "D3",
+   "queryId": "derived",
+   "row": -1,
+   "label": "linezolid is not on FDA's drug shortage list as of 2026-10-21",
+   "fields": {
+    "as_of": "2026-10-21",
+    "listed": "no"
+   }
+  },
+  "D4": {
+   "id": "D4",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 1 by rule: Transfer 127 tablets of 600 mg from Corvale General to Corvale East. Corvale General has 24 days of 600 mg tablets on hand and can spare 127 tablets while keeping two weeks; Corvale East has 5.3 days and would reach 14.",
+   "fields": {
+    "kind": "transfer",
+    "needs": "pharmacy director (transfer request)"
+   }
+  },
+  "D5": {
+   "id": "D5",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Alembic Pharmaceuticals Inc.. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
+   }
+  },
+  "D6": {
+   "id": "D6",
+   "queryId": "derived",
+   "row": -1,
+   "label": "Option ranked 3 by rule: Buy from Alembic Pharmaceuticals Limited. Not on FDA's shortage list today. Its label names no plant we could place.",
+   "fields": {
+    "kind": "alternate_manufacturer",
+    "needs": "buyer"
    }
   }
  },
  "queries": {
-  "Q-e410a9": {
-   "id": "Q-e410a9",
-   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE lower(coalesce(p.generic_name, '')) LIKE '%linezolid%' OR lower(s.description) LIKE '%linezolid%' ORDER BY s.hospital, s.item_key",
-   "ms": 4548,
+  "Q-bf657e": {
+   "id": "Q-bf657e",
+   "sql": "SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match, p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit FROM (SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_general UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_east UNION ALL SELECT * FROM lightning.metastore.upstream.upstream_usl.stock_lakeside) s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE (lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*linezolid(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' OR (p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*linezolid(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)')) ORDER BY s.hospital, s.item_key",
+   "ms": 4013,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_general.stock_position",
+    "corvale_east.stock_position",
+    "fda.ndc_packages",
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d"
    ],
-   "ranAt": "2026-10-22T07:57:48.415Z",
+   "ranAt": "2026-10-22T12:15:22.213Z",
    "rows": 2
   },
   "Q-398057": {
    "id": "Q-398057",
    "sql": "SELECT ps.set_id, ps.establishment, ps.est_duns, ps.est_operations, ps.site_source, st.fei, st.firm_name, st.country_iso3, st.address FROM lightning.metastore.upstream.upstream_usl.product_site ps LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE ps.set_id IN ('7402aa01-50de-46c8-a341-d30da5b32b1c') ORDER BY ps.set_id, ps.establishment",
-   "ms": 1529,
+   "ms": 593,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:57:49.950Z",
+   "ranAt": "2026-10-22T12:15:22.808Z",
    "rows": 1
   },
-  "Q-7770e1": {
-   "id": "Q-7770e1",
-   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(generic_name) LIKE '%linezolid%' ORDER BY status, company_name, package_ndc",
-   "ms": 829,
+  "Q-92dabc": {
+   "id": "Q-92dabc",
+   "sql": "SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info FROM fda.shortage_current WHERE lower(trim(coalesce(generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*linezolid(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY status, company_name, package_ndc",
+   "ms": 149,
    "mode": "live",
    "sources": [
     "fda.shortage_current"
    ],
-   "ranAt": "2026-10-22T07:57:50.785Z",
+   "ranAt": "2026-10-22T12:15:22.958Z",
    "rows": 0
   },
-  "Q-7965e4": {
-   "id": "Q-7965e4",
-   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(generic) LIKE '%linezolid%' ORDER BY first_posting",
-   "ms": 945,
+  "Q-62b19a": {
+   "id": "Q-62b19a",
+   "sql": "SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons FROM fda.shortage_episodes WHERE lower(trim(coalesce(generic, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*linezolid(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' ORDER BY first_posting",
+   "ms": 168,
    "mode": "live",
    "sources": [
     "fda.shortage_episodes"
    ],
-   "ranAt": "2026-10-22T07:57:51.732Z",
+   "ranAt": "2026-10-22T12:15:23.128Z",
    "rows": 4
   },
-  "Q-ff71fe": {
-   "id": "Q-ff71fe",
-   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(p.generic_name) LIKE '%linezolid%' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
-   "ms": 4245,
+  "Q-48e2b1": {
+   "id": "Q-48e2b1",
+   "sql": "SELECT p.ndc11, p.package_ndc, p.labeler_name, p.dosage_form, p.spl_set_id, ps.establishment, ps.est_duns, st.fei, st.country_iso3 FROM lightning.metastore.upstream.upstream_usl.product p LEFT JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = p.spl_set_id LEFT JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns WHERE lower(trim(coalesce(p.generic_name, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*linezolid(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)' AND lower(p.dosage_form) LIKE '%tablet%' ORDER BY p.labeler_name, p.ndc11",
+   "ms": 1489,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.ndc_packages",
+    "fda.spl_establishments",
+    "fda.registrations"
    ],
-   "ranAt": "2026-10-22T07:57:55.983Z",
+   "ranAt": "2026-10-22T12:15:24.618Z",
    "rows": 43
   },
   "Q-dcab82": {
    "id": "Q-dcab82",
    "sql": "SELECT inspection_id, fei, legal_name, country, end_date, classification, known_date, known_date_basis FROM lightning.metastore.upstream.upstream_usl.inspection WHERE fei IN ('3006370524') ORDER BY fei, end_date",
-   "ms": 685,
+   "ms": 296,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "fda.inspections"
    ],
-   "ranAt": "2026-10-22T07:57:56.674Z",
+   "ranAt": "2026-10-22T12:15:24.915Z",
    "rows": 6
   },
   "Q-07c07f": {
    "id": "Q-07c07f",
    "sql": "SELECT fei, legal_name, country, action_date, action_type, case_id FROM fda.compliance_actions WHERE fei IN ('3006370524') ORDER BY fei, action_date",
-   "ms": 330,
+   "ms": 168,
    "mode": "live",
    "sources": [
     "fda.compliance_actions"
    ],
-   "ranAt": "2026-10-22T07:57:57.008Z",
+   "ranAt": "2026-10-22T12:15:25.084Z",
    "rows": 0
   },
   "Q-ef2768": {
    "id": "Q-ef2768",
    "sql": "SELECT alert, country, firm, address, date_published, fei, fei_match, firm_key FROM fda.import_alerts WHERE fei IN ('3006370524') OR (fei_match <> 'name_and_city' AND firm_key IN ('alkem')) ORDER BY date_published",
-   "ms": 384,
+   "ms": 136,
    "mode": "live",
    "sources": [
     "fda.import_alerts"
    ],
-   "ranAt": "2026-10-22T07:57:57.395Z",
+   "ranAt": "2026-10-22T12:15:25.221Z",
    "rows": 0
   },
-  "Q-dd74d6": {
-   "id": "Q-dd74d6",
-   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('alkem', 'ascend') AND initiation_date >= '2020-01-01' AND lower(product_description) LIKE '%linezolid%' ORDER BY initiation_date",
-   "ms": 445,
+  "Q-4aa60c": {
+   "id": "Q-4aa60c",
+   "sql": "SELECT recall_number, recalling_firm, firm_key, country, classification, status, initiation_date, report_date, substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description FROM fda.recalls WHERE firm_key IN ('alkem', 'ascend') AND initiation_date >= '2020-01-01' AND lower(product_description) RLIKE '(?:^|[^a-z0-9-])(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*linezolid(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:[^a-z0-9-]|$)' ORDER BY initiation_date",
+   "ms": 176,
    "mode": "live",
    "sources": [
     "fda.recalls"
    ],
-   "ranAt": "2026-10-22T07:57:57.845Z",
+   "ranAt": "2026-10-22T12:15:25.398Z",
    "rows": 0
   },
   "Q-3e6c19": {
    "id": "Q-3e6c19",
    "sql": "SELECT a.ndc11 AS ndc11, a.generic_name AS item, b.ndc11 AS alt_ndc11, b.generic_name AS alternative, b.strength AS alt_strength, ti.rule, ti.approved_by, ti.approved_on, ti.notes, p.labeler_name AS alt_labeler FROM corvale_general.therapeutic_interchange ti JOIN corvale_general.formulary_item a ON a.item_id = ti.item_id JOIN corvale_general.formulary_item b ON b.item_id = ti.alt_item_id LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = b.ndc11 WHERE a.ndc11 IN ('67877041920')",
-   "ms": 1673,
+   "ms": 751,
    "mode": "live",
    "sources": [
     "corvale_general.therapeutic_interchange",
     "corvale_general.formulary_item",
-    "lightning.metastore.upstream"
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:57:59.526Z",
+   "ranAt": "2026-10-22T12:15:26.151Z",
    "rows": 0
   },
   "Q-02442a": {
    "id": "Q-02442a",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_general",
-   "ms": 2023,
+   "ms": 1874,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:21.285Z",
-   "rows": 2
+   "sources": [
+    "corvale_general.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:45.365Z",
+   "rows": 3
   },
   "Q-376615": {
    "id": "Q-376615",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_east",
-   "ms": 1521,
+   "ms": 4122,
    "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:22.807Z",
-   "rows": 2
+   "sources": [
+    "corvale_east.stock_position",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T11:25:49.488Z",
+   "rows": 3
   },
   "Q-265662": {
    "id": "Q-265662",
    "sql": "RUN DQ TABLE lightning.metastore.upstream.upstream_usl.stock_lakeside",
-   "ms": 1827,
-   "mode": "live",
-   "sources": [],
-   "ranAt": "2026-10-22T07:23:24.635Z",
-   "rows": 2
-  },
-  "Q-c63779": {
-   "id": "Q-c63779",
-   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(s.description) LIKE '%linezolid%'",
-   "ms": 1627,
+   "ms": 4212,
    "mode": "live",
    "sources": [
-    "lightning.metastore.upstream"
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
    ],
-   "ranAt": "2026-10-22T07:58:01.157Z",
+   "ranAt": "2026-10-22T11:25:53.701Z",
+   "rows": 3
+  },
+  "Q-b1984a": {
+   "id": "Q-b1984a",
+   "sql": "SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match FROM lightning.metastore.upstream.upstream_usl.stock_lakeside s LEFT JOIN lightning.metastore.upstream.upstream_usl.product p ON p.ndc11 = s.ndc11 WHERE p.ndc11 IS NULL AND lower(trim(coalesce(s.description, ''))) RLIKE '^(?:[0-9.,]+ ?%?[^a-z0-9-]+)?(?:(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free)[^a-z0-9-]+)*linezolid(?:-[a-z]{4})?(?:[^a-z0-9-]+(?:sodium|disodium|potassium|dipotassium|calcium|magnesium|hydrochloride|dihydrochloride|hcl|hydrobromide|sulfate|sulphate|phosphate|acetate|citrate|chloride|bromide|besylate|mesylate|maleate|tartrate|bitartrate|succinate|fumarate|gluconate|lactate|tromethamine|bicarbonate|carbonate|nitrate|hyclate|propionate|dipropionate|valerate|acetonide|pamoate|decanoate|meglumine|lysine|anhydrous|monohydrate|dihydrate|trihydrate|hexahydrate|base|free))*(?:$|[^a-z0-9-].*)'",
+   "ms": 2338,
+   "mode": "live",
+   "sources": [
+    "corvale_lakeside.cabinet",
+    "corvale_lakeside.usage_30d",
+    "fda.ndc_packages"
+   ],
+   "ranAt": "2026-10-22T12:15:28.490Z",
    "rows": 0
   }
  },
  "usage": {
   "zetarisQueries": 14,
-  "zetarisMs": 22611,
+  "zetarisMs": 20485,
   "modelCalls": 1,
-  "tokensIn": 1396,
-  "tokensOut": 549,
+  "tokensIn": 1892,
+  "tokensOut": 461,
   "mode": "live"
  },
  "slug": "linezolid",
@@ -1067,7 +1187,7 @@
     "id": "hospital-item:hospital-item:CG-261",
     "type": "HospitalItem",
     "key": "hospital-item:CG-261",
-    "label": "Corvale General: Linezolid",
+    "label": "Corvale General: Linezolid 600 mg/1",
     "attrs": {
      "key": "hospital-item:CG-261"
     },
@@ -1151,7 +1271,7 @@
     },
     "facts": [
      {
-      "id": "fact_9f9fa3d67355e6dd",
+      "id": "fact_6a9bd290214db53e",
       "about": "inspection:fda-inspection:1046054",
       "predicate": "classification",
       "value": "VAI",
@@ -1159,9 +1279,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:57:57.852Z"
+       "at": "2026-10-22T12:15:25.399Z"
       },
-      "assertedAt": "2026-10-22T07:57:57.852Z"
+      "assertedAt": "2026-10-22T12:15:25.399Z"
      }
     ],
     "depth": 4
@@ -1177,7 +1297,7 @@
     },
     "facts": [
      {
-      "id": "fact_afd4c093a8dfb589",
+      "id": "fact_c86ea54417efa6e2",
       "about": "inspection:fda-inspection:761720",
       "predicate": "classification",
       "value": "VAI",
@@ -1185,9 +1305,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:57:57.850Z"
+       "at": "2026-10-22T12:15:25.399Z"
       },
-      "assertedAt": "2026-10-22T07:57:57.850Z"
+      "assertedAt": "2026-10-22T12:15:25.399Z"
      }
     ],
     "depth": 4
@@ -1203,7 +1323,7 @@
     },
     "facts": [
      {
-      "id": "fact_f8665236f1237631",
+      "id": "fact_1705942993658fba",
       "about": "inspection:fda-inspection:854604",
       "predicate": "classification",
       "value": "VAI",
@@ -1211,9 +1331,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:57:57.851Z"
+       "at": "2026-10-22T12:15:25.399Z"
       },
-      "assertedAt": "2026-10-22T07:57:57.851Z"
+      "assertedAt": "2026-10-22T12:15:25.399Z"
      }
     ],
     "depth": 4
@@ -1229,7 +1349,7 @@
     },
     "facts": [
      {
-      "id": "fact_46c9759cda13bfee",
+      "id": "fact_6324108ec97f4748",
       "about": "inspection:fda-inspection:989408",
       "predicate": "classification",
       "value": "VAI",
@@ -1237,9 +1357,9 @@
       "source": {
        "kind": "fda-inspection",
        "by": "upstream-investigator",
-       "at": "2026-10-22T07:57:57.851Z"
+       "at": "2026-10-22T12:15:25.399Z"
       },
-      "assertedAt": "2026-10-22T07:57:57.851Z"
+      "assertedAt": "2026-10-22T12:15:25.399Z"
      }
     ],
     "depth": 4
@@ -1251,11 +1371,11 @@
     "from": "hospital-item:hospital-item:CG-261",
     "to": "package:ndc-package:67877-419-20",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:57:48.421Z",
+    "validFrom": "2026-10-22T12:15:22.215Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:57:48.421Z"
+     "at": "2026-10-22T12:15:22.215Z"
     }
    },
    {
@@ -1263,11 +1383,11 @@
     "from": "hospital-item:hospital-item:EA-E-000237",
     "to": "package:ndc-package:67877-419-20",
     "type": "stocks",
-    "validFrom": "2026-10-22T07:57:48.420Z",
+    "validFrom": "2026-10-22T12:15:22.215Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:57:48.420Z"
+     "at": "2026-10-22T12:15:22.215Z"
     }
    },
    {
@@ -1275,11 +1395,11 @@
     "from": "package:ndc-package:67877-419-20",
     "to": "product:ndc-product:67877-419",
     "type": "package-of",
-    "validFrom": "2026-10-22T07:57:48.420Z",
+    "validFrom": "2026-10-22T12:15:22.215Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:57:48.420Z"
+     "at": "2026-10-22T12:15:22.215Z"
     }
    },
    {
@@ -1287,11 +1407,11 @@
     "from": "product:ndc-product:67877-419",
     "to": "drug:generic:linezolid",
     "type": "of-drug",
-    "validFrom": "2026-10-22T07:57:48.420Z",
+    "validFrom": "2026-10-22T12:15:22.215Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:57:48.420Z"
+     "at": "2026-10-22T12:15:22.215Z"
     }
    },
    {
@@ -1299,11 +1419,11 @@
     "from": "product:ndc-product:67877-419",
     "to": "labeler:ndc-labeler:67877",
     "type": "labeled-by",
-    "validFrom": "2026-10-22T07:57:48.420Z",
+    "validFrom": "2026-10-22T12:15:22.215Z",
     "source": {
      "kind": "zetaris",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:57:48.420Z"
+     "at": "2026-10-22T12:15:22.215Z"
     }
    },
    {
@@ -1311,11 +1431,11 @@
     "from": "product:ndc-product:67877-419",
     "to": "site:fei:3006370524",
     "type": "made-at",
-    "validFrom": "2026-10-22T07:57:57.850Z",
+    "validFrom": "2026-10-22T12:15:25.399Z",
     "source": {
      "kind": "dailymed-spl",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:57:57.850Z"
+     "at": "2026-10-22T12:15:25.399Z"
     }
    },
    {
@@ -1323,11 +1443,11 @@
     "from": "inspection:fda-inspection:761720",
     "to": "site:fei:3006370524",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:57:57.850Z",
+    "validFrom": "2026-10-22T12:15:25.399Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:57:57.850Z"
+     "at": "2026-10-22T12:15:25.399Z"
     }
    },
    {
@@ -1335,11 +1455,11 @@
     "from": "inspection:fda-inspection:854604",
     "to": "site:fei:3006370524",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:57:57.851Z",
+    "validFrom": "2026-10-22T12:15:25.399Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:57:57.851Z"
+     "at": "2026-10-22T12:15:25.399Z"
     }
    },
    {
@@ -1347,11 +1467,11 @@
     "from": "inspection:fda-inspection:989408",
     "to": "site:fei:3006370524",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:57:57.851Z",
+    "validFrom": "2026-10-22T12:15:25.399Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:57:57.851Z"
+     "at": "2026-10-22T12:15:25.399Z"
     }
    },
    {
@@ -1359,11 +1479,11 @@
     "from": "inspection:fda-inspection:1046054",
     "to": "site:fei:3006370524",
     "type": "inspected",
-    "validFrom": "2026-10-22T07:57:57.851Z",
+    "validFrom": "2026-10-22T12:15:25.399Z",
     "source": {
      "kind": "fda-inspection",
      "by": "upstream-investigator",
-     "at": "2026-10-22T07:57:57.851Z"
+     "at": "2026-10-22T12:15:25.399Z"
     }
    }
   ],
