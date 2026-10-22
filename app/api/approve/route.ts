@@ -2,12 +2,12 @@
 // to a decision.record contract before H-MEM is allowed to store the decision.
 import { getCase } from "@/src/lib/cases";
 import { approveDecision } from "@/src/agent/memo";
-import { openMemory } from "@/src/engines/hmem";
+import { HMEM, openMemory } from "@/src/engines/hmem";
 
 export const runtime = "nodejs";
 
 // On a read-only host the memory lives for this server instance; locally it persists in .state/hmem.
-const memory = openMemory(process.env.VERCEL ? {} : { persistDir: ".state/hmem" });
+const memory = process.env.VERCEL ? new HMEM({ actor: "upstream-agent" }) : openMemory({ persistDir: ".state/hmem" });
 
 export async function POST(req: Request) {
   const b = (await req.json().catch(() => ({}))) as { slug?: string; contract?: unknown; approver?: string; decision?: string };
