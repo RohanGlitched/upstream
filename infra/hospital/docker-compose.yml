@@ -1,0 +1,49 @@
+# Corvale Health's own systems: two separate Postgres servers (General, East).
+# Upstream never copies their data; Zetaris reaches them over JDBC on the shared network.
+#   docker compose -f infra/hospital/docker-compose.yml up -d
+# Seed SQL comes from data/hospital/out (python data/hospital/generate.py).
+name: corvale
+
+services:
+  general-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: corvale_general
+      POSTGRES_USER: corvale_admin
+      POSTGRES_PASSWORD: ${CORVALE_GENERAL_PG_PASSWORD:?set in infra/hospital/.env}
+      ZETARIS_READER_PASSWORD: ${ZETARIS_READER_PASSWORD:?set in infra/hospital/.env}
+      HOSPITAL_SCHEMA: cg
+    volumes:
+      - ../../data/hospital/out/corvale_general.sql:/docker-entrypoint-initdb.d/10-corvale_general.sql:ro
+      - ./readonly.sh:/docker-entrypoint-initdb.d/20-readonly.sh:ro
+    ports:
+      - "127.0.0.1:55432:5432"
+    networks: [zetaris]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U corvale_admin -d corvale_general"]
+      interval: 5s
+      retries: 20
+
+  east-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: corvale_east
+      POSTGRES_USER: corvale_admin
+      POSTGRES_PASSWORD: ${CORVALE_EAST_PG_PASSWORD:?set in infra/hospital/.env}
+      ZETARIS_READER_PASSWORD: ${ZETARIS_READER_PASSWORD:?set in infra/hospital/.env}
+      HOSPITAL_SCHEMA: east
+    volumes:
+      - ../../data/hospital/out/corvale_east.sql:/docker-entrypoint-initdb.d/10-corvale_east.sql:ro
+      - ./readonly.sh:/docker-entrypoint-initdb.d/20-readonly.sh:ro
+    ports:
+      - "127.0.0.1:55433:5432"
+    networks: [zetaris]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U corvale_admin -d corvale_east"]
+      interval: 5s
+      retries: 20
+
+networks:
+  zetaris:
+    name: zetaris-platform_default
+    external: true
