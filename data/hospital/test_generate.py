@@ -574,6 +574,7 @@ class TestPharmacistFixes(unittest.TestCase):
         self.assertIn("cisplatin", sql.lower())
         cab = (self.out / "lakeside" / "cabinet_export_20261021.csv").read_text(encoding="utf8")
         self.assertNotIn("CISplatin", cab)  # absent at Lakeside by scenario
+        self.assertIn("CARBOplatin", cab)
 
     def test_6_tall_man_on_lakeside(self):
         cab = (self.out / "lakeside" / "cabinet_export_20261021.csv").read_text(encoding="utf8")

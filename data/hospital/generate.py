@@ -1110,18 +1110,20 @@ def write_corvale_general(
         if sc and isinstance(sc.get("general"), dict):
             days_on_hand = sc["general"].get("days_on_hand")
 
+        shares = {
+            "main pharmacy": 0.45,
+            "OR satellite": 0.15,
+            "oncology infusion": 0.15 if item["therapeutic_class"] == "oncology" else 0.05,
+            "ED": 0.15,
+            "ICU": 0.20,
+        }
+        total_share = sum(shares.values())
         for loc in CG_LOCATIONS:
-            # Location share of stock.
-            share = {
-                "main pharmacy": 0.45,
-                "OR satellite": 0.15,
-                "oncology infusion": 0.15 if item["therapeutic_class"] == "oncology" else 0.05,
-                "ED": 0.15,
-                "ICU": 0.20,
-            }[loc]
+            share = shares[loc]
             par = max(1.0, round(avg * 14 * share * rng.uniform(0.9, 1.1), 2))
-            if days_on_hand is not None and loc == "main pharmacy":
-                qty = round(avg * float(days_on_hand), 2)
+            if days_on_hand is not None:
+                # The scenario sets the hospital-wide total; each location holds its share of it.
+                qty = round(avg * float(days_on_hand) * share / total_share, 2)
             else:
                 # Typical 5–20 days on hand at main; less at satellites.
                 doh = rng.uniform(3, 18) if loc != "main pharmacy" else rng.uniform(7, 25)

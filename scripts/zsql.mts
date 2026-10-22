@@ -58,7 +58,7 @@ for (const [i, s] of stmts.entries()) {
   try {
     const r = await query(fill(s), { mode: "live", limit: 200 });
     console.log(`[${i + 1}] ok ${r.ms}ms ${r.rows.length} rows  ${head}`);
-    if (e >= 0 || /^\s*(show|select|describe|preview)/i.test(s)) {
+    if (e >= 0 || /^\s*(show|select|with|describe|preview)/i.test(s)) {
       console.log(r.columns.join(" | "));
       for (const row of r.rows.slice(0, 40)) console.log(r.columns.map((c) => String(row[c] ?? "")).join(" | "));
     }
