@@ -1,19 +1,24 @@
 // The investigation's fixed moves: one Lightning SQL statement per step, against Upstream's semantic layer
-// (lightning.metastore.upstream.upstream_usl) and FDA's files, all queried in place through Zetaris.
-import { inList } from "./util";
+// (lightning.metastore.upstream.upstream_usl) and FDA's files. The hospitals are read in place; FDA's files are
+// CSVs cleaned once by data/fda/build_bundle.py and read by Zetaris as file tables.
+import { inList, moleculeFindRegex, moleculeRegex } from "./util";
 
 export const USL = "lightning.metastore.upstream.upstream_usl";
 const like = (term: string) => `'%${term.toLowerCase().replace(/'/g, "''").replace(/[%_]/g, "")}%'`;
+// The molecule on whole words, salts allowed, never a longer molecule (atracurium is not cisatracurium).
+const isMolecule = (col: string, term: string) => `lower(trim(coalesce(${col}, ''))) RLIKE '${moleculeRegex(term)}'`;
 
-/** Every stock line in all three hospitals whose product or description matches the molecule. */
-export function stockSql(term: string): string {
-  return `SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.ndc_match,
-       p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route
+/** Every stock line in all three hospitals whose product (or, when FDA does not list the NDC, whose description)
+ *  is the molecule, in units of use, with what makes a presentation: strength, form and the content of one unit. */
+export function stockSql(term: string, form: string | null = null): string {
+  return `SELECT s.hospital, s.item_key, s.ndc11, s.ndc_as_recorded, s.description, s.on_hand, s.daily_use, s.unit, s.pkg_units, s.unit_basis, s.ndc_match,
+       p.generic_name, p.labeler_name, p.package_ndc, p.spl_set_id, p.dosage_form, p.route, p.strength, p.unit_content, p.pkg_unit
 FROM (SELECT * FROM ${USL}.stock_general
       UNION ALL SELECT * FROM ${USL}.stock_east
       UNION ALL SELECT * FROM ${USL}.stock_lakeside) s
 LEFT JOIN ${USL}.product p ON p.ndc11 = s.ndc11
-WHERE lower(coalesce(p.generic_name, '')) LIKE ${like(term)} OR lower(s.description) LIKE ${like(term)}
+WHERE (${isMolecule("p.generic_name", term)} OR (p.ndc11 IS NULL AND ${isMolecule("s.description", term)}))${form ? `
+  AND (p.ndc11 IS NULL OR lower(p.dosage_form) LIKE ${like(form)})` : ""}
 ORDER BY s.hospital, s.item_key`;
 }
 
@@ -65,7 +70,7 @@ export function recallsSql(term: string, firmKeys: string[]): string {
        substr(reason, 1, 220) AS reason, substr(product_description, 1, 160) AS product_description
 FROM fda.recalls
 WHERE firm_key IN (${inList(firmKeys)}) AND initiation_date >= '2020-01-01'
-  AND lower(product_description) LIKE ${like(term)}
+  AND lower(product_description) RLIKE '${moleculeFindRegex(term)}'
 ORDER BY initiation_date`;
 }
 
@@ -73,7 +78,7 @@ ORDER BY initiation_date`;
 export function shortageCurrentSql(term: string): string {
   return `SELECT generic_name, company_name, status, package_ndc, initial_posting_date, update_date, substr(related_info, 1, 220) AS related_info
 FROM fda.shortage_current
-WHERE lower(generic_name) LIKE ${like(term)}
+WHERE ${isMolecule("generic_name", term)}
 ORDER BY status, company_name, package_ndc`;
 }
 
@@ -81,7 +86,7 @@ ORDER BY status, company_name, package_ndc`;
 export function shortageHistorySql(term: string): string {
   return `SELECT generic, category, first_posting, first_seen, last_seen, resolved_first_seen, statuses, n_companies, reasons
 FROM fda.shortage_episodes
-WHERE lower(generic) LIKE ${like(term)}
+WHERE ${isMolecule("generic", term)}
 ORDER BY first_posting`;
 }
 
@@ -92,7 +97,7 @@ export function marketSql(term: string, dosageWord: string): string {
 FROM ${USL}.product p
 LEFT JOIN ${USL}.product_site ps ON ps.set_id = p.spl_set_id
 LEFT JOIN ${USL}.site st ON st.duns = ps.est_duns
-WHERE lower(p.generic_name) LIKE ${like(term)} AND lower(p.dosage_form) LIKE ${like(dosageWord)}
+WHERE ${isMolecule("p.generic_name", term)} AND lower(p.dosage_form) LIKE ${like(dosageWord)}
 ORDER BY p.labeler_name, p.ndc11`;
 }
 
@@ -107,8 +112,8 @@ LEFT JOIN ${USL}.product p ON p.ndc11 = b.ndc11
 WHERE a.ndc11 IN (${inList(ndc11s)})`;
 }
 
-/** The semantic layer's foreign-key rule over each hospital's stock. */
-export function dqSql(table: "stock_general" | "stock_east" | "stock_lakeside"): string {
+/** The semantic layer's key rules over one USL table (the stock tables' NDC and unit keys, or FDA's plant and inspection keys). */
+export function dqSql(table: "stock_general" | "stock_east" | "stock_lakeside" | "product_site" | "inspection" | "site"): string {
   return `RUN DQ TABLE ${USL}.${table}`;
 }
 
@@ -117,5 +122,5 @@ export function dqLakesideRowsSql(term: string): string {
   return `SELECT s.item_key, s.description, s.ndc_as_recorded, s.ndc_match
 FROM ${USL}.stock_lakeside s
 LEFT JOIN ${USL}.product p ON p.ndc11 = s.ndc11
-WHERE p.ndc11 IS NULL AND lower(s.description) LIKE ${like(term)}`;
+WHERE p.ndc11 IS NULL AND ${isMolecule("s.description", term)}`;
 }

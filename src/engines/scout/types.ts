@@ -177,6 +177,8 @@ export interface ExecutionContract {
     user: UserRef;
     surface: string;
     capabilities: string[];
+    /** Upstream: what this contract is bound to (e.g. { case, drug }); an executor can require an exact match */
+    subject?: Record<string, string>;
     deadline?: string;
     budget?: { tokensMax?: number; costMaxUSD?: number };
   };
@@ -221,6 +223,8 @@ export interface DecideInput {
   prompt: string;
   user?: UserRef;
   surface: string;
+  /** Upstream: bind the contract to a subject (signed into scope.subject), e.g. { case: "carboplatin", drug: "carboplatin" } */
+  subject?: Record<string, string>;
   /** contextual signals: active intent, recent intents, memory hits, active drug */
   context?: {
     activeIntent?: string;

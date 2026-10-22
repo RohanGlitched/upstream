@@ -63,7 +63,7 @@ function nodeLabel(n: GNode): string {
     case "Drug":
       return n.label;
     default:
-      return clip(tallMan(n.label), 24);
+      return clip(tallMan(n.label), 34);
   }
 }
 
@@ -110,7 +110,8 @@ export function CaseGraph({ graph }: { graph: Graph | undefined }) {
     cols[d].forEach((n, i) => index.set(n.id, i));
   }
 
-  const W = 940;
+  // wide enough that most node names fit whole; the full name is in each node's title on hover
+  const W = 1200;
   const ROW = 27;
   const TOP = 40;
   const colW = W / cols.length;
@@ -125,7 +126,10 @@ export function CaseGraph({ graph }: { graph: Graph | undefined }) {
 
   return (
     <figure className="graph">
-      <div className="graph-scroll">
+      <p className="graph-hint" aria-hidden="true">
+        Scroll sideways to read the whole graph
+      </p>
+      <div className="graph-scroll" tabIndex={0} role="region" aria-label="World Model graph, scrolls sideways">
         <svg viewBox={`0 0 ${W} ${H}`} className="graph-svg" role="img" aria-label={`Supply-chain graph: ${graph.nodes.length} records and ${graph.edges.length} links`}>
           {COLS.slice(0, cols.length).map((t, d) => (
             <text key={t} x={d * colW + 4} y={16} className="g-col">

@@ -3,6 +3,9 @@
 // The chronograph: an azimuthal-equidistant world centred on Corvale Health, every plant behind the formulary on it,
 // and a calendar bezel that replays FDA's actions at those plants from 2022 to today. Server-rendered at today's state
 // so the first paint is the finished picture; the replay runs once when it comes into view.
+// Two stacked SVGs: the map, the bezel and the country rings never change, so they sit in their own layer and
+// are painted once; only the plants, the pointer and the flashes repaint while the replay runs. The replay pauses
+// when the dial scrolls out of view.
 import Link from "next/link";
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { countryName, firmCase } from "../lib/format";
@@ -104,7 +107,9 @@ function RecordCard({ p, t, state, onClose, compact }: { p: ChronoPlant; t: numb
         {countryName(p.iso)}
       </p>
       <p className="chr-card__dist">
-        {kmText(p.km)} from Corvale, bearing {String(Math.round(p.bearing)).padStart(3, "0")}°
+        {p.placed === "site"
+          ? `${kmText(p.km)} from Corvale, bearing ${String(Math.round(p.bearing)).padStart(3, "0")}°`
+          : `Drawn at the centre of ${countryName(p.iso)}: about ${kmText(p.km)} from Corvale to that point`}
       </p>
       <div className="chr-card__state">
         <Stamp h={state} />
@@ -186,6 +191,7 @@ export function Chronograph({
   const svgRef = useRef<SVGSVGElement>(null);
   const raf = useRef<number | null>(null);
   const played = useRef(false);
+  const autoTimer = useRef(0);
   const drag = useRef(false);
   const tRef = useRef(t);
   tRef.current = t;
@@ -245,14 +251,13 @@ export function Chronograph({
     if (typeof window === "undefined" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const el = rootRef.current;
     if (!el) return;
-    let timer = 0;
     const io = new IntersectionObserver(
       (es) => {
         if (es.some((e) => e.isIntersecting) && !played.current) {
           played.current = true;
           io.disconnect();
           // Let today's picture land first, then wind back to 2022 and replay.
-          timer = window.setTimeout(() => play(T0), 1100);
+          autoTimer.current = window.setTimeout(() => play(T0), 1100);
         }
       },
       { threshold: 0.35 },
@@ -260,9 +265,32 @@ export function Chronograph({
     io.observe(el);
     return () => {
       io.disconnect();
-      window.clearTimeout(timer);
+      window.clearTimeout(autoTimer.current);
     };
   }, [autoplay, play]);
+
+  // A replay that scrolls out of view pauses: no frames are drawn for a dial nobody is looking at.
+  useEffect(() => {
+    const el = rootRef.current;
+    if (!el || !playing) return;
+    const io = new IntersectionObserver((es) => {
+      if (es.every((e) => !e.isIntersecting)) stop();
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [playing, stop]);
+
+  // The buyer's own press wins over the autoplay that was about to start.
+  const userPlay = (from?: number) => {
+    played.current = true;
+    window.clearTimeout(autoTimer.current);
+    play(from);
+  };
+  const userStop = () => {
+    played.current = true;
+    window.clearTimeout(autoTimer.current);
+    stop();
+  };
 
   // Other parts of the page (the ledger) can ask for a plant by FEI.
   useEffect(() => {
@@ -321,7 +349,7 @@ export function Chronograph({
     if (!s) return;
     const r = Math.hypot(s.x - CX, s.y - CY);
     if (r > RM + 3 && r < 404) {
-      stop();
+      userStop();
       drag.current = true;
       e.currentTarget.setPointerCapture(e.pointerId);
       setT(dayAt(s.x, s.y));
@@ -360,14 +388,14 @@ export function Chronograph({
     } else if (e.key === "Escape") {
       setSel(null);
     } else if (e.key === " " || e.key === "Enter") {
-      if (playing) stop();
-      else play();
+      if (playing) userStop();
+      else userPlay();
       e.preventDefault();
     }
   };
 
   const stepAction = (dir: 1 | -1) => {
-    stop();
+    userStop();
     const cur = Math.floor(tRef.current);
     const list = dir > 0 ? actions.filter((f) => f.n > cur && f.n <= TODAY) : actions.filter((f) => f.n < cur).reverse();
     const f = list[0];
@@ -388,8 +416,10 @@ export function Chronograph({
     return (
       <g className="chr-map">
         <defs>
+          {/* The coastline is the heaviest path on the page: written once, then reused for the fill, the clip and the coast. */}
+          <path id={`landp-${uid}`} d={land} />
           <clipPath id={`land-${uid}`}>
-            <path d={land} />
+            <use href={`#landp-${uid}`} />
           </clipPath>
           <radialGradient id={`glow-${uid}`} cx="50%" cy="50%" r="50%">
             <stop offset="0%" className="chr-glow0" />
@@ -399,12 +429,12 @@ export function Chronograph({
         <circle className="chr-sphere" cx={CX} cy={CY} r={RM} />
         <circle cx={CX} cy={CY} r={RM} fill={`url(#glow-${uid})`} />
         <path className="chr-grat" d={graticule} />
-        <path className="chr-land" d={land} />
+        <use className="chr-land" href={`#landp-${uid}`} />
         <g className="chr-stipple" clipPath={`url(#land-${uid})`}>
           {rings}
         </g>
         <path className="chr-borders" d={borders} />
-        <path className="chr-coast" d={land} />
+        <use className="chr-coast" href={`#landp-${uid}`} />
         {[5000, 10000, 15000].map((km) => {
           const r = (km / (Math.PI * EARTH_KM)) * RM;
           const a = (205 * Math.PI) / 180;
@@ -440,7 +470,7 @@ export function Chronograph({
             N
           </text>
         </g>
-        <text className="chr-ringlab chr-far" x={CX} y={CY + RM - 9} textAnchor="middle">
+        <text className="chr-ringlab chr-far" x={CX} y={CY + RM - 34} textAnchor="middle">
           20,015 km, the far side of the Earth
         </text>
       </g>
@@ -453,16 +483,27 @@ export function Chronograph({
         {data.countries.map((c) => (
           <g key={c.iso}>
             {c.n > 1 ? <circle cx={c.x} cy={c.y} r={c.r} className={c.signal ? "sig" : undefined} /> : null}
-            {c.n >= 5 ? (
-              <text x={c.x} y={f1(c.y + c.r + 13)} textAnchor="middle" className="halo">
-                {c.iso === "USA" ? "" : `${countryName(c.iso)} ${c.n}`}
-              </text>
-            ) : null}
+            {c.n >= 5 && c.iso !== "USA"
+              ? (() => {
+                  // Set the label just past the ring on the side away from Corvale, where there are no dots.
+                  const dx = c.x - hub[0];
+                  const dy = c.y - hub[1];
+                  const d = Math.hypot(dx, dy) || 1;
+                  const lx = c.x + (dx / d) * (c.r + 8);
+                  const ly = c.y + (dy / d) * (c.r + 8);
+                  const anchor = Math.abs(dx / d) < 0.35 ? "middle" : dx > 0 ? "start" : "end";
+                  return (
+                    <text x={f1(lx)} y={f1(ly + (dy > 0 ? 10 : -2))} textAnchor={anchor} className="halo">
+                      {countryName(c.iso)} {c.n}
+                    </text>
+                  );
+                })()
+              : null}
           </g>
         ))}
       </g>
     ),
-    [data.countries],
+    [data.countries, hub],
   );
 
   const bezelStatic = useMemo(() => {
@@ -575,7 +616,9 @@ export function Chronograph({
   const selP = sel !== null ? plants[sel] : null;
   const hovP = hover !== null && hover !== sel ? plants[hover] : null;
   const label = (p: ChronoPlant, cls: string, lines: string[]) => {
-    const left = p.x > CX + 40 || (p.x > CX - 40 && p.x > hub[0]);
+    // Near the rim the label runs inward so the bezel never clips it; nearer the middle it runs outward, off the hub.
+    const outer = Math.hypot(p.x - CX, p.y - CY) > RM * 0.55;
+    const left = outer ? p.x < CX : p.x > CX + 40 || (p.x > CX - 40 && p.x > hub[0]);
     const lx = p.x + (left ? 12 : -12);
     const ly = p.y - 10;
     return (
@@ -604,6 +647,7 @@ export function Chronograph({
           <span className="chr-date__v">{fmtDay(Math.min(Math.floor(t), TODAY))}</span>
           <span className="chr-date__s">{now >= TODAY ? "today, on FDA's file" : "replaying FDA's file"}</span>
         </div>
+        <p className="chr-counts__cap">By FDA&apos;s rule on that day: red is an action in the three years before it.</p>
         <ul className="chr-counts" aria-label={`Plants on ${fmtDay(now)}`}>
           {ORDER.map((h) => (
             <li key={h} className={`chr-count chr-count--${h}`}>
@@ -624,9 +668,15 @@ export function Chronograph({
       </div>
 
       <div className="chr-stage">
+        <div className="chr-dial">
+        <svg className="chr-svg chr-svg--base" viewBox={`0 0 ${SIZE} ${SIZE}`} aria-hidden="true" focusable="false">
+          {mapLayer}
+          {bezelStatic}
+          {countryLayer}
+        </svg>
         <svg
           ref={svgRef}
-          className="chr-svg"
+          className="chr-svg chr-svg--top"
           viewBox={`0 0 ${SIZE} ${SIZE}`}
           role="group"
           aria-label={`World map centred on Corvale Health with ${total} plants. Arrow keys move between plants, Escape clears, Space plays the replay.`}
@@ -638,11 +688,8 @@ export function Chronograph({
           onPointerLeave={() => setHover(null)}
           onKeyDown={onKey}
         >
-          {mapLayer}
-          {bezelStatic}
           <path className="chr-shade" d={shade} />
           <path className="chr-elapsed" d={elapsed} />
-          {countryLayer}
           {plantLayer}
           {flashLayer}
           {selP && midSel ? (
@@ -650,7 +697,7 @@ export function Chronograph({
               <line className="chr-selspoke" x1={selP.x} y1={selP.y} x2={hub[0]} y2={hub[1]} />
               {selP.km > 1500 ? (
                 <text className="chr-dist halo" textAnchor="middle" transform={`translate(${f1(midSel.x)},${f1(midSel.y)}) rotate(${f1(selAng)}) translate(0,-6)`}>
-                  {kmText(selP.km)}
+                  {selP.placed === "site" ? kmText(selP.km) : `\u2248 ${kmText(selP.km)}`}
                 </text>
               ) : null}
             </>
@@ -682,14 +729,25 @@ export function Chronograph({
             })()}
           </g>
         </svg>
+        </div>
 
         <div className="chr-controls">
-          <button type="button" className="chr-btn chr-btn--play" onClick={() => (playing ? stop() : play())} aria-pressed={playing}>
+          <button
+            type="button"
+            className="chr-btn chr-btn--play"
+            onClick={() => (playing ? userStop() : now >= TODAY ? userPlay(T0) : userPlay())}
+            aria-pressed={playing}
+          >
             <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
               {playing ? <path d="M2 1h3v10H2zM7 1h3v10H7z" /> : <path d="M2 1 L11 6 L2 11 Z" />}
             </svg>
-            {playing ? "Pause" : now >= TODAY ? "Replay 2022 to today" : "Play"}
+            {playing ? "Pause" : now >= TODAY ? "Replay 2022 to today" : "Resume"}
           </button>
+          {playing || now < TODAY ? (
+            <button type="button" className="chr-btn" onClick={() => userPlay(T0)}>
+              From 2022
+            </button>
+          ) : null}
           <button type="button" className="chr-btn chr-btn--icon" onClick={() => stepAction(-1)} aria-label="Previous FDA action">
             <svg width="14" height="12" viewBox="0 0 14 12" aria-hidden="true">
               <path d="M2 1v10M12 1 L4 6 L12 11 Z" />

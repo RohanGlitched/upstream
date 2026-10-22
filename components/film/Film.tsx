@@ -7,6 +7,8 @@
  * the answer and the proof. A depth gauge (powers of ten) and the record date run down the left edge.
  *
  * Props
+ *   film?        prepareFilm(caseData, plants, evalData), computed on the server: the page then ships the film's
+ *                few kilobytes of figures instead of the whole case. Pass it, or the three props below.
  *   caseData     Case (src/agent/types). Built for carboplatin; works for any case whose supply reaches a plant
  *                with an OAI inspection and a posted shortage. Every figure and citation is read from it.
  *   plants?      data/plants.json, for the plant rings on the globe, Corvale's position and plant counts.
@@ -22,12 +24,12 @@
 import { useEffect, useMemo, useRef } from "react";
 import type { Case } from "../../src/agent/types";
 import type { EvalFile, PlantsFile } from "./model";
-import { buildFilm } from "./model";
-import { buildMicro } from "./micro";
+import { prepareFilm, type PreparedFilm } from "./prepare";
 import "./film.css";
 
 export interface FilmProps {
-  caseData: Case;
+  film?: PreparedFilm;
+  caseData?: Case;
   plants?: PlantsFile | null;
   evalData?: EvalFile | null;
   offsetTop?: number;
@@ -39,11 +41,10 @@ const TMAX = 7.6;
 const STOPS = [0, 1.12, 2.5, 3.58, 4.15, 5.25, 6.62, 7.5];
 const BOUNDS = [0.6, 1.6, 2.84, 3.76, 4.62, 5.7, 6.85];
 
-export function Film({ caseData, plants = null, evalData = null, offsetTop = 0, answerHref, id = "film" }: FilmProps) {
-  const D = useMemo(() => buildFilm(caseData, plants, evalData), [caseData, plants, evalData]);
-  const micro = useMemo(() => buildMicro(D.pockets, D.cabinet, D.totalLine), [D]);
+export function Film({ film, caseData, plants = null, evalData = null, offsetTop = 0, answerHref, id = "film" }: FilmProps) {
+  const { D, micro } = useMemo(() => film ?? prepareFilm(caseData!, plants, evalData), [film, caseData, plants, evalData]);
   const rootRef = useRef<HTMLElement>(null);
-  const href = answerHref ?? `/case/${caseData.molecule.split(" ")[0].toLowerCase()}`;
+  const href = answerHref ?? `/case/${D.molecule.split(" ")[0].toLowerCase()}`;
 
   useEffect(() => {
     const root = rootRef.current;
@@ -55,13 +56,15 @@ export function Film({ caseData, plants = null, evalData = null, offsetTop = 0, 
   }, [D, micro, offsetTop]);
 
   const pct = (a: number, b: number) => Math.round((a / Math.max(1, b)) * 100);
-  const fmt1 = (n: number) => (Math.round(n * 10) / 10).toString();
+  const fmt1 = (n: number) => (Math.round(n * 10) / 10).toFixed(1); // a tenth of a day, as on the desk
   const cap0 = D.caps[0];
   return (
     <section ref={rootRef} className="fm" id={id} aria-label={`One ${D.drug} vial, followed upstream in eight stops`} style={{ ["--fm-top" as string]: `${offsetTop}px` }}>
       <div className="fm-stage" data-f="stage">
         <div className="fm-void" data-f="void" />
-        <svg className="fm-micro" data-f="micro" viewBox="-12 -12 684 428" preserveAspectRatio="xMidYMid meet" aria-hidden="true" dangerouslySetInnerHTML={{ __html: micro.svg }} />
+        <div className="fm-microwrap" data-f="microwrap">
+          <svg className="fm-micro" data-f="micro" viewBox="-12 -12 684 428" preserveAspectRatio="xMidYMid meet" aria-hidden="true" dangerouslySetInnerHTML={{ __html: micro.svg }} />
+        </div>
         <svg className="fm-globe" data-f="globe" aria-hidden="true" />
         <div className="fm-maplabels" data-f="maplabels" aria-hidden="true">
           <div className="fm-sitemark nf" data-f="nextframe"><i /></div>
@@ -163,7 +166,7 @@ export function Film({ caseData, plants = null, evalData = null, offsetTop = 0, 
                 {D.answer.rows.map((r, i) => (
                   <div key={r.key} className={`fm-h-row${r.low ? " low" : ""}`} data-row={i}>
                     <div className="fm-h-name">{r.key}<span>{r.src}</span></div>
-                    <div className="fm-h-bar"><i style={{ width: `${Math.min(1, r.b / 21) * 100}%` }} /><span className="fl" /></div>
+                    <div className="fm-h-bar"><i style={{ transform: `scaleX(${Math.min(1, r.b / 21)})` }} /><span className="fl" /></div>
                     <div className="fm-h-days"><b>{fmt1(r.b)}</b> days</div>
                   </div>
                 ))}
@@ -197,7 +200,7 @@ export function Film({ caseData, plants = null, evalData = null, offsetTop = 0, 
 
         <aside className="fm-gauge" aria-label="Scale of view">
           <div className="fm-ro">10<sup data-f="roE">0</sup><small>m</small></div>
-          <div className="fm-ro-f" data-f="roF">1 m across</div>
+          <div className="fm-ro-f"><span data-f="roF">1 m across</span></div>
           <div className="fm-ladder" data-f="ladder">
             {Array.from({ length: 11 }, (_, i) => 7 - i).map((ex) => (
               <div key={ex} className="fm-tick" data-ex={ex}><em><span className="t10">10</span><sup>{ex < 0 ? "−" + -ex : ex}</sup></em><i /></div>

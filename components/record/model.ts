@@ -5,6 +5,7 @@ import { tallMan } from "../../src/agent/util";
 import { drugTitle } from "../lib/drug";
 import { countryName, daysBetween, firmCase, monthsBetween, ndc542 } from "../lib/format";
 import { dataMatrix, upcFromNdc, type Matrix, type Upc } from "./codes";
+import { caseSystems } from "../../src/lib/lineage";
 
 /* ---------- small vocabularies ---------- */
 
@@ -59,6 +60,8 @@ export interface ShelfDay {
   onHand: number;
   dailyUse: number;
   unit: string;
+  /** The presentation these days are for, when the hospital stocks more than one ("10 mg/mL, 5 mL"). */
+  presentation?: string;
   evidence: string[];
 }
 
@@ -123,6 +126,8 @@ export interface Hang {
   evidence: string[];
   source: string;
   tone: "red" | "amber" | "magenta" | "ink" | "carbon";
+  /** On the shortage posting: what FDA's listing gives as the reason for our company, said without claiming cause. */
+  reasonLine?: string | null;
 }
 
 export interface Dim {
@@ -147,7 +152,7 @@ export interface BestMove {
   why: string;
   needs: string;
   evidence: string[];
-  transfer: { qty: number; from: string; to: string; fromDays: string | null; toDays: string | null; after: string | null } | null;
+  transfer: { qty: number; from: string; to: string; fromDays: string | null; toDays: string | null; after: string | null; fromAfter?: string; unit?: string; presentation?: string } | null;
 }
 
 export interface DeskModel {
@@ -161,7 +166,11 @@ export interface DeskModel {
   state: "confirmed" | "check" | "no_signal" | null;
   headline: string;
   dek: string;
-  verdict: { checked: number; rejected: number; repaired: number; queries: number; seconds: string; hospitals: number };
+  verdict: { checked: number; rejected: number; repaired: number; sentences: number; queries: number; seconds: string; hospitals: number; systems: number; hospitalSystems: number };
+  /** The explanation's verified sentences, each with the rows it cites: the answer to "why". */
+  why: { text: string; cites: string[] }[];
+  /** The cited rows, enough to lay a carbon of each under the paragraph. */
+  whyRows: Record<string, { label: string; queryId: string; row: number; fields: [string, string][] }>;
   band: Band;
   shelfName: string;
   shelfForm: string;
@@ -185,6 +194,22 @@ export interface DeskModel {
 }
 
 /* ---------- helpers ---------- */
+
+/** "10 mg/mL injection, 60 mL vial" reads on a shelf as "60 mL vial". */
+function unitLabel(label: string, short: string): string {
+  const tail = label.split(",").pop()?.trim() ?? "";
+  return /\d/.test(tail) ? tail : short;
+}
+
+/** The reason FDA's shortage listing gives for one company, wherever the recording keeps it. */
+function companyReason(co: { info: string; evidence: string } & Record<string, unknown>, ev: Case["evidence"]): string | null {
+  const own = co.reasons ?? co.reason;
+  if (Array.isArray(own) && own.length) return own.map(String).join("; ");
+  if (typeof own === "string" && own) return own;
+  const f = ev[co.evidence]?.fields ?? {};
+  const r = f.shortage_reason ?? f.reason ?? f.reasons;
+  return r ? String(r) : null;
+}
 
 export const dayNo = (iso: string) => Math.round(Date.parse(iso.slice(0, 10) + "T00:00:00Z") / 86_400_000);
 export const isoOf = (d: number) => new Date(d * 86_400_000).toISOString().slice(0, 10);
@@ -278,6 +303,10 @@ function parseObservations(text: string): { list: string[]; count: number | null
     .map((s) => s.replace(/\s*\(\d+ observations?\)\s*$/, "").trim())
     .filter((s) => s && !/^classification letter/i.test(s));
   return { list, count: m[2] ? Number(m[2]) : list.length || null };
+}
+
+function short(name: string): string {
+  return name.replace(/,? (Inc\.?|LLC|L\.L\.C\.|Corp\.?|Corporation|Limited|Ltd\.?|Co\.?)$/i, "").replace(/,$/, "");
 }
 
 function sentenceCase(s: string): string {
@@ -462,7 +491,17 @@ function buildHangs(c: Case): Hang[] {
           .filter((n) => n !== h.ref)
           .slice(0, 3)
           .map((n) => ({ date: "", ref: n, firm: "", evidence: "" }));
-        h.note = c.shortage.reasons[0] ? sentenceCase(c.shortage.reasons[0]) : ours?.info || null;
+        // The reason FDA gives for our listed product's company, never the first of the reasons pooled across
+        // every company on the listing (that read "delay in shipping" for a drug whose own labeler gave none).
+        {
+          const why = ours ? companyReason(ours as typeof ours & Record<string, unknown>, c.evidence) : null;
+          h.note = why ? sentenceCase(why) : null;
+          h.reasonLine = ours
+            ? why
+              ? `FDA's listing for ${short(ours.company)} gives: ${why.toLowerCase()}. FDA's file does not say whether the plant findings above are part of it.`
+              : `FDA's listing for ${short(ours.company)} gives no reason${ours.info ? `; it notes: ${ours.info.replace(/\s*\/\s*/g, "; ")}` : ""}. Upstream does not supply one.`
+            : null;
+        }
         h.evidence = t.evidence ? [t.evidence] : [];
         h.source = "FDA drug shortage list";
         h.tone = "red";
@@ -566,7 +605,10 @@ function bestMove(c: Case): BestMove | null {
   if (!o) return null;
   let transfer: BestMove["transfer"] = null;
   const m = /^Transfer (\d+(?:\.\d+)?) from (.+?) to (.+)$/.exec(o.title);
-  if (o.kind === "transfer" && m) {
+  if (o.kind === "transfer" && o.transfer) {
+    const t = o.transfer;
+    transfer = { qty: t.qty, from: t.from, to: t.to, fromDays: t.fromDays.toFixed(1), toDays: t.toDays.toFixed(1), after: t.toAfter.toFixed(1), fromAfter: t.fromAfter.toFixed(1), unit: t.unit, presentation: t.presentation };
+  } else if (o.kind === "transfer" && m) {
     const from = m[2];
     const to = m[3];
     const fd = new RegExp(`${from.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")} has ([\\d.]+) days`).exec(o.detail)?.[1] ?? null;
@@ -596,11 +638,31 @@ export function buildDesk(c: Case, slug: string): DeskModel {
         return k ? { kind: "class" as const, ...CLASS_BAND[k] } : null;
       })();
 
-  // Shelf: days on hand per hospital, from every stock line.
+  // Shelf: days on hand per hospital. With presentations on record, each hospital shows its shortest
+  // presentation (a 5 mL vial at 1.4 days is not hidden inside 18 days of 60 mL vials); older recordings pool.
   const shelf: ShelfDay[] = [];
   for (const h of HOSPITALS) {
     const lines = c.stock.filter((s) => s.hospital === h);
     if (!lines.length) continue;
+    const pres = (c.presentations ?? [])
+      .map((p) => ({ p, at: p.hospitals.find((x) => x.hospital === h) }))
+      .filter((x): x is { p: (typeof x)["p"]; at: NonNullable<(typeof x)["at"]> } => Boolean(x.at))
+      .sort((a, b) => (a.at.days ?? Infinity) - (b.at.days ?? Infinity))[0];
+    if (pres) {
+      const derived = Object.values(c.evidence).filter((e) => e.queryId === "derived" && e.fields?.hospital === h).map((e) => e.id);
+      const kinds = new Set((c.presentations ?? []).filter((p) => p.hospitals.some((x) => x.hospital === h)).map((p) => p.key)).size;
+      shelf.push({
+        hospital: h,
+        short: h.replace(/^Corvale\s+/, ""),
+        days: pres.at.days,
+        onHand: pres.at.onHand,
+        dailyUse: pres.at.dailyUse,
+        unit: pres.p.unit,
+        presentation: kinds > 1 ? unitLabel(pres.p.label, pres.p.short) : undefined,
+        evidence: [...pres.at.evidence, ...derived].slice(0, 4),
+      });
+      continue;
+    }
     const onHand = lines.reduce((a, s) => a + (s.onHand || 0), 0);
     const dailyUse = lines.reduce((a, s) => a + (s.dailyUse || 0), 0);
     const derived = Object.values(c.evidence).filter((e) => e.queryId === "derived" && e.fields?.hospital === h).map((e) => e.id);
@@ -614,7 +676,9 @@ export function buildDesk(c: Case, slug: string): DeskModel {
       evidence: [...derived, ...lines.map((l) => l.evidence)].slice(0, 4),
     });
   }
-  const ndcs = [...new Set(c.stock.map((s) => s.ndc11))].map(ndc542);
+  // NDCs as FDA's files record them (dashed package NDC); the 11-digit form only where nothing else is on file
+  const pkgOf = new Map(c.chain.map((p) => [p.ndc11, p.packageNdc]));
+  const ndcs = [...new Set(c.stock.map((s) => s.ndc11))].map((n) => pkgOf.get(n) ?? ndc542(n));
 
   // The primary chain: the listed NDC with the plant FDA has most to say about.
   const listed = new Set(c.shortage.ourNdcsListed);
@@ -759,6 +823,22 @@ export function buildDesk(c: Case, slug: string): DeskModel {
         : "FDA holds no inspection, warning letter, import alert or recall for the plants on our labels in the years this record covers.";
   }
 
+  const why = (c.explanation?.sentences ?? []).map((x) => ({ text: tallMan(x.text), cites: x.cites }));
+  const whyRows: DeskModel["whyRows"] = {};
+  for (const id of new Set(why.flatMap((x) => x.cites))) {
+    const e = c.evidence[id];
+    if (!e) continue;
+    whyRows[id] = {
+      label: e.label,
+      queryId: e.queryId,
+      row: e.row,
+      fields: Object.entries(e.fields ?? {})
+        .filter(([, v]) => v !== null && v !== "")
+        .slice(0, 9)
+        .map(([k, v]) => [k.replace(/_/g, " "), String(v)]),
+    };
+  }
+
   return {
     slug,
     molecule: c.molecule,
@@ -774,9 +854,13 @@ export function buildDesk(c: Case, slug: string): DeskModel {
       checked: v?.checked ?? 0,
       rejected: v?.rejected.length ?? 0,
       repaired: v?.repaired ?? 0,
+      sentences: c.explanation?.sentences.length ?? 0,
       queries: c.usage.zetarisQueries,
       seconds: (c.usage.zetarisMs / 1000).toFixed(1),
       hospitals,
+      // Physical systems the statements read, from the SQL text (USL tables resolved to their sources).
+      systems: caseSystems(c).length,
+      hospitalSystems: caseSystems(c).filter((x) => x.kind === "hospital").length,
     },
     band,
     shelfName: title,
@@ -798,6 +882,8 @@ export function buildDesk(c: Case, slug: string): DeskModel {
     months,
     best: bestMove(c),
     nothing,
+    why,
+    whyRows,
   };
 }
 

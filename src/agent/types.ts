@@ -43,9 +43,27 @@ export interface StockLine {
   onHand: number;
   dailyUse: number;
   days: number | null;
-  unit: string;
+  unit: string; // unit of use, the same in every hospital (vial, tablet, bag): the USL converts East's packages
   ndcMatch: string;
   evidence: string;
+  /** How the semantic layer reached units of use ("packages of 10, converted to units"). Absent on older recordings. */
+  unitBasis?: string;
+  /** The product presentation this line is: ingredient, strength, form, content of one unit, unit. */
+  presentation?: string;
+  presentationLabel?: string;
+}
+
+/** Stock of one presentation (same ingredient, strength, form, unit content and unit), hospital by hospital.
+ *  Days on hand and transfers are computed here, never across presentations. */
+export interface Presentation {
+  key: string;
+  label: string; // "10 mg/mL injection, 60 mL vial"
+  short: string; // "10 mg/mL, 60 mL"
+  unit: string;
+  onHand: number;
+  dailyUse: number;
+  days: number | null;
+  hospitals: { hospital: Hospital; onHand: number; dailyUse: number; days: number | null; lines: string[]; evidence: string[] }[];
 }
 
 export type Health = "signal" | "watch" | "clear" | "unknown";
@@ -108,6 +126,8 @@ export interface MarketLine {
 export interface OptionLine {
   kind: "transfer" | "alternate_manufacturer" | "alternate_concentration" | "interchange" | "iv_to_po";
   title: string;
+  /** A transfer, in the presentation's own units of use (absent on older recordings). */
+  transfer?: { qty: number; unit: string; presentation: string; from: Hospital; to: Hospital; fromDays: number; toDays: number; fromAfter: number; toAfter: number };
   detail: string;
   rank: number;
   why: string;
@@ -179,6 +199,8 @@ export interface Case {
   intent: { name: string; risk: string; contractId: string | null; clarification: string | null };
   steps: Step[];
   stock: StockLine[];
+  /** Stock by presentation, shortest first (absent on older recordings, which pooled every line per hospital). */
+  presentations?: Presentation[];
   chain: ProductChain[];
   shortage: ShortageStatus;
   market: MarketLine[];

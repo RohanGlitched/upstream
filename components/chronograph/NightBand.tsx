@@ -21,9 +21,9 @@ export async function NightBand({ title = "The world behind our shelf" }: { titl
             <>
               <h2 id="nightband-title">{title}</h2>
               <p>
-                {data.plants.length} plants in {countries} countries make what Corvale stocks. Each is drawn by its true
-                distance and bearing from us. The bezel replays every inspection, warning letter and import alert FDA
-                recorded there since 2022.
+                {data.plants.length} plants in {countries} countries make what Corvale stocks, each drawn at its
+                country&apos;s centre, since FDA&apos;s file gives the country and not the site. The bezel replays every
+                inspection, warning letter and import alert FDA recorded there since 2022.
               </p>
               {top.length === 2 ? (
                 <p className="nightband__fact">

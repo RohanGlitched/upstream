@@ -7,7 +7,9 @@ import { chat, MODELS, tally } from "../lib/nemotron";
 import { FormularyWatch, type DrugFinding, type WatchDrug } from "../engines/markovian.ts";
 import { UpstreamWorld, src } from "../engines/world-model.ts";
 import { USL } from "./sql";
-import { inList, num, round, str } from "./util";
+import { baseMolecule, inList, num, round, str } from "./util";
+export { baseMolecule };
+import { groundWatch, watchHeader, watchLine, type Grounding } from "./ground";
 
 export interface WatchFlag {
   molecule: string;
@@ -32,6 +34,8 @@ export interface WatchLatest {
   tokens: { estimated: number; measured: number };
   brief: string;
   briefModel: string | null;
+  /** The grounding check on the model's brief and headlines: every date and number must be in the watch rows. */
+  briefCheck?: Grounding;
   flagged: WatchFlag[];
   quiet: number;
   markovian: { runs: number; batchSize: number; promptTokensMin: number; promptTokensMax: number };
@@ -39,13 +43,6 @@ export interface WatchLatest {
 
 const AS_OF = process.env.UPSTREAM_AS_OF ?? "2026-10-21";
 
-const SALT_FIRST = new Set(["sodium", "potassium", "calcium", "magnesium", "sterile", "ferric", "zinc"]);
-/** Base molecule: first word, or first two when the first is a salt word ("sodium bicarbonate"). */
-export function baseMolecule(name: string): string {
-  const w = name.toLowerCase().replace(/[^a-z0-9 ]/g, " ").split(/\s+/).filter(Boolean);
-  if (!w.length) return name;
-  return SALT_FIRST.has(w[0]) && w[1] ? `${w[0]} ${w[1]}` : w[0];
-}
 
 function rosterSql(): string {
   return `SELECT lower(p.generic_name) AS molecule, s.hospital, sum(s.on_hand) AS on_hand, sum(s.daily_use) AS daily_use,
@@ -157,7 +154,7 @@ export async function runWatch(opts: { world?: UpstreamWorld; knownCases?: strin
       molecule: name, display: [...e.names].sort((a, b) => a.length - b.length)[0].slice(0, 60), minDays, hospital: low?.hospital ?? null, systemDays: e.systemDays,
       state: act ? "act" : "watch",
       signal: [listed ? "FDA shortage list" : null, plantActs.length ? `${[...new Set(plantActs.map((s) => s.kind === "oai" ? "OAI inspection" : s.kind === "action" ? s.detail : "import alert"))].join(", ")} at ${[...new Set(plantActs.map((s) => s.firm))].slice(0, 2).join(", ")}` : null].filter(Boolean).join("; "),
-      headline: "", slug: opts.knownCases?.includes(name.split(" ")[0]) ? name.split(" ")[0] : undefined,
+      headline: "", slug: opts.knownCases?.includes(baseMolecule(name).replace(/ /g, "-")) ? baseMolecule(name).replace(/ /g, "-") : undefined,
     });
   }
   flagged.sort((a, b) => (a.state === b.state ? (a.minDays ?? 1e9) - (b.minDays ?? 1e9) : a.state === "act" ? -1 : 1));
@@ -167,8 +164,8 @@ export async function runWatch(opts: { world?: UpstreamWorld; knownCases?: strin
   try {
     const r = await chat(
       [
-        { role: "system", content: 'You write a hospital pharmacy buyer\'s morning shortage brief. Use only the lines given. Reply with JSON: {"brief": "2-3 plain sentences overall", "headlines": {"<molecule>": "one short plain sentence"}}. No advice on dosing. Calm, specific.' },
-        { role: "user", content: `As of ${AS_OF}. ${report.total} formulary drugs checked overnight; ${flagged.length} flagged.\n` + flagged.slice(0, 30).map((f) => `${f.molecule}: ${f.state}; ${f.systemDays ?? "-"} days across the system, lowest ${f.minDays ?? "-"} at ${f.hospital}; ${f.signal}`).join("\n") },
+        { role: "system", content: 'You write a hospital pharmacy buyer\'s morning shortage brief. Use only the lines given. Reply with JSON: {"brief": "2-3 plain sentences overall", "headlines": {"<molecule>": "one short plain sentence"}}. Every day count is days of stock on hand: write "N days on hand", never "an N-day shortage". Do not call a drug short unless its line says it is on the FDA list. No advice on dosing. Calm, specific.' },
+        { role: "user", content: `${watchHeader(AS_OF, report.total, flagged.length)}\n` + flagged.slice(0, 30).map(watchLine).join("\n") },
       ],
       { model: MODELS.fast, maxTokens: 1400 },
     );
@@ -179,12 +176,17 @@ export async function runWatch(opts: { world?: UpstreamWorld; knownCases?: strin
   } catch {
     brief = `${flagged.length} of ${report.total} formulary drugs need attention this morning.`;
   }
-  for (const f of flagged) if (!f.headline) f.headline = `${f.signal}${f.minDays !== null ? `; ${f.minDays} days at ${f.hospital}` : ""}.`;
+  const ruleHeadline = (f: WatchFlag) => `${f.signal}${f.minDays !== null ? `; ${f.minDays} days at ${f.hospital}` : ""}.`;
+  for (const f of flagged) if (!f.headline) f.headline = ruleHeadline(f);
+  // The model's brief and headlines are checked against the rows it was given: failing sentences are dropped and
+  // a failing headline falls back to the rule-written line.
+  const checked = groundWatch({ asOf: AS_OF, drugs: report.total, quiet: report.total - flagged.length, brief, flagged }, ruleHeadline);
+  brief = checked.brief || `${flagged.length} of ${report.total} formulary drugs need attention this morning.`;
 
   return {
     ranAt: new Date().toISOString(), asOf: AS_OF, drugs: report.total, chunks: report.totals.chunks, ms: Date.now() - t0, queries,
     tokens: { estimated: report.totals.promptTokens + report.totals.outputTokens, measured: tally.tokensIn - tallyStart.tokensIn + (tally.tokensOut - tallyStart.tokensOut) },
-    brief, briefModel, flagged, quiet: report.total - flagged.length,
+    brief, briefModel, briefCheck: checked.grounding, flagged: checked.flagged, quiet: report.total - flagged.length,
     markovian: { runs: report.markovianRuns.length, batchSize: report.batchSize, promptTokensMin: report.totals.promptTokensMin, promptTokensMax: report.totals.promptTokensMax },
   };
 }

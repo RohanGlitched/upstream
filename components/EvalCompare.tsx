@@ -57,6 +57,20 @@ export interface EvalTrace {
   baseline?: unknown[];
 }
 
+/** data/eval/verifier.json: the citation verifier fed planted false sentences, and run over every saved case. */
+export interface VerifierCheck {
+  builtAt?: string;
+  case?: string;
+  adversarial: { caught: number; of: number; rows?: { kind: string; text: string; dropped: boolean; reason?: string }[] };
+  truths?: { kind: string; text: string; passed: boolean }[];
+  savedCases?: { kept: number; nowDropped: number };
+}
+
+export function isVerifier(x: unknown): x is VerifierCheck {
+  const o = x as VerifierCheck;
+  return Boolean(o && o.adversarial && typeof o.adversarial.caught === "number" && typeof o.adversarial.of === "number");
+}
+
 export function isEval(x: unknown): x is EvalTrace {
   const o = x as EvalTrace;
   return Boolean(o && o.summary && o.summary.upstream && Array.isArray(o.rows));
@@ -109,12 +123,37 @@ function Line({ k, r, tone }: { k: string; r: { n: number; d: number } | null; t
   );
 }
 
-function Sheet({ data, full }: { data: EvalTrace; full: boolean }) {
+/** The verifier's own test: sentences planted with a wrong plant, a wrong count or a causal claim must be dropped,
+ *  and true sentences kept. */
+function VerifierCard({ v }: { v: VerifierCheck }) {
+  const t = v.truths ?? [];
+  const kept = t.filter((x) => x.passed).length;
+  const kinds = [...new Set((v.adversarial.rows ?? []).map((r) => r.kind))].slice(0, 4);
+  return (
+    <aside className="evg-ver" aria-labelledby="evg-ver-h">
+      <h3 id="evg-ver-h">The verifier, fed planted false sentences</h3>
+      <p className="evg-ver__fig">
+        <strong>
+          {v.adversarial.caught} of {v.adversarial.of}
+        </strong>{" "}
+        false sentences dropped{t.length ? `; ${kept} of ${t.length} true sentences kept` : ""}.
+      </p>
+      <p className="evg-ver__note">
+        Each planted sentence cites a real row of the {v.case ? `${v.case} ` : ""}case but says something that row does not
+        {kinds.length ? `: ${kinds.join(", ")}` : ""}.
+        {v.savedCases ? ` Run over every saved case, it keeps ${v.savedCases.kept.toLocaleString("en-US")} sentences and drops ${v.savedCases.nowDropped}.` : ""}
+      </p>
+    </aside>
+  );
+}
+
+function Sheet({ data, full, verifier }: { data: EvalTrace; full: boolean; verifier?: VerifierCheck | null }) {
   const [all, setAll] = useState(false);
   const { summary, rows } = data;
   const b = summary.baseline;
   const up = summary.upstream;
   const nFei = rows.filter((r) => r.upstreamFei).length;
+  const nPairs = new Set(rows.map((r) => `${r.drug}|${r.labeler}`)).size;
   const base = (data.baseline ?? []) as BaselineRow[];
   const byKey = new Map(base.map((x) => [`${x.drug}|${x.labeler}`, x]));
   const seen = new Set<string>();
@@ -154,6 +193,13 @@ function Sheet({ data, full }: { data: EvalTrace; full: boolean }) {
               Said it was confident {b.saidConfident ?? "every"} times out of {b.pairs ?? "every"}
               {typeof b.inventedDates === "number" ? `, and gave ${b.inventedDates} inspection dates that are not in FDA's file` : ""}.
             </p>
+          ) : null}
+          {b ? (
+            <p className="evg-note evg-note--den">
+              <b>Out of {b.pairs ?? nPairs}:</b> one question per product (drug and labeler), since from memory it names one plant;
+              it is marked right if that plant is any plant on the label. The plant mark is generous: the first word of the
+              plant&apos;s firm name anywhere in its answer counts.
+            </p>
           ) : (
             <p className="evg-note">The no-tools baseline has not been published to this copy yet.</p>
           )}
@@ -180,14 +226,17 @@ function Sheet({ data, full }: { data: EvalTrace; full: boolean }) {
             </div>
           </header>
           <ul className="evg-lines">
-            <Line k="Found the plant on the label" r={ratio(up.plantFound)} tone="up" />
-            <Line k="Placed it by FEI" r={rows.length ? { n: nFei, d: rows.length } : null} tone="up" />
-            <Line k="Right last inspection" r={ratio(up.lastInspectionMatch)} tone="up" />
-            <Line k="Right inspection date" r={ratio(up.lastInspectionMatch)} tone="up" />
+            <Line k="Found the label's plant, placed by FEI" r={ratio(up.plantFound) ?? (rows.length ? { n: nFei, d: rows.length } : null)} tone="up" />
+            <Line k="Right last inspection, class and date" r={ratio(up.lastInspectionMatch)} tone="up" />
           </ul>
           <p className="evg-note">
-            {summary.truthRows} product and plant pairs across {summary.drugs} drugs. Every answer cites the FDA row it came
-            from, so a miss can be checked rather than trusted.
+            Two measures, each scored once. Every answer cites the FDA row it came from, so a miss can be checked rather than
+            trusted.
+          </p>
+          <p className="evg-note evg-note--den">
+            <b>Out of {summary.truthRows}:</b> every product and plant pair across {summary.drugs} drugs. A product whose label
+            names two plants is scored twice, which is why it is {summary.truthRows} here and {b?.pairs ?? nPairs} products for
+            the model.
           </p>
           <span className="evg-stamp evg-stamp--blue" aria-hidden="true">
             Checked against FDA
@@ -198,6 +247,8 @@ function Sheet({ data, full }: { data: EvalTrace; full: boolean }) {
         Ground truth comes from separate Python code over FDA&apos;s raw files, not from Upstream&apos;s queries.
         {summary.ranAt ? ` Marked ${fmtDate(summary.ranAt)}.` : ""}
       </p>
+
+      {full && verifier ? <VerifierCard v={verifier} /> : null}
 
       {full && paired.length ? (
         <div className="evg-sheet">
@@ -289,6 +340,6 @@ function Fetch({ full }: { full: boolean }) {
   );
 }
 
-export function EvalCompare({ full = false, data }: { full?: boolean; data?: EvalTrace | null }) {
-  return data ? <Sheet data={data} full={full} /> : <Fetch full={full} />;
+export function EvalCompare({ full = false, data, verifier }: { full?: boolean; data?: EvalTrace | null; verifier?: VerifierCheck | null }) {
+  return data ? <Sheet data={data} full={full} verifier={verifier} /> : <Fetch full={full} />;
 }

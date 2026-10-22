@@ -1,16 +1,12 @@
-// Plain names for the sources a Zetaris query read.
-const SOURCE_NAME: Record<string, string> = {
-  "lightning.metastore.upstream": "Upstream semantic layer (USL)",
-  "corvale_general": "Corvale General, Postgres",
-  "corvale_east": "Corvale East, Postgres",
-  "corvale_lakeside": "Corvale Lakeside, cabinet CSV",
-  "meterless.hmem": "H-MEM decision memory",
-};
+// Plain names for the systems a Zetaris query read. Lineage (src/lib/lineage.ts) resolves each USL table to the
+// hospital database or FDA file behind it, so a name here is always a physical system.
+import { systemOf, systemsOf, type SourceSystem } from "../../src/lib/lineage";
 
 export function sourceName(s: string): string {
-  if (SOURCE_NAME[s]) return SOURCE_NAME[s];
-  const [db, table] = s.split(".");
-  if (db === "fda" && table) return `FDA ${table.replace(/_/g, " ")}`;
-  if (SOURCE_NAME[db] && table) return `${SOURCE_NAME[db]}: ${table.replace(/_/g, " ")}`;
-  return s;
+  return systemOf(s).name;
+}
+
+/** The distinct data systems behind a step's or a query's sources (H-MEM is memory, not a data system). */
+export function dataSystems(sources: Iterable<string>): SourceSystem[] {
+  return systemsOf(sources).filter((s) => s.kind !== "memory");
 }

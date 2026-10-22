@@ -30,14 +30,67 @@ export function inList(values: Iterable<string>): string {
   return vs.length ? vs.map((v) => `'${v.replace(/'/g, "''")}'`).join(", ") : "''";
 }
 
-/** A molecule search term from a free-text question: the drug word the buyer used. */
+// Words that are not the drug: dosage forms, packaging and units a buyer may type after the name.
+const FORM_WORDS = /\b(injection|injectable|inj|vials?|tablets?|tabs?|capsules?|caps?|mg|mcg|ml|solution|for|usp|oral|iv|premix(ed)?|bags?|syringes?|ampules?|short|shortage)\b/g;
+
+/** A molecule search term from a free-text drug name: every word of the active ingredient, forms and numbers
+ *  dropped ("Calcium chloride 10% injection" -> "calcium chloride"). Salt words stay, so calcium chloride is
+ *  never searched as "calcium" (which would pull in leucovorin calcium). */
 export function moleculeTerm(drug: string): string {
   return drug
     .toLowerCase()
-    .replace(/[^a-z0-9 ]/g, " ")
-    .replace(/\b(injection|injectable|vials?|tablets?|mg|ml|solution|for|usp|hydrochloride|hcl|sodium|sulfate)\b/g, " ")
-    .trim()
-    .split(/\s+/)[0] ?? "";
+    .replace(/[^a-z0-9 -]/g, " ")
+    .replace(FORM_WORDS, " ")
+    .replace(/\b[0-9.]+\b/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** The dosage form a question names, if any, as a fragment of FDA's dosage_form ("inject", "tablet", "capsule"). */
+export function formTerm(text: string): string | null {
+  const t = text.toLowerCase();
+  if (/\b(injection|injectable|inj|iv|vials?|infusion|premix(ed)?|bags?|syringes?)\b/.test(t)) return "inject";
+  if (/\b(tablets?|tabs?)\b/.test(t)) return "tablet";
+  if (/\b(capsules?|caps)\b/.test(t)) return "capsule";
+  return null;
+}
+
+// Salt, ester and hydrate words that may sit next to an active ingredient without changing the molecule:
+// "heparin" matches HEPARIN SODIUM, but "calcium chloride" never matches LEUCOVORIN CALCIUM.
+const SALTS = [
+  "sodium", "disodium", "potassium", "dipotassium", "calcium", "magnesium", "hydrochloride", "dihydrochloride", "hcl",
+  "hydrobromide", "sulfate", "sulphate", "phosphate", "acetate", "citrate", "chloride", "bromide", "besylate", "mesylate",
+  "maleate", "tartrate", "bitartrate", "succinate", "fumarate", "gluconate", "lactate", "tromethamine", "bicarbonate",
+  "carbonate", "nitrate", "hyclate", "propionate", "dipropionate", "valerate", "acetonide", "pamoate", "decanoate",
+  "meglumine", "lysine", "anhydrous", "monohydrate", "dihydrate", "trihydrate", "hexahydrate", "base", "free",
+];
+const S = `(?:${SALTS.join("|")})`;
+const SEP = "[^a-z0-9-]+";
+// After the ingredient's words: the end of the name, or a word boundary. Anchoring at the start and matching whole
+// words is what keeps "calcium chloride" off LEUCOVORIN CALCIUM and "atracurium" off CISATRACURIUM; what follows
+// may be a strength, a form, a second ingredient or a family member (insulin glargine), split later by presentation.
+const TAIL = `(?:$|[^a-z0-9-].*)`;
+
+function core(term: string): string | null {
+  const words = moleculeTerm(term).split(" ").filter(Boolean).map((w) => w.replace(/[^a-z0-9-]/g, ""));
+  if (!words.length) return null;
+  // A biosimilar's four-letter suffix (filgrastim-sndz) is the same molecule; pegfilgrastim is not.
+  const w = words.map((x) => `${x}(?:-[a-z]{4})?`);
+  return w.map((x, i) => (i === 0 ? `(?:${S}${SEP})*${x}` : `${SEP}${x}`) + `(?:${SEP}${S})*`).join("");
+}
+
+/** Java/JS regex (no backslashes, so it survives a Lightning SQL literal) matching a lower-cased generic name or
+ *  stock description whose first active ingredient is the term: every word, whole words only, salts allowed. */
+export function moleculeRegex(term: string): string {
+  const c = core(term);
+  // A cabinet description may lead with its strength ("2% lidocaine hcl").
+  return c ? `^(?:[0-9.,]+ ?%?${SEP})?${c}${TAIL}` : "^$";
+}
+
+/** The same ingredient anywhere in a longer text (a recall's product description), still on word boundaries. */
+export function moleculeFindRegex(term: string): string {
+  const c = core(term);
+  return c ? `(?:^|[^a-z0-9-])${c}(?:[^a-z0-9-]|$)` : "^$";
 }
 
 export function round(n: number, d = 1): number {
@@ -57,4 +110,12 @@ const TALL_MAN: Record<string, string> = {
 
 export function tallMan(name: string): string {
   return name.replace(/[A-Za-z]+/g, (w) => TALL_MAN[w.toLowerCase()] ?? w);
+}
+
+const SALT_FIRST = new Set(["sodium", "potassium", "calcium", "magnesium", "sterile", "ferric", "zinc"]);
+/** Base molecule: first word, or first two when the first is a salt word ("sodium bicarbonate"). */
+export function baseMolecule(name: string): string {
+  const w = name.toLowerCase().replace(/[^a-z0-9 ]/g, " ").split(/\s+/).filter(Boolean);
+  if (!w.length) return name;
+  return SALT_FIRST.has(w[0]) && w[1] ? `${w[0]} ${w[1]}` : w[0];
 }

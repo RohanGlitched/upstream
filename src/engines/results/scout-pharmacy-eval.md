@@ -1,6 +1,6 @@
 # Upstream Scout eval (pharmacy registry)
 
-_Generated 2026-10-22T06:06:44.653Z by scripts/scout-eval.ts. Registry v1, policy default@1+adversarial-tight@1+upstream-pharmacy@1. Prompts equal to a registry example: 0._
+_Generated 2026-10-22T12:28:24.585Z by scripts/scout-eval.ts. Registry v1, policy default@1+adversarial-tight@1+upstream-pharmacy@1. Prompts equal to a registry example: 0._
 
 | metric | all | tuning | heldout |
 |---|---|---|---|

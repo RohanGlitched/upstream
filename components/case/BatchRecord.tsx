@@ -2,19 +2,23 @@
 // part, ending in signatures. Server-rendered; only the citation marks and slips are interactive.
 import type { Case, Hospital } from "../../src/agent/types";
 import { tallMan } from "../../src/agent/util";
+import { parseDecisionContent } from "../../src/engines/decision-text";
 import { Cite, Cites } from "../Evidence";
 import { BoxStamp, TallName, TickMark } from "../record/bits";
 import { Signature } from "../record/Signature";
 import { countryName, firmCase, fmtInt, ndc542 } from "../lib/format";
-import { sourceName } from "../lib/sources";
+import { dataSystems } from "../lib/sources";
+import { caseSystems, lineageLine, systemOf } from "../../src/lib/lineage";
 import { drugTitle } from "../lib/drug";
 import { Findings } from "./Findings";
+import { Gloss, Glossed } from "../Gloss";
 import "./batch.css";
 
 const HOSPITALS: Hospital[] = ["Corvale General", "Corvale East", "Corvale Lakeside"];
 const NEEDS = (s: string) => s.replace(/\s*\(.*\)$/, "").replace(/^./, (c) => c.toUpperCase());
 const HEALTH_TONE = { signal: "red", watch: "amber", clear: "clear", unknown: "ink" } as const;
-const days = (d: number | null) => (d === null ? "n/a" : d < 10 ? d.toFixed(1) : String(Math.round(d)));
+// a tenth of a day everywhere, the same rounding as the desk above
+const days = (d: number | null) => (d === null ? "n/a" : d.toFixed(1));
 
 function Part({ id, n, title, desc, children }: { id?: string; n: string; title: string; desc?: React.ReactNode; children: React.ReactNode }) {
   return (
@@ -32,7 +36,8 @@ function Part({ id, n, title, desc, children }: { id?: string; n: string; title:
 export function BatchRecord({ c }: { c: Case }) {
   const title = drugTitle(c.molecule);
   const steps = c.steps;
-  const sources = new Set(steps.flatMap((s) => s.sources));
+  const systems = caseSystems(c);
+  const hospitalSystems = systems.filter((s) => s.kind === "hospital").length;
   const totalMs = steps.reduce((a, s) => a + s.ms, 0);
   const totalRows = steps.reduce((a, s) => a + s.rows, 0);
   const contract = c.intent.contractId?.slice(-8) ?? "none";
@@ -46,6 +51,8 @@ export function BatchRecord({ c }: { c: Case }) {
   const market = [...c.market].sort((a, b) => Number(b.inOurStock) - Number(a.inOurStock) || Number(b.onShortageList) - Number(a.onShortageList));
   const shownMarket = market.slice(0, 10);
   const best = opts[0];
+  // NDCs as FDA's files record them (dashed package NDC); market lines carry only the 11-digit form, labelled so
+  const pkgNdc = new Map(c.chain.map((p) => [p.ndc11, p.packageNdc]));
 
   return (
     <div className="br-sheet">
@@ -67,7 +74,7 @@ export function BatchRecord({ c }: { c: Case }) {
             <span className="br-fv br-type">{c.asOf}</span>
           </div>
           <div>
-            <span className="br-fl">Contract</span>
+            <span className="br-fl">Meterless Scout contract</span>
             <span className="br-fv br-type">{contract}</span>
           </div>
           <div>
@@ -82,7 +89,7 @@ export function BatchRecord({ c }: { c: Case }) {
           title="Steps performed"
           desc={
             <>
-              {steps.length} steps, {c.usage.zetarisQueries} federated queries across {sources.size} sources. Each step ran under contract {contract}; select a query id to read its SQL.
+              {steps.length} steps, {c.usage.zetarisQueries} federated statements across {systems.length} physical systems ({hospitalSystems} hospital, {systems.length - hospitalSystems} FDA files). Each step ran under contract {contract}; select a query id to read its SQL.
             </>
           }
         >
@@ -92,7 +99,7 @@ export function BatchRecord({ c }: { c: Case }) {
                 <th>No.</th>
                 <th>Step</th>
                 <th>Result</th>
-                <th>Sources read</th>
+                <th>Systems read</th>
                 <th className="r">Rows</th>
                 <th className="r">Time</th>
                 <th className="c">Checked</th>
@@ -118,9 +125,10 @@ export function BatchRecord({ c }: { c: Case }) {
                     ) : null}
                   </td>
                   <td className="br-srcs">
-                    {s.sources.map((x) => (
-                      <span key={x} title={x}>
-                        {sourceName(x)}
+                    {s.queryIds.length ? <span className="br-srcs__n">{lineageLine(dataSystems(s.sources).length, s.queryIds.length, s.ms)}</span> : null}
+                    {[...new Map(s.sources.map((x) => [systemOf(x).id, systemOf(x)])).values()].map((x) => (
+                      <span key={x.id} title={s.sources.filter((t) => systemOf(t).id === x.id).join(", ")}>
+                        {x.name}
                       </span>
                     ))}
                   </td>
@@ -144,7 +152,7 @@ export function BatchRecord({ c }: { c: Case }) {
           id="why"
           n="B"
           title="Why it is short, as written and checked"
-          desc="Every sentence carries the records it rests on. Open a mark in the margin to read the carbon of that record."
+          desc="Every sentence carries the records it rests on. Open a mark in the margin to read that source row."
         >
           {c.explanation && c.explanation.sentences.length ? (
             <Findings explanation={c.explanation} evidence={c.evidence} />
@@ -153,14 +161,21 @@ export function BatchRecord({ c }: { c: Case }) {
           )}
         </Part>
 
-        <Part id="stock" n="C" title="Our stock, hospital by hospital" desc="Read in place from each hospital's own system, in its own units. The 14-day mark is the transfer floor.">
+        <Part
+          id="stock"
+          n="C"
+          title="Our stock, hospital by hospital"
+          desc="Read in place from each hospital's own system and converted by the semantic layer to units of use (East counts packages). Days are per presentation, never pooled across strengths or vial sizes; the 14-day mark is the transfer floor."
+        >
           <div className="br-stock">
             {HOSPITALS.map((h) => {
               const lines = c.stock.filter((s) => s.hospital === h);
               if (!lines.length) return null;
               const on = lines.reduce((a, s) => a + s.onHand, 0);
               const use = lines.reduce((a, s) => a + s.dailyUse, 0);
-              const d = use > 0 ? on / use : null;
+              // The headline is the shortest presentation at this hospital; older recordings pool every line.
+              const pres = (c.presentations ?? []).map((p) => p.hospitals.find((x) => x.hospital === h)).filter((x) => x && x.days !== null) as { days: number }[];
+              const d = pres.length ? Math.min(...pres.map((x) => x.days)) : use > 0 ? on / use : null;
               return (
                 <div key={h} className="br-hosp">
                   <div className="br-hosp__h">
@@ -174,7 +189,9 @@ export function BatchRecord({ c }: { c: Case }) {
                     <thead>
                       <tr>
                         <th>Item</th>
-                        <th>NDC</th>
+                        <th>
+                          <Gloss term="NDC">NDC</Gloss>
+                        </th>
                         <th className="r">On hand</th>
                         <th className="r">A day</th>
                         <th className="r">Days</th>
@@ -188,14 +205,16 @@ export function BatchRecord({ c }: { c: Case }) {
                             <b>{tallMan(s.description)}</b>
                             <span>
                               {s.itemKey}, {s.labeler ?? "labeler not found"}
+                              {s.presentationLabel ? `; ${s.presentationLabel}` : ""}
                             </span>
                           </td>
                           <td className="br-type">
-                            {ndc542(s.ndc11)}
+                            {pkgNdc.get(s.ndc11) ?? ndc542(s.ndc11)}
                             <span className="br-match">{s.ndcMatch}</span>
                           </td>
-                          <td className="r br-type">
+                          <td className="r br-type" title={s.unitBasis || undefined}>
                             {fmtInt(s.onHand)} <small>{s.unit}</small>
+                            {s.unitBasis && /^packages/.test(s.unitBasis) ? <span className="br-match">{s.unitBasis}</span> : null}
                           </td>
                           <td className="r br-type">{s.dailyUse.toFixed(1)}</td>
                           <td className={`r br-type${s.days !== null && s.days < 7 ? " is-low" : ""}`}>{days(s.days)}</td>
@@ -226,7 +245,11 @@ export function BatchRecord({ c }: { c: Case }) {
                   <div className="br-opt">
                     <b>{tallMan(o.title)}</b>
                     <span>{tallMan(o.detail)}</span>
-                    {o.why ? <em>{o.why}</em> : null}
+                    {o.why ? (
+                      <em>
+                        <Glossed text={o.why} />
+                      </em>
+                    ) : null}
                   </div>
                   <div className="br-sign">
                     <span className="br-sign__line" aria-hidden="true" />
@@ -272,7 +295,7 @@ export function BatchRecord({ c }: { c: Case }) {
             <table className="br-mk">
               <thead>
                 <tr>
-                  <th>Labeler and NDC</th>
+                  <th>Labeler and NDC (11-digit)</th>
                   <th>Plants on the label</th>
                   <th>FDA&apos;s list</th>
                 </tr>
@@ -312,7 +335,11 @@ export function BatchRecord({ c }: { c: Case }) {
           ) : (
             <p className="br-empty">No other labeler of this form is on file.</p>
           )}
-          {market.length > shownMarket.length ? <p className="br-note">and {market.length - shownMarket.length} more labelers in the World Model below.</p> : null}
+          {market.length > shownMarket.length ? (
+            <p className="br-note">
+              and {market.length - shownMarket.length} more {market.length - shownMarket.length === 1 ? "labeler" : "labelers"} in the World Model below.
+            </p>
+          ) : null}
           {c.shortage.companies.length ? (
             <>
               <h4 className="br-sub">What FDA&apos;s shortage listing says, company by company</h4>
@@ -381,15 +408,29 @@ export function BatchRecord({ c }: { c: Case }) {
           )}
         </Part>
 
-        <Part id="memory" n="G" title="What we decided last time" desc="Recalled from H-MEM, each decision with the pharmacist who signed it.">
+        <Part
+          id="memory"
+          n="G"
+          title="What we decided last time"
+          desc={
+            <>
+              Recalled from <Gloss term="H-MEM">H-MEM</Gloss>, each decision with the pharmacist who signed it.
+            </>
+          }
+        >
           {c.memory.length ? (
             <div className="br-mem">
               {c.memory.map((m) => {
-                const [dec, why] = m.text.split(" Rationale: ");
+                // Recalled decisions are the approver's own words, stored and shown as a quote.
+                const d = parseDecisionContent(m.text);
+                const why = d.rationale;
                 return (
                   <blockquote key={m.id}>
-                    <p>{tallMan(dec.replace(/^Decision on [^:]+:\s*/, "").replace(/^./, (x) => x.toUpperCase()))}</p>
-                    {why ? <p className="br-mem__why">{why.replace(/\s*\(demo history\)\.?$/, ".")}</p> : null}
+                    <p>
+                      <span className="br-mem__q">&ldquo;{tallMan(d.quote.replace(/^./, (x) => x.toUpperCase()))}&rdquo;</span>
+                    </p>
+                    <p className="br-mem__said">In the words of {m.approvedBy ?? d.approvedBy ?? "the approver"}, as recorded.</p>
+                    {why ? <p className="br-mem__why">Rationale: {why.replace(/\s*\(demo history\)\.?$/, "")}.</p> : null}
                     <footer>
                       {m.approvedBy ? <Signature name={m.approvedBy} className="br-mem__sig" /> : null}
                       <cite>
@@ -426,7 +467,7 @@ export function BatchRecord({ c }: { c: Case }) {
             <div className="br-sig__what">
               Upstream verifier
               <br />
-              {v ? `${v.checked} claims checked, ${v.rejected.length} rejected, ${v.repaired ?? 0} repaired` : "Nothing to check"}
+              {v ? `${c.explanation?.sentences.length ?? 0} sentences and the headline kept, ${v.rejected.length} rejected, ${v.repaired ?? 0} repaired` : "Nothing to check"}
             </div>
           </div>
           <div className="br-sig is-pending">

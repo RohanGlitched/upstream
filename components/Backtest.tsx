@@ -4,10 +4,11 @@
 // the lead-time distribution, the controls, four worked examples on red-thread rulers and the caveats as footnotes.
 // Pages pass the summary in (server-read, so the first paint is complete); without it, it is fetched from /api/backtest.
 import Link from "next/link";
-import { useState, type ReactNode } from "react";
+import { useState, type CSSProperties, type ReactNode } from "react";
 import { useApi } from "./lib/useApi";
 import { countryName, dayNumber, fmtDate, fmtPct } from "./lib/format";
 import { drugTitle } from "./lib/drug";
+import { findingOf } from "./BacktestFinding";
 import "./backtest.css";
 
 interface Arm {
@@ -82,6 +83,19 @@ function leadOf(b: BacktestSummary, a: Arm) {
 function ofText(s: string | undefined): { n: number; d: number } | null {
   const m = s ? /(\d+)\s+of\s+(\d+)/.exec(s) : null;
   return m ? { n: Number(m[1]), d: Number(m[2]) } : null;
+}
+
+const pct1 = (x: { n: number; d: number } | null) => (x ? `${((x.n / x.d) * 100).toFixed(1)}%` : "n/a");
+
+export function Finding({ b, lead }: { b: BacktestSummary; lead?: string }) {
+  const f = findingOf(b);
+  if (!f) return b.conclusion ? <>{b.conclusion}</> : null;
+  return (
+    <>
+      {lead ? <span>{lead}</span> : null} {f.strict} {f.close}
+      {f.close2} {f.end}
+    </>
+  );
 }
 
 function isCounter(e: BacktestSummary["examples"][number]): boolean {
@@ -278,6 +292,12 @@ function Page({ a, b, name, folio, side, children }: { a: Arm; b: BacktestSummar
           </div>
         ) : null}
       </dl>
+      {side === "r" ? (
+        <p className="bt-page__hind">
+          <span>Hindsight.</span> An inspection counts from the day it closed, but FDA classified it OAI later, sometimes after
+          the shortage was posted. A buyer on the day could not have known.
+        </p>
+      ) : null}
       {a.dating ? (
         <p className="bt-page__rule">
           <span>Dating rule.</span> {a.dating}
@@ -507,32 +527,12 @@ function BacktestBody({ b }: { b: BacktestSummary }) {
             <h2 id="bt-ctl">Controls and the base rate</h2>
             <p>
               FDA finds problems at many plants whose products never go short. The controls say how often, so a signal is read
-              against the base rate and not on its own.
+              against the base rate and not on its own. The comparison is product against product: a shortage can cover several
+              products, and the controls are products.
             </p>
           </header>
           <div className="bt-sheet bt-sheet--pad">
-            <div className="bt-base">
-              {[
-                { k: "Shortages, dated by when it was public", v: b.strict.share, cls: "strict" },
-                { k: "Shortages, dated by when the inspection closed", v: b.endDated.share, cls: "end" },
-                { k: `Controls: ${b.controls.n} products that never went short`, v: b.controls.share, cls: "ctl" },
-              ].map((r) => (
-                <div className={`bt-base__row bt-base__row--${r.cls}`} key={r.cls}>
-                  <span className="bt-base__k">{r.k}</span>
-                  <span className="bt-base__bar">
-                    <span style={{ width: `${(r.v / 0.3) * 100}%` }} />
-                  </span>
-                  <span className="bt-base__v">{fmtPct(r.v, r.cls === "ctl" ? 1 : 0)}</span>
-                </div>
-              ))}
-              <div className="bt-base__scale" aria-hidden="true">
-                {[0, 0.1, 0.2, 0.3].map((t) => (
-                  <span key={t} style={{ left: `${(t / 0.3) * 100}%` }}>
-                    {Math.round(t * 100)}%
-                  </span>
-                ))}
-              </div>
-            </div>
+            <BaseRate b={b} />
             <div className="bt-notes3">
               {b.controls.note ? (
                 <div>
@@ -631,9 +631,9 @@ function BacktestBody({ b }: { b: BacktestSummary }) {
                 </li>
               ))}
             </ol>
-            {b.conclusion ? (
+            {b.conclusion || findingOf(b) ? (
               <p className="bt-finding">
-                <span>Finding.</span> {b.conclusion}
+                <Finding b={b} lead="Finding." />
               </p>
             ) : null}
             <p className="bt-source">
@@ -644,6 +644,69 @@ function BacktestBody({ b }: { b: BacktestSummary }) {
         </div>
       </section>
     </>
+  );
+}
+
+/** Shortage products against products that never went short, per product, under each dating rule. The per-shortage
+ *  shares are shown beside them but not set against the controls: they count a different unit. */
+function BaseRate({ b }: { b: BacktestSummary }) {
+  const arms = [
+    { k: "Dated by when it was public", a: b.strict, cls: "strict" },
+    { k: "Dated by when the inspection closed (hindsight)", a: b.endDated, cls: "end" },
+  ].map((x) => ({ ...x, cp: ofText(x.a.caseProducts), ctl: ofText(x.a.controlProducts), eps: ofText(x.a.episodesWithSignal), lift: liftOf(x.a) }));
+  const max = Math.max(0.16, ...arms.flatMap((x) => [x.cp, x.ctl].map((v) => (v ? v.n / v.d : 0))));
+  const top = Math.ceil(max * 20) / 20;
+  const ticks = Array.from({ length: Math.round(top / 0.05) + 1 }, (_, i) => i * 0.05);
+  const w = (v: { n: number; d: number } | null) => `${v ? (v.n / v.d / top) * 100 : 0}%`;
+  return (
+    <div className="bt-base" style={{ "--ticks": ticks.length - 1 } as CSSProperties}>
+      {arms.map((x) => (
+        <div className={`bt-base__grp bt-base__grp--${x.cls}`} key={x.cls}>
+          <h3 className="bt-base__h">
+            {x.k}
+            <span>
+              {x.lift !== null ? `${x.lift.toFixed(2).replace(/0$/, "")}× the controls, ` : ""}
+              {fmtP(x.a.p)}
+            </span>
+          </h3>
+          {[
+            { k: "Shortage products", v: x.cp, cls: x.cls },
+            { k: "Products that never went short", v: x.ctl, cls: "ctl" },
+          ].map((r) => (
+            <div className={`bt-base__row bt-base__row--${r.cls}`} key={r.k}>
+              <span className="bt-base__k">{r.k}</span>
+              <span className="bt-base__bar">
+                <span style={{ width: w(r.v) }} />
+              </span>
+              <span className="bt-base__v">
+                {pct1(r.v)}
+                {r.v ? (
+                  <small>
+                    {" "}
+                    {r.v.n}/{r.v.d}
+                  </small>
+                ) : null}
+              </span>
+            </div>
+          ))}
+        </div>
+      ))}
+      <div className="bt-base__scale" aria-hidden="true">
+        {ticks.map((t) => (
+          <span key={t} style={{ left: `${(t / top) * 100}%` }}>
+            {Math.round(t * 100)}%
+          </span>
+        ))}
+      </div>
+      <p className="bt-base__per">
+        <b>Per shortage</b>, which has no control to set it against:{" "}
+        {arms
+          .filter((x) => x.eps)
+          .map((x) => `${x.eps!.n} of ${x.eps!.d} shortages (${fmtPct(x.a.share)}) ${x.cls === "strict" ? "dated strictly" : "dated by the close"}`)
+          .join("; ")}
+        .
+      </p>
+    </div>
   );
 }
 
@@ -699,7 +762,11 @@ function HomeBody({ b }: { b: BacktestSummary }) {
           </div>
         ))}
       </div>
-      {b.conclusion ? <p className="bt-home__c">{b.conclusion}</p> : null}
+      {b.conclusion || findingOf(b) ? (
+        <p className="bt-home__c">
+          <Finding b={b} />
+        </p>
+      ) : null}
       <p className="bt-home__more">
         <Link href="/backtest">The method, the worked examples and the caveats</Link>
         <span>

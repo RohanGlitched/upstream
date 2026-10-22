@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Investigation } from "@/components/desk/Investigation";
-import { ReportBody, ReportHead, RunStrip, type WatchRun } from "@/components/desk/Printout";
+import { flagName, ReportBody, ReportHead, RunStrip, type WatchRun } from "@/components/desk/Printout";
+import type { BriefSummary } from "@/components/desk/Investigation";
+import { slugFor } from "@/components/lib/drug";
 import { isLive, readJson, realCases } from "@/components/server/data";
 import { fmtDateLong } from "@/components/lib/format";
 import "./desk.css";
@@ -19,10 +21,22 @@ export default async function Desk({ searchParams }: { searchParams: Promise<{ q
   const q = (Array.isArray(sp.q) ? sp.q[0] : sp.q)?.slice(0, 400);
   const [cases, w] = await Promise.all([realCases(), readJson<WatchRun>("data/watch/latest.json")]);
   const live = isLive();
-  const morning = "2026-10-22";
+  // The morning is the day the report printed; the data in it is as of the night before.
+  const morning = w?.ranAt.slice(0, 10) ?? cases.map((c) => c.askedAt.slice(0, 10)).sort().at(-1) ?? new Date().toISOString().slice(0, 10);
   const day = DAYS[new Date(morning + "T00:00:00Z").getUTCDay()];
   const act = w ? w.flagged.filter((f) => f.state === "act") : [];
   const lowest = [...act].sort((a, b) => (a.minDays ?? 1e9) - (b.minDays ?? 1e9))[0];
+  // What the desk says when a buyer asks for the morning brief: the report's counts and its shortest shelves.
+  const onFile = new Set(cases.map((c) => c.slug));
+  const brief: BriefSummary | null = w
+    ? {
+        ranAt: w.ranAt, drugs: w.drugs, act: act.length, watch: w.flagged.length - act.length, quiet: w.quiet, brief: w.brief ?? null,
+        top: [...act].sort((a, b) => (a.minDays ?? 1e9) - (b.minDays ?? 1e9)).slice(0, 5).map((f) => {
+          const slug = [f.slug, slugFor(f.molecule), slugFor(f.molecule).split("-")[0]].find((x) => x && onFile.has(x)) ?? null;
+          return { name: flagName(f), days: f.minDays, hospital: f.hospital, slug };
+        }),
+      }
+    : null;
 
   return (
     <>
@@ -42,7 +56,7 @@ export default async function Desk({ searchParams }: { searchParams: Promise<{ q
               {lowest ? (
                 <>
                   {" "}
-                  The shortest shelf is {lowest.display ?? lowest.molecule} at {lowest.hospital}: {lowest.minDays} days.
+                  The shortest shelf is {flagName(lowest)} at {lowest.hospital}: {lowest.minDays} days.
                 </>
               ) : null}
             </p>
@@ -72,7 +86,7 @@ export default async function Desk({ searchParams }: { searchParams: Promise<{ q
             </p>
           </div>
         </div>
-        <Investigation initial={q} onFile={cases.length} />
+        <Investigation initial={q} onFile={cases.length} date={morning} brief={brief} />
       </section>
 
       {w ? (

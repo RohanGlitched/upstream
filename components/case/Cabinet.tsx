@@ -50,9 +50,10 @@ export function Cabinet({ rows }: { rows: CabinetRow[] }) {
 
   const shown = useMemo(() => {
     const t = q.trim().toLowerCase();
+    // A search reads every drawer: a buyer looking for carboplatin should find it wherever the watch filed it.
     const list = rows.filter(
       (r) =>
-        (drawer === "all" || r.watch === drawer) &&
+        (t || drawer === "all" || r.watch === drawer) &&
         (!t || r.name.toLowerCase().includes(t) || r.slug.includes(t) || (r.headline ?? "").toLowerCase().includes(t)),
     );
     const byName = (a: CabinetRow, b: CabinetRow) => a.name.toLowerCase().localeCompare(b.name.toLowerCase());
@@ -108,7 +109,8 @@ export function Cabinet({ rows }: { rows: CabinetRow[] }) {
           ))}
         </div>
         <p className="cab-n" aria-live="polite">
-          {shown.length} of {rows.length} on file{drawer !== "all" ? `, ${DRAWERS.find((d) => d.k === drawer)?.label.toLowerCase()} drawer` : ""}
+          {shown.length} of {rows.length} on file
+          {q.trim() ? (drawer !== "all" ? ", searching every drawer" : "") : drawer !== "all" ? `, ${DRAWERS.find((d) => d.k === drawer)?.label.toLowerCase()} drawer` : ""}
         </p>
       </div>
 
@@ -159,8 +161,9 @@ export function Cabinet({ rows }: { rows: CabinetRow[] }) {
         ) : (
           <div className="cab-empty">
             <p>
-              Nothing on file matches &ldquo;{q}&rdquo;. Ask about it at the <Link href={`/desk?q=${encodeURIComponent(`Why is ${q} short?`)}`}>desk</Link>, and
-              Upstream will run the investigation.
+              Nothing on file matches &ldquo;{q}&rdquo;. <Link href={`/desk?q=${encodeURIComponent(`Why is ${q} short?`)}`}>Ask at the desk</Link>: Scout
+              will check the name against the formulary. This copy replays recorded investigations; Upstream runs new ones
+              live where it can reach Zetaris.
             </p>
           </div>
         )}

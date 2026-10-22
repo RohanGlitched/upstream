@@ -4,6 +4,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { physicalOf } from "./lineage";
 
 export type Cell = string | number | boolean | null;
 export type Row = Record<string, Cell>;
@@ -16,7 +17,7 @@ export interface QueryResult {
   ms: number;
   mode: "live" | "replay";
   ranAt: string;
-  sources: string[]; // Zetaris sources the SQL reads, e.g. "corvale_general.cg", "fda.inspections"
+  sources: string[]; // physical tables the SQL read, USL tables resolved (src/lib/lineage.ts), e.g. "corvale_east.stock_position"
 }
 
 export class ZetarisError extends Error {
@@ -35,13 +36,10 @@ function normalizeSql(sql: string): string {
   return sql.replace(/\s+/g, " ").trim();
 }
 
-/** Qualified names the query reads, for the "which systems answered" strip in the UI. */
+/** Physical tables the query reads, for the "which systems answered" strip in the UI. USL tables are resolved
+ *  through their activations to the hospital database or FDA file behind them. */
 export function sourcesOf(sql: string): string[] {
-  const found = new Set<string>();
-  for (const m of normalizeSql(sql).matchAll(/\b(?:from|join)\s+([a-z_][\w]*(?:\.[a-z_][\w]*){1,2})/gi)) {
-    found.add(m[1].toLowerCase());
-  }
-  return [...found];
+  return physicalOf(sql);
 }
 
 function liveConfig() {

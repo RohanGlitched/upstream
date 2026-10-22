@@ -20,5 +20,6 @@ CREATE DATASOURCE corvale_east DESCRIBE BY "Corvale East pharmacy, Postgres" OPT
 REGISTER DATASOURCE TABLE 'items' FROM corvale_east;
 REGISTER DATASOURCE TABLE 'stock' FROM corvale_east;
 REGISTER DATASOURCE TABLE 'usage_weekly' FROM corvale_east;
+REGISTER DATASOURCE TABLE 'stock_position' FROM corvale_east;
 SHOW DATASOURCE TABLES corvale_general;
 SHOW DATASOURCE TABLES corvale_east;

@@ -1,7 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { realCases } from "@/components/server/data";
 import { DrugName } from "@/components/CaseBits";
 import "./states.css";
+
+export const metadata: Metadata = {
+  title: "Not found",
+  description: "There is no page or recorded investigation at this address.",
+  robots: { index: false },
+};
 
 export default async function NotFound() {
   const cases = await realCases();

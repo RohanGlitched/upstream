@@ -6,12 +6,14 @@ import { InlineMd } from "@/components/Code";
 import { readJson, fdaManifest } from "@/components/server/data";
 import { engineReadme, tableAfter, zetarisNotes, isTrap } from "@/components/server/docs";
 import { fmtDate, fmtInt } from "@/components/lib/format";
+import { UslSheet, type ExplainFile, type FdaDq } from "@/components/UslSheet";
+import { FDA_FILES_REGISTERED } from "@/src/lib/lineage";
 import "./how.css";
 
 export const metadata: Metadata = {
   title: "How it works",
   description:
-    "Upstream as a drawing set: the architecture from seven sources through Zetaris to the engines and the verifier, the sponsor map, conformance, the Scout eval and what Zetaris taught us.",
+    "Upstream as a drawing set: the architecture from fifteen sources (three hospital systems and 12 FDA files) through Zetaris to the engines and the verifier, the semantic layer and its measured keys, the sponsor map, conformance, the Scout eval and what Zetaris taught us.",
 };
 
 interface Conformance {
@@ -113,13 +115,15 @@ function Balloon({ n }: { n: number }) {
 }
 
 export default async function How() {
-  const [readme, conf, scout, notes, manifest, rawE] = await Promise.all([
+  const [readme, conf, scout, notes, manifest, rawE, dq, plans] = await Promise.all([
     engineReadme(),
     readJson<Conformance>("conformance.json"),
     readJson<ScoutEval>("src/engines/results/scout-pharmacy-eval.json"),
     zetarisNotes(),
     fdaManifest(),
     readJson<unknown>("data/eval/trace.json"),
+    readJson<FdaDq>("data/dq/fda.json"),
+    readJson<ExplainFile>("data/zetaris/explain.json"),
   ]);
   const ev = isEval(rawE) ? rawE : null;
   const sponsor = tableAfter(readme, "Where each engine is used");
@@ -127,10 +131,28 @@ export default async function How() {
   const world = tableAfter(readme, "World Model persistence");
   const splits = scout ? (["all", "tuning", "heldout"] as const).filter((k) => scout.metrics[k]) : [];
   const date = conf ? fmtDate(conf.at) : "22 Oct 2026";
-  const OF = 7;
+  const OF = 8;
   const c = manifest?.counts ?? null;
   const n = (k: string) => (c && typeof c[k] === "number" ? fmtInt(c[k]) : null);
   const engines = new Set((sponsor?.rows ?? []).map((r) => r[1]));
+  // Cursor is not a runtime engine, but it built part of the project: say so on the map, and what it did.
+  const sponsorRows = sponsor
+    ? [
+        ...sponsor.rows,
+        [
+          "Corvale's three hospitals: the generated stock, usage and formulary data",
+          "Cursor",
+          "Cursor's agent wrote the Corvale hospital data generator (`data/hospital/generate.py`) and applied a pharmacist's fixes (session logs: `docs/cursor`)",
+          "Build tool, not a runtime engine",
+        ],
+      ]
+    : [];
+  // The Scout eval's counts, read from its own output so every line on A-5 agrees with the table.
+  const sAll = scout?.metrics.all;
+  const sHeld = scout?.metrics.heldout;
+  const nPrompts = sAll ? Number(sAll.examples) : null;
+  const nHeld = sHeld ? Number(sHeld.examples) : null;
+  const heldBlocks = sHeld ? m(sHeld.block_recall)?.d ?? null : null;
 
   const SOURCES: { k: string; t: string; s: string; who: "h" | "f" }[] = [
     { k: "1", t: "Corvale General", s: "Postgres, read-only reporting views", who: "h" },
@@ -150,7 +172,7 @@ export default async function How() {
             <h1 id="how-title">How Upstream is built</h1>
             <p>
               One question passes a gate, runs federated queries where the data lives, builds a graph, recalls past decisions,
-              and comes back as sentences that each cite their rows. Seven sheets: what each part is, what it is built on and
+              and comes back as sentences that each cite their rows. Eight sheets: what each part is, what it is built on and
               what we measured.
             </p>
           </div>
@@ -159,12 +181,13 @@ export default async function How() {
             <ol>
               {[
                 ["arch", "A-1", "Architecture"],
-                ["map", "A-2", "Sponsor map"],
-                ["conf", "A-3", "Conformance"],
-                ["scout", "A-4", "The Scout eval"],
-                ["accuracy", "A-5", "Accuracy and engine measurements"],
-                ["traps", "A-6", "What Zetaris taught us"],
-                ["run", "A-7", "Run it locally"],
+                ["usl", "A-2", "The semantic layer"],
+                ["map", "A-3", "Sponsor map"],
+                ["conf", "A-4", "Conformance"],
+                ["scout", "A-5", "The Scout eval"],
+                ["accuracy", "A-6", "Accuracy and engine measurements"],
+                ["traps", "A-7", "What Zetaris taught us"],
+                ["run", "A-8", "Run it locally"],
               ].map(([id, s, t]) => (
                 <li key={id}>
                   <a href={`#${id}`}>
@@ -185,15 +208,15 @@ export default async function How() {
         date={date}
         of={OF}
         wide
-        lede="The path of one question, from the sources to the answer. Nothing in the hospitals or FDA's files is copied: every query runs where the data lives."
+        lede="The path of one question, from the sources to the answer. The hospital systems are read in place; FDA's public files are cleaned once into CSVs that Zetaris reads as file tables."
       >
-        <div className="hw-sch" role="img" aria-label="Seven sources feed Zetaris and its semantic layer; the Upstream investigator, gated by Scout Intent and backed by World Model, H-MEM and Markovian, reads them; Nemotron writes and a verifier checks; the case goes to a pharmacist for approval.">
+        <div className="hw-sch" role="img" aria-label="Fifteen sources, three hospital systems and 12 FDA files, feed Zetaris and its semantic layer; the Upstream investigator, gated by Scout Intent and backed by World Model, H-MEM and Markovian, reads them; Nemotron writes and a verifier checks; the case goes to a pharmacist for approval.">
           <div className="hw-col hw-col--src">
             <p className="hw-col__h">
-              Seven sources <Balloon n={1} />
+              Fifteen sources <Balloon n={1} />
             </p>
             <div className="hw-group">
-              <span className="hw-group__k">Corvale Health, three hospitals</span>
+              <span className="hw-group__k">Corvale Health, three systems, read in place</span>
               {SOURCES.filter((s) => s.who === "h").map((s) => (
                 <div className="hw-box hw-box--src" key={s.k}>
                   <span className="hw-pin hw-type">S{s.k}</span>
@@ -203,7 +226,7 @@ export default async function How() {
               ))}
             </div>
             <div className="hw-group hw-group--fda">
-              <span className="hw-group__k">FDA&apos;s public record, {c ? `${Object.keys(c).length} files` : "12 files"}</span>
+              <span className="hw-group__k">FDA&apos;s public record, {FDA_FILES_REGISTERED} files, cleaned once into CSVs</span>
               {SOURCES.filter((s) => s.who === "f").map((s) => (
                 <div className="hw-box hw-box--src" key={s.k}>
                   <span className="hw-pin hw-type">S{s.k}</span>
@@ -220,10 +243,10 @@ export default async function How() {
             </p>
             <div className="hw-box hw-box--big">
               <strong>Zetaris</strong>
-              <span>Federated SQL. Each source is queried in place; results come back with a query id (Q-xxxxxx) that every claim cites.</span>
+              <span>Federated SQL: JDBC to the hospitals&apos; Postgres, file tables over Lakeside&apos;s exports and FDA&apos;s cleaned CSVs. Results come back with a query id (Q-xxxxxx) that every claim cites.</span>
               <div className="hw-box hw-box--inner">
                 <strong>Unified Semantic Layer</strong>
-                <span className="hw-type hw-tables">product, site, site_fei, product_site, inspection, stock_general, stock_east, stock_lakeside</span>
+                <span className="hw-type hw-tables">product, unit_of_use, site, site_fei, product_site, inspection, stock_general, stock_east, stock_lakeside</span>
               </div>
               <div className="hw-box hw-box--inner hw-box--red">
                 <strong>RUN DQ</strong>
@@ -274,7 +297,7 @@ export default async function How() {
             </div>
             <div className="hw-box hw-box--doc">
               <strong>The case</strong>
-              <span>Trace, ruler, options, a memo for a named approver. A decision is stored in H-MEM only after a pharmacist signs.</span>
+              <span>Trace, ruler, options, a memo the verifier checks. A decision is stored in H-MEM only after a signed-in pharmacist or the director signs (demo sign-in here, single sign-on in a hospital).</span>
             </div>
           </div>
         </div>
@@ -282,8 +305,10 @@ export default async function How() {
           <li>
             <Balloon n={1} />
             <span>
-              Two hospital Postgres servers through a read-only account that sees only published views, one hospital&apos;s
-              nightly CSV cabinet, and FDA&apos;s public files as tables{c ? `, ${fmtInt(Object.values(c).reduce((a, b) => a + b, 0))} rows` : ""}.
+              Two hospital Postgres servers through a read-only account that sees only published views and one hospital&apos;s
+              nightly CSV cabinet, all read in place; and FDA&apos;s {FDA_FILES_REGISTERED} public files, downloaded and cleaned once by
+              data/fda/build_bundle.py (it derives ndc11, firm keys, FEI matches and known dates) into CSVs read as file tables
+              {c ? `, ${fmtInt(Object.values(c).reduce((a, b) => a + b, 0))} rows` : ""}.
             </span>
           </li>
           <li>
@@ -293,7 +318,7 @@ export default async function How() {
           <li>
             <Balloon n={3} />
             <span>
-              The four Meterless engines each do real work{engines.size ? `; ${sponsor?.rows.length} uses are scheduled on sheet A-2` : ""}.
+              The four Meterless engines each do real work{engines.size ? `; ${sponsor?.rows.length} uses are scheduled on sheet A-3, beside the one build tool, Cursor` : ""}.
             </span>
           </li>
           <li>
@@ -303,7 +328,19 @@ export default async function How() {
         </ol>
       </Sheet>
 
-      <Sheet id="map" n="A-2" title="Sponsor map" date={date} of={OF} lede="Each thing Upstream does, the engine that does it, the call, and the section of the spec it follows.">
+      <Sheet
+        id="usl"
+        n="A-2"
+        title="The semantic layer"
+        date={date}
+        of={OF}
+        wide
+        lede="Nine tables in one Zetaris USL, each tied to the system its activation reads. Its foreign keys are the data-quality rules RUN DQ measures, on the hospitals' side and on FDA's."
+      >
+        <UslSheet dq={dq} explain={plans} />
+      </Sheet>
+
+      <Sheet id="map" n="A-3" title="Sponsor map" date={date} of={OF} lede="Each thing Upstream does, the engine that does it, the call, and the section of the spec it follows.">
         {sponsor ? (
           <div className="hw-table-wrap" tabIndex={0} role="region" aria-label="Sponsor map table">
             <table className="hw-table hw-table--map">
@@ -321,11 +358,17 @@ export default async function How() {
                 </tr>
               </thead>
               <tbody>
-                {sponsor.rows.map((r, i) => (
-                  <tr key={i}>
-                    <td className="hw-c-n hw-type">{String(i + 1).padStart(2, "0")}</td>
+                {sponsorRows.map((r, i) => (
+                  <tr key={i} className={i >= sponsor.rows.length ? "is-build" : undefined}>
+                    <td className="hw-c-n hw-type" data-label="Ref">
+                      {String(i + 1).padStart(2, "0")}
+                    </td>
                     {r.map((cell, j) => (
-                      <td key={j} className={j === 1 ? "hw-engine" : j === 2 ? "hw-call" : j === 3 ? "hw-spec" : undefined}>
+                      <td
+                        key={j}
+                        data-label={sponsor.head[j]?.replace(/\s*\(our module -> engine\)/, "")}
+                        className={j === 1 ? "hw-engine" : j === 2 ? "hw-call" : j === 3 ? "hw-spec" : undefined}
+                      >
                         <InlineMd text={cell} />
                       </td>
                     ))}
@@ -341,7 +384,7 @@ export default async function How() {
 
       <Sheet
         id="conf"
-        n="A-3"
+        n="A-4"
         title="Conformance"
         date={date}
         of={OF}
@@ -387,7 +430,7 @@ export default async function How() {
             <p className="hw-note">
               Vendored engines at commit <span className="hw-type">{conf.vendorCommit.slice(0, 7)}</span>. A Scout pass shows the
               plumbing is spec-shaped: its corpus repeats its own registry examples, so it is not a quality claim. The pharmacy
-              eval on A-4 is.
+              eval on A-5 is.
             </p>
           </>
         ) : (
@@ -397,11 +440,11 @@ export default async function How() {
 
       <Sheet
         id="scout"
-        n="A-4"
+        n="A-5"
         title="The Scout eval"
         date={date}
         of={OF}
-        lede="59 pharmacy prompts labelled by hand: paraphrases, disguised orders, injections inside a quoted FDA notice, dosing questions, approval bypasses. 15 were held out before any scorer code existed."
+        lede={`${nPrompts ?? "The"} pharmacy prompts labelled by hand: paraphrases, disguised orders, injections inside a quoted FDA notice, dosing questions, approval bypasses. ${nHeld ?? "Some"} were held out before any scorer code existed.`}
       >
         {scout && splits.length ? (
           <div className="hw-table-wrap" tabIndex={0} role="region" aria-label="Scout eval table">
@@ -424,7 +467,7 @@ export default async function How() {
                     {splits.map((s) => {
                       const v = m(scout.metrics[s][k]);
                       return (
-                        <td key={s}>
+                        <td key={s} data-label={`${s === "all" ? "All" : s === "tuning" ? "Tuning" : "Held out"} (${String(scout.metrics[s].examples)})`}>
                           {v && v.value !== null ? (
                             <span className="hw-gauge">
                               <span className="hw-gauge__bar" aria-hidden="true">
@@ -461,8 +504,8 @@ export default async function How() {
           <div>
             <h3>Limits</h3>
             <p>
-              One author, 59 prompts, 4 held-out block cases. Treat it as a regression set with a held-out check, not a
-              benchmark.
+              One author, {nPrompts ?? "a few dozen"} prompts, {heldBlocks ?? "a handful of"} held-out block cases. Treat it as a regression
+              set with a held-out check, not a benchmark.
               {scout?.selfTest ? ` Stage-one scan: median ${scout.selfTest.medianMs} ms over ${scout.selfTest.probes} probes.` : ""}
             </p>
           </div>
@@ -471,7 +514,7 @@ export default async function How() {
 
       <Sheet
         id="accuracy"
-        n="A-5"
+        n="A-6"
         title="Accuracy and engine measurements"
         date={date}
         of={OF}
@@ -500,7 +543,7 @@ export default async function How() {
                     {hmem.rows.map((r, i) => (
                       <tr key={i}>
                         {r.map((cell, j) => (
-                          <td key={j} className={j > 0 ? "hw-num" : undefined}>
+                          <td key={j} className={j > 0 ? "hw-num" : undefined} data-label={hmem.head[j]}>
                             <InlineMd text={cell} />
                           </td>
                         ))}
@@ -530,7 +573,7 @@ export default async function How() {
                     {world.rows.map((r, i) => (
                       <tr key={i}>
                         {r.map((cell, j) => (
-                          <td key={j} className="hw-num">
+                          <td key={j} className="hw-num" data-label={world.head[j]?.replace(/[`*]/g, "")}>
                             <InlineMd text={cell} />
                           </td>
                         ))}
@@ -545,7 +588,7 @@ export default async function How() {
         </div>
       </Sheet>
 
-      <Sheet id="traps" n="A-6" title="What Zetaris taught us" date={date} of={OF} lede="General notes, taken from the comments in the setup scripts: what each one sets up, and the traps it works around. Traps are marked in red.">
+      <Sheet id="traps" n="A-7" title="What Zetaris taught us" date={date} of={OF} lede="General notes, taken from the comments in the setup scripts: what each one sets up, and the traps it works around. Traps are marked in red.">
         {notes.length ? (
           <ol className="hw-notes">
             {notes.map((nt) => (
@@ -573,7 +616,7 @@ export default async function How() {
 
       <Sheet
         id="run"
-        n="A-7"
+        n="A-8"
         title="Run it locally"
         date={date}
         of={OF}

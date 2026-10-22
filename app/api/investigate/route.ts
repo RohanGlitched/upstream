@@ -1,8 +1,9 @@
-// POST {question} -> NDJSON stream: {type:"decision"}, {type:"step"} per step, then {type:"case"} or {type:"refused"}.
+// POST {question} -> NDJSON stream: {type:"decision"}, {type:"step"} per step, then {type:"case"} (with case.slug in
+// replay), {type:"refused"}, {type:"clarify"} or {type:"brief"} (the overnight report already on the desk).
 // Live when this server can reach Zetaris (UPSTREAM_LIVE=1); otherwise it replays a recorded case for the drug,
 // marked "replay", so the hosted demo never pretends a recorded answer is a live one.
-import { createUpstreamScout } from "@/src/engines/scout/upstream";
-import { caseForMolecule } from "@/src/lib/cases";
+import { createUpstreamScout, FORMULARY_DRUGS } from "@/src/engines/scout/upstream";
+import { caseForMolecule, clarifyDrug } from "@/src/lib/cases";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -30,8 +31,13 @@ export async function POST(req: Request) {
           const d = await scout.decide({ prompt: question, user: { id: "visitor", role: "buyer" }, surface: "chat" });
           send({ type: "decision", intent: d.intent.primary, risk: d.risk.level, reason: d.risk.reason ?? null, clarification: d.clarification?.question ?? null,
             drug: String(d.intent.parameters.drug ?? "") || null, contractId: d.executionContract?.contractId ?? null, scope: d.executionContract?.scope.capabilities ?? [] });
-          if (d.risk.level === "block" || !d.executionContract) {
-            send({ type: "refused", reason: d.risk.reason ?? d.clarification?.question ?? "Scout issued no contract for this request." });
+          if (d.risk.level === "block") {
+            send({ type: "refused", reason: d.risk.reason ?? "Scout issued no contract for this request." });
+          } else if (!d.executionContract) {
+            // Not a refusal: Scout could not tell which drug (or what) the question means, so it asks.
+            send({ type: "clarify", question: d.clarification?.question ?? null, options: d.clarification?.options ?? [], ...clarifyDrug(question, FORMULARY_DRUGS) });
+          } else if (d.intent.primary === "brief.export" && !d.intent.parameters.drug) {
+            send({ type: "brief" });
           } else {
             const drug = String(d.intent.parameters.drug ?? "");
             const c = await caseForMolecule(drug);

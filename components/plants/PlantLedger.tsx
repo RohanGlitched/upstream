@@ -148,7 +148,7 @@ export function PlantLedger({ plants, asOf }: { plants: ChronoPlant[]; asOf: str
               <option value="risk">FDA&apos;s record, worst first</option>
               <option value="recent">Latest FDA action</option>
               <option value="products">Most of our drugs</option>
-              <option value="distance">Farthest from Corvale</option>
+              <option value="distance">Farthest country (by its centre)</option>
               <option value="name">Name</option>
             </select>
           </label>
@@ -185,7 +185,8 @@ export function PlantLedger({ plants, asOf }: { plants: ChronoPlant[]; asOf: str
                       <span>
                         <strong>{firmCase(p.name)}</strong>
                         <span className="lg-sub">
-                          {countryName(p.iso)}, {kmText(p.km)}
+                          {countryName(p.iso)}
+                          {p.placed === "site" ? `, ${kmText(p.km)}` : ""}
                         </span>
                       </span>
                     </span>

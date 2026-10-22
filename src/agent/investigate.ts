@@ -9,11 +9,11 @@ import { createUpstreamScout } from "../engines/scout/upstream.ts";
 import { UpstreamWorld, src } from "../engines/world-model.ts";
 import { openMemory, type HMEM } from "../engines/hmem.ts";
 import * as Q from "./sql";
-import { daysBetween, firmKey, num, round, str, tallMan } from "./util";
+import { baseMolecule, daysBetween, firmKey, formTerm, moleculeTerm, num, round, str, tallMan } from "./util";
 import { explain } from "./explain";
 import type {
   Case, DataQualityNote, Evidence, GateEntry, Health, Hospital, MarketLine, MemoryLine, OptionLine, Plant,
-  ProductChain, ShortageStatus, Signal, Step, StockLine, TimelineEvent,
+  Presentation, ProductChain, ShortageStatus, Signal, Step, StockLine, TimelineEvent,
 } from "./types";
 
 export const AS_OF = process.env.UPSTREAM_AS_OF ?? "2026-10-21";
@@ -49,6 +49,32 @@ class Ledger {
   }
 }
 
+const UNIT_PLURAL: Record<string, string> = { vial: "vials", bag: "bags", syringe: "syringes", tablet: "tablets", capsule: "capsules", each: "units" };
+const unitsWord = (unit: string, n: number) => (n === 1 ? (unit === "each" ? "unit" : unit) : (UNIT_PLURAL[unit] ?? `${unit}s`));
+
+/** What makes two stock lines the same thing on the shelf: ingredient, strength, form, the content of one unit
+ *  (60 mL or 5 mL) and the unit it is counted in. A line whose NDC FDA does not list is its own presentation. */
+function presentationOf(r: Row): { key: string; label: string; short: string } {
+  const unit = str(r.unit) || "each";
+  if (!r.generic_name) {
+    return { key: `unplaced:${str(r.item_key)}`, label: `${str(r.description)} (NDC not in FDA's file)`, short: str(r.description) };
+  }
+  // "CARBOPLATIN 10 mg/mL" -> "10 mg/mL"; "METOPROLOL TARTRATE 100 mg/1" -> "100 mg"; combinations joined with "+".
+  const strength = [...str(r.strength).matchAll(/(\.?\d[\d.,]*)\s*([a-z%]+)(?:\s*\/\s*(\.?\d[\d.]*)?\s*([a-z]+))?/gi)]
+    .map((m) => {
+      const per = m[4] ? `/${m[3] && m[3] !== "1" ? `${m[3].replace(/^\./, "0.")} ` : ""}${m[4]}` : "";
+      return `${m[1].replace(/^\./, "0.")} ${m[2]}${per}`;
+    })
+    .join(" + ");
+  const form = str(r.dosage_form).toLowerCase().split(/[ ,]/)[0] || "";
+  const content = str(r.unit_content).replace(/^\./, "0.");
+  return {
+    key: [str(r.generic_name).toLowerCase().trim(), strength.toLowerCase().replace(/\s+/g, ""), form, content.toLowerCase().replace(/\s+/g, ""), unit].join("|"),
+    label: `${strength}${form ? ` ${form}` : ""}${content ? `, ${content} ${unit}` : ""}`.trim(),
+    short: [strength, content].filter(Boolean).join(", ") || str(r.description),
+  };
+}
+
 function healthOf(insp: Row[], actions: Row[], alerts: Row[], asOf: string): { health: Health; last: Plant["lastClassification"] } {
   const yearsAgo = (d: string) => (Date.parse(asOf) - Date.parse(d)) / (365.25 * 86_400_000);
   const sorted = [...insp].sort((a, b) => str(b.end_date).localeCompare(str(a.end_date)));
@@ -62,6 +88,23 @@ function healthOf(insp: Row[], actions: Row[], alerts: Row[], asOf: string): { h
   if (last && last.classification === "VAI" && yearsAgo(last.endDate) <= 2) return { health: "watch", last };
   if (last && yearsAgo(last.endDate) <= 4) return { health: "clear", last };
   return { health: "unknown", last };
+}
+
+/** Package NDC as FDA writes it (dashed, 4-4-2 / 5-3-2 / 5-4-1) to the 11-digit form. */
+function ndc11Of(pkg: string): string {
+  const [a = "", b = "", c = ""] = pkg.split("-");
+  return a.padStart(5, "0") + b.padStart(4, "0") + c.padStart(2, "0");
+}
+
+// Relabelers and repackagers: buying from one is not a new source of supply.
+const REPACKAGER = /repack|prepack|medication solutions|proficient rx|nucare|direct[_ -]?rx|quality care|preferred pharmaceuticals|bryant ranch|rebel distributors|aphena|pd-rx|lake erie medical|unit dose services|american health packaging|medvantx|asclemed|henry schein|denton pharma|northwind|safecor|cardinal health 107|golden state medical|lifestar/i;
+
+// DEA schedules for the molecules a hospital formulary is likely to hold (21 CFR 1308.12 to 1308.15).
+const SCHEDULE_II = /^(fentanyl|morphine|hydromorphone|oxycodone|oxymorphone|methadone|meperidine|remifentanil|sufentanil|alfentanil|hydrocodone|tapentadol|levorphanol|codeine sulfate|cocaine|methylphenidate|amphetamine|dextroamphetamine|lisdexamfetamine|pentobarbital)\b/;
+const SCHEDULE_III_V = /^(ketamine|buprenorphine|testosterone|midazolam|lorazepam|diazepam|alprazolam|clonazepam|phenobarbital|tramadol|zolpidem|lacosamide|pregabalin|dronabinol|butorphanol|nalbuphine|modafinil|carisoprodol|chlordiazepoxide|temazepam|brivaracetam|cenobamate)\b/;
+function controlledSchedule(molecule: string): "II" | "III-V" | null {
+  const m = molecule.toLowerCase();
+  return SCHEDULE_II.test(m) ? "II" : SCHEDULE_III_V.test(m) ? "III-V" : null;
 }
 
 export async function investigate(opts: InvestigateOptions): Promise<Case> {
@@ -110,7 +153,11 @@ export async function investigate(opts: InvestigateOptions): Promise<Case> {
   const canWrite = guard("world.write", "record the supply chain in World Model");
   const prov = (kind: string) => src(kind, "upstream-investigator", new Date().toISOString());
 
-  const term = (opts.drug ?? String(d.intent.parameters.drug ?? "")).toLowerCase().split(/\s+/)[0] || question.toLowerCase().match(/[a-z]{5,}/)?.[0] || "";
+  // The whole ingredient name ("calcium chloride", never just "calcium"), matched on word boundaries in SQL, and
+  // the dosage form when the question names one ("bumetanide tablets").
+  const asked = opts.drug ?? String(d.intent.parameters.drug ?? "");
+  const term = moleculeTerm(asked) || moleculeTerm(question.toLowerCase().match(/[a-z]{5,}/)?.[0] ?? "");
+  const form = formTerm(`${asked} ${question}`);
 
   async function run(key: Step["key"], title: string, purpose: string, sqls: string[], finding: (rs: QueryResult[]) => string, limit = 2000) {
     const s0 = Date.now();
@@ -147,17 +194,43 @@ export async function investigate(opts: InvestigateOptions): Promise<Case> {
 
   // ---- 1. Our stock, in three systems --------------------------------------------------------------------
   const [stockR] = await run("stock", "Our stock in three hospitals", "Read on-hand stock and 28-day use where each hospital keeps it.",
-    [Q.stockSql(term)], (rs) => `${rs[0].rows.length} stock lines across ${new Set(rs[0].rows.map((r) => r.hospital)).size} hospitals.`);
+    [Q.stockSql(term, form)], (rs) => {
+      const n = new Set(rs[0].rows.map((r) => presentationOf(r).key)).size;
+      return `${rs[0].rows.length} stock lines across ${new Set(rs[0].rows.map((r) => r.hospital)).size} hospitals, ${n} ${n === 1 ? "presentation" : "presentations"}, in units of use.`;
+    });
   const stock: StockLine[] = (stockR?.rows ?? []).map((r, i) => {
     const onHand = num(r.on_hand);
     const daily = num(r.daily_use);
+    const pres = presentationOf(r);
     return {
       hospital: str(r.hospital) as Hospital, itemKey: str(r.item_key), ndc11: str(r.ndc11), description: str(r.description),
       labeler: r.labeler_name ? str(r.labeler_name) : null, onHand, dailyUse: daily, days: daily > 0 ? round(onHand / daily, 1) : null,
-      unit: str(r.unit), ndcMatch: str(r.ndc_match),
+      unit: str(r.unit), ndcMatch: str(r.ndc_match), unitBasis: str(r.unit_basis), presentation: pres.key, presentationLabel: pres.label,
       evidence: ledger.cite(stockR, i, `${r.hospital}: ${r.description}`.slice(0, 90)),
     };
   });
+  // Days on hand per presentation and hospital: 600 mg/60 mL vials and 50 mg/5 mL vials are never pooled.
+  const presBy = new Map<string, Presentation>();
+  (stockR?.rows ?? []).forEach((r, i) => {
+    const s = stock[i];
+    const pres = presentationOf(r);
+    const p = presBy.get(pres.key) ?? { key: pres.key, label: pres.label, short: pres.short, unit: s.unit, onHand: 0, dailyUse: 0, days: null, hospitals: [] };
+    let h = p.hospitals.find((x) => x.hospital === s.hospital);
+    if (!h) p.hospitals.push((h = { hospital: s.hospital, onHand: 0, dailyUse: 0, days: null, lines: [], evidence: [] }));
+    h.onHand += s.onHand;
+    h.dailyUse += s.dailyUse;
+    h.lines.push(s.itemKey);
+    h.evidence.push(s.evidence);
+    p.onHand += s.onHand;
+    p.dailyUse += s.dailyUse;
+    presBy.set(pres.key, p);
+  });
+  const presentations: Presentation[] = [...presBy.values()].map((p) => ({
+    ...p, onHand: round(p.onHand, 2), dailyUse: round(p.dailyUse, 3), days: p.dailyUse > 0 ? round(p.onHand / p.dailyUse, 1) : null,
+    hospitals: p.hospitals.map((h) => ({ ...h, onHand: round(h.onHand, 2), dailyUse: round(h.dailyUse, 3), days: h.dailyUse > 0 ? round(h.onHand / h.dailyUse, 1) : null })),
+  }));
+  const shortest = (p: Presentation) => Math.min(...p.hospitals.map((h) => h.days ?? Infinity));
+  presentations.sort((a, b) => shortest(a) - shortest(b));
   const generics = new Map<string, number>();
   for (const r of stockR?.rows ?? []) if (r.generic_name) generics.set(str(r.generic_name).toLowerCase(), (generics.get(str(r.generic_name).toLowerCase()) ?? 0) + 1);
   const molecule = [...generics.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? term;
@@ -192,7 +265,7 @@ export async function investigate(opts: InvestigateOptions): Promise<Case> {
 
   // ---- 3. FDA's shortage list, today and since it began --------------------------------------------------
   const [curR, histR] = await run("fda_shortage", "What FDA says about this shortage", "Read FDA's current shortage list and its history for this drug.",
-    [Q.shortageCurrentSql(molecule.split(" ")[0]), Q.shortageHistorySql(molecule.split(" ")[0])],
+    [Q.shortageCurrentSql(term), Q.shortageHistorySql(term)],
     (rs) => {
       const cur = rs[0].rows.filter((r) => str(r.status) === "Current");
       return cur.length ? `On FDA's list as Current for ${new Set(cur.map((r) => r.company_name)).size} companies.` : "Not on FDA's current shortage list.";
@@ -200,7 +273,7 @@ export async function investigate(opts: InvestigateOptions): Promise<Case> {
 
   // ---- 4. Who else makes it ---------------------------------------------------------------------------
   const [marketR] = await run("market", "Who else makes it", "List every labeler of this drug in the same form, and the plants their labels name.",
-    [Q.marketSql(molecule.split(" ")[0], dosageWord)], (rs) => `${new Set(rs[0].rows.map((r) => r.labeler_name)).size} labelers make it in this form.`);
+    [Q.marketSql(term, dosageWord)], (rs) => `${new Set(rs[0].rows.map((r) => r.labeler_name)).size} labelers make it in this form.`);
 
   // ---- 5. Plant signals: inspections, 483s, warning letters, import alerts, recalls ------------------------
   const ourFeis = new Set((chainR?.rows ?? []).map((r) => str(r.fei)).filter(Boolean));
@@ -209,7 +282,7 @@ export async function investigate(opts: InvestigateOptions): Promise<Case> {
   const plantFirmKeys = [...new Set((chainR?.rows ?? []).flatMap((r) => [firmKey(str(r.establishment)), firmKey(str(r.firm_name))]).filter(Boolean))];
   const labelerKeys = [...new Set((stockR?.rows ?? []).map((r) => firmKey(str(r.labeler_name))).filter(Boolean))];
   const [inspR, actR, iaR, recR] = await run("signals", "What FDA found at those plants", "Read every FDA drug inspection, warning letter, import alert and recall for these plants.",
-    [Q.inspectionsSql(allFeis), Q.actionsSql(allFeis), Q.importAlertsSql([...ourFeis], plantFirmKeys), Q.recallsSql(molecule.split(" ")[0], [...plantFirmKeys, ...labelerKeys])],
+    [Q.inspectionsSql(allFeis), Q.actionsSql(allFeis), Q.importAlertsSql([...ourFeis], plantFirmKeys), Q.recallsSql(term, [...plantFirmKeys, ...labelerKeys])],
     (rs) => {
       const oai = rs[0].rows.filter((r) => str(r.classification) === "OAI" && ourFeis.has(str(r.fei))).length;
       return `${rs[0].rows.length} inspections (${oai} OAI at our plants), ${rs[1].rows.length} compliance actions, ${rs[2].rows.length} import-alert listings, ${rs[3].rows.length} recalls.`;
@@ -339,7 +412,7 @@ export async function investigate(opts: InvestigateOptions): Promise<Case> {
     if (idx >= 0) postingEvidence = ledger.cite(curR, idx, `FDA first posted the shortage ${firstPosting}`);
   }
   if (canWrite && shortage.listed) {
-    const sh = await world.upsert("Shortage", `${molecule.split(" ")[0]}-${firstPosting ?? "current"}`, { name: `${molecule} shortage`, source: prov("fda-shortage-db") });
+    const sh = await world.upsert("Shortage", `${baseMolecule(molecule).replace(/ /g, "-")}-${firstPosting ?? "current"}`, { name: `${molecule} shortage`, source: prov("fda-shortage-db") });
     await world.relate(sh.id, "affects", `drug:generic:${molecule.slice(0, 90)}`, { source: prov("fda-shortage-db") });
   }
 
@@ -356,7 +429,9 @@ export async function investigate(opts: InvestigateOptions): Promise<Case> {
     }
     marketBy.set(k, m);
   }
-  const listedKeys = new Set(currentRows.map((r) => firmKey(str(r.company_name))));
+  // Current and To Be Discontinued both count: a product being discontinued is no place to move a patient's supply.
+  const activeRows = curRows.filter((r) => str(r.status) !== "Resolved");
+  const listedKeys = new Set(activeRows.map((r) => firmKey(str(r.company_name))));
   const listedMatch = (name: string) => {
     const f = firmKey(name);
     return !!f && [...listedKeys].some((k) => k && (f.startsWith(k) || k.startsWith(f)));
@@ -371,15 +446,16 @@ export async function investigate(opts: InvestigateOptions): Promise<Case> {
 
   // ---- 7. Data quality: the semantic layer's own rules --------------------------------------------------
   const dataQuality: DataQualityNote[] = [];
-  const dqResults = await run("data_quality", "Which links can't be trusted", "Run the semantic layer's foreign-key rules over each hospital's stock, and name the rows they reject.",
-    [Q.dqSql("stock_general"), Q.dqSql("stock_east"), Q.dqSql("stock_lakeside"), Q.dqLakesideRowsSql(molecule.split(" ")[0])],
+  const dqResults = await run("data_quality", "Which links can't be trusted", "Run the semantic layer's key rules (NDC and unit of use) over each hospital's stock, and name the rows they reject.",
+    [Q.dqSql("stock_general"), Q.dqSql("stock_east"), Q.dqSql("stock_lakeside"), Q.dqLakesideRowsSql(term)],
     (rs) => {
-      const bad = rs.slice(0, 3).reduce((n, r) => n + num(r.rows.find((x) => str(x.type).startsWith("Foreign"))?.invalid_record), 0);
-      return `${bad} stock rows across the system fail the NDC rule; ${rs[3]?.rows.length ?? 0} of them are this drug.`;
+      const failing = (col: string) => rs.slice(0, 3).reduce((n, r) => n + num(r.rows.find((x) => str(x.type).startsWith("Foreign") && str(x.name) === col)?.invalid_record), 0);
+      const units = failing("unit");
+      return `${failing("ndc11")} stock rows across the system fail the NDC rule; ${rs[3]?.rows.length ?? 0} of them are this drug. ${units ? `${units} rows are counted in a unit no other hospital uses.` : "Every row is in a shared unit of use."}`;
     }, 200);
   for (const r of dqResults.slice(0, 3)) {
     for (const x of r.rows) {
-      dataQuality.push({ table: str(x.table), rule: str(x.type), total: num(x.total_record), invalid: num(x.invalid_record),
+      dataQuality.push({ table: str(x.table), rule: `${str(x.type)} on ${str(x.name)}`, total: num(x.total_record), invalid: num(x.invalid_record),
         note: num(x.invalid_record) ? `${num(x.invalid_record)} of ${num(x.total_record)} rows break this rule` : "every row passes" });
     }
   }
@@ -389,7 +465,7 @@ export async function investigate(opts: InvestigateOptions): Promise<Case> {
   const memLines: MemoryLine[] = [];
   if (guard("hmem.read", "recall past decisions on this drug")) {
     const s0 = Date.now();
-    const past = await memory.recallForDrug(molecule.split(" ")[0]);
+    const past = await memory.recallForDrug(baseMolecule(molecule));
     for (const m of past.memories.slice(0, 5)) {
       memLines.push({ id: m.memory.id, text: m.memory.content, approvedBy: m.approvedBy ?? null, when: m.memory.provenance?.learnedAt ? new Date(m.memory.provenance.learnedAt).toISOString().slice(0, 10) : null, score: round(m.relevance, 3) });
     }
@@ -414,35 +490,40 @@ export async function investigate(opts: InvestigateOptions): Promise<Case> {
 
   // ---- Options, ranked by rule (no clinical change first) ------------------------------------------------
   const options: OptionLine[] = [];
-  const byHospital = new Map<Hospital, { onHand: number; daily: number; ev: string[] }>();
-  for (const s of stock) {
-    const h = byHospital.get(s.hospital) ?? { onHand: 0, daily: 0, ev: [] };
-    h.onHand += s.onHand;
-    h.daily += s.dailyUse;
-    h.ev.push(s.evidence);
-    byHospital.set(s.hospital, h);
-  }
-  const days = (h: { onHand: number; daily: number }) => (h.daily > 0 ? h.onHand / h.daily : Infinity);
-  // Transfer rule: a donor keeps at least 14 days; a recipient under 10 days is brought toward 14.
-  const short = [...byHospital.entries()].filter(([, h]) => days(h) < 10).sort((a, b) => days(a[1]) - days(b[1]));
-  const long = [...byHospital.entries()].filter(([, h]) => days(h) > 14).sort((a, b) => days(b[1]) - days(a[1]));
-  const spareLeft = new Map(long.map(([h, v]) => [h, Math.floor(v.onHand - 14 * v.daily)]));
-  for (const [to, th] of short) {
-    for (const [from, fh] of long) {
-      const spare = spareLeft.get(from) ?? 0;
-      if (spare <= 0) continue;
-      const need = Math.max(1, Math.ceil(14 * th.daily - th.onHand));
-      const qty = Math.min(spare, need);
-      spareLeft.set(from, spare - qty);
-      options.push({
-        kind: "transfer", rank: 1, title: `Transfer ${qty} from ${from} to ${to}`,
-        detail: `${from} has ${round(days(fh), 0)} days on hand and can spare ${qty} while keeping two weeks; ${to} has ${round(days(th), 1)} days and would reach ${round((th.onHand + qty) / th.daily, 0)}.`,
-        why: "Same product, no clinical change, no new supplier.", needs: "pharmacy director (transfer request)", evidence: [...fh.ev, ...th.ev],
-      });
+  const schedule = controlledSchedule(molecule);
+  const transferNeeds = schedule === "II"
+    ? "pharmacy director, plus a DEA Form 222 or CSOS order (Schedule II)"
+    : schedule ? `pharmacy director, plus a controlled-substance transfer record (Schedule ${schedule})` : "pharmacy director (transfer request)";
+  // Transfer rule, within one presentation and in its units of use: a donor keeps at least 14 days; a recipient
+  // under 10 days is brought toward 14. A 60 mL vial is never sent to cover a 5 mL vial's shortfall.
+  const days = (h: { onHand: number; dailyUse: number }) => (h.dailyUse > 0 ? h.onHand / h.dailyUse : Infinity);
+  for (const p of presentations) {
+    if (p.key.startsWith("unplaced:")) continue;
+    const short = p.hospitals.filter((h) => days(h) < 10).sort((a, b) => days(a) - days(b));
+    const long = p.hospitals.filter((h) => days(h) > 14).sort((a, b) => days(b) - days(a));
+    const spareLeft = new Map(long.map((h) => [h.hospital, Math.floor(h.onHand - 14 * h.dailyUse)]));
+    for (const th of short) {
+      for (const fh of long) {
+        const spare = spareLeft.get(fh.hospital) ?? 0;
+        if (spare <= 0) continue;
+        const need = Math.max(1, Math.ceil(14 * th.dailyUse - th.onHand));
+        const qty = Math.min(spare, need);
+        const toAfter = round((th.onHand + qty) / th.dailyUse, 0);
+        if (toAfter <= round(days(th), 0)) continue; // moves stock without adding a day
+        spareLeft.set(fh.hospital, spare - qty);
+        const u = unitsWord(p.unit, qty);
+        options.push({
+          kind: "transfer", rank: 1, title: `Transfer ${qty} ${u} of ${p.short} from ${fh.hospital} to ${th.hospital}`,
+          detail: `${fh.hospital} has ${round(days(fh), 0)} days of ${p.label.replace(/\b(vial|bag|syringe|tablet|capsule)$/, "$1s")} on hand and can spare ${qty} ${u} while keeping two weeks; ${th.hospital} has ${round(days(th), 1)} days and would reach ${toAfter}.`,
+          why: `Same presentation, no clinical change, no new supplier.${schedule ? ` Schedule ${schedule} controlled substance: the transfer is documented between DEA registrants.` : ""}`, needs: transferNeeds, evidence: [...fh.evidence, ...th.evidence],
+          transfer: { qty, unit: p.unit, presentation: p.label, from: fh.hospital, to: th.hospital, fromDays: round(days(fh), 1), toDays: round(days(th), 1),
+            fromAfter: round((fh.onHand - qty) / fh.dailyUse, 0), toAfter },
+        });
+      }
     }
   }
   for (const m of market) {
-    if (m.inOurStock || m.onShortageList) continue;
+    if (m.inOurStock || m.onShortageList || REPACKAGER.test(m.labeler)) continue;
     const worst = m.plants.some((p) => p.health === "signal") ? "signal" : m.plants.some((p) => p.health === "watch") ? "watch" : m.plants.length ? "clear" : "unknown";
     if (worst === "signal") continue;
     options.push({
@@ -451,13 +532,21 @@ export async function investigate(opts: InvestigateOptions): Promise<Case> {
       why: worst === "clear" ? "Same product, no clinical change, plant record clear." : "Same product, but the plant record is thin or recent.", needs: "buyer", evidence: [],
     });
   }
+  // The interchange's kind follows the presentations, not the label on file: 60 mL to 5 mL is a vial-size change.
+  const presOf = new Map(stock.filter((l) => l.presentation).map((l) => [l.ndc11, l.presentation!]));
+  const activeByNdc = new Map(activeRows.map((r) => [ndc11Of(str(r.package_ndc)), r]));
   (ixR?.rows ?? []).forEach((r, i) => {
-    const rule = str(r.rule);
+    let rule = str(r.rule);
+    const from = presOf.get(str(r.ndc11)), to = presOf.get(str(r.alt_ndc11));
+    if (from && to && rule.startsWith("same product") !== (from === to)) {
+      rule = from === to ? "same product, alternate manufacturer" : "same molecule, alternate concentration or vial size";
+    }
+    const listedAlt = activeByNdc.get(str(r.alt_ndc11));
     options.push({
       kind: rule.startsWith("same product") ? "alternate_manufacturer" : rule.startsWith("IV-to-PO") ? "iv_to_po" : rule.startsWith("protocol") ? "interchange" : "alternate_concentration",
-      rank: rule.startsWith("same product") ? 2 : rule.startsWith("same molecule") ? 3 : 4,
+      rank: (rule.startsWith("same product") ? 2 : rule.startsWith("same molecule") ? 3 : 4) + (listedAlt ? 2 : 0),
       title: `${rule.charAt(0).toUpperCase()}${rule.slice(1)}: ${tallMan(str(r.alternative))} ${str(r.alt_strength)}${r.alt_labeler ? ` from ${str(r.alt_labeler)}` : ""}`,
-      detail: `${str(r.notes)} Approved by ${str(r.approved_by)} on ${str(r.approved_on)}.`,
+      detail: `${str(r.notes)} Approved by ${str(r.approved_by)} on ${str(r.approved_on)}.${listedAlt ? ` FDA lists this product ${str(listedAlt.status)} (posted ${str(listedAlt.initial_posting_date)}).` : ""}`,
       why: rule.startsWith("protocol") ? "A different drug; only per the treating oncologist." : "Already approved by the P&T committee.",
       needs: rule.startsWith("protocol") ? "treating oncologist" : "pharmacist", evidence: [ledger.cite(ixR, i, `P&T interchange: ${str(r.rule)}`)],
     });
@@ -467,7 +556,7 @@ export async function investigate(opts: InvestigateOptions): Promise<Case> {
   const c: Case = {
     id: caseId, question, askedAt: new Date().toISOString(), asOf: AS_OF, molecule,
     intent: { name: d.intent.primary, risk: d.risk.level, contractId: contract.contractId, clarification: null },
-    steps, stock, chain, shortage, market, options, timeline, explanation: null, dataQuality, memory: memLines, memo: null, gate,
+    steps, stock, presentations, chain, shortage, market, options, timeline, explanation: null, dataQuality, memory: memLines, memo: null, gate,
     evidence: ledger.evidence, queries: ledger.queries,
     usage: { zetarisQueries: Object.keys(ledger.queries).length, zetarisMs: Object.values(ledger.queries).reduce((n, q) => n + q.ms, 0), modelCalls: 0, tokensIn: 0, tokensOut: 0,
       mode: [...new Set(Object.values(ledger.queries).map((q) => q.mode))].length > 1 ? "mixed" : (Object.values(ledger.queries)[0]?.mode ?? "live") },

@@ -8,17 +8,22 @@
 }
 .fm-stage {
   position: sticky; top: var(--fm-top); height: calc(100svh - var(--fm-top)); overflow: hidden;
+  /* every frame rewrites the stage: contain it, so its layout and paint never reach the long page around it */
+  contain: strict;
   background: var(--page);
   background-image: radial-gradient(color-mix(in srgb, var(--ink) 3%, transparent) 1px, transparent 1.2px);
   background-size: 9px 9px;
 }
 .fm-void { position: absolute; inset: 0; background: var(--night); opacity: 0; pointer-events: none; z-index: 1; }
 .fm-micro { position: absolute; left: 41%; top: 96px; width: 56%; height: calc(100% - 136px); z-index: 2; overflow: visible; font-family: var(--sans); }
-.fm-micro.live { left: 0; top: 0; width: 100%; height: 100%; }
+.fm-micro.live { left: 0; top: 0; width: 100%; height: 100%; z-index: auto; }
+.fm-microwrap { position: absolute; inset: 0; z-index: 2; transform-origin: 0 0; pointer-events: none; }
 .fm-micro .fl-bars rect { fill: #16191a; }
 .fm-micro .fl-bardigits text { fill: #16191a; font-family: var(--sans); font-weight: 500; }
 .fm.fm-free .fm-micro .fl-bars rect { fill: var(--ink); }
 .fm-micro .fl-fr { fill: none; stroke: var(--carbon); stroke-width: 2; vector-effect: non-scaling-stroke; }
+.fm-frames { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; overflow: visible; }
+.fm-frames .fl-fr { fill: none; stroke: var(--carbon); stroke-width: 2; }
 .fm-micro .fl-labhi { fill: color-mix(in srgb, var(--carbon) 16%, transparent); }
 .fm-micro .fl-paper { fill: #fbfcfa; }
 .fm-micro .fl-band { fill: #16191a; }
@@ -31,8 +36,13 @@
 .fm-micro text { fill: #16191a; }
 .fm-micro .fl-band-t { fill: #fbfcfa; }
 .fm.fm-dark .fm-micro .fl-bars rect { fill: var(--bone); }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .fm-micro #flScene, :root:not([data-theme="light"]) .fm-micro #flVfocus { filter: brightness(0.86); } }
-:root[data-theme="dark"] .fm-micro #flScene, :root[data-theme="dark"] .fm-micro #flVfocus { filter: brightness(0.86); }
+/* dark desk: the drawer's paper is toned down by its fills (a filter here was re-run on every zoom frame) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .fm-micro .fl-paper, :root:not([data-theme="light"]) .fm-micro .fl-band-t { fill: #d8d9d7; }
+  :root:not([data-theme="light"]) .fm-micro .fl-plain { fill: #c0c5c1; }
+}
+:root[data-theme="dark"] .fm-micro .fl-paper, :root[data-theme="dark"] .fm-micro .fl-band-t { fill: #d8d9d7; }
+:root[data-theme="dark"] .fm-micro .fl-plain { fill: #c0c5c1; }
 
 .fm-globe { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3; opacity: 0; pointer-events: none; }
 .fm-globe .arc { fill: none; stroke-width: 2.4; stroke-linecap: round; }
@@ -80,11 +90,18 @@
 .fm-callout::after { content: ""; position: absolute; left: 0; top: 100%; width: 1px; height: var(--lead, 40px); background: var(--ink); margin-top: 8px; }
 
 .fm-gauge { position: absolute; left: 24px; top: 24px; bottom: 28px; width: 136px; z-index: 10; display: flex; flex-direction: column; transition: color 0.35s; }
+/* its figures change every frame: each readout is a fixed box of its own, so new text re-lays out that line only */
+.fm-gauge { contain: size layout style; }
+.fm-ro-f { height: 17px; }
+.fm-ro-f span { display: block; height: 17px; contain: strict; }
+.fm-clock b { height: 24px; contain: strict; }
+.fm-clock em { height: 15px; contain: strict; }
 .fm.fm-dark .fm-gauge { color: var(--bone); }
 .fm-ro { font-family: var(--figure); font-size: 40px; line-height: 1; font-weight: 300; font-variation-settings: "wdth" 125; letter-spacing: -0.01em; white-space: nowrap; }
 .fm-ro sup { font-size: 0.48em; font-weight: 520; position: relative; top: -0.05em; margin-left: 2px; vertical-align: top; }
 .fm-ro small { font-size: 0.42em; font-weight: 500; margin-left: 5px; }
 .fm-ro-f { font-size: 13px; color: var(--graphite); margin-top: 8px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.fm-gauge.on-paper .fm-ro { opacity: 0.32; }
 .fm.fm-dark .fm-ro-f, .fm.fm-dark .fm-clock span, .fm.fm-dark .fm-tick, .fm.fm-dark .fm-clock em { color: var(--fog); }
 .fm-ladder { position: relative; flex: 1; margin: 22px 0; }
 .fm-tick { position: absolute; left: 0; width: 40px; display: flex; align-items: center; justify-content: flex-end; gap: 6px; font-family: var(--figure); font-size: 11.5px; color: var(--graphite); transform: translateY(-50%); font-variant-numeric: tabular-nums; }
@@ -105,8 +122,8 @@
   background: var(--paper); color: var(--ink); border-top: 3px solid var(--ink);
   padding: 14px 18px 14px; box-shadow: var(--shadow-lift); transition: opacity 0.25s;
 }
-.fm-cap.swap .fm-cap-in { opacity: 0; }
-.fm-cap-in { transition: opacity 0.18s; }
+.fm-cap-in.in { animation: fm-cap-in 0.16s ease-out; }
+@keyframes fm-cap-in { from { opacity: 0.2; } to { opacity: 1; } }
 .fm-cap-n { margin: 0; font-family: var(--figure); font-size: 13px; color: var(--graphite); font-variant-numeric: tabular-nums; }
 .fm-cap-t { font-family: var(--serif); font-size: 22px; line-height: 1.2; font-weight: 600; margin: 3px 0 6px; }
 .fm-cap-b { margin: 0; font-size: 15px; line-height: 1.45; color: var(--ink-2); }
@@ -127,7 +144,7 @@
 
 .fm-doc { background: var(--paper); color: var(--ink); box-shadow: var(--shadow-lift); border-radius: var(--radius-doc); }
 .fm-doc code, .fm-labcard code { font-family: var(--type); font-size: 0.95em; }
-.fm-labcard { position: absolute; z-index: 8; width: 410px; opacity: 0; pointer-events: none; padding: 18px 22px; }
+.fm-labcard { position: absolute; z-index: 8; width: 410px; max-width: calc(100% - 24px); box-sizing: border-box; opacity: 0; pointer-events: none; padding: 18px 22px; }
 .fm-dh { display: flex; justify-content: space-between; gap: 12px; font-size: 12.5px; color: var(--graphite); padding-bottom: 8px; border-bottom: 1px solid var(--ink); margin-bottom: 12px; }
 .fm-labcard h3 { font-family: var(--serif); font-size: 27px; line-height: 1.12; font-weight: 600; margin: 0; }
 .fm-labcard p { font-size: 15px; color: var(--ink-2); margin: 8px 0 0; line-height: 1.45; }
@@ -207,7 +224,7 @@
 .fm-h-name { font-size: 15px; font-weight: 600; line-height: 1.2; }
 .fm-h-name span { display: block; font-size: 12.5px; font-weight: 400; color: var(--graphite); }
 .fm-h-bar { position: relative; height: 16px; background: repeating-linear-gradient(90deg, transparent 0 calc(100% / 21 - 1px), color-mix(in srgb, var(--ink) 9%, transparent) calc(100% / 21 - 1px) calc(100% / 21)); }
-.fm-h-bar i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--water-deep); width: 0; }
+.fm-h-bar i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--water-deep); width: 100%; transform-origin: 0 50%; transform: scaleX(0); will-change: transform; }
 .fm-h-row.low .fm-h-bar i { background: var(--caution); }
 .fm-h-bar .fl { position: absolute; top: -6px; bottom: -6px; left: calc(100% * 14 / 21); width: 2px; background: var(--ink); }
 .fm-h-days { font-size: 15px; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -223,6 +240,8 @@
 .fm-proofrow span { display: block; font-size: 13px; color: var(--graphite); margin-top: 6px; line-height: 1.35; }
 .fm-proofrow .nem b { color: var(--fda-red); }
 .fm-pips { position: absolute; inset: 0; pointer-events: none; }
+/* the moving sheets each get a compositor layer, so a frame moves them instead of repainting the stage */
+.fm-doc, .fm-cap, .fm-answer, .fm-callout, .fm-intro, .fm-lane, .fm-void, .fm-globe, .fm-ruler, .fm-rfig, .fm-sitemark { will-change: transform, opacity; }
 .fm-pip { position: absolute; left: 0; top: 0; width: 6px; height: 11px; border-radius: 1.5px 1.5px 2px 2px; background: var(--water-deep); opacity: 0; will-change: transform, opacity; }
 .fm-pip::before { content: ""; position: absolute; left: 1px; right: 1px; top: -3px; height: 3px; background: var(--ink); border-radius: 1px; }
 
@@ -254,7 +273,7 @@
   .fm-short { display: inline; }
   .fm-lane .fm-short { display: block; }
   .fm-clock span, .fm-clock em { display: none; }
-  .fm-clock b { font-size: 13px; }
+  .fm-clock b { font-size: 13px; height: 17px; width: 84px; }
   .fm-cap { left: 10px; right: 10px; bottom: 10px; width: auto; padding: 11px 14px; }
   .fm-cap-t { font-size: 18px; margin: 1px 0 3px; padding-right: 150px; }
   .fm-cap-b { font-size: 14px; line-height: 1.4; }
@@ -306,7 +325,9 @@
   .fm-proofrow span { font-size: 11.5px; }
   .fm-pip { width: 4px; height: 8px; }
 }
+/* the scroll cue stops pulsing once the intro has gone (a hidden animation still restyles every frame) */
+.fm-intro.off .fm-cue i { animation: none; }
 @media (prefers-reduced-motion: reduce) {
   .fm-cue i { animation: none; }
-  .fm-cap, .fm-cap-in, .fm-gauge { transition: none; }
+  .fm-cap, .fm-cap-in, .fm-gauge { transition: none; animation: none; }
 }

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { BacktestFull, type BacktestSummary } from "@/components/Backtest";
-import { EvalCompare, type EvalTrace } from "@/components/EvalCompare";
+import { findingOf } from "@/components/BacktestFinding";
+import { EvalCompare, type EvalTrace, type VerifierCheck } from "@/components/EvalCompare";
 import { readJson } from "@/components/server/data";
 import { fmtDate } from "@/components/lib/format";
 import "./backtest-page.css";
@@ -13,6 +14,12 @@ export const metadata: Metadata = {
 };
 
 // Local copies: the components are client modules, so their helpers can't be called from this server page.
+// A server page cannot call a client module's functions, so the shape checks live here.
+function isVerifier(x: unknown): x is VerifierCheck {
+  const o = x as VerifierCheck;
+  return Boolean(o && o.adversarial && typeof o.adversarial.caught === "number" && typeof o.adversarial.of === "number");
+}
+
 function isBacktest(x: unknown): x is BacktestSummary {
   const o = x as BacktestSummary;
   return Boolean(o && typeof o === "object" && o.cases && o.strict && o.endDated && Array.isArray(o.examples) && Array.isArray(o.caveats));
@@ -28,7 +35,12 @@ function windowText(w: BacktestSummary["window"]): string {
 }
 
 export default async function BacktestPage() {
-  const [rawB, rawE] = await Promise.all([readJson<unknown>("data/backtest/summary.json"), readJson<unknown>("data/eval/trace.json")]);
+  const [rawB, rawE, rawV] = await Promise.all([
+    readJson<unknown>("data/backtest/summary.json"),
+    readJson<unknown>("data/eval/trace.json"),
+    readJson<unknown>("data/eval/verifier.json"),
+  ]);
+  const verifier = isVerifier(rawV) ? rawV : null;
   const b: BacktestSummary | null = isBacktest(rawB) ? rawB : null;
   const ev: EvalTrace | null = isEval(rawE) ? rawE : null;
 
@@ -64,10 +76,10 @@ export default async function BacktestPage() {
                 </dd>
               </div>
             </dl>
-            {b?.conclusion ? (
+            {b && (b.conclusion || findingOf(b)) ? (
               <p className="btp-card__ans">
-                <span>Short answer.</span> Often the trail is there and explains a shortage after the fact. Dated strictly by
-                what was public at the time, it does not predict one.
+                <span>Short answer.</span> {findingOf(b)?.strict ?? b.conclusion} Dated by when the inspection closed it is more
+                common, but only with hindsight. The trail explains; it does not forecast.
               </p>
             ) : null}
           </aside>
@@ -133,7 +145,7 @@ export default async function BacktestPage() {
               pair by pair against ground truth from FDA&apos;s raw files, beside the same model answering from memory.
             </p>
           </header>
-          <EvalCompare full data={ev} />
+          <EvalCompare full data={ev} verifier={verifier} />
         </div>
       </section>
 

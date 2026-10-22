@@ -5,15 +5,19 @@ import { RecordDesk } from "@/components/record/RecordDesk";
 import { buildDesk } from "@/components/record/model";
 import { BoxStamp } from "@/components/record/bits";
 import { AskBox } from "@/components/AskBox";
-import { Film } from "@/components/film";
+import { Film, prepareFilm } from "@/components/film";
 import type { EvalFile, PlantsFile } from "@/components/film";
+import { Defer } from "@/components/record/Defer";
+import { leanCase } from "@/components/record/lean";
+import { Glossed } from "@/components/Gloss";
 import { Watershed } from "@/components/watershed";
 import { NightBand } from "@/components/chronograph/NightBand";
 import { BacktestHome, type BacktestSummary } from "@/components/Backtest";
 import { EvalCompare, type EvalTrace } from "@/components/EvalCompare";
 import { fdaManifest, loadCase, readJson, realCases } from "@/components/server/data";
-import { fmtInt, fmtMs } from "@/components/lib/format";
+import { fmtInt } from "@/components/lib/format";
 import { drugTitle } from "@/components/lib/drug";
+import { caseSystems, lineageLine } from "@/src/lib/lineage";
 import "./home.css";
 
 const PROBLEM = [
@@ -42,7 +46,8 @@ const PROBLEM = [
 
 const LIMITS = [
   ["The hospitals are fictional", "Corvale Health, its stock, usage, people and past decisions are invented. The FDA records it traces are real and dated."],
-  ["About a third of labels name no plant", "When a label lists no establishment, Upstream falls back to the application holder and says so. It does not guess the factory."],
+  // Measured by scripts/dq-fda.mts (data/dq/fda.json); the heading below is filled from it.
+  ["LABELS", "When a label lists no establishment, Upstream falls back to the label's text or the application holder and says so. It does not guess the factory."],
   ["Ingredient plants are mostly invisible", "Labels name finished-dose plants. The plant making the active ingredient rarely appears in a public file, so a problem there can go unseen."],
   ["History has look-ahead bias", "Today's FDA files include classifications that were not public at the time. The ruler marks the day each finding became known."],
   ["A finding is not a cause", "An OAI classification means FDA found serious problems at a plant. It does not prove they caused this shortage; the answer says linked, never caused."],
@@ -52,21 +57,36 @@ const LIMITS = [
 export default async function Home() {
   const c = await loadCase("carboplatin");
   if (!c) notFound();
-  const [plants, trace, backtest, manifest, cases] = await Promise.all([
+  const [plants, trace, backtest, manifest, cases, dq] = await Promise.all([
     readJson<PlantsFile>("data/plants.json"),
     readJson<EvalFile & EvalTrace>("data/eval/trace.json"),
     readJson<BacktestSummary>("data/backtest/summary.json"),
     fdaManifest(),
     realCases(),
+    readJson<{ labels: { labels: number; pctNameNoPlant: number; pctListNoEstablishment: number }; plants: { pctUnplaced: number } }>("data/dq/fda.json"),
   ]);
-  const m = buildDesk(c, "carboplatin");
-  const { graph, ...lean } = c;
+  const limits = LIMITS.map(([h, p]) =>
+    h !== "LABELS"
+      ? [h, p]
+      : dq
+        ? [
+            `${Math.round(dq.labels.pctNameNoPlant)}% of labels name no plant`,
+            `${Math.round(dq.labels.pctListNoEstablishment)}% of the ${fmtInt(dq.labels.labels)} labels list no establishment, and ${dq.plants.pctUnplaced}% of the plants they name are not in FDA's registration file. ${p}`,
+          ]
+        : ["Many labels name no plant", p],
+  );
+  const slug = cases.find((x) => x.slug === "carboplatin" || x.molecule.toLowerCase() === c.molecule.toLowerCase())?.slug ?? "carboplatin";
+  const m = buildDesk(c, slug);
+  const graph = (c as typeof c & { graph?: { nodes: unknown[]; edges: unknown[] } }).graph;
+  const lean = leanCase(c);
   const plantsLean = plants && {
     asOf: plants.asOf,
     queryId: plants.queryId,
     plants: plants.plants.map((p) => ({ name: p.name, fei: p.fei, country_iso3: p.country_iso3, lat: p.lat, lon: p.lon, health: p.health })),
   };
   const evalLean = trace ? ({ summary: trace.summary } as EvalFile) : null;
+  // The film's figures are computed here; the client gets them, not the case.
+  const film = prepareFilm(c, plantsLean, evalLean);
   const fdaRows = manifest ? Object.values(manifest.counts).reduce((a, b) => a + b, 0) : null;
   const title = drugTitle(c.molecule);
   const v = c.explanation?.verifier;
@@ -74,37 +94,37 @@ export default async function Home() {
   const flow = [
     {
       who: "You ask",
-      engine: "Scout Intent",
+      engine: "Meterless Scout Intent",
       what: "Names the intent and its risk, then signs an execution contract listing what may run. Every later tool call is checked against it. Orders are always refused.",
       here: `${c.intent.name}, ${c.intent.risk} risk, contract ${c.intent.contractId?.slice(-8) ?? "none"}`,
     },
     {
       who: "Upstream reads the sources",
       engine: "Zetaris",
-      what: "Federated SQL through one semantic layer, over two Postgres servers, a folder of CSV exports and FDA's files, read where they live. Every query is kept with its id, SQL and rows.",
-      here: `${c.usage.zetarisQueries} queries, ${fmtMs(c.usage.zetarisMs)}${fdaRows ? `, over ${fmtInt(fdaRows)} FDA rows` : ""}`,
+      what: "Federated SQL through one semantic layer. Two Postgres servers and a folder of CSV exports are read in place; FDA's public files are cleaned once into CSVs that Zetaris reads as file tables. Every query is kept with its id, SQL and rows.",
+      here: `${lineageLine(caseSystems(c).length, c.usage.zetarisQueries, c.usage.zetarisMs)}${fdaRows ? `, over ${fmtInt(fdaRows)} FDA rows` : ""}`,
     },
     {
       who: "The chain is recorded",
-      engine: "World Model",
+      engine: "Meterless World Model",
       what: "Hospital item, package, product, labeler, plant and FDA action become a graph with provenance on every edge. The explanation may only cite what is in it.",
       here: `${graph?.nodes.length ?? 0} nodes, ${graph?.edges.length ?? 0} edges`,
     },
     {
       who: "What did we do last time?",
-      engine: "H-MEM",
-      what: "Recalls past decisions on the drug with who signed them, and records a new one only after a named pharmacist signs.",
+      engine: "Meterless H-MEM",
+      what: "Recalls past decisions on the drug with who signed them, and records a new one only after a signed-in pharmacist or the director signs: a demo sign-in here, single sign-on in a hospital.",
       here: `${c.memory.length} past decisions recalled`,
     },
     {
       who: "The answer is written",
       engine: "NVIDIA Nemotron and the verifier",
       what: "Nemotron writes from the evidence. A deterministic check then drops any sentence whose dates, numbers or citations are not in the rows it cites.",
-      here: `${v?.checked ?? 0} claims checked, ${v?.rejected.length ?? 0} dropped`,
+      here: `${c.explanation?.sentences.length ?? 0} sentences and the headline kept, ${v?.rejected.length ?? 0} dropped`,
     },
     {
       who: "Overnight, every drug",
-      engine: "Markovian",
+      engine: "Meterless Markovian",
       what: "The watch walks the whole formulary in fixed-size chunks with a fresh contract for each, so the morning report costs the same at 30 drugs or 300.",
       here: "215 drugs, 18 chunks, a flat prompt",
     },
@@ -114,26 +134,31 @@ export default async function Home() {
     <EvidenceProvider evidence={c.evidence} queries={c.queries}>
       <RecordDesk
         m={m}
-        signHref="/case/carboplatin#memo"
+        signHref={`/case/${slug}#memo`}
+        foot={
+          <>
+            Built on <b>Zetaris</b> · <b>Meterless</b> · <b>NVIDIA Nemotron</b> · <b>Cursor</b>
+          </>
+        }
         lede={
           <>
             <b>Upstream</b> follows a short drug from our shelves to the plant that makes it, and lays FDA&apos;s record out to scale. This morning a buyer asked about {title}:
           </>
         }
       >
-        <Link href="/case/carboplatin" className="rd-go">
+        <Link href={`/case/${slug}`} className="rd-go">
           Open the full file
         </Link>
       </RecordDesk>
+
+      <section className="hm-film" aria-label="Follow one vial upstream">
+        <Film film={film} offsetTop={66} answerHref={`/case/${slug}`} />
+      </section>
 
       <section className="hm-sec hm-ask" aria-label="Ask Upstream">
         <div className="hm-in">
           <AskBox id="home-ask" />
         </div>
-      </section>
-
-      <section className="hm-film" aria-label="Follow one vial upstream">
-        <Film caseData={lean} plants={plantsLean} evalData={evalLean} offsetTop={66} answerHref="/case/carboplatin" />
       </section>
 
       <section className="hm-sec" aria-labelledby="ws-h">
@@ -198,7 +223,9 @@ export default async function Home() {
               files. Both are marked against answers computed separately from the raw files.
             </p>
           </div>
-          <EvalCompare data={trace} />
+          <Defer minHeight={900}>
+            <EvalCompare data={trace} />
+          </Defer>
         </div>
       </section>
 
@@ -208,13 +235,15 @@ export default async function Home() {
             <h2 id="bt-h">Does the ruler hold up on past shortages?</h2>
             <p>The same trace, run over FDA&apos;s shortage history and a set of drugs that were never short. It explains; it does not predict.</p>
           </div>
-          <BacktestHome data={backtest} />
+          <Defer minHeight={700}>
+            <BacktestHome data={backtest} />
+          </Defer>
         </div>
       </section>
 
-      <div className="hm-night">
+      <Defer className="hm-night" minHeight={1000}>
         <NightBand />
-      </div>
+      </Defer>
 
       <section className="hm-sec" aria-labelledby="how-h">
         <div className="hm-in">
@@ -230,7 +259,9 @@ export default async function Home() {
                   <b>{f.who}</b>
                   <span>{f.engine}</span>
                 </span>
-                <span className="hm-flow__what">{f.what}</span>
+                <span className="hm-flow__what">
+                  <Glossed text={f.what} />
+                </span>
                 <span className="hm-flow__here">
                   <span className="hm-flow__k">{title}</span>
                   {f.here}
@@ -251,13 +282,15 @@ export default async function Home() {
             <p>Stated plainly, because a buyer acting on this needs to know where it stops.</p>
           </div>
           <ol className="hm-limits">
-            {LIMITS.map(([h, p], i) => (
+            {limits.map(([h, p], i) => (
               <li key={h}>
                 <BoxStamp tone="ink" tilt={i % 2 ? 1.5 : -1.5}>
                   {`NOTE ${i + 1}`}
                 </BoxStamp>
                 <h3>{h}</h3>
-                <p>{p}</p>
+                <p>
+                  <Glossed text={p} />
+                </p>
               </li>
             ))}
           </ol>

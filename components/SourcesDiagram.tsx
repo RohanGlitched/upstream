@@ -39,7 +39,7 @@ export function SourcesDiagram({
         </li>
         <li className="src src--fda">
           <span className="src-kind">Public files</span>
-          <span className="src-name">FDA, 12 files and openFDA labels</span>
+          <span className="src-name">FDA, 12 public files</span>
           <span className="src-note">
             {fdaRows ? `${fmtInt(fdaRows)} rows` : "NDC directory, labels"}: NDCs, plants on labels, registrations,
             inspections, Form 483s, warning letters, import alerts, recalls, shortages
@@ -51,7 +51,7 @@ export function SourcesDiagram({
       <div className="flow-hub" aria-label="Zetaris">
         <div className="hub">
           <span className="hub-name">Zetaris</span>
-          <p>Queries each source where it lives, over JDBC and in-place file tables. Nothing is copied.</p>
+          <p>Reads the hospitals in place over JDBC and file tables. FDA&apos;s public files are cleaned once into CSVs it reads as file tables.</p>
           <div className="hub-usl">
             <span className="hub-usl__name">Unified Semantic Layer</span>
             <p>One model over the three hospitals and FDA. Its foreign keys become data-quality rules.</p>

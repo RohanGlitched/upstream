@@ -13,12 +13,14 @@ export function GateRegister({ c }: { c: Case }) {
       <div className="reg-head">
         <div>
           <span className="reg-fl">Register</span>
-          <span className="reg-fv">Scout gate, contract {c.intent.contractId?.slice(-8) ?? "none"}</span>
+          <span className="reg-fv">
+            Meterless Scout gate, contract <span className="reg-chip">{c.intent.contractId?.slice(-8) ?? "none"}</span>
+          </span>
         </div>
         <div>
           <span className="reg-fl">Intent</span>
           <span className="reg-fv">
-            {c.intent.name}, {c.intent.risk} risk
+            {c.intent.name}, <span className="reg-nw">{c.intent.risk} risk</span>
           </span>
         </div>
         <div>
@@ -40,6 +42,7 @@ export function GateRegister({ c }: { c: Case }) {
               </span>
               <span className="reg-why">{g.reason}</span>
               <span className="reg-stamp">
+                <span className="reg-stamp__by">Meterless Scout</span>
                 <BoxStamp tone={TONE[g.decision]} tilt={((i * 37) % 5) - 2.5}>
                   {g.decision.toUpperCase()}
                 </BoxStamp>

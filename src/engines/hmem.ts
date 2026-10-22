@@ -38,6 +38,8 @@ import {
 } from "../../vendor/meterless/hmem/reference/src/index.ts";
 import type { AddInput } from "../../vendor/meterless/hmem/reference/src/memoryStore.ts";
 import { PHARMACY_SYNONYMS, contentTokens, hashFeatures, slug, stateDir, words } from "./text.ts";
+import { quoteDecision } from "./decision-text.ts";
+export { quoteDecision, parseDecisionContent, DECISION_QUOTE_MAX } from "./decision-text.ts";
 
 export * from "../../vendor/meterless/hmem/reference/src/index.ts";
 export type { AddInput } from "../../vendor/meterless/hmem/reference/src/memoryStore.ts";
@@ -361,9 +363,12 @@ export class HMEM extends BaseHMEM {
     const at = d.at ?? this.clock();
     const ndcs = d.ndcs ?? [];
     const day = new Date(at).toISOString().slice(0, 10);
+    // The decision is the approver's free text: stored as quoted data, never as instructions or as Upstream's words.
+    const quote = quoteDecision(d.decision);
+    if (!quote) throw new Error("H-MEM: a decision needs drug and decision text");
     return {
       content:
-        `Decision on ${d.drug}: ${d.decision}. Rationale: ${d.rationale}. Approved by ${d.approvedBy.trim()}.` +
+        `Decision on ${d.drug}, in the approver's words: "${quote}". Rationale: ${d.rationale}. Approved by ${d.approvedBy.trim()}.` +
         (ndcs.length ? ` NDCs: ${ndcs.join(", ")}.` : ""),
       source: `pharmacy-decision:${day}:${slug(d.approvedBy)}`,
       type: "factual",

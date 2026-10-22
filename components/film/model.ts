@@ -99,11 +99,22 @@ export function buildFilm(c: Case, plantsFile: PlantsFile | null, ev: EvalFile |
   const E = c.evidence;
   const drug = tallMan(c.molecule.split(" ")[0]);
   // the hospital with the fewest days, and the NDC there that leads to an FDA finding
+  // With presentations on record, the film follows one presentation (the best transfer's, else the shortest),
+  // with the same days the desk prints; older recordings pool every line at a hospital.
+  const bestT = c.options.filter((o) => o.kind === "transfer").sort((a, b) => a.rank - b.rank)[0];
+  const minDays = (p: NonNullable<Case["presentations"]>[number]) => Math.min(...p.hospitals.map((h) => h.days ?? Infinity));
+  const pres = (c.presentations ?? []).find((p) => p.label === bestT?.transfer?.presentation) ?? [...(c.presentations ?? [])].sort((a, b) => minDays(a) - minDays(b))[0];
   const hosps = ["Corvale General", "Corvale East", "Corvale Lakeside"].map((k) => {
+    const at = pres?.hospitals.find((h) => h.hospital === k);
+    if (pres) {
+      const lines = c.stock.filter((s) => s.hospital === k && (at?.lines.includes(s.itemKey) ?? false));
+      return { key: k as Hospital, short: k.replace("Corvale ", ""), lines, onHand: at?.onHand ?? 0, use: at?.dailyUse ?? 0, days: at?.days ?? 0 };
+    }
     const lines = c.stock.filter((s) => s.hospital === k);
     const onHand = lines.reduce((a, s) => a + s.onHand, 0), use = lines.reduce((a, s) => a + s.dailyUse, 0);
     return { key: k as Hospital, short: k.replace("Corvale ", ""), lines, onHand, use, days: use ? onHand / use : 0 };
   }).filter((h) => h.lines.length);
+  const presWord = pres ? (pres.label.split(",").pop()?.trim() ?? pres.short) : null; // "60 mL vial"
   const H = [...hosps].sort((a, b) => a.days - b.days)[0];
   const redPlant = (p: Plant) => p.signals.some((s) => s.kind === "inspection_oai");
   const listed = new Set(c.shortage.ourNdcsListed);
@@ -140,7 +151,7 @@ export function buildFilm(c: Case, plantsFile: PlantsFile | null, ev: EvalFile |
   });
   const focusLine = H.lines.find((s) => s.ndc11 === chain.ndc11)!;
   const fst = parseStrength(focusLine.description);
-  const fmt1 = (n: number) => (Math.round(n * 10) / 10).toString();
+  const fmt1 = (n: number) => (Math.round(n * 10) / 10).toFixed(1); // a tenth of a day, as on the desk
   const unit = H.lines[0].unit === "vial" ? "vials" : `${H.lines[0].unit}s`;
   const stockQ = E[H.lines[0].evidence]?.queryId ?? "";
   const derivedH = Object.values(E).find((x) => x.queryId === "derived" && x.fields?.hospital === H.key);
@@ -216,9 +227,11 @@ export function buildFilm(c: Case, plantsFile: PlantsFile | null, ev: EvalFile |
 
   // the answer
   let answer: FilmData["answer"] = null;
-  const opt = c.options.filter((o) => o.kind === "transfer").sort((a, b) => a.rank - b.rank)[0];
+  const opt = bestT;
   if (opt) {
-    const m = /Transfer\s+([\d.]+)\s+from\s+(Corvale \w+)\s+to\s+(Corvale \w+)/i.exec(opt.title);
+    const m = opt.transfer
+      ? (["", String(opt.transfer.qty), opt.transfer.from, opt.transfer.to] as unknown as RegExpExecArray)
+      : /Transfer\s+([\d.]+)\s+from\s+(Corvale \w+)\s+to\s+(Corvale \w+)/i.exec(opt.title);
     if (m) {
       const n = +m[1];
       const rows = [...hosps].sort((a, b) => a.days - b.days).map((h) => {
@@ -230,7 +243,7 @@ export function buildFilm(c: Case, plantsFile: PlantsFile | null, ev: EvalFile |
         title: `Transfer ${n} ${unit} from ${m[2]} to ${m[3]}.`,
         why: opt.why,
         rows,
-        note: `${m[3].replace("Corvale ", "")} goes from ${fmt1(to.a)} days to ${Math.round(to.b)}. ${m[2].replace("Corvale ", "")} keeps ${from.b >= 13.5 ? "two weeks" : fmt1(from.b) + " days"}.`,
+        note: `${presWord ? `In ${presWord}s, ` : ""}${m[3].replace("Corvale ", "")} goes from ${fmt1(to.a)} days to ${fmt1(to.b)}. ${m[2].replace("Corvale ", "")} keeps ${fmt1(from.b)} days.`,
         needs: opt.needs,
       };
     }
@@ -261,7 +274,7 @@ export function buildFilm(c: Case, plantsFile: PlantsFile | null, ev: EvalFile |
   const caps: Caption[] = [
     {
       t: `${H.key}’s cabinet drawer`,
-      b: `${cap(num(Math.round(H.onHand)))} ${unit} of ${drug} under ${num(H.lines.length)} NDCs, used at ${fmt1(H.use)} a day: ${fmt1(H.days)} days. ${others.map((o, i) => `${o.key} ${i ? "" : "has "}${fmt1(o.days)}${i ? "" : " days"}`).join(" and ")}.`,
+      b: `${cap(num(Math.round(H.onHand)))} ${presWord ? `${presWord}s` : unit} of ${drug} under ${num(H.lines.length)} ${H.lines.length === 1 ? "NDC" : "NDCs"}, used at ${fmt1(H.use)} a day: ${fmt1(H.days)} days. ${others.map((o, i) => `${o.key} ${i ? "" : "has "}${fmt1(o.days)}${i ? "" : " days"}`).join(" and ")}.`,
       e: [["Zetaris query", stockQ], ["Rows", H.lines.map((s) => s.evidence).join(" ")], ...(derivedH ? [["Derived", derivedH.id] as [string, string]] : [])],
     },
     {
@@ -311,8 +324,8 @@ export function buildFilm(c: Case, plantsFile: PlantsFile | null, ev: EvalFile |
   return {
     asOf: c.asOf, molecule: c.molecule, drug, question: c.question,
     hospital: { key: H.key, short: H.short, onHand: H.onHand, use: H.use, days: H.days, unit },
-    pockets, cabinet: `${H.key}, ${hazard ? "oncology cabinet" : "pharmacy cabinet"}`, totalLine: `${drug}, ${fmt1(H.onHand)} ${unit} on hand`,
-    callout: { big: `${fmt1(H.days)} days left`, small: `${H.key}: ${fmt1(H.onHand)} ${unit}, used at ${fmt1(H.use)} a day` },
+    pockets, cabinet: `${H.key}, ${hazard ? "oncology cabinet" : "pharmacy cabinet"}`, totalLine: `${drug}, ${Math.round(H.onHand)} ${unit} on hand`,
+    callout: { big: `${fmt1(H.days)} days left`, small: `${H.key}: ${Math.round(H.onHand)} ${presWord ? `${presWord}s` : unit}, used at ${fmt1(H.use)} a day` },
     focus: {
       ndc: chain.packageNdc, labeler: chain.labeler, labelerShort: shortFirm(chain.labeler), codes,
       product: `${drug} ${formOf(chain.ndc11).toLowerCase()}${fst.concText ? ", " + fst.concText : ""}`,

@@ -24,7 +24,25 @@ from generate import (  # noqa: E402
     find_scenario,
     scenario_map,
     normalize_ws,
+    parse_units_per_package,
 )
+
+
+class TestUnitsPerPackage(unittest.TestCase):
+    """East's pkg_size is a count of units of use, never the inner volume."""
+
+    def test_carton_of_one_vial(self):
+        self.assertEqual(parse_units_per_package("1 VIAL, MULTI-DOSE in 1 CARTON (0703-4239-01)  / 60 mL in 1 VIAL, MULTI-DOSE"), 1)
+
+    def test_bottle_of_tablets(self):
+        self.assertEqual(parse_units_per_package("100 TABLET in 1 BOTTLE (0000-0000-01)"), 100)
+
+    def test_tray_of_vials(self):
+        self.assertEqual(parse_units_per_package("25 VIAL in 1 TRAY (0000-0000-25)  / 2 mL in 1 VIAL"), 25)
+
+    def test_vial_is_the_package(self):
+        self.assertEqual(parse_units_per_package("10 mL in 1 VIAL (0000-0000-10)"), 1)
+        self.assertEqual(parse_units_per_package(""), 1)
 
 
 class TestNdcConversion(unittest.TestCase):

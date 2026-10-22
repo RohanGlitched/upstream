@@ -3,7 +3,8 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import type { Case, Evidence as Ev } from "../src/agent/types";
 import { fmtMs, fmtStamp } from "./lib/format";
-import { sourceName } from "./lib/sources";
+import { lineageOf, lineageLine } from "../src/lib/lineage";
+import { Glossed } from "./Gloss";
 import "./evidence.css";
 
 type Queries = Case["queries"];
@@ -14,6 +15,35 @@ interface Ctx {
 }
 
 const EvidenceCtx = createContext<Ctx | null>(null);
+
+/** Where a statement was read: each physical system, the table in it and the USL table it came through.
+ *  Computed from the SQL text, so recorded queries show it too. */
+function WhereRead({ q }: { q: Queries[string] }) {
+  const lin = lineageOf(q.sql);
+  const systems = new Map<string, { name: string; how: string; parts: string[] }>();
+  for (const l of lin) {
+    const s = systems.get(l.system.id) ?? { name: l.system.name, how: l.system.how, parts: [] };
+    s.parts.push(l.via ? `${l.table} via the USL table ${l.via}` : l.table);
+    systems.set(l.system.id, s);
+  }
+  return (
+    <>
+      <h3 className="ev-sub">Where it was read</h3>
+      <p className="ev-lineage num">{lineageLine(systems.size, 1, q.ms)}</p>
+      <ul className="ev-sources">
+        {[...systems.entries()].map(([id, s]) => (
+          <li key={id}>
+            <span>{s.name}</span>
+            <span className="muted small">
+              <Glossed text={s.parts.join("; ")} />
+            </span>
+            {s.how ? <span className="muted small">{s.how}</span> : null}
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+}
 
 function prettySql(sql: string): string {
   return sql
@@ -155,15 +185,7 @@ function Drawer({
             <p className="ev-where">
               {queries[id].rows.toLocaleString("en-US")} rows in {fmtMs(queries[id].ms)}
             </p>
-            <h3 className="ev-sub">Where it was read</h3>
-            <ul className="ev-sources">
-              {queries[id].sources.map((s) => (
-                <li key={s}>
-                  <span>{sourceName(s)}</span>
-                  <span className="muted small">{s}</span>
-                </li>
-              ))}
-            </ul>
+            <WhereRead q={queries[id]} />
             <dl className="facts ev-meta">
               <dt>Mode</dt>
               <dd>
@@ -195,7 +217,7 @@ function Drawer({
                 <>Computed by Upstream from rows already in this case. No query ran for it.</>
               ) : (
                 <>
-                  Row {ev.row + 1} of query <span className="num strong">{ev.queryId}</span>
+                  Row {ev.row + 1} of Zetaris query <span className="num strong">{ev.queryId}</span>
                   {q ? <>, {q.rows.toLocaleString("en-US")} rows in {fmtMs(q.ms)}</> : null}
                 </>
               )}
@@ -213,15 +235,7 @@ function Drawer({
 
             {q ? (
               <>
-                <h3 className="ev-sub">Where it was read</h3>
-                <ul className="ev-sources">
-                  {q.sources.map((s) => (
-                    <li key={s}>
-                      <span>{sourceName(s)}</span>
-                      <span className="muted small">{s}</span>
-                    </li>
-                  ))}
-                </ul>
+                <WhereRead q={q} />
                 <dl className="facts ev-meta">
                   <dt>Mode</dt>
                   <dd>

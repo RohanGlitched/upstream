@@ -41,11 +41,11 @@ export function Findings({ explanation, evidence }: { explanation: Explanation; 
               <TickMark size={22} />
               verified
             </div>
-            <div className={`br-slip${e ? " is-open" : ""}`} id={`br-slip-${i}`} role="region" aria-label={cur ? `Carbon of ${cur}` : undefined}>
+            <div className={`br-slip${e ? " is-open" : ""}`} id={`br-slip-${i}`} role="region" aria-label={cur ? `Source row ${cur}` : undefined}>
               {e && cur ? (
                 <>
                   <h4>
-                    Carbon of {cur}: {e.label}
+                    Source row {cur}: {e.label}
                   </h4>
                   <dl>
                     {Object.entries(e.fields)
@@ -64,7 +64,7 @@ export function Findings({ explanation, evidence }: { explanation: Explanation; 
                       "Computed by Upstream from rows already in this case; no query ran for it."
                     ) : (
                       <>
-                        Row {e.row + 1} of query {e.queryId}.{" "}
+                        Row {e.row + 1} of Zetaris query {e.queryId}.{" "}
                         {ev ? (
                           <button type="button" className="br-link" onClick={() => ev.open(cur, s.cites)}>
                             Read the row and its SQL

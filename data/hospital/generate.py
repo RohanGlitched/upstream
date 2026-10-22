@@ -363,6 +363,26 @@ def parse_pack_size(description: str) -> int | None:
     return None
 
 
+MEASURE_WORDS = {"ml", "l", "g", "mg", "mcg", "kg", "oz", "meq", "unit", "units"}
+
+
+def parse_units_per_package(description: str) -> int:
+    """Units of use in one package, from the outer segment of FDA's packaging description.
+
+    "1 VIAL, MULTI-DOSE in 1 CARTON / 60 mL in 1 VIAL" -> 1 (vial); "100 TABLET in 1 BOTTLE" -> 100;
+    "10 mL in 1 VIAL" -> 1 (the vial is the package). parse_pack_size above reads the inner volume (60), which
+    is what Lakeside's descriptions print; East's pkg_size is a count, so it needs this one.
+    """
+    outer = (description or "").split(" / ")[0]
+    m = re.match(r"\s*(\d+(?:\.\d+)?)\s+([A-Za-z]+)", outer)
+    if not m or m.group(2).lower() in MEASURE_WORDS:
+        return 1
+    try:
+        return max(1, int(float(m.group(1))))
+    except ValueError:
+        return 1
+
+
 def file_sha256(path: Path) -> str:
     h = hashlib.sha256()
     with open(path, "rb") as f:
@@ -764,6 +784,7 @@ def pick_packages(
                 "spl_set_id": (openfda.get("spl_set_id") or [None])[0],
                 "packaging_description": pack.get("description") or "",
                 "pack_size": parse_pack_size(pack.get("description") or ""),
+                "units_per_pkg": parse_units_per_package(pack.get("description") or ""),
             })
     if not pkgs:
         return []
@@ -1394,20 +1415,23 @@ def write_corvale_east(
             on_hand = max(0, int(round(reorder * rng.uniform(0.3, 2.2))))
             if item.get("from_shortage"):
                 on_hand = max(0, int(round(reorder * rng.uniform(0.1, 0.9))))
+        # Simulated in units of use like the other hospitals, stored the way East counts: in packages.
+        upp = item.get("units_per_pkg") or 1
         stock_rows.append((
             item["east_id"],
-            float(on_hand),
-            float(reorder),
+            round(on_hand / upp, 4),
+            round(reorder / upp, 4),
             AS_OF.isoformat(),
         ))
         for w in range(EAST_WEEKS):
             ws = first_week + timedelta(weeks=w)
             used = round(base_weekly * rng.uniform(0.6, 1.4), 2)
-            usage_rows.append((item["east_id"], ws.isoformat(), used))
+            usage_rows.append((item["east_id"], ws.isoformat(), round(used / upp, 4)))
 
     path = out_dir / "corvale_east.sql"
     with open(path, "w", encoding="utf-8") as f:
         f.write("-- Corvale East (east) synthetic pharmacy data\n")
+        f.write("-- pack sizes: pkg_size is units of use per package; stock and usage are in packages\n")
         f.write("DROP SCHEMA IF EXISTS east CASCADE;\n")
         f.write("CREATE SCHEMA east;\n\n")
         f.write("""CREATE TABLE east.items (
@@ -1435,7 +1459,8 @@ def write_corvale_east(
         for item in east_items:
             strength = item.get("strength") or ""
             descr = east_description(item, strength)
-            pkg_size = item.get("pack_size") if item.get("pack_size") is not None else 1
+            # East counts stock in packages: pkg_size is how many units of use (uom) one package holds.
+            pkg_size = item.get("units_per_pkg") or 1
             ivals.append(
                 f"  ({sql_str(item['east_id'])}, {sql_str(descr)}, "
                 f"{sql_str(abbreviate_mfr(item['labeler_name']))}, "

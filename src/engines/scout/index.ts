@@ -81,6 +81,7 @@ interface Issued {
   surface: string;
   dataClass: string;
   parameters: Record<string, unknown>;
+  subject?: Record<string, string>;
 }
 
 export class Scout {
@@ -379,6 +380,7 @@ export class Scout {
         scope: scopeCaps,
         dataClass: pii.dataClass,
         spans: plan,
+        subject: input.subject,
       });
     }
     decision.latencyMs.total = performance.now() - t0;
@@ -421,6 +423,7 @@ export class Scout {
     scope: string[];
     dataClass: string;
     spans?: Decision["plan"];
+    subject?: Record<string, string>;
   }): ExecutionContract {
     const issuedAt = this.clock();
     const contract = signContract(
@@ -439,7 +442,7 @@ export class Scout {
         risk: { level: a.level, flags: a.flags, redactions: a.redactions, approvals: a.approvals, approvalsRequired: a.approvalsRequired },
         toolPlan: a.toolPlan,
         modelProfile: a.modelProfile,
-        scope: { user: { id: a.user.id, role: a.user.role }, surface: a.surface, capabilities: a.scope },
+        scope: { user: { id: a.user.id, role: a.user.role }, surface: a.surface, capabilities: a.scope, subject: a.subject && Object.keys(a.subject).length ? { ...a.subject } : undefined },
         issuedAt: new Date(issuedAt).toISOString(),
         expiresAt: new Date(issuedAt + this.ttl).toISOString(),
         registryVersion: this.registry.version,
@@ -448,7 +451,7 @@ export class Scout {
       },
       this.secret,
     );
-    this.issued.set(contract.contractId, { contract, primary: a.primary, secondary: a.secondary, user: a.user, surface: a.surface, dataClass: a.dataClass, parameters: a.parameters });
+    this.issued.set(contract.contractId, { contract, primary: a.primary, secondary: a.secondary, user: a.user, surface: a.surface, dataClass: a.dataClass, parameters: a.parameters, subject: a.subject });
     if (this.issued.size > 1000) this.issued.delete(this.issued.keys().next().value as string);
     telemetry.emit("contract.issued", { contractId: contract.contractId, parentId: a.parentId, traceId: a.traceId, intent: a.primary.id, risk: a.level, profile: a.modelProfile.id, capabilities: a.scope });
     return contract;
@@ -501,6 +504,7 @@ export class Scout {
         surface: rec.surface,
         scope: p.scope.capabilities,
         dataClass: rec.dataClass,
+        subject: rec.subject,
       });
       return { ...base, risk: { level: p.risk.level, flags: contract.risk.flags, redactions: p.risk.redactions, approvalsRequired: p.risk.approvalsRequired }, toolPlan, executionContract: contract, modelProfile: p.modelProfile, latencyMs: { sense: 0, total: performance.now() - t0 } };
     } catch (e) {
@@ -546,6 +550,7 @@ export class Scout {
       surface: rec.surface,
       scope: contract.scope.capabilities,
       dataClass: rec.dataClass,
+      subject: rec.subject,
     });
   }
 
@@ -588,6 +593,7 @@ export class Scout {
       surface: rec.surface,
       scope: contract.scope.capabilities,
       dataClass: rec.dataClass,
+      subject: rec.subject,
     });
   }
 

@@ -40,9 +40,9 @@ export function useApi<T>(url: string, validate: (x: unknown) => x is T): ApiSta
   return state;
 }
 
-export async function postJson<T>(url: string, body: unknown): Promise<{ ok: true; data: T } | { ok: false; missing: boolean; message: string }> {
+export async function postJson<T>(url: string, body: unknown, headers: Record<string, string> = {}): Promise<{ ok: true; data: T } | { ok: false; missing: boolean; message: string }> {
   try {
-    const r = await fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+    const r = await fetch(url, { method: "POST", headers: { "content-type": "application/json", ...headers }, body: JSON.stringify(body) });
     const type = r.headers.get("content-type") ?? "";
     if (r.status === 404 || r.status === 405 || !type.includes("json")) {
       return { ok: false, missing: true, message: "This copy of Upstream does not have that service yet." };

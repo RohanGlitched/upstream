@@ -20,7 +20,7 @@ chmod -R a+rX "$DEST"
 du -sh "$DEST"
 
 cat > "$ZETARIS_DIR/docker-compose.override.yml" <<EOF
-# Upstream: FDA bundle and Corvale Lakeside exports, read in place (read-only) by the query engine.
+# Upstream: Corvale Lakeside's exports, read in place, and the cleaned FDA bundle, mounted read-only for the query engine.
 services:
   driver:
     volumes:

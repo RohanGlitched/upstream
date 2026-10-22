@@ -5,6 +5,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { useEvidence } from "../Evidence";
+import { Gloss, Glossed } from "../Gloss";
 import type { DeskModel, Hang, PlantCard } from "./model";
 import { CARD_W, RULER_H, THREAD_Y, buildScale, pack, ticks, type Placed } from "./layout";
 import { Clip, DmSvg, PaperClip, Ring, Stamp, TallName, TickMark, Typed, UpcSvg, fitSize } from "./bits";
@@ -42,7 +43,89 @@ function short(name: string): string {
   return name.replace(/,? (Inc\.?|LLC|L\.L\.C\.|Corp\.?|Corporation|Limited|Ltd\.?|Co\.?)$/i, "").replace(/,$/, "");
 }
 
-const fmtDays = (d: number | null) => (d === null ? "n/a" : d < 10 ? d.toFixed(1) : String(Math.round(d)));
+// One rounding for days everywhere on the desk (shelf, slip, cards): a tenth of a day.
+const fmtDays = (d: number | null) => (d === null ? "n/a" : d.toFixed(1));
+
+const HEADLINE_OAI = "a plant FDA classified Official Action Indicated (serious violations)";
+
+/* ---------- the answer: the explanation's sentences with their rows ---------- */
+
+function Why({ m }: { m: DeskModel }) {
+  const ev = useEvidence();
+  const [open, setOpen] = useState<{ i: number; id: string } | null>(null);
+  if (!m.why.length) return null;
+  const row = open ? m.whyRows[open.id] : null;
+  const isOn = (i: number, id: string) => open?.i === i && open.id === id;
+  return (
+    <div className="rd-why">
+      <p className="rd-why__k">
+        Why, in {m.why.length} checked {m.why.length === 1 ? "sentence" : "sentences"}. Each mark opens the row it rests on.
+      </p>
+      <p className="rd-why__p">
+        {m.why.map((x, i) => (
+          <span key={i} className={`rd-why__s${open?.i === i ? " is-on" : ""}`}>
+            <Glossed text={x.text} />
+            {x.cites.map((id) => (
+              <button
+                key={id}
+                type="button"
+                className={`rd-cite${isOn(i, id) ? " is-on" : ""}`}
+                aria-expanded={isOn(i, id)}
+                aria-controls={`rd-slip-${m.slug}`}
+                aria-label={`Source row ${id}`}
+                onClick={() => setOpen(isOn(i, id) ? null : { i, id })}
+              >
+                {id}
+              </button>
+            ))}{" "}
+          </span>
+        ))}
+      </p>
+      <div id={`rd-slip-${m.slug}`} className={`rd-wslip${row ? " is-open" : ""}`} role="region" aria-live="polite" aria-label={open ? `Source row ${open.id}` : "Source row"}>
+        {row && open ? (
+          <>
+            <div className="rd-wslip__h">
+              <b>Source row {open.id}</b>
+              <span>{row.queryId === "derived" ? "computed by Upstream from rows in this case" : `row ${row.row + 1} of Zetaris query ${row.queryId}`}</span>
+              <button type="button" className="rd-wslip__x" onClick={() => setOpen(null)} aria-label="Close the source row">
+                Close
+              </button>
+            </div>
+            <p className="rd-wslip__l">{row.label}</p>
+            {row.fields.length ? (
+              <dl>
+                {row.fields.map(([k, v]) => (
+                  <div key={k}>
+                    <dt>{k}</dt>
+                    <dd>{v}</dd>
+                  </div>
+                ))}
+              </dl>
+            ) : null}
+            {ev && ev.has(open.id) && row.queryId !== "derived" ? (
+              <button type="button" className="rd-wslip__more" onClick={() => ev.open(open.id, m.why[open.i]?.cites)}>
+                Read the full row and the SQL sent to Zetaris
+              </button>
+            ) : null}
+          </>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+/** The headline, with FDA's classification read out where it appears. */
+function Headline({ text }: { text: string }) {
+  const at = text.search(/\bOAI\b/);
+  if (at < 0) return <Glossed text={text} />;
+  return (
+    <>
+      {text.slice(0, at)}
+      <Gloss def={`OAI: ${HEADLINE_OAI}. A finding, not proof of what caused the shortage.`}>OAI</Gloss>
+      {text.slice(at + 3)}
+    </>
+  );
+}
 
 /* ---------- the supply: shelf label, carton, establishment block, other plants ---------- */
 
@@ -73,7 +156,10 @@ function ShelfLabel({ m }: { m: DeskModel }) {
             const low = s.days !== null && s.days < 7;
             return (
               <li key={s.hospital} className={low ? "is-low" : undefined}>
-                <span className="rd-days__h">{s.hospital}</span>
+                <span className="rd-days__h">
+                  {s.hospital}
+                  {s.presentation ? <small className="rd-days__p">{s.presentation}</small> : null}
+                </span>
                 <span className="rd-days__bar" aria-hidden="true">
                   <i style={{ width: `${Math.min(100, ((s.days ?? 0) / MAXD) * 100)}%` }} />
                   <span className="rd-days__mark" style={{ left: `${(14 / MAXD) * 100}%` }} />
@@ -92,7 +178,9 @@ function ShelfLabel({ m }: { m: DeskModel }) {
           })}
         </ul>
         <div className="rd-shelf__foot">
-          <span className="rd-shelf__k">NDC</span>
+          <span className="rd-shelf__k">
+            <Gloss term="NDC">NDC</Gloss>
+          </span>
           {m.ndcs.slice(0, 4).map((n) => (
             <span key={n} className="rd-type">{n}</span>
           ))}
@@ -184,7 +272,9 @@ function Insert({ m }: { m: DeskModel }) {
             <tr>
               <th>Name</th>
               <th>Address</th>
-              <th>FEI</th>
+              <th>
+                <Gloss term="FEI">FEI</Gloss>
+              </th>
               <th>Operations</th>
             </tr>
           </thead>
@@ -211,7 +301,7 @@ function Insert({ m }: { m: DeskModel }) {
       ) : (
         <p className="rd-insert__empty">This label&apos;s establishment section names no plant.</p>
       )}
-      {more > 0 ? <p className="rd-insert__more">and {more} more on this label</p> : null}
+      {more > 0 ? <p className="rd-insert__more">and {more} more {more === 1 ? "plant" : "plants"} on this label</p> : null}
       {p ? (
         <p className="rd-insert__note">
           {qualityNote(p)}
@@ -311,7 +401,8 @@ function HangCard({ h }: { h: Hang }) {
           {oai && h.observations.length ? (
             <div className="rd-obs">
               <b>
-                Form 483{h.observationCount ? `, ${h.observationCount} observation${h.observationCount === 1 ? "" : "s"}` : ""}
+                <Gloss term="Form 483">Form 483</Gloss>
+                {h.observationCount ? `, ${h.observationCount} observation${h.observationCount === 1 ? "" : "s"}` : ""}
                 {h.observationCount && h.observationCount > h.observations.length ? ", including" : ""}
               </b>
               <ol>
@@ -369,7 +460,7 @@ function HangCard({ h }: { h: Hang }) {
       return (
         <div className="paper rd-doc rd-letter">
           <div className="rd-lh">
-            {h.title}
+            <Glossed text={h.title} />
             <br />
             to {h.firm}
           </div>
@@ -406,8 +497,9 @@ function HangCard({ h }: { h: Hang }) {
                   {"\n"}
                 </>
               ) : null}
-              {h.note ? `Reason: ${h.note.toLowerCase()}` : ""}
+              {h.note ? `Reason given: ${h.note.toLowerCase()}` : ""}
             </pre>
+            {h.reasonLine ? <p className="rd-posting__why">{h.reasonLine}</p> : null}
             <Src ids={h.evidence}>{h.source}</Src>
           </div>
         </div>
@@ -419,7 +511,9 @@ function HangCard({ h }: { h: Hang }) {
             <span>{h.date}</span>
             <span>IA {h.ref}</span>
           </div>
-          <h3>{h.title}</h3>
+          <h3>
+            <Glossed text={h.title} />
+          </h3>
           {h.note ? <p className="rd-fax__ttl">{h.note}</p> : null}
           <p>
             {h.firm}
@@ -506,14 +600,17 @@ function Slip({ m, signHref }: { m: DeskModel; signHref?: string }) {
             </div>
             <div>
               <span className="rd-fl">Quantity</span>
-              <span className="rd-fv rd-fv--big">{t.qty}</span> <small className="rd-fv rd-fv--s">{m.shelf[0]?.unit === "vial" ? "vials" : "units"}</small>
+              <span className="rd-fv rd-fv--big">{t.qty}</span> <small className="rd-fv rd-fv--s">{t.unit ? (t.qty === 1 ? t.unit : `${t.unit}s`).replace(/^eachs?$/, "units") : m.shelf[0]?.unit === "vial" ? "vials" : "units"}</small>
+              {t.presentation ? <small className="rd-fv rd-fv--s">{t.presentation}</small> : null}
             </div>
             <div>
               <span className="rd-fl">After</span>
               <span className="rd-fv">
                 {t.to.replace(/^Corvale /, "")} {t.after ?? "14"} d
               </span>
-              <span className="rd-fv">{t.from.replace(/^Corvale /, "")} 14 d</span>
+              <span className="rd-fv">
+                {t.from.replace(/^Corvale /, "")} {t.fromAfter ?? "14.0"} d
+              </span>
             </div>
           </div>
         ) : (
@@ -623,6 +720,7 @@ export function RecordDesk({
   signHref,
   children,
   lede,
+  foot,
   play = true,
 }: {
   m: DeskModel;
@@ -630,6 +728,8 @@ export function RecordDesk({
   signHref?: string;
   children?: ReactNode;
   lede?: ReactNode;
+  /** a quiet line under the actions (the home page names what Upstream is built with) */
+  foot?: ReactNode;
   play?: boolean;
 }) {
   const root = useRef<HTMLElement>(null);
@@ -686,14 +786,18 @@ export function RecordDesk({
     const R = rc.getBoundingClientRect();
     const rx = R.left - base.left;
     const ry = R.top - base.top;
-    const pts = [...pins, { x: rx - 30, y: ry - 4 }, { x: rx - 2, y: ry + THREAD_Y }];
+    // From the label's establishment block the thread drops straight down, clear of the answer in the left
+    // column, then runs along the top of the record to the ruler's start.
+    const end = pins[pins.length - 1];
+    const drop = end ? [{ x: end.x, y: ry - 26 }] : [];
+    const pts = [...pins, ...drop, { x: rx - 30, y: ry - 6 }, { x: rx - 2, y: ry + THREAD_Y }];
     let d = `M${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
     for (let i = 1; i < pts.length; i++) {
       const a = pts[i - 1];
       const b = pts[i];
       const dist = Math.hypot(b.x - a.x, b.y - a.y);
       const last = i === pts.length - 1;
-      const sag = last ? 0 : Math.min(40, dist * 0.06);
+      const sag = last ? 0 : i >= pins.length ? Math.min(10, dist * 0.02) : Math.min(40, dist * 0.06);
       const mx = (a.x + b.x) / 2 + (last ? -26 : 0);
       const my = (a.y + b.y) / 2 + sag;
       d += ` Q${mx.toFixed(1)} ${my.toFixed(1)} ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;
@@ -742,31 +846,33 @@ export function RecordDesk({
                 <b>Q.</b>
                 <Typed text={m.question} />
               </div>
-              <div className="rd-clock" aria-label={`Asked ${fmtDate(m.askedAt)}`}>
-                <b>{fmtDate(m.askedAt).toUpperCase()}</b>
-                {m.askedAt.slice(11, 16)} case {m.caseShort}
+              <div className="rd-clock" aria-label={`Asked ${fmtDate(m.askedAt)}, on data as of ${fmtDate(m.asOf)}, case ${m.caseShort}`}>
+                <b>ASKED {fmtDate(m.askedAt).toUpperCase()}</b>
+                data as of {fmtDate(m.asOf)}, case {m.caseShort}
               </div>
             </div>
             <H className="rd-h1" id={`rd-h-${m.slug}`}>
-              {m.headline}
+              <Headline text={m.headline} />
             </H>
-            <p className="rd-dek">{m.dek}</p>
+            <Why m={m} />
             <div className="rd-verdict">
               <TickMark className="rd-verdict__tick" size={24} />
               <span>
                 <b>
-                  {v.checked} of {v.checked + v.rejected} claims {stateWord}
+                  {v.sentences ? `${v.sentences} ${v.sentences === 1 ? "sentence" : "sentences"} and the headline ${stateWord}` : `The headline ${stateWord}`}
                 </b>
-                {v.rejected ? `, ${v.rejected} rejected and dropped` : ", none rejected"}. {v.queries} queries across our {v.hospitals === 1 ? "stock system" : `${v.hospitals === 3 ? "three" : "two"} stock systems`} and
-                FDA in {v.seconds} seconds.
+                {v.rejected ? `; ${v.rejected} more ${v.rejected === 1 ? "was" : "were"} rejected and dropped` : ", none rejected"}. {v.queries} Zetaris statements across{" "}
+                {v.systems} systems ({v.hospitalSystems} hospital, {v.systems - v.hospitalSystems} FDA files) in {v.seconds} seconds.
               </span>
             </div>
+            <p className="rd-dek">{m.dek}</p>
             <div className="rd-actions">
               {children}
               <button type="button" className="rd-replay" onClick={replay}>
                 Lay out the file again
               </button>
             </div>
+            {foot ? <p className="rd-foot">{foot}</p> : null}
           </div>
 
           <div className="rd-supply">
@@ -837,6 +943,10 @@ export function RecordDesk({
           <path className="rd-thread rd-thread--shadow" d={thread.d} transform="translate(1.5 3)" />
           <path className="rd-thread" d={thread.d} />
           <path className="rd-thread__twist" d={thread.d} />
+        </svg>
+      ) : null}
+      {thread ? (
+        <svg className="rd-overlay rd-overlay--pins" width={thread.w} height={thread.h} viewBox={`0 0 ${thread.w} ${thread.h}`} aria-hidden="true">
           {thread.pins.map((p, i) => (
             <g key={i} className="rd-pin" style={{ "--d": `${500 + i * 120}ms` } as CSSProperties}>
               <ellipse cx={p.x + 2.5} cy={p.y + 4.5} rx="6.5" ry="3.2" className="rd-pin__shadow" />

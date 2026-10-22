@@ -8,6 +8,7 @@ loadEnv();
 process.env.ZETARIS_MEMO_DQ = "1";
 const { query } = await import("../src/lib/zetaris.ts");
 const { investigate } = await import("../src/agent/investigate.ts");
+const { explain } = await import("../src/agent/explain.ts");
 const { USL } = await import("../src/agent/sql.ts");
 const { baseMolecule } = await import("../src/agent/watch.ts");
 const { openMemory } = await import("../src/engines/hmem.ts");
@@ -40,6 +41,11 @@ for (const base of names.slice(0, limit)) {
   const world = new UpstreamWorld({ storage: "memory" });
   try {
     const c = await investigate({ question: `Why is ${display} short, and what do we do?`, drug: base, formulary, memory, world });
+    // The hosted model's free tier rate-limits bursts: when the explanation came back empty for that reason, wait and write it again.
+    for (let i = 0; i < 4 && c.explanation?.verifier.rejected[0]?.reason.startsWith("model unavailable"); i++) {
+      await new Promise((r) => setTimeout(r, 30_000 * (i + 1)));
+      c.explanation = await explain(c);
+    }
     if (!c.stock.length) {
       console.log(`  skip ${slug}: no stock lines matched`);
       continue;

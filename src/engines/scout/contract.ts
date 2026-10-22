@@ -94,7 +94,8 @@ export type RefusalReason =
   | "scope-mismatch"
   | "never-capability"
   | "approval-missing"
-  | "version-mismatch";
+  | "version-mismatch"
+  | "subject-mismatch";
 
 export type VerifyResult = { ok: true; contract: ExecutionContract } | { ok: false; reason: RefusalReason; detail: string };
 
@@ -106,6 +107,8 @@ export interface VerifyOptions {
   never?: string[];
   expectRegistryVersion?: number;
   expectPolicyPackVersion?: string;
+  /** Upstream: the contract must be bound to exactly this subject (every key must match scope.subject) */
+  expectSubject?: Record<string, string>;
 }
 
 /** Approvals required before `capability` may run, per the contract's own (signed) requirements. */
@@ -147,6 +150,11 @@ export function verifyContract(contract: unknown, capability: string, opts: Veri
   if (Date.parse(c.issuedAt) > now + CLOCK_SKEW_MS) return refuse("not-yet-valid", `issued in the future (${c.issuedAt})`);
   if (opts.expectRegistryVersion !== undefined && c.registryVersion !== opts.expectRegistryVersion) return refuse("version-mismatch", `registry ${c.registryVersion} != ${opts.expectRegistryVersion}`);
   if (opts.expectPolicyPackVersion !== undefined && c.policyPackVersion !== opts.expectPolicyPackVersion) return refuse("version-mismatch", `policy ${c.policyPackVersion} != ${opts.expectPolicyPackVersion}`);
+  if (opts.expectSubject) {
+    const bound = c.scope.subject ?? {};
+    const off = Object.entries(opts.expectSubject).filter(([k, v]) => bound[k] !== v);
+    if (off.length) return refuse("subject-mismatch", off.map(([k, v]) => `${k} is ${bound[k] === undefined ? "not bound" : JSON.stringify(bound[k])}, expected ${JSON.stringify(v)}`).join("; "));
+  }
   if ((opts.never ?? NEVER_CAPABILITIES).includes(capability)) return refuse("never-capability", `${capability} is never executed by Upstream`);
   if (!c.scope.capabilities.includes(capability)) return refuse("scope-mismatch", `${capability} not in scope [${c.scope.capabilities.join(", ")}]`);
   for (const spec of requiredApprovals(c, capability)) {

@@ -1,6 +1,7 @@
--- FDA's public drug data, read in place from CSV files (data/fda/build_bundle.py builds them).
+-- FDA's public drug data. Not read in place: data/fda/build_bundle.py downloads openFDA, DailyMed and the Data Dashboard
+-- files once and cleans them into CSVs (deriving ndc11, firm_key, fei_match and known_date), which Zetaris reads as file tables.
 -- One folder per table under the query engine's shared file root (infra/zetaris/stage-files.sh).
-CREATE LIGHTNING DATABASE fda DESCRIBE BY "FDA public drug data, read in place";
+CREATE LIGHTNING DATABASE fda DESCRIBE BY "FDA public drug data, cleaned CSV file tables";
 CREATE LIGHTNING FILESTORE TABLE ndc_packages FROM fda FORMAT CSV OPTIONS (path "/home/zetaris/customer-data/shared/upstream/fda/ndc_packages", header "true", inferSchema "false", multiLine "true", escape "\"");
 CREATE LIGHTNING FILESTORE TABLE spl_establishments FROM fda FORMAT CSV OPTIONS (path "/home/zetaris/customer-data/shared/upstream/fda/spl_establishments", header "true", inferSchema "false", multiLine "true", escape "\"");
 CREATE LIGHTNING FILESTORE TABLE registrations FROM fda FORMAT CSV OPTIONS (path "/home/zetaris/customer-data/shared/upstream/fda/registrations", header "true", inferSchema "false", multiLine "true", escape "\"");

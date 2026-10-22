@@ -62,7 +62,8 @@ export function Signature({ name, draw = false, className, style }: { name: stri
       aria-label={`Signed: ${name}`}
       style={style}
     >
-      <path d={d} />
+      {/* pathLength 1 lets the stroke ink in along the pen's own path when the signature is drawn. */}
+      <path d={d} pathLength={draw ? 1 : undefined} />
     </svg>
   );
 }

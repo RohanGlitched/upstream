@@ -6,7 +6,8 @@ import { fmtIso, kmText } from "@/components/chronograph/model";
 import type { ChronoPlant, Health } from "@/components/chronograph/types";
 import { PlantLedger } from "@/components/plants/PlantLedger";
 import { Unrolled } from "@/components/plants/Unrolled";
-import { countryName, firmCase } from "@/components/lib/format";
+import { countryName, firmCase, plural } from "@/components/lib/format";
+import { readJson } from "@/components/server/data";
 import "./plants.css";
 
 export const metadata: Metadata = {
@@ -24,6 +25,8 @@ function median(xs: number[]): number {
 
 export default async function Plants() {
   const data = await loadChronoData();
+  // Measured share of labels that name no plant (scripts/dq-fda.mts).
+  const dq = await readJson<{ labels: { labels: number; nameNoPlant: number; pctNameNoPlant: number } }>("data/dq/fda.json");
   const p = data.plants;
   const total = p.length;
 
@@ -67,9 +70,9 @@ export default async function Plants() {
               <>
                 <h1 id="plants-title">The plants behind our formulary</h1>
                 <p>
-                  Every plant named on the FDA labels of what Corvale stocks, drawn at its true distance and bearing from
-                  our hospitals. The bezel is a calendar. It replays what FDA found at each plant, day by day, from 2022 to
-                  today.
+                  Every plant named on the FDA labels of what Corvale stocks. FDA&apos;s file gives a plant&apos;s country, not
+                  its site, so each is placed at its country&apos;s centre; distance and bearing are to that point. The bezel
+                  is a calendar: it replays what FDA found at each plant, day by day, from 2022 to today.
                 </p>
               </>
             }
@@ -105,7 +108,7 @@ export default async function Plants() {
                     FDA acted
                   </th>
                   <th scope="col" className="r">
-                    From Corvale
+                    To its centre
                   </th>
                 </tr>
               </thead>
@@ -137,32 +140,33 @@ export default async function Plants() {
           </div>
           <dl className="pl-facts">
             <div>
-              <dt>Plants FDA acted against since 2022</dt>
+              <dt>Plants FDA acted against at any time since January 2022</dt>
               <dd>
-                <span className="pl-big">{acted.length}</span> with {actions.length} OAI inspections, warning letters or import
-                alerts between them
+                <span className="pl-big">{acted.length}</span> with {plural(actions.length, "OAI inspection, warning letter or import alert", "OAI inspections, warning letters or import alerts")}{" "}
+                between them. The map&apos;s red count is narrower: an action in the three years before the date on the bezel.
               </dd>
             </div>
             {most ? (
               <div>
                 <dt>Makes the most of our drugs</dt>
                 <dd>
-                  <span className="pl-big">{mostN}</span> at {firmCase(most.name)}, {countryName(most.iso)}
+                  <span className="pl-big">{mostN}</span> {mostN === 1 ? "drug" : "drugs"} at {firmCase(most.name)}, {countryName(most.iso)}
                 </dd>
               </div>
             ) : null}
             {far ? (
               <div>
-                <dt>Farthest from our shelf</dt>
+                <dt>Farthest country from our shelf</dt>
                 <dd>
-                  <span className="pl-big">{kmText(far.km).replace(" km", "")}</span> km to {firmCase(far.name)}, {countryName(far.iso)}
+                  <span className="pl-big">{kmText(far.km).replace(" km", "")}</span> km to the centre of {countryName(far.iso)}, where{" "}
+                  {firmCase(far.name)} is
                 </dd>
               </div>
             ) : null}
             <div>
               <dt>Reached by an investigation</dt>
               <dd>
-                <span className="pl-big">{linked}</span> of {total} plants, across the {data.casesRead} recorded cases
+                <span className="pl-big">{linked}</span> of {total} plants, across the {plural(data.casesRead, "recorded case")}
               </dd>
             </div>
           </dl>
@@ -207,8 +211,8 @@ export default async function Plants() {
               <h3>Where a dot sits</h3>
               <p>
                 FDA&apos;s registration file gives each plant&apos;s country, not its coordinates, so plants sit in a cluster
-                around their country&apos;s centre and distances run from there. The bearing and the order of magnitude are
-                right; the town is in the record card.
+                around their country&apos;s centre, and every distance and bearing is to that centre: every US plant reads the
+                same. The order of magnitude is right; the town is in the record card.
               </p>
             </li>
             <li>
@@ -231,8 +235,9 @@ export default async function Plants() {
             <li>
               <h3>What it can&apos;t show</h3>
               <p>
-                Only plants named on finished-dose labels. Ingredient plants rarely appear in public files, and about a third
-                of labels name no plant at all; those products are missing here rather than guessed.
+                Only plants named on finished-dose labels. Ingredient plants rarely appear in public files, and{" "}
+                {dq ? `${Math.round(dq.labels.pctNameNoPlant)}% of labels (${dq.labels.nameNoPlant} of ${dq.labels.labels})` : "many labels"} name no plant at all;
+                those products are missing here rather than guessed.
               </p>
             </li>
           </ol>

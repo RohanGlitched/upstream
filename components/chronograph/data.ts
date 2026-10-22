@@ -33,6 +33,8 @@ interface PlantsFile {
     address?: string | null;
     lat?: number | null;
     lon?: number | null;
+    /** True only when lat/lon are the site's own; the atlas query writes the country's centre otherwise. */
+    geocoded?: boolean;
     health: Health;
     last: string | null;
     products: { labeler: string; molecule: string }[];
@@ -75,14 +77,27 @@ function geometry(): Geo {
   GEO = {
     land: round(path(land)),
     borders: round(path(borders)),
-    graticule: round(path(geoGraticule().step([15, 15])())),
+    // The graticule is a faint guide: whole units are enough, and a third of the bytes.
+    graticule: (path(geoGraticule().step([15, 15])()) ?? "").replace(/(\d+)\.\d+/g, "$1"),
     hub: [hub[0], hub[1]],
     project: (p) => (proj(p) as [number, number]) ?? [CX, CY],
   };
   return GEO;
 }
 
+// The atlas is the same for every visitor until a file under it changes: keep it for a minute rather than rebuild
+// it (and walk every recorded case) on each request.
+let CACHE: { at: number; data: ChronoData } | null = null;
+const TTL_MS = 60_000;
+
 export async function loadChronoData(): Promise<ChronoData> {
+  if (CACHE && Date.now() - CACHE.at < TTL_MS) return CACHE.data;
+  const data = await buildChronoData();
+  CACHE = { at: Date.now(), data };
+  return data;
+}
+
+async function buildChronoData(): Promise<ChronoData> {
   const file = await readJson<PlantsFile>("data/plants.json");
   const plants = file?.plants ?? [];
   const asOf = file?.asOf ?? (history as { asOf: string }).asOf;
@@ -168,6 +183,7 @@ export async function loadChronoData(): Promise<ChronoData> {
       y: Math.round(y * 10) / 10,
       km: Math.round(km),
       bearing: Math.round(bearing * 10) / 10,
+      placed: p.geocoded ? "site" : "country",
       products: p.products ?? [],
       events: kept,
       cases: links ? [...links.entries()].map(([slug, title]) => ({ slug, title })).sort((a, b) => a.title.localeCompare(b.title)) : [],

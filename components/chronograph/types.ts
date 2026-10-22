@@ -26,9 +26,12 @@ export interface ChronoPlant {
   /** Position in the 820 x 820 drawing, already spread around the country's centroid. */
   x: number;
   y: number;
-  /** Distance to Corvale along the Earth, km (from the country centroid FDA's file gives). */
+  /** Distance to Corvale along the Earth, km, and the bearing: to the plant's site when it was geocoded, otherwise
+   *  to its country's centre (FDA's registration file gives the country, not coordinates). */
   km: number;
   bearing: number;
+  /** "country": drawn at the country's centre (spread so dots do not overlap); "site": at its own coordinates. */
+  placed: "country" | "site";
   products: { labeler: string; molecule: string }[];
   events: ChronoEvent[];
   cases: { slug: string; title: string }[];

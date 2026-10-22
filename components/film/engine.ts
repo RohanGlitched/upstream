@@ -1,4 +1,6 @@
-// The film's scroll engine: one rAF per scroll change, transforms and viewBox only.
+// The film's scroll engine: one rAF per scroll change, transforms and viewBox only. Nothing in a frame reads
+// layout: the film's position and every box are measured in layout() (on resize, font load and page growth),
+// and a frame only writes, skipping any write whose value has not changed.
 import { geoDistance, geoGraticule, geoGraticule10, geoInterpolate, geoOrthographic, geoPath } from "d3-geo";
 import type { GeoPermissibleObjects } from "d3-geo";
 import { feature } from "topojson-client";
@@ -21,13 +23,31 @@ const iso = (ms: number) => new Date(ms).toISOString().slice(0, 10);
 const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const NS = "http://www.w3.org/2000/svg";
 
+// Style writes go through css(): a frame writes only what changed, so an unchanged sheet is never re-styled.
+const lastCss = new WeakMap<Element, Record<string, string>>();
+/** The same for SVG attributes: an unchanged attribute is not set again (setting one invalidates its node). */
+function attr(el: Element, name: string, v: string) {
+  let m = lastCss.get(el);
+  if (!m) lastCss.set(el, (m = {}));
+  if (m["@" + name] === v) return;
+  m["@" + name] = v;
+  el.setAttribute(name, v);
+}
+function css(el: HTMLElement | SVGElement, prop: "opacity" | "visibility" | "transform", v: string) {
+  let m = lastCss.get(el);
+  if (!m) lastCss.set(el, (m = {}));
+  if (m[prop] === v) return;
+  m[prop] = v;
+  el.style[prop] = v;
+}
+
 interface Cam { z: number; w: V2; s: V2 }
 interface Opts { TMAX: number; STOPS: number[]; BOUNDS: number[]; offsetTop: number }
 
 export function runFilm(root: HTMLElement, D: FilmData, MG: MicroGeo, o: Opts): () => void {
   const { TMAX, STOPS, BOUNDS } = o;
   const q = <T extends Element = HTMLElement>(k: string) => root.querySelector(`[data-f="${k}"]`) as T | null;
-  const stage = q("stage")!, micro = q<SVGSVGElement>("micro")!, gsvg = q<SVGSVGElement>("globe")!;
+  const stage = q("stage")!, micro = q<SVGSVGElement>("micro")!, microWrap = q("microwrap")!, gsvg = q<SVGSVGElement>("globe")!;
   const RM = window.matchMedia("(prefers-reduced-motion: reduce)");
   const stageOf = (t: number) => { let i = 0; while (i < BOUNDS.length && t >= BOUNDS[i]) i++; return i; };
   let W = 0, H = 0, MOB = false, FR = 1, HDR = 20;
@@ -49,7 +69,16 @@ export function runFilm(root: HTMLElement, D: FilmData, MG: MicroGeo, o: Opts): 
   const diveBar = labBars.reduce((a, b) => (b.w > a.w ? b : a), labBars[0]);
   const labHi = micro.querySelector<SVGRectElement>("#flLabHi")!, scene = micro.querySelector<SVGGElement>("#flScene")!, vAcc = micro.querySelector<SVGGElement>("#flVfocus");
   const digitsG = micro.querySelector<SVGGElement>(".fl-bardigits");
-  const fr1 = micro.querySelector<SVGPathElement>("#flFr1")!, fr2 = micro.querySelector<SVGPathElement>("#flFr2")!;
+  // The two frame brackets are drawn in screen space on a small SVG of their own: inside the zooming scene,
+  // keeping them 2px wide meant a new stroke width, and a relayout of the whole drawer, every frame.
+  micro.querySelectorAll("#flFr1, #flFr2").forEach((n) => ((n as SVGElement).style.display = "none"));
+  const frSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  frSvg.setAttribute("class", "fm-frames");
+  frSvg.setAttribute("aria-hidden", "true");
+  microWrap.after(frSvg);
+  const fr1 = document.createElementNS("http://www.w3.org/2000/svg", "path"), fr2 = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  fr1.setAttribute("class", "fl-fr"); fr2.setAttribute("class", "fl-fr");
+  frSvg.append(fr1, fr2);
   const lanesEl = q("lanes")!;
   const LANES = [...lanesEl.querySelectorAll<HTMLElement>("[data-lane]")].map((el) => ({ el, g: el.dataset.lane! }));
   const labcard = q("labcard")!;
@@ -61,7 +90,24 @@ export function runFilm(root: HTMLElement, D: FilmData, MG: MicroGeo, o: Opts): 
   const toS = (c: Cam, p: V2): V2 => [(p[0] - c.w[0]) * c.z + c.s[0], (p[1] - c.w[1]) * c.z + c.s[1]];
   const toW = (c: Cam, p: V2): V2 => [(p[0] - c.s[0]) / c.z + c.w[0], (p[1] - c.s[1]) / c.z + c.w[1]];
   const zoomCam = (A: Cam, B: Cam, f: number): Cam => { const pA = toS(A, B.w); return { z: llerp(A.z, B.z, f), w: B.w, s: [lerp(pA[0], B.s[0], f), lerp(pA[1], B.s[1], f)] }; };
-  const setVB = (c: Cam) => micro.setAttribute("viewBox", `${c.w[0] - c.s[0] / c.z} ${c.w[1] - c.s[1] / c.z} ${W / c.z} ${H / c.z}`);
+  // The drawer scene's viewBox is fixed at the first camera (set in layout); every other camera is a CSS
+  // transform of the plain box around the SVG. A new viewBox, or a transform on the <svg> itself, re-laid out
+  // all ~800 SVG nodes (72 of them text) each frame; a transform on its wrapper only repaints them.
+  let B: Cam = { z: 1, w: [0, 0], s: [0, 0] };
+  const onScreen = (c: Cam, r: { x: number; y: number; w: number; h: number }) => {
+    const a = toS(c, [r.x, r.y]), b = toS(c, [r.x + r.w, r.y + r.h]);
+    return { x: a[0], y: a[1], w: b[0] - a[0], h: b[1] - a[1] };
+  };
+  const setVB = (c: Cam) => {
+    const k = c.z / B.z;
+    const tx = c.s[0] - k * B.s[0] + (B.w[0] - c.w[0]) * c.z;
+    const ty = c.s[1] - k * B.s[1] + (B.w[1] - c.w[1]) * c.z;
+    css(microWrap, "transform", `translate(${tx.toFixed(2)}px,${ty.toFixed(2)}px) scale(${k.toPrecision(6)})`);
+    if (tNow < 1.9) {
+      fr1.setAttribute("d", bracket(onScreen(c, R_LABEL)));
+      fr2.setAttribute("d", bracket(onScreen(c, R_BARS)));
+    }
+  };
   const bracket = (r: { x: number; y: number; w: number; h: number }) => {
     const l = Math.min(r.w, r.h) * 0.2, { x, y, w, h } = r;
     return `M${x} ${y + l}V${y}H${x + l}M${x + w - l} ${y}H${x + w}V${y + l}M${x + w} ${y + h - l}V${y + h}H${x + w - l}M${x + l} ${y + h}H${x}V${y + h - l}`;
@@ -135,12 +181,13 @@ export function runFilm(root: HTMLElement, D: FilmData, MG: MicroGeo, o: Opts): 
   const siteMark = q("sitemark")!, nextFrame = q("nextframe")!;
   const hex = (c: string) => { const m = /^#?([0-9a-f]{6})$/i.exec(c.trim()); const h = m ? m[1] : "888888"; return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)]; };
   const mix = (a: string, b: string, f: number) => { const A = hex(a), B = hex(b); return `rgb(${Math.round(lerp(A[0], B[0], f))},${Math.round(lerp(A[1], B[1], f))},${Math.round(lerp(A[2], B[2], f))})`; };
-  let PAL = { paper: "#fbfcfa", night: "#121715", land: "#d3dcd6", landN: "#26302c", edge: "#87918c", edgeN: "#5b6662", ink: "#16191a", bone: "#e8e4d8", red: "#c0242b", redN: "#f2583e", mute: "#5b6662", fog: "#8e9991" };
+  let PAL = { paper: "#fbfcfa", night: "#121715", land: "#d3dcd6", landN: "#26302c", edge: "#87918c", edgeN: "#5b6662", ink: "#16191a", bone: "#e8e4d8", red: "#c0242b", redN: "#f2583e", mute: "#5b6662", fog: "#8e9991", carbon: "#2d3b96" };
   const readPal = () => {
     PAL = {
       paper: tok("--paper", PAL.paper), night: tok("--night", PAL.night), land: tok("--board", PAL.land), landN: tok("--night-rule", PAL.landN),
       edge: tok("--graphite-2", PAL.edge), edgeN: tok("--graphite", PAL.edgeN), ink: tok("--ink", PAL.ink), bone: tok("--bone", PAL.bone),
       red: tok("--fda-red", PAL.red), redN: tok("--night-signal", PAL.redN), mute: tok("--graphite", PAL.mute), fog: tok("--fog", PAL.fog),
+      carbon: tok("--carbon", PAL.carbon),
     };
   };
   readPal();
@@ -148,35 +195,37 @@ export function runFilm(root: HTMLElement, D: FilmData, MG: MicroGeo, o: Opts): 
   let GX = 0, GY = 0, GR = 1, PX = 0, PY = 0, KMAX = 1, SX = 0, SY = 0, SR = 1;
   interface GS { k: number; rot: V2; tx: number; ty: number; arcP: number; night: number; op: number; e: number; rings: number; nf?: number }
   function renderGlobe(st: GS) {
+    // coarser resampling while the whole globe is in view (the fine coast only matters close in)
+    proj.precision(st.k > GR * 3 ? 0.45 : 1.4);
     proj.rotate([-st.rot[0], -st.rot[1]]).scale(st.k).translate([st.tx, st.ty]).clipExtent([[-30, -30], [W + 30, H + 30]]);
     const n = st.night, k = st.k;
     const fieldKm = (W / k) * 6371;
     if (fieldKm < 1500) load50();
-    gSph.setAttribute("d", gpath(SPH) || "");
-    gSph.setAttribute("fill", mix(PAL.paper, PAL.night, n));
-    gSph.setAttribute("stroke", mix(PAL.edge, PAL.landN, n));
-    gSph.setAttribute("stroke-width", k > GR * 3 ? "0" : "1");
-    gGrat.setAttribute("d", (k < GR * 3.5 ? gpath(GRAT) : fieldKm < 60 ? gpath(FINE) : "") || "");
-    gGrat.setAttribute("stroke", n > 0.5 ? "rgba(232,228,216,.08)" : `rgba(22,25,26,${fieldKm < 60 ? (clamp((60 - fieldKm) / 40) * 0.17).toFixed(3) : 0.07})`);
+    attr(gSph, "d", gpath(SPH) || "");
+    attr(gSph, "fill", mix(PAL.paper, PAL.night, n));
+    attr(gSph, "stroke", mix(PAL.edge, PAL.landN, n));
+    attr(gSph, "stroke-width", k > GR * 3 ? "0" : "1");
+    attr(gGrat, "d", (k < GR * 3.5 ? gpath(GRAT) : fieldKm < 60 ? gpath(FINE) : "") || "");
+    attr(gGrat, "stroke", n > 0.5 ? "rgba(232,228,216,.08)" : `rgba(22,25,26,${fieldKm < 60 ? (clamp((60 - fieldKm) / 40) * 0.17).toFixed(3) : 0.07})`);
     const land = fieldKm < 1500 && LAND50 ? LAND50 : LAND110;
-    gLand.setAttribute("d", (land && gpath(land)) || "");
-    gLand.setAttribute("fill", mix(PAL.land, PAL.landN, n));
-    gLand.setAttribute("stroke", mix(PAL.edge, PAL.edgeN, n));
-    gLand.setAttribute("stroke-width", "0.7");
-    gInd.setAttribute("d", (fieldKm < 9000 && fieldKm > 200 && CTRY ? gpath(CTRY) : "") || "");
-    gInd.setAttribute("stroke", mix(PAL.mute, PAL.fog, n));
-    gInd.setAttribute("stroke-width", "1");
-    gInd.setAttribute("stroke-dasharray", "3 3");
+    attr(gLand, "d", (land && gpath(land)) || "");
+    attr(gLand, "fill", mix(PAL.land, PAL.landN, n));
+    attr(gLand, "stroke", mix(PAL.edge, PAL.edgeN, n));
+    attr(gLand, "stroke-width", "0.7");
+    attr(gInd, "d", (fieldKm < 9000 && fieldKm > 200 && CTRY ? gpath(CTRY) : "") || "");
+    attr(gInd, "stroke", mix(PAL.mute, PAL.fog, n));
+    attr(gInd, "stroke-width", "1");
+    attr(gInd, "stroke-dasharray", "3 3");
     const center = st.rot;
     rings.forEach((r) => {
       const p: V2 = [r.c.lon, r.c.lat];
       const vis = geoDistance(p, center) < 1.52 && st.rings > 0;
-      if (!vis) { r.el.setAttribute("opacity", "0"); return; }
+      if (!vis) { attr(r.el, "opacity", "0"); return; }
       const qq = proj(p)!;
-      r.el.setAttribute("cx", String(qq[0])); r.el.setAttribute("cy", String(qq[1]));
-      r.el.setAttribute("opacity", String(st.rings));
-      r.el.setAttribute("stroke", r.c.signal ? (n > 0.5 ? PAL.redN : PAL.red) : n > 0.5 ? PAL.fog : PAL.mute);
-      r.el.setAttribute("stroke-width", "1.2");
+      attr(r.el, "cx", qq[0].toFixed(1)); attr(r.el, "cy", qq[1].toFixed(1));
+      attr(r.el, "opacity", st.rings.toFixed(3));
+      attr(r.el, "stroke", r.c.signal ? (n > 0.5 ? PAL.redN : PAL.red) : n > 0.5 ? PAL.fog : PAL.mute);
+      attr(r.el, "stroke-width", "1.2");
     });
     const N = 120, lift = clamp(GR / k) * 0.16;
     let d = "", pen = false;
@@ -190,9 +239,9 @@ export function runFilm(root: HTMLElement, D: FilmData, MG: MicroGeo, o: Opts): 
       d += (pen ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1);
       pen = true;
     }
-    gArc.setAttribute("d", d); gArcH.setAttribute("d", d);
-    gArc.setAttribute("stroke", n > 0.5 ? "#8f9be6" : tok("--carbon", "#2d3b96"));
-    gArcH.setAttribute("stroke", n > 0.5 ? "#000" : PAL.paper);
+    attr(gArc, "d", d); attr(gArcH, "d", d);
+    attr(gArc, "stroke", n > 0.5 ? "#8f9be6" : PAL.carbon);
+    attr(gArcH, "stroke", n > 0.5 ? "#000" : PAL.paper);
     ML.forEach((m) => {
       let op = 0, x = -999, y = -999;
       const el = m.el!;
@@ -207,26 +256,28 @@ export function runFilm(root: HTMLElement, D: FilmData, MG: MicroGeo, o: Opts): 
         const q3 = proj(m.ll)!;
         x = q3[0]; y = q3[1];
         op = clamp((st.e - m.w[0]) / 0.25) * clamp((m.w[1] - st.e) / 0.25) * st.op;
-        if (m.c.indexOf("region") === 0) { x -= el.offsetWidth / 2; y -= 9; }
+        // on a phone the registration card covers the map: its labels leave as the card comes in
+        if (MOB) op *= 1 - seg(tNow, 3.84, 3.9);
+        if (m.c.indexOf("region") === 0) { x -= (m.w0 || (m.w0 = el.offsetWidth)) / 2; y -= 9; }
         else if (m.c === "city") { x += 10; y -= 10; }
         else {
           const lw = m.w0 || (m.w0 = el.offsetWidth);
-          if (x + 17 + lw > W - 8) { x -= 17 + lw; el.style.textAlign = "right"; el.classList.add("left"); }
+          if (x + 17 + lw > W - 8) { x = Math.max(8, x - 17 - lw); el.style.textAlign = "right"; el.classList.add("left"); }
           else { x += 17; el.style.textAlign = "left"; el.classList.remove("left"); }
           y -= 8;
         }
       }
-      el.style.opacity = String(op);
-      if (op > 0) el.style.transform = `translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`;
+      css(el, "opacity", String(op));
+      if (op > 0) css(el, "transform", `translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`);
     });
     const so = clamp((4.2 - st.e) / 0.4) * st.op;
-    siteMark.style.opacity = String(so);
-    if (so > 0) { const qp = proj(PIN)!; siteMark.style.setProperty("--sb", ((100 * k) / 6.371e6).toFixed(1) + "px"); siteMark.style.transform = `translate(${qp[0].toFixed(1)}px,${qp[1].toFixed(1)}px)`; }
+    css(siteMark, "opacity", String(so));
+    if (so > 0) { const qp = proj(PIN)!; siteMark.style.setProperty("--sb", ((100 * k) / 6.371e6).toFixed(1) + "px"); css(siteMark, "transform", `translate(${qp[0].toFixed(1)}px,${qp[1].toFixed(1)}px)`); }
     const no = (st.nf || 0) * st.op;
-    nextFrame.style.opacity = String(no);
-    if (no > 0) { const qn = proj(PIN)!; nextFrame.style.transform = `translate(${qn[0].toFixed(1)}px,${qn[1].toFixed(1)}px)`; }
+    css(nextFrame, "opacity", String(no));
+    if (no > 0) { const qn = proj(PIN)!; css(nextFrame, "transform", `translate(${qn[0].toFixed(1)}px,${qn[1].toFixed(1)}px)`); }
     mlWrap.classList.toggle("night", n > 0.5);
-    gsvg.style.opacity = String(st.op);
+    css(gsvg, "opacity", String(st.op));
   }
 
   /* ---------- documents ---------- */
@@ -239,9 +290,15 @@ export function runFilm(root: HTMLElement, D: FilmData, MG: MicroGeo, o: Opts): 
   const L = D.lead;
   const EVS = (L?.events ?? []).map((e) => ({ ...e, ms: dms(e.d) }));
   const RA = L ? [dms(L.zoomA[0]), dms(L.zoomA[1])] : [0, 1], RB = L ? [dms(L.zoomB[0]), dms(L.zoomB[1])] : [0, 1];
+  let rulerKey = "";
   function renderRuler(t: number, op: number) {
     if (!L) return;
     const f = ease(seg(t, 6.15, 6.55));
+    css(rsvg, "opacity", String(op));
+    // the ruler only changes while it zooms (6.15 to 6.55); elsewhere a frame is just its opacity
+    const key = `${f.toFixed(4)}|${RX0}|${RX1}|${RY}|${MOB}`;
+    if (key === rulerKey) return;
+    rulerKey = key;
     const sA = RA[1] - RA[0], sB = RB[1] - RB[0];
     const span = llerp(sA, sB, f), g = (span - sA) / (sB - sA);
     const c = lerp((RA[0] + RA[1]) / 2, (RB[0] + RB[1]) / 2, g);
@@ -291,12 +348,13 @@ export function runFilm(root: HTMLElement, D: FilmData, MG: MicroGeo, o: Opts): 
       if (up || !MOB || e.end) s += `<text x="${tx}" y="${ly + 4}" text-anchor="${anchor}" class="evt">${e.t}</text>`;
     });
     rsvg.innerHTML = s;
-    rsvg.style.opacity = String(op);
   }
 
   /* ---------- answer ---------- */
   const answer = q("answer")!, hosp = q("hosp"), pipsEl = q("pips");
   const rowsEl = hosp ? [...hosp.querySelectorAll<HTMLElement>("[data-row]")] : [];
+  // each row's bar fill (scaled, never resized) and its figure
+  const rowBits = rowsEl.map((el) => ({ el, bar: el.querySelector("i") as HTMLElement, fig: el.querySelector(".fm-h-days b") as HTMLElement, v: "" }));
   const AR = D.answer?.rows ?? [];
   const toI = AR.findIndex((r) => r.b > r.a + 0.01), fromI = AR.findIndex((r) => r.b < r.a - 0.01);
   const pips: HTMLElement[] = [];
@@ -312,21 +370,25 @@ export function runFilm(root: HTMLElement, D: FilmData, MG: MicroGeo, o: Opts): 
     const first = curStage < 0;
     curStage = i;
     const c = i < 7 ? D.caps[i] : null;
-    cap.style.opacity = c ? "1" : "0";
-    cap.style.visibility = c ? "visible" : "hidden";
+    css(cap, "opacity", c ? "1" : "0");
+    css(cap, "visibility", c ? "visible" : "hidden");
     prevB.disabled = i === 0;
     nextB.textContent = i >= 6 ? "The answer" : "Next stop";
     if (!c) return;
     const t = c.t.replace("__DIST__", fmtN(DIST));
     const html = `<p class="fm-cap-n">${i + 1} of 8</p><h3 class="fm-cap-t">${esc(t)}</h3><p class="fm-cap-b">${esc(c.b)}</p><p class="fm-cap-ev">${c.e.map(([k, v]) => `<span>${esc(k)}<b>${esc(v)}</b></span>`).join("")}</p>`;
-    if (first || RM.matches) { capIn.innerHTML = html; return; }
-    cap.classList.add("swap");
-    setTimeout(() => { if (curStage === i) capIn.innerHTML = html; cap.classList.remove("swap"); }, 150);
+    capIn.innerHTML = html;
+    // the new card lands with the stop it describes: swap at once, then a short fade in (no wait on a timer)
+    if (first || RM.matches) return;
+    capIn.classList.remove("in");
+    void capIn.offsetWidth;
+    capIn.classList.add("in");
   }
-  const filmTop = () => root.getBoundingClientRect().top + window.scrollY - o.offsetTop;
+  let rootTop = 0, rootH = 1;
+  const filmTop = () => rootTop - o.offsetTop;
   function goStop(i: number) {
     i = clamp(i, 0, STOPS.length - 1);
-    const y = filmTop() + (STOPS[i] / TMAX) * (root.offsetHeight - H);
+    const y = filmTop() + (STOPS[i] / TMAX) * (rootH - H);
     window.scrollTo({ top: Math.round(y) + 1, behavior: RM.matches ? "auto" : "smooth" });
   }
   const onPrev = () => goStop(curStage - 1), onNext = () => goStop(curStage + 1);
@@ -364,14 +426,18 @@ export function runFilm(root: HTMLElement, D: FilmData, MG: MicroGeo, o: Opts): 
     if (t >= 6.85) return "the whole trip";
     return e > 6.6 ? "Earth" : e > 5.6 ? regions[0] ?? D.plant.countryName : e > 4.6 ? regions[1] ?? D.plant.countryName : e > 3.75 ? city : "the plant";
   }
-  let lastE: number | null = null, lastName: string | null = null, lastClk: string | null = null;
+  let lastE: number | null = null, lastName: string | null = null, lastClk: string | null = null, lastField = "";
+  const gauge = ladder.closest(".fm-gauge") as HTMLElement;
   function setGauge(e: number, t: number, dateMs: number) {
     const f = clamp((e - EMIN) / (EMAX - EMIN));
     const r = ladderR || (ladderR = ladder.getBoundingClientRect());
-    needle.style.transform = MOB ? `translateX(${f * r.width - 1}px)` : `translateY(${(1 - f) * r.height - 1}px)`;
+    css(needle, "transform", MOB ? `translateX(${f * r.width - 1}px)` : `translateY(${(1 - f) * r.height - 1}px)`);
     const ei = Math.round(e);
     if (ei !== lastE) { roE.textContent = ei < 0 ? "−" + -ei : String(ei); lastE = ei; }
-    roF.textContent = fieldText(e);
+    // FDA's documents have no field of view: the readout says so instead of a meaningless distance
+    const onPaper = t >= 4.02 && t < 6.85;
+    const ft = onPaper ? "a document, not to scale" : fieldText(e);
+    if (ft !== lastField) { roF.textContent = ft; lastField = ft; gauge.classList.toggle("on-paper", onPaper); }
     const nm = nameOf(e, t);
     if (nm !== lastName) { needleName.textContent = nm; lastName = nm; }
     const ds = iso(dateMs);
@@ -400,24 +466,24 @@ export function runFilm(root: HTMLElement, D: FilmData, MG: MicroGeo, o: Opts): 
       lanesY = H * 0.4;
     }
     C0 = fit(R_DRAWER, r0); C1 = fit(R_LABEL, r1); C2 = fit(R_BARS, r2);
+    B = C0;
+    micro.setAttribute("viewBox", `${C0.w[0] - C0.s[0] / C0.z} ${C0.w[1] - C0.s[1] / C0.z} ${W / C0.z} ${H / C0.z}`);
     GAP = (W / C2.z) * (MOB ? 0.034 : 0.03);
     yTop = toW(C2, [0, MOB ? HDR + 10 : HDR - 4])[1];
     yBot = toW(C2, [0, lanesY])[1];
     const bx = diveBar.x + diveBar.w / 2 + OFF.lab * GAP;
     Cd = { z: (W * 2.6) / diveBar.w, w: [bx, (yTop + yBot) / 2], s: [W / 2, H / 2] };
     eDiveEnd = Math.log10(FR / Cd.z / 1000);
-    fr1.setAttribute("d", bracket(R_LABEL));
-    fr2.setAttribute("d", bracket(R_BARS));
     LANES.forEach((l) => (l.el.style.top = lanesY + 14 + "px"));
-    if (!MOB) { labcard.style.left = W * 0.645 + "px"; labcard.style.top = H * 0.2 + "px"; labcard.style.right = "auto"; }
+    if (!MOB) { labcard.style.left = Math.max(12, Math.min(W * 0.645, W - Math.min(410, W - 24) - 12)) + "px"; labcard.style.top = H * 0.2 + "px"; labcard.style.right = "auto"; }
     else { labcard.style.left = "12px"; labcard.style.right = "12px"; labcard.style.top = lanesY + 58 + "px"; }
     if (!MOB) { GR = Math.min(W * 0.3, H * 0.36); GX = W * 0.57; GY = H * 0.5; PX = W * 0.275; PY = H * 0.5; SR = Math.min(W * 0.17, H * 0.3); SX = W * 0.25; SY = H * 0.55; }
     else { GR = W * 0.42; GX = W * 0.5; GY = H * 0.46; PX = W * 0.5; PY = HDR + 106; SR = W * 0.2; SX = W * 0.78; SY = HDR + 92; }
     KMAX = FR / (2000 / 6.371e6) / GR;
     eFinal = Math.log10((FR / (GR * KMAX)) * 6.371e6);
     eDay = Math.log10((FR / (MOB ? GR : SR)) * 6.371e6);
-    reg.style.transform = "none";
-    if (insp) insp.style.transform = "none";
+    css(reg, "transform", "none");
+    if (insp) css(insp, "transform", "none");
     if (!MOB) {
       reg.style.left = W * 0.44 + "px"; reg.style.right = "auto";
       reg.style.top = Math.max(HDR + 24, (H - reg.offsetHeight) / 2) + "px";
@@ -439,7 +505,7 @@ export function runFilm(root: HTMLElement, D: FilmData, MG: MicroGeo, o: Opts): 
       if (!MOB) { rHead.style.left = "200px"; rHead.style.top = HDR + 60 + "px"; rHead.style.width = ""; rTail.style.left = "auto"; rTail.style.right = "64px"; rTail.style.top = HDR + 60 + "px"; rTail.style.width = ""; rTail.style.textAlign = "right"; }
       else { rHead.style.left = "16px"; rHead.style.top = HDR + 20 + "px"; rHead.style.width = W / 2 - 22 + "px"; rTail.style.right = "16px"; rTail.style.left = "auto"; rTail.style.top = HDR + 20 + "px"; rTail.style.width = W / 2 - 22 + "px"; rTail.style.textAlign = "right"; }
     }
-    answer.style.transform = "none";
+    css(answer, "transform", "none");
     if (!MOB) { answer.style.left = W * 0.47 + "px"; answer.style.right = "auto"; answer.style.top = Math.max(HDR + 20, (H - answer.offsetHeight) / 2 + 8) + "px"; }
     else { answer.style.left = "14px"; answer.style.right = "14px"; answer.style.top = HDR + 14 + "px"; }
     if (hosp && toI >= 0 && fromI >= 0) {
@@ -450,26 +516,26 @@ export function runFilm(root: HTMLElement, D: FilmData, MG: MicroGeo, o: Opts): 
     }
     ladderR = null;
     placeTicks();
-    lastE = null; lastName = null;
+    lastE = null; lastName = null; lastField = ""; lastBars = ""; rulerKey = "";
+    ML.forEach((m) => (m.w0 = 0));
+    measureRoot();
   }
 
   /* ---------- render ---------- */
-  let tNow = 0;
-  const readT = () => {
-    const r = root.getBoundingClientRect();
-    const len = r.height - H;
-    return clamp((o.offsetTop - r.top) / Math.max(1, len)) * TMAX;
-  };
+  let tNow = 0, lastBars = "", labOff = false;
+  // where the film sits on the page, measured once per layout; a frame reads only scrollY
+  const measureRoot = () => { const r = root.getBoundingClientRect(); rootTop = r.top + window.scrollY; rootH = r.height; };
+  const readT = () => clamp((window.scrollY + o.offsetTop - rootTop) / Math.max(1, rootH - H)) * TMAX;
   function render(tRaw: number) {
     const si = stageOf(tRaw);
     const t = RM.matches ? STOPS[si] : tRaw;
     setCaption(si);
     if (t > 2.3) load50();
     const io = 1 - seg(t, 0.03, 0.2);
-    intro.style.opacity = String(io); intro.style.visibility = io <= 0 ? "hidden" : "visible";
+    css(intro, "opacity", String(io)); css(intro, "visibility", io <= 0 ? "hidden" : "visible"); intro.classList.toggle("off", io <= 0);
     let e = 0, dateMs = dms(D.asOf);
     if (t < 2.86) {
-      micro.style.visibility = "visible";
+      css(micro, "visibility", "visible");
       let cam: Cam;
       if (t <= 0.2) cam = C0;
       else if (t < 1) cam = zoomCam(C0, C1, ease(seg(t, 0.2, 1)));
@@ -482,46 +548,49 @@ export function runFilm(root: HTMLElement, D: FilmData, MG: MicroGeo, o: Opts): 
       if (io > 0) {
         const cp = toS(cam, [MG.pocketFocus.x + 8, MG.drawer.y]);
         const cpy = MOB ? toS(cam, [0, MG.drawer.y])[1] - 62 : cp[1] - 96;
-        callout.style.transform = `translate(${MOB ? 16 : cp[0]}px,${cpy}px)`;
+        css(callout, "transform", `translate(${MOB ? 16 : cp[0]}px,${cpy}px)`);
         if (!MOB) callout.style.setProperty("--lead", toS(cam, [0, MG.pocketFocus.y + 30])[1] - cpy - 74 + "px");
       }
-      callout.style.opacity = String(io); callout.style.visibility = io <= 0 ? "hidden" : "visible";
-      fr1.style.opacity = String(t < 1 ? 1 - seg(t, 0.45, 0.9) : 0);
-      fr2.style.opacity = String(t < 1.95 ? seg(t, 0.98, 1.12) * (1 - seg(t, 1.5, 1.85)) : 0);
+      css(callout, "opacity", String(io)); css(callout, "visibility", io <= 0 ? "hidden" : "visible");
+      css(fr1, "opacity", String(t < 1 ? 1 - seg(t, 0.45, 0.9) : 0));
+      css(fr2, "opacity", String(t < 1.95 ? seg(t, 0.98, 1.12) * (1 - seg(t, 1.5, 1.85)) : 0));
       root.classList.toggle("fm-free", t > 2.05);
       const sf = 1 - seg(t, 1.98, 2.16);
-      scene.style.opacity = String(sf);
-      scene.style.visibility = sf <= 0 ? "hidden" : "visible";
-      if (vAcc) { vAcc.style.opacity = String(sf); vAcc.style.visibility = sf <= 0 ? "hidden" : "visible"; }
-      if (digitsG) digitsG.style.opacity = String(1 - seg(t, 1.96, 2.06));
+      css(scene, "opacity", String(sf));
+      css(scene, "visibility", sf <= 0 ? "hidden" : "visible");
+      if (vAcc) { css(vAcc, "opacity", String(sf)); css(vAcc, "visibility", sf <= 0 ? "hidden" : "visible"); }
+      if (digitsG) css(digitsG, "opacity", String(1 - seg(t, 1.96, 2.06)));
       const f1 = ease(seg(t, 2.0, 2.2)), f2 = ease(seg(t, 2.15, 2.36)), f3 = ease(seg(t, 2.3, 2.48)), fo = seg(t, 2.55, 2.64);
       const by = MG.bars.y, bh = MG.bars.h;
-      for (const b of bars) {
+      const barKey = `${f1.toFixed(4)}|${f2.toFixed(4)}|${f3.toFixed(4)}|${GAP}`;
+      if (barKey !== lastBars) for (const b of bars) {
         b.el.setAttribute("x", String(b.x + OFF[b.g] * GAP * f2));
         b.el.setAttribute("y", String(lerp(by, yTop, f1)));
         b.el.setAttribute("height", String(lerp(bh + b.ext, yBot - yTop, f1)));
-        b.el.style.opacity = String(b.g === "lab" ? 1 : lerp(1, 0.2, f3));
+        css(b.el, "opacity", String(b.g === "lab" ? 1 : lerp(1, 0.2, f3)));
       }
+      lastBars = barKey;
       if (f3 > 0 && gx.lab) {
+        labOff = false;
         const lx0 = gx.lab.x0 + OFF.lab * GAP - GAP * 0.35, lx1 = gx.lab.x1 + OFF.lab * GAP + GAP * 0.35;
         labHi.setAttribute("x", String(lx0)); labHi.setAttribute("width", String(lx1 - lx0));
         labHi.setAttribute("y", String(yTop)); labHi.setAttribute("height", String(yBot - yTop));
         labHi.setAttribute("opacity", String(f3 * (1 - fo)));
-      } else labHi.setAttribute("opacity", "0");
+      } else if (!labOff) { labHi.setAttribute("opacity", "0"); labOff = true; }
       const lo = f2 * (1 - fo);
-      lanesEl.style.opacity = String(lo);
+      css(lanesEl, "opacity", String(lo));
       if (lo > 0) LANES.forEach((l) => {
         const gg = gx[l.g];
         if (!gg) return;
         const cx = (gg.x0 + gg.x1) / 2 + OFF[l.g] * GAP * f2;
-        l.el.style.left = toS(cam, [cx, 0])[0] + "px";
+        css(l.el, "transform", `translateX(calc(${toS(cam, [cx, 0])[0].toFixed(1)}px - 50%))`);
       });
-      labcard.style.opacity = String(f3 * (1 - fo));
-      labcard.style.transform = `translateX(${(1 - f3) * 16}px)`;
+      css(labcard, "opacity", String(f3 * (1 - fo)));
+      css(labcard, "transform", `translateX(${(1 - f3) * 16}px)`);
       if (t > 2.8) e = lerp(eDiveEnd, 6.3, ease(seg(t, 2.8, 2.88)));
     } else {
-      micro.style.visibility = "hidden"; lanesEl.style.opacity = "0"; labcard.style.opacity = "0";
-      callout.style.visibility = "hidden";
+      css(micro, "visibility", "hidden"); css(lanesEl, "opacity", "0"); css(labcard, "opacity", "0");
+      css(callout, "visibility", "hidden");
     }
     let v = 0;
     if (t >= 2.7 && t < 3.6) v = seg(t, 2.7, 2.8);
@@ -547,48 +616,51 @@ export function runFilm(root: HTMLElement, D: FilmData, MG: MicroGeo, o: Opts): 
       gvis = true;
       renderGlobe({ k: SR, rot: MID, tx: SX, ty: SY, arcP: 1, night: 0, op: seg(t, 6.8, 7.05), e: 7.4, rings: 0.9 });
     }
-    if (!gvis) { gsvg.style.opacity = "0"; ML.forEach((m) => (m.el!.style.opacity = "0")); siteMark.style.opacity = "0"; nextFrame.style.opacity = "0"; }
-    voidEl.style.opacity = String(v);
+    if (!gvis) { css(gsvg, "opacity", "0"); ML.forEach((m) => (css(m.el!, "opacity", "0"))); css(siteMark, "opacity", "0"); css(nextFrame, "opacity", "0"); }
+    css(voidEl, "opacity", String(v));
     root.classList.toggle("fm-dark", v > 0.5);
     if (t >= 3.88 && t < 4.75) {
       const fin = easeO(seg(t, 3.9, 4.02)), fz2 = ease(seg(t, 4.3, 4.72));
-      reg.style.opacity = String(fin * (1 - seg(t, 4.5, 4.68)));
+      css(reg, "opacity", String(fin * (1 - seg(t, 4.5, 4.68))));
       const dx = (W / 2 - rowC.x) * fz2, dy = (H / 2 - rowC.y) * fz2;
-      reg.style.transform = `translate(${dx}px,${dy + (1 - fin) * 14}px) scale(${lerp(1, 3.2, fz2)})`;
+      css(reg, "transform", `translate(${dx}px,${dy + (1 - fin) * 14}px) scale(${lerp(1, 3.2, fz2)})`);
       if (t >= 4.0) e = eFinal;
-    } else reg.style.opacity = "0";
+    } else css(reg, "opacity", "0");
     if (t >= 4.0 && t < 6.85) e = eFinal;
     if (D.oai && t >= 4.3) dateMs = lerp(dms(D.asOf), dms(D.oai.end), ease(seg(t, 4.3, 4.9)));
     if (insp && stamp && t >= 4.5 && t < 5.9) {
       const fi = ease(seg(t, 4.5, 5.0)), fx = ease(seg(t, 5.4, 5.85));
-      insp.style.opacity = String(seg(t, 4.56, 4.8) * (1 - seg(t, 5.55, 5.85)));
+      css(insp, "opacity", String(seg(t, 4.56, 4.8) * (1 - seg(t, 5.55, 5.85))));
       const icx = inspBox.x + inspBox.w / 2, icy = inspBox.y + inspBox.h / 2;
       const tx2 = (W / 2 - icx) * (1 - fi), ty2 = (H / 2 - icy) * (1 - fi) - fx * 40;
-      insp.style.transform = `translate(${tx2}px,${ty2}px) scale(${lerp(0.3, 1, fi) * lerp(1, 0.92, fx)})`;
+      css(insp, "transform", `translate(${tx2}px,${ty2}px) scale(${lerp(0.3, 1, fi) * lerp(1, 0.92, fx)})`);
       const fs = seg(t, 5.0, 5.14);
       // a hair of opacity before it lands, so the ink texture is rastered once ahead of the stamp
-      stamp.style.opacity = String(fs <= 0 ? 0.001 : lerp(0.15, 0.93, clamp(fs * 2.5)));
-      stamp.style.transform = `rotate(${lerp(-16, -8, easeO(fs))}deg) scale(${lerp(2.4, 1, easeI(fs))})`;
-    } else if (insp) insp.style.opacity = "0";
+      css(stamp, "opacity", String(fs <= 0 ? 0.001 : lerp(0.15, 0.93, clamp(fs * 2.5))));
+      css(stamp, "transform", `rotate(${lerp(-16, -8, easeO(fs))}deg) scale(${lerp(2.4, 1, easeI(fs))})`);
+    } else if (insp) css(insp, "opacity", "0");
     if (L && t >= 5.4) dateMs = lerp(dms(D.oai!.end), dms(L.posted), ease(seg(t, 5.4, 6.0)));
     if (L && t >= 6.15) dateMs = lerp(dms(L.posted), dms(D.asOf), ease(seg(t, 6.15, 6.55)));
     if (t >= 5.5 && t < 6.95) renderRuler(t, seg(t, 5.6, 5.95) * (1 - seg(t, 6.75, 6.95)));
-    else rsvg.style.opacity = "0";
-    if (rHead) rHead.style.opacity = String(t >= 5.5 && t < 6.95 ? seg(t, 5.75, 6.0) * (1 - seg(t, 6.75, 6.9)) : 0);
-    if (rTail) rTail.style.opacity = String(t >= 6.2 && t < 6.95 ? seg(t, 6.38, 6.55) * (1 - seg(t, 6.75, 6.9)) : 0);
+    else css(rsvg, "opacity", "0");
+    if (rHead) css(rHead, "opacity", String(t >= 5.5 && t < 6.95 ? seg(t, 5.75, 6.0) * (1 - seg(t, 6.75, 6.9)) : 0));
+    if (rTail) css(rTail, "opacity", String(t >= 6.2 && t < 6.95 ? seg(t, 6.38, 6.55) * (1 - seg(t, 6.75, 6.9)) : 0));
     if (t >= 6.75) {
       e = lerp(eFinal, eDay, ease(seg(t, 6.75, 7.05)));
       const fa = seg(t, 6.85, 7.08);
-      answer.style.opacity = String(fa); answer.classList.toggle("live", fa > 0.5);
-      answer.style.transform = `translateX(${(1 - easeO(fa)) * 24}px)`;
+      css(answer, "opacity", String(fa)); answer.classList.toggle("live", fa > 0.5);
+      css(answer, "transform", `translateX(${(1 - easeO(fa)) * 24}px)`);
       const ft = ease(seg(t, 7.1, 7.45));
       AR.forEach((r, i) => {
-        const el = rowsEl[i];
-        if (!el) return;
+        const rb = rowBits[i];
+        if (!rb) return;
         const dv = lerp(r.a, r.b, ft);
-        (el.querySelector("i") as HTMLElement).style.width = clamp(dv / 21) * 100 + "%";
-        (el.querySelector(".fm-h-days b") as HTMLElement).textContent = dv.toFixed(1);
-        el.classList.toggle("low", dv < 7);
+        const txt = dv.toFixed(1);
+        if (txt === rb.v) return;
+        rb.v = txt;
+        css(rb.bar, "transform", `scaleX(${clamp(dv / 21).toFixed(4)})`);
+        rb.fig.textContent = txt;
+        rb.el.classList.toggle("low", dv < 7);
       });
       if (trackTo && trackFrom) {
         const a = AR[toI], f = AR[fromI];
@@ -596,14 +668,14 @@ export function runFilm(root: HTMLElement, D: FilmData, MG: MicroGeo, o: Opts): 
         for (let j = 0; j < pips.length; j++) {
           const pf = clamp(ft * 2.2 - (j / pips.length) * 1.2);
           const p = pips[j];
-          if (pf <= 0 || pf >= 1 || RM.matches) { p.style.opacity = "0"; continue; }
+          if (pf <= 0 || pf >= 1 || RM.matches) { css(p, "opacity", "0"); continue; }
           const sx = trackFrom.x + trackFrom.w * (f.a / 21) - j * 1.2, sy = trackFrom.y - 5;
           const x = lerp(sx, ex1, pf), yv = lerp(sy, trackTo.y - 5, pf) - Math.sin(Math.PI * pf) * (MOB ? 44 : 30);
-          p.style.opacity = "1";
-          p.style.transform = `translate(${x.toFixed(1)}px,${yv.toFixed(1)}px)`;
+          css(p, "opacity", "1");
+          css(p, "transform", `translate(${x.toFixed(1)}px,${yv.toFixed(1)}px)`);
         }
       }
-    } else { answer.style.opacity = "0"; answer.classList.remove("live"); }
+    } else { css(answer, "opacity", "0"); answer.classList.remove("live"); }
     setGauge(e, t, dateMs);
   }
 
@@ -611,6 +683,10 @@ export function runFilm(root: HTMLElement, D: FilmData, MG: MicroGeo, o: Opts): 
   const frame = () => { raf = 0; const t = readT(); if (dirty || Math.abs(t - tNow) > 1e-5) { tNow = t; dirty = false; render(t); } };
   const req = () => { if (!raf) raf = requestAnimationFrame(frame); };
   const onResize = () => { layout(); dirty = true; req(); };
+  // the page above the film grows as its sections hydrate and lay out: re-measure where the film starts
+  let lastDocH = 0;
+  const ro = new ResizeObserver(() => { const h = document.documentElement.scrollHeight; if (h !== lastDocH) { lastDocH = h; measureRoot(); dirty = true; req(); } });
+  ro.observe(document.body);
   const onRM = () => { dirty = true; req(); };
   const onTheme = () => { readPal(); dirty = true; req(); };
   window.addEventListener("scroll", req, { passive: true });
@@ -634,10 +710,11 @@ export function runFilm(root: HTMLElement, D: FilmData, MG: MicroGeo, o: Opts): 
     RM.removeEventListener("change", onRM);
     mq.removeEventListener("change", onTheme);
     mo.disconnect();
+    ro.disconnect();
     prevB.removeEventListener("click", onPrev);
     nextB.removeEventListener("click", onNext);
     ML.forEach((m) => m.el?.remove());
-    [gSph, gGrat, gLand, gInd, gRings, gArcH, gArc].forEach((n) => n.remove());
+    [gSph, gGrat, gLand, gInd, gRings, gArcH, gArc, frSvg].forEach((n) => n.remove());
     pips.forEach((p) => p.remove());
     root.classList.remove("fm-live", "fm-dark");
   };

@@ -1,4 +1,4 @@
-import { CORS, mcpHandler } from "@/src/lib/mcp";
+import { corsFor, mcpHandler } from "@/src/lib/mcp";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -13,7 +13,8 @@ async function get(req: Request) {
 <h1>Upstream's MCP server, for a pharmacy team's assistant</h1>
 <p>It speaks the Model Context Protocol over Streamable HTTP. Add this address to an assistant that supports remote MCP servers (Claude, Cursor):</p>
 <p><code>${url}</code></p>
-<p>Tools: <b>investigate_shortage</b>, <b>trace_supply</b>, <b>shortage_status</b>, <b>morning_brief</b>, <b>plant_record</b>, <b>ask_upstream</b>. Every call goes through Scout first; orders, inventory changes and dosing advice are refused.</p>
+<p>Tools: <b>investigate_shortage</b>, <b>trace_supply</b>, <b>shortage_status</b>, <b>morning_brief</b>, <b>plant_record</b>, <b>ask_upstream</b>. All six are read-only. Every call goes through Scout first: Scout issues a signed contract and the tool checks it for each capability it reads before it touches any data. Orders, inventory changes and dosing advice are refused.</p>
+<p>${process.env.UPSTREAM_MCP_TOKEN ? "This copy needs a bearer token (<code>Authorization: Bearer ...</code>)." : `This demo copy is open, read-only and limited to 30 requests a minute per address. A hospital deployment sets a bearer token.`}</p>
 <p>Then ask: "Why is carboplatin short, and what should Corvale do?"</p>
 <p><a href="/">Upstream</a></p>`;
     return new Response(html, { headers: { "content-type": "text/html; charset=utf-8" } });
@@ -21,6 +22,6 @@ async function get(req: Request) {
   return mcpHandler(req);
 }
 
-const preflight = () => new Response(null, { status: 204, headers: CORS });
+const preflight = (req: Request) => new Response(null, { status: 204, headers: corsFor(req) });
 
-export { get as GET, mcpHandler as POST, mcpHandler as DELETE, preflight as OPTIONS };
+export { get as GET, mcpHandler as POST, preflight as OPTIONS };

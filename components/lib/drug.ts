@@ -43,16 +43,37 @@ export function syringeClass(molecule: string): SyringeClass | null {
   return null;
 }
 
-/** The molecule as a buyer says it, with FDA's Tall Man casing and without the salt. */
+// Salt and ester words dropped from a heading ("fentanyl citrate" is said "fentanyl").
+const SALT = /\b(hydrochloride|hcl|sodium|sulfate|citrate|acetate|phosphate|bromide|besylate|tartrate|mesylate)\b/gi;
+// When the name starts with a mineral, the salt is the active ingredient: "sodium chloride" stays whole.
+const MINERAL = /^(sodium|potassium|calcium|magnesium|ammonium|zinc|ferrous|ferric|lithium)\b/i;
+
+/** The molecule as a buyer says it, with FDA's Tall Man casing and without the salt (unless the salt is the drug). */
 export function drugTitle(molecule: string): string {
-  const base = molecule
-    .replace(/\b(hydrochloride|hcl|sodium|sulfate|citrate|acetate|phosphate)\b/gi, "")
-    .replace(/\s+/g, " ")
-    .trim();
+  const base = MINERAL.test(molecule.trim()) ? molecule.trim() : molecule.replace(SALT, "").replace(/\s+/g, " ").trim();
   const t = tallMan(base || molecule);
   // Lower-case names get a capital first letter in headings; Tall Man names keep their casing.
   const first = t.split(/\s+/)[0];
   return first === first.toLowerCase() ? t.charAt(0).toUpperCase() + t.slice(1) : t;
+}
+
+// Formulary lines whose generic name is not what a buyer calls the product.
+const PRODUCT: [RegExp, string][] = [
+  [/^(sterile )?water\b/i, "Sterile water for injection"],
+  [/^bacteriostatic( water)?\b/i, "Bacteriostatic water for injection"],
+  [/^isoleucine, leucine/i, "Amino acid injection (TrophAmine)"],
+  [/^valine, lysine/i, "Amino acid injection (ProSol)"],
+  [/^polyethylene glycol/i, "Polyethylene glycol 3350 with electrolytes"],
+  [/^soybean oil/i, "Soybean oil lipid emulsion"],
+  [/^technetium/i, "Technetium Tc 99m pyrophosphate"],
+];
+
+/** A formulary line as a buyer names the product: "Sterile water for injection", not "Water". */
+export function productName(name: string): string {
+  const d = name.trim();
+  for (const [re, label] of PRODUCT) if (re.test(d)) return label;
+  const parts = d.split(/,\s*|\s+and\s+/);
+  return drugTitle(parts.length > 3 ? `${parts[0]} combination` : d);
 }
 
 export function drugFull(molecule: string): string {
@@ -64,6 +85,8 @@ export function tallText(text: string): string {
   return tallMan(text);
 }
 
+/** The address a molecule's recording would have: the whole name, hyphenated ("sodium chloride" is sodium-chloride).
+ *  Prefer the slug a recording carries; this is the fallback for a live answer. */
 export function slugFor(molecule: string): string {
-  return (molecule.toLowerCase().match(/[a-z0-9-]+/)?.[0] ?? "").slice(0, 60);
+  return molecule.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60);
 }

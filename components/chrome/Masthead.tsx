@@ -44,15 +44,25 @@ export async function Masthead() {
         <MastNav
           status={
             w && asOf ? (
-              <Link href="/desk" className="mast-watch" aria-label={`Overnight watch for ${fmtDate(asOf)}: ${act} to act on, ${watch} on watch, ${w.quiet} quiet. Open the desk.`}>
+              <Link
+                href="/desk"
+                className="mast-watch"
+                title={`The overnight watch read all ${w.drugs} formulary drugs against FDA's files, with stock as of ${fmtDate(asOf)}: ${act} drugs to act on today, ${watch} to watch, ${w.quiet} quiet.`}
+                aria-label={`Overnight watch for ${fmtDate(asOf)}: ${act} drugs to act on, ${watch} to watch, ${w.quiet} quiet. Open the desk.`}
+              >
                 <span className="mast-watch__who">
                   <b>Corvale Health</b>, three hospitals
                 </span>
                 <span className="mast-watch__line">
                   <span className="mast-watch__dot" aria-hidden="true" />
-                  <span>
-                    {`Watch ${fmtDate(asOf).replace(/ \d{4}$/, "")}: `}
-                    <b className="mast-watch__act">{act} act</b>
+                  <span className="mast-watch__full">
+                    {`Overnight watch, ${fmtDate(asOf).replace(/ \d{4}$/, "")}: `}
+                    <b className="mast-watch__act">{act} drugs to act on</b>
+                    {`, ${watch} to watch`}
+                  </span>
+                  <span className="mast-watch__short" aria-hidden="true">
+                    <span className="mast-watch__date">{`Watch ${fmtDate(asOf).replace(/ \d{4}$/, "")}: `}</span>
+                    <b className="mast-watch__act">{act} to act on</b>
                     {`, ${watch} watch`}
                   </span>
                 </span>

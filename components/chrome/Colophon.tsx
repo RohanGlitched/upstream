@@ -17,6 +17,9 @@ const FDA_FILES: { key: string; name: string; href: string }[] = [
   { key: "import_alerts", name: "Import alerts", href: "https://www.accessdata.fda.gov/cms_ia/ialist.html" },
   { key: "recalls", name: "Recalls", href: "https://open.fda.gov/apis/drug/enforcement/" },
   { key: "shortage_current", name: "Drug shortages", href: "https://www.accessdata.fda.gov/scripts/drugshortages/" },
+  { key: "shortage_episodes", name: "Shortage history", href: "https://www.accessdata.fda.gov/scripts/drugshortages/" },
+  { key: "shortage_presentations", name: "Shortage presentations", href: "https://www.accessdata.fda.gov/scripts/drugshortages/" },
+  { key: "dmf_api", name: "Drug master files", href: "https://www.fda.gov/drugs/drug-master-files-dmfs/list-drug-master-files-dmfs" },
 ];
 
 interface WatchLite {
@@ -105,8 +108,8 @@ export async function Colophon() {
                 <dd>as of {fmtDate(watch?.asOf ?? "2026-10-21")}</dd>
               </div>
               <div>
-                <dt>FDA&apos;s files, {FDA_FILES.length} read</dt>
-                <dd>{built ? `built ${fmtDate(built)}` : "public files"}{fdaRows ? `, ${fmtInt(fdaRows)} rows` : ""}</dd>
+                <dt>FDA&apos;s files, {FDA_FILES.length} registered</dt>
+                <dd>{built ? `cleaned into CSVs ${fmtDate(built)}` : "public files"}{fdaRows ? `, ${fmtInt(fdaRows)} rows` : ""}, read as file tables</dd>
               </div>
             </dl>
             <ul className="colo-fda">
@@ -127,7 +130,7 @@ export async function Colophon() {
           <ul>
             <li>
               <a href="https://www.zetaris.com" rel="noopener noreferrer">Zetaris</a>
-              <span>federates three hospitals and FDA&apos;s files where they live, through one semantic layer</span>
+              <span>reads three hospital systems in place and FDA&apos;s cleaned files as file tables, through one semantic layer</span>
             </li>
             <li>
               <a href="https://build.nvidia.com" rel="noopener noreferrer">NVIDIA Nemotron</a>
@@ -136,6 +139,10 @@ export async function Colophon() {
             <li>
               <b>Meterless engines</b>
               <span>Scout Intent signs a contract for every action; H-MEM remembers signed decisions; the World Model keeps the chain; Markovian walks the formulary overnight</span>
+            </li>
+            <li>
+              <a href="https://github.com/RohanGlitched/upstream/tree/main/docs/cursor" rel="noopener noreferrer">Cursor</a>
+              <span>Cursor&apos;s agent wrote the generator behind Corvale&apos;s three hospital systems; its sessions are logged in the repo</span>
             </li>
             <li>
               <a href="https://open.fda.gov" rel="noopener noreferrer">openFDA</a> and FDA&apos;s Data Dashboard

@@ -24,7 +24,8 @@
  *   with citation marks (E12, D8) that unfold the evidence row as a carbon slip.
  *
  * Layout: a wide sheet (springs at top, flowing down) at 760px and up; a tall narrow sheet below that.
- * Both are server-rendered and chosen by a container query, so first paint is the finished map.
+ * Only the sheet that fits is drawn, and only once the figure is near the viewport: the server sends a
+ * sized, empty survey sheet (the two SVGs were 450 KB of HTML), so the page above it paints and hydrates first.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Case, Hospital } from "../../src/agent/types";
@@ -66,12 +67,13 @@ export function Watershed({ caseData, compact = false, autoplay = true, classNam
   const [playing, setPlaying] = useState(false);
   const [transferOn, setTransferOn] = useState(false);
   const [pick, setPick] = useState<Pick>(null);
+  const [near, setNear] = useState(false);
   const ctl = useRef<{ seek: (t: Day) => void; play: () => void; pause: () => void; transfer: (on: boolean) => void } | null>(null);
 
   const wideW = size && !size.tall ? size.W : compact ? COMPACT_W : WIDE_W;
   const tallW = size && size.tall ? size.W : TALL_W;
-  const wide = useMemo(() => (size?.tall ? null : layout(m, { W: wideW, mobile: false, panel: !compact })), [m, size?.tall, wideW, compact]);
-  const tall = useMemo(() => (size && !size.tall ? null : layout(m, { W: tallW, mobile: true, panel: false })), [m, size, tallW]);
+  const wide = useMemo(() => (!near || !size || size.tall ? null : layout(m, { W: wideW, mobile: false, panel: !compact })), [m, near, size, wideW, compact]);
+  const tall = useMemo(() => (!near || !size || !size.tall ? null : layout(m, { W: tallW, mobile: true, panel: false })), [m, near, size, tallW]);
   const fWide = useMemo(() => (wide ? frameAt(m, wide, m.today) : null), [m, wide]);
   const fTall = useMemo(() => (tall ? frameAt(m, tall, m.today) : null), [m, tall]);
   const active = size ? (size.tall ? tall : wide) : null;
@@ -93,6 +95,23 @@ export function Watershed({ caseData, compact = false, autoplay = true, classNam
     measure();
     return () => { ro.disconnect(); cancelAnimationFrame(raf); };
   }, []);
+
+  // draw the sheet a screen or so before it scrolls in
+  useEffect(() => {
+    const el = rootRef.current;
+    if (!el || near) return;
+    const io = new IntersectionObserver((ents) => { if (ents.some((e) => e.isIntersecting)) { setNear(true); io.disconnect(); } }, { rootMargin: "300px 0px" });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [near]);
+
+  // Escape closes an open record note
+  useEffect(() => {
+    if (!pick) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setPick(null); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [pick]);
 
   const onPick = useCallback((p: Pick) => setPick((q) => (q && p && q.kind === p.kind && q.key === p.key ? null : p)), []);
 
@@ -123,12 +142,14 @@ export function Watershed({ caseData, compact = false, autoplay = true, classNam
 
   const panelProps: PanelProps = {
     m, cur, playing, transferOn, pick, tall: !!size?.tall,
-    onPlay: () => (playing ? ctl.current?.pause() : ctl.current?.play()),
+    // Replay always starts FDA's record again from its first year, even mid-autoplay; Pause is its own button.
+    onPlay: () => { ctl.current?.seek(m.t0); ctl.current?.play(); },
+    onPause: () => ctl.current?.pause(),
     onSeek: (t: Day) => { ctl.current?.pause(); ctl.current?.seek(t); },
     onTransfer: () => setTransferOn((v) => !v),
     onClosePick: () => setPick(null),
-    scaleUnits: (active ?? wide ?? tall)!.scaleUnits,
-    k: (active ?? wide ?? tall)!.k,
+    scaleUnits: active?.scaleUnits ?? 0,
+    k: active?.k ?? 1,
   };
 
   const renderSheet = (g: Geo, f: Frame, which: "wide" | "tall") => {
@@ -173,8 +194,13 @@ export function Watershed({ caseData, compact = false, autoplay = true, classNam
 
   return (
     <figure ref={rootRef} className={`ws${compact ? " ws-compact" : ""}${size ? " ws-live" : ""}${className ? " " + className : ""}`} aria-label={`Supply map: the ${m.molecule} watershed of Corvale Health`}>
-      {wide && fWide && (!size || !size.tall) && renderSheet(wide, fWide, "wide")}
-      {tall && fTall && (!size || size.tall) && renderSheet(tall, fTall, "tall")}
+      {wide && fWide && size && !size.tall ? renderSheet(wide, fWide, "wide") : null}
+      {tall && fTall && size && size.tall ? renderSheet(tall, fTall, "tall") : null}
+      {!active ? (
+        <div className={`ws-hold${compact ? " ws-hold--compact" : ""}`} aria-hidden="true">
+          <span>Drawing the {m.molecule.toLowerCase()} watershed</span>
+        </div>
+      ) : null}
     </figure>
   );
 }
@@ -188,7 +214,7 @@ function mapLabel(m: WsModel): string {
 /* ---------------- panel ---------------- */
 interface PanelProps {
   m: WsModel; cur: number; playing: boolean; transferOn: boolean; pick: Pick; tall: boolean;
-  onPlay: () => void; onSeek: (t: Day) => void; onTransfer: () => void; onClosePick: () => void;
+  onPlay: () => void; onPause: () => void; onSeek: (t: Day) => void; onTransfer: () => void; onClosePick: () => void;
   scaleUnits: number; k: number;
 }
 
@@ -275,10 +301,16 @@ function Readout(p: PanelProps) {
             ))}
           </ol>
           <div className="ws-play">
-            <button type="button" onClick={p.onPlay} aria-pressed={p.playing}>
-              <svg width="10" height="11" viewBox="0 0 10 11" aria-hidden="true"><path d={p.playing ? "M1 1h3v9H1zM6 1h3v9H6z" : "M1 1 L9 5.5 L1 10 Z"} /></svg>
-              {p.playing ? "Pause" : "Replay FDA’s record"}
+            <button type="button" onClick={p.onPlay}>
+              <svg width="10" height="11" viewBox="0 0 10 11" aria-hidden="true"><path d="M1 1 L9 5.5 L1 10 Z" /></svg>
+              Replay FDA&rsquo;s record
             </button>
+            {p.playing ? (
+              <button type="button" onClick={p.onPause}>
+                <svg width="10" height="11" viewBox="0 0 10 11" aria-hidden="true"><path d="M1 1h3v9H1zM6 1h3v9H6z" /></svg>
+                Pause
+              </button>
+            ) : null}
             <span>or drag the bottom edge of the sheet</span>
           </div>
         </>
@@ -291,9 +323,9 @@ function Readout(p: PanelProps) {
       )}
       {tr && (
         <div className="ws-move">
-          <p className="ws-move-t">{tr.title.replace(/^Transfer (\d+)/, (_, n) => `Transfer ${n} ${unitWord(m.unit, +n)}`)}.</p>
+          <p className="ws-move-t">{/^Transfer \d+ from /.test(tr.title) ? tr.title.replace(/^Transfer (\d+)/, (_, n) => `Transfer ${n} ${unitWord(m.unit, +n)}`) : tr.title}.</p>
           <p className="ws-move-d">
-            {tr.to.replace("Corvale ", "")} goes from {fmt(m.hospitals.find((h) => h.key === tr.to)!.days ?? 0)} to {fmt(tr.after[tr.to] ?? 0)} days;{" "}
+            {tr.to.replace("Corvale ", "")} goes from {fmt(tr.before?.[tr.to] ?? m.hospitals.find((h) => h.key === tr.to)!.days ?? 0)} to {fmt(tr.after[tr.to] ?? 0)} days;{" "}
             {tr.from.replace("Corvale ", "")} keeps {fmt(tr.after[tr.from] ?? 0)}.<span className="ws-why"> {tr.why}</span>
           </p>
           <button type="button" className="ws-btn" aria-pressed={p.transferOn} onClick={p.onTransfer}>

@@ -9,13 +9,25 @@ import { BatchRecord } from "@/components/case/BatchRecord";
 import { GateRegister, Receipt } from "@/components/case/Registers";
 import { CaseGraph, type Graph } from "@/components/case/CaseGraph";
 import { Memo } from "@/components/case/Memo";
+import { STAFF } from "@/src/agent/staff";
 import { Watershed } from "@/components/watershed";
 import { loadCase, realCases } from "@/components/server/data";
 import { drugTitle, tallText } from "@/components/lib/drug";
 import { fmtDate } from "@/components/lib/format";
+import { leanCase } from "@/components/record/lean";
+import { HashScroll } from "./HashScroll";
 import "../case-page.css";
 
 type Params = { params: Promise<{ slug: string }> };
+
+// Every saved investigation is built ahead as a static page; a case saved after the build renders on its
+// first request and is then kept, refreshed at most hourly.
+export const revalidate = 3600;
+export const dynamicParams = true;
+
+export async function generateStaticParams(): Promise<{ slug: string }[]> {
+  return (await realCases()).map((c) => ({ slug: c.slug }));
+}
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
@@ -46,18 +58,19 @@ export default async function CasePage({ params }: Params) {
   const all = await realCases();
   const here = all.findIndex((x) => x.slug === slug);
   const next = [...all.slice(here + 1), ...all.slice(0, Math.max(0, here))].filter((x) => x.slug !== slug).slice(0, 4);
-  const approvers = [...new Set(["Jordan Hale, PharmD", "Riley Brooks, PharmD", "Alex Morgan, PharmD", ...c.memory.map((x) => x.approvedBy).filter((x): x is string => Boolean(x))])];
   const seen = new Set<string>();
   const decisions = [...c.options]
     .sort((a, b) => a.rank - b.rank)
     .filter((o) => !seen.has(o.title) && seen.add(o.title))
     .slice(0, 8)
     .map((o) => tallText(o.title));
-  const { graph, ...plain } = c;
+  const graph = (c as typeof c & { graph?: unknown }).graph;
+  const plain = leanCase(c);
   const title = drugTitle(c.molecule);
 
   return (
     <EvidenceProvider evidence={c.evidence} queries={c.queries}>
+      <HashScroll />
       <nav className="cp-crumbs" aria-label="Breadcrumb">
         <div className="cp-in">
           <Link href="/case">Investigations</Link>
@@ -137,9 +150,9 @@ export default async function CasePage({ params }: Params) {
         <div className="cp-in">
           <div className="rec-head">
             <h2 id="memo-h">The memo, and the signature it needs</h2>
-            <p>Upstream informs; a pharmacist decides. The decision enters H-MEM only under a named signature.</p>
+            <p>Upstream informs; a pharmacist decides. The decision enters H-MEM only under the signature of a signed-in pharmacist or the director (a demo sign-in here; single sign-on in a hospital).</p>
           </div>
-          <Memo slug={slug} molecule={c.molecule} asOf={c.asOf} approvers={approvers} decisions={decisions} />
+          <Memo slug={slug} molecule={c.molecule} asOf={c.asOf} staff={STAFF} decisions={decisions} />
         </div>
       </section>
 

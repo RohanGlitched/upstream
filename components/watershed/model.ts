@@ -206,6 +206,8 @@ export interface WsTransfer {
   needs: string;
   evidence: string[];
   after: Partial<Record<Hospital, number>>;
+  /** Days before the move, in the transfer's own presentation (absent on older recordings: use the reservoir). */
+  before?: Partial<Record<Hospital, number>>;
 }
 
 export interface WsModel {
@@ -428,7 +430,14 @@ export function buildModel(c: Case): WsModel {
   // the best transfer, if the ranking holds one
   let transfer: WsTransfer | null = null;
   const opt = c.options.filter((o) => o.kind === "transfer").sort((a, b) => a.rank - b.rank)[0];
-  if (opt) {
+  if (opt?.transfer) {
+    // Sized within one presentation: the after-days come from that presentation, not the hospital's pooled stock.
+    const t = opt.transfer;
+    transfer = {
+      from: t.from, to: t.to, units: t.qty, title: opt.title, detail: opt.detail, why: opt.why, needs: opt.needs, evidence: opt.evidence,
+      after: { [t.from]: t.fromAfter, [t.to]: t.toAfter }, before: { [t.from]: t.fromDays, [t.to]: t.toDays },
+    };
+  } else if (opt) {
     const m = /Transfer\s+([\d.]+)\s+from\s+(Corvale \w+)\s+to\s+(Corvale \w+)/i.exec(opt.title);
     if (m) {
       const from = m[2] as Hospital, to = m[3] as Hospital, units = +m[1];
