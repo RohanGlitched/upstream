@@ -37,6 +37,7 @@ function derive(c: Case): Evidence[] {
       const gap = daysBetween(s.knownDate, c.shortage.firstPosting);
       add(`FDA's OAI classification letter to ${p.name} is dated ${s.knownDate}, ${Math.abs(gap)} days ${gap >= 0 ? "before" : "after"} FDA posted the shortage on ${c.shortage.firstPosting}`, { letter: s.knownDate, posted: c.shortage.firstPosting, days: Math.abs(gap) });
     }
+    for (const o of c.options.slice(0, 3)) add(`Option ranked ${o.rank} by rule: ${o.title}. ${o.detail}`, { kind: o.kind, needs: o.needs });
     const months = Math.round(daysBetween(c.shortage.firstPosting, c.asOf) / 30.4);
     add(`As of ${c.asOf} the shortage has been on FDA's list for ${months} months`, { as_of: c.asOf, posted: c.shortage.firstPosting, months });
   }
