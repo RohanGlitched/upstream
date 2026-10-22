@@ -1,0 +1,90 @@
+{
+  "builtAt": "2026-10-22",
+  "source": "backtest/06_chain.py over FDA's shortage history (31 archived snapshots, Oct 2022 to Oct 2026), DailyMed SPL plant lists, FDA's registration file and FDA Data Dashboard exports. Raw outputs: backtest/backtest_runs.txt.",
+  "question": "When FDA posted a shortage, had FDA already acted against a plant named on the product's label in the two years before?",
+  "window": "Shortages first posted as Current from 2022-01-01; signals in the 730 days before the posting",
+  "signalDefinition": "At a plant whose label operations include MANUFACTURE, API MANUFACTURE or STERILIZE: an OAI inspection, a warning letter, an injunction, a seizure, or an import-alert listing (66-40 or 66-79). VAI inspections and recalls are counted separately.",
+  "cases": { "n": 138, "withPlant": 92, "withSignal": 21, "note": "92 of 138 recent shortages had at least one manufacturing plant we could place by FEI; the rest name no plant on the label, or a plant we cannot place." },
+  "strict": {
+    "label": "Dated by when it was public",
+    "dating": "An inspection counts from its classification letter (FMD-145), or 90 days after it closed when the letter date is missing.",
+    "episodesWithSignal": "12 of 92 (13%)",
+    "share": 0.13,
+    "caseProducts": "13 of 209 products (6.2%)",
+    "controlProducts": "19 of 336 products (5.7%)",
+    "liftVsControl": 1.1,
+    "p": 0.85,
+    "leadDays": { "median": 103, "iqr": [4, 219] },
+    "reading": "No lift over products that never went short. Using only what FDA had published, a plant action is not a predictor."
+  },
+  "endDated": {
+    "label": "Dated by when the inspection closed",
+    "dating": "An inspection counts from the day it ended, when FDA handed the plant its Form 483. The OAI label itself came later, so this uses hindsight about which inspections became OAI.",
+    "episodesWithSignal": "21 of 92 (23%)",
+    "share": 0.23,
+    "caseProducts": "30 of 209 products (14.4%)",
+    "controlProducts": "25 of 336 products (7.4%)",
+    "lift": 1.93,
+    "p": 0.012,
+    "leadDays": { "median": 98, "iqr": [50, 245] },
+    "reading": "About twice as common among shortage products, and 3 times as common among injectables over one year (14.7% vs 4.7%), but with hindsight."
+  },
+  "controls": { "n": 336, "share": 0.074, "note": "623 random prescription products whose NDC and generic name never appear in FDA's shortage history, each given a reference date drawn from the cases; 336 had a placeable manufacturing plant." },
+  "ppv": { "all": "about 2%", "injectables": "about 7%", "note": "If the close-dated signal were used as an alarm: about 1 in 14 flagged injectables would go short within a year. Order of magnitude only (crude 5-year prevalence)." },
+  "recalls": { "cases": "136 of 209 (65%)", "controls": "158 of 336 (47%)", "note": "Class I/II recalls at the plant or labeler are common everywhere, so they carry little information on their own." },
+  "examples": [
+    {
+      "molecule": "carboplatin", "slug": "carboplatin", "labeler": "Accord Healthcare", "plant": "Intas Pharmaceuticals, Sanand", "country": "IND", "fei": "3004011473",
+      "posted": "2023-04-28",
+      "events": [
+        { "date": "2022-12-02", "kind": "inspection_oai", "label": "FDA inspection ends; later classified OAI" },
+        { "date": "2023-04-05", "kind": "oai_letter", "label": "OAI classification letter" },
+        { "date": "2023-04-28", "kind": "shortage_posted", "label": "FDA posts the carboplatin shortage" },
+        { "date": "2023-06-01", "kind": "import_alert", "label": "Import alert 66-40" },
+        { "date": "2023-07-28", "kind": "warning_letter", "label": "Warning letter" }
+      ],
+      "note": "The same plant is named on BluePoint's cisplatin label (shortage posted 2023-02-10) and on Accord's methotrexate tablets (posted 2023-07-21)."
+    },
+    {
+      "molecule": "albuterol inhalation solution", "labeler": "Rising Pharma", "plant": "Nephron SC, West Columbia SC", "country": "USA", "fei": "3010892830",
+      "posted": "2022-10-25",
+      "events": [
+        { "date": "2022-04-20", "kind": "inspection_oai", "label": "FDA inspection ends; classified OAI" },
+        { "date": "2022-10-11", "kind": "warning_letter", "label": "Warning letter" },
+        { "date": "2022-10-21", "kind": "warning_letter", "label": "Second warning letter" },
+        { "date": "2022-10-25", "kind": "shortage_posted", "label": "FDA posts the albuterol shortage" }
+      ],
+      "note": "The shortage was posted 14 days after the first warning letter."
+    },
+    {
+      "molecule": "azacitidine", "labeler": "Fresenius Kabi", "plant": "Shilpa Medicare, Jadcherla", "country": "IND", "fei": "3009876430",
+      "posted": "2020-12-18",
+      "events": [
+        { "date": "2020-02-25", "kind": "inspection_oai", "label": "FDA inspection ends; classified OAI" },
+        { "date": "2020-10-09", "kind": "warning_letter", "label": "Warning letter" },
+        { "date": "2020-12-18", "kind": "shortage_posted", "label": "FDA posts the azacitidine shortage" },
+        { "date": "2021-02-16", "kind": "import_alert", "label": "Import alert 66-40" }
+      ],
+      "note": "Before the 2022 study window; shown because the trail is complete."
+    },
+    {
+      "molecule": "lactated Ringer's and dextrose (IV fluids)", "labeler": "Baxter", "plant": "Baxter, Marion NC", "country": "USA", "fei": "1025114",
+      "posted": "2024-10-11",
+      "events": [
+        { "date": "2024-02-09", "kind": "inspection_oai", "label": "FDA inspection ends; classified OAI" },
+        { "date": "2024-09-27", "kind": "other", "label": "Hurricane Helene floods the plant" },
+        { "date": "2024-10-11", "kind": "shortage_posted", "label": "FDA posts the IV fluid shortages" }
+      ],
+      "note": "The counter-example. The OAI is real, but the hurricane caused this shortage. A trail is not a cause, and Upstream says what FDA's records show without claiming why."
+    }
+  ],
+  "caveats": [
+    "Look-ahead: plant lists come from today's labels and registration file, and import-alert lists show firms listed now.",
+    "FDA names one shortage several ways (four lidocaine names, three albuterol names), so episodes are not independent; a few plants (Intas Sanand, Hospira, Baxter, Nephron) recur.",
+    "Six variants of this test were run. We report the strictly dated one first and the close-dated one beside it; the p-values are optimistic for that reason.",
+    "FDA posted only 18 new shortage names from 2024 to 2026, so the window starts in 2022 and n is small.",
+    "API (active ingredient) plants are almost invisible on labels: 42 of 708 shortage labels name one.",
+    "About a third of labels name no plant at all; we fall back to label text or the application holder and say so."
+  ],
+  "conclusion": "The public trail is often there and explains a shortage after the fact: in 1 in 8 recent shortages by strict dating, and 1 in 4 by close dating, FDA had acted against a named plant, typically about three months before the posting. It is not a forecast. Upstream is built to explain, cite and act on what is known, not to predict."
+}

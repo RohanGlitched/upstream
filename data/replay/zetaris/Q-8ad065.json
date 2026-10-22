@@ -1,0 +1,85 @@
+{
+ "id": "Q-8ad065",
+ "sql": "WITH ours AS (SELECT ndc11, package_ndc, lower(generic_name) AS molecule, spl_set_id FROM lightning.metastore.upstream.upstream_usl.product WHERE ndc11 IN ('00264193310', '00409205105', '00143950810', '00404975905', '76420025001', '00409379601', '00338006910', '23155072305', '00116400511', '62332003971', '50090518000', '00143955201', '00054449705', '25021081310', '39328051130', '55111028001', '76420081705', '71872714401', '00143957510', '00409132305', '00409317701', '00264959410', '63323048217', '67877041920')), plants AS (SELECT o.molecule, st.fei, st.firm_name FROM ours o JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = o.spl_set_id JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns) SELECT 'shortage' AS kind, o.molecule, sc.company_name AS firm, sc.status AS detail, sc.initial_posting_date AS dt FROM ours o JOIN fda.shortage_current sc ON sc.package_ndc = o.package_ndc WHERE sc.status = 'Current' UNION ALL SELECT 'oai', p.molecule, p.firm_name, i.inspection_id, i.end_date FROM plants p JOIN lightning.metastore.upstream.upstream_usl.inspection i ON i.fei = p.fei WHERE i.classification = 'OAI' AND i.end_date >= '2023-10-21' UNION ALL SELECT 'action', p.molecule, p.firm_name, ca.action_type, ca.action_date FROM plants p JOIN fda.compliance_actions ca ON ca.fei = p.fei WHERE ca.action_date >= '2023-10-21' UNION ALL SELECT 'import_alert', p.molecule, p.firm_name, ia.alert, ia.date_published FROM plants p JOIN fda.import_alerts ia ON ia.fei = p.fei WHERE ia.date_published >= '2023-10-21'",
+ "columns": [
+  "kind",
+  "molecule",
+  "firm",
+  "detail",
+  "dt"
+ ],
+ "rows": [
+  {
+   "kind": "shortage",
+   "molecule": "lidocaine hydrochloride",
+   "firm": "Hikma Pharmaceuticals USA, Inc.",
+   "detail": "Current",
+   "dt": "2018-06-13"
+  },
+  {
+   "kind": "shortage",
+   "molecule": "isoleucine, leucine, lysine acetate, methionine, phenylalanine, threonine, tryptophan, valine, cysteine hydrochloride, histidine, tyrosine, n-acetyl-tyrosine, alanine, arginine, proline, serine, glycine, aspartic acid, glutamic acid, and taurine",
+   "firm": "B. Braun Medical Inc.",
+   "detail": "Current",
+   "dt": "2020-12-08"
+  },
+  {
+   "kind": "shortage",
+   "molecule": "lidocaine hydrochloride anhydrous and dextrose monohydrate",
+   "firm": "B. Braun Medical Inc.",
+   "detail": "Current",
+   "dt": "2017-10-25"
+  },
+  {
+   "kind": "shortage",
+   "molecule": "ketorolac tromethamine",
+   "firm": "Baxter Healthcare",
+   "detail": "Current",
+   "dt": "2018-06-06"
+  },
+  {
+   "kind": "shortage",
+   "molecule": "lidocaine hydrochloride",
+   "firm": "Hospira, Inc., a Pfizer Company",
+   "detail": "Current",
+   "dt": "2012-02-22"
+  },
+  {
+   "kind": "shortage",
+   "molecule": "lidocaine hydrochloride and epinephrine",
+   "firm": "Hospira, Inc., a Pfizer Company",
+   "detail": "Current",
+   "dt": "2012-02-22"
+  },
+  {
+   "kind": "shortage",
+   "molecule": "ketorolac tromethamine",
+   "firm": "Hospira, Inc., a Pfizer Company",
+   "detail": "Current",
+   "dt": "2018-03-26"
+  },
+  {
+   "kind": "shortage",
+   "molecule": "lidocaine hydrochloride,epinephrine bitartrate",
+   "firm": "Fresenius Kabi USA, LLC",
+   "detail": "Current",
+   "dt": "2016-10-14"
+  },
+  {
+   "kind": "oai",
+   "molecule": "lactulose",
+   "firm": "Xttrium Laboratories, Inc.",
+   "detail": "1273417",
+   "dt": "2025-06-18"
+  }
+ ],
+ "ms": 7444,
+ "mode": "replay",
+ "ranAt": "2026-10-22T05:51:12.538Z",
+ "sources": [
+  "lightning.metastore.upstream",
+  "fda.shortage_current",
+  "fda.compliance_actions",
+  "fda.import_alerts"
+ ]
+}

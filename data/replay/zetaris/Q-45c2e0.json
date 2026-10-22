@@ -1,0 +1,50 @@
+{
+ "id": "Q-45c2e0",
+ "sql": "WITH ours AS (SELECT ndc11, package_ndc, lower(generic_name) AS molecule, spl_set_id FROM lightning.metastore.upstream.upstream_usl.product WHERE ndc11 IN ('45963060955', '59923060402', '68001052431', '72789054521', '11797015609', '16714024801', '25021079810', '50090770607', '16729050008', '00409610202', '55154234900', '72737000503', '67457061810', '00143912825', '00713068331', '00409120703', '69452035001')), plants AS (SELECT o.molecule, st.fei, st.firm_name FROM ours o JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = o.spl_set_id JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns) SELECT 'shortage' AS kind, o.molecule, sc.company_name AS firm, sc.status AS detail, sc.initial_posting_date AS dt FROM ours o JOIN fda.shortage_current sc ON sc.package_ndc = o.package_ndc WHERE sc.status = 'Current' UNION ALL SELECT 'oai', p.molecule, p.firm_name, i.inspection_id, i.end_date FROM plants p JOIN lightning.metastore.upstream.upstream_usl.inspection i ON i.fei = p.fei WHERE i.classification = 'OAI' AND i.end_date >= '2023-10-21' UNION ALL SELECT 'action', p.molecule, p.firm_name, ca.action_type, ca.action_date FROM plants p JOIN fda.compliance_actions ca ON ca.fei = p.fei WHERE ca.action_date >= '2023-10-21' UNION ALL SELECT 'import_alert', p.molecule, p.firm_name, ia.alert, ia.date_published FROM plants p JOIN fda.import_alerts ia ON ia.fei = p.fei WHERE ia.date_published >= '2023-10-21'",
+ "columns": [
+  "kind",
+  "molecule",
+  "firm",
+  "detail",
+  "dt"
+ ],
+ "rows": [
+  {
+   "kind": "shortage",
+   "molecule": "furosemide",
+   "firm": "Hospira, Inc., a Pfizer Company",
+   "detail": "Current",
+   "dt": "2020-04-07"
+  },
+  {
+   "kind": "shortage",
+   "molecule": "furosemide",
+   "firm": "Accord Healthcare Inc.",
+   "detail": "Current",
+   "dt": "2020-04-07"
+  },
+  {
+   "kind": "oai",
+   "molecule": "fondaparinux sodium",
+   "firm": "ScinoPharm Taiwan, Ltd.",
+   "detail": "1326554",
+   "dt": "2026-06-23"
+  },
+  {
+   "kind": "action",
+   "molecule": "furosemide",
+   "firm": "Intas Pharmaceuticals Limited",
+   "detail": "Warning Letter",
+   "dt": "2023-11-21"
+  }
+ ],
+ "ms": 8841,
+ "mode": "replay",
+ "ranAt": "2026-10-22T05:45:15.748Z",
+ "sources": [
+  "lightning.metastore.upstream",
+  "fda.shortage_current",
+  "fda.compliance_actions",
+  "fda.import_alerts"
+ ]
+}

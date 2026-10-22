@@ -1,0 +1,50 @@
+{
+ "id": "Q-676917",
+ "sql": "WITH ours AS (SELECT ndc11, package_ndc, lower(generic_name) AS molecule, spl_set_id FROM lightning.metastore.upstream.upstream_usl.product WHERE ndc11 IN ('00143928410', '00008092355', '71335116504', '70121162701', '55513019001', '00781613595', '00049052022', '72572057125', '50090353900', '83634011299', '55150011909', '70121169402', '64380076721', '00409818301', '65862098701', '00338070341', '00264194420', '00409665305', '00517210225', '72162154809')), plants AS (SELECT o.molecule, st.fei, st.firm_name FROM ours o JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = o.spl_set_id JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns) SELECT 'shortage' AS kind, o.molecule, sc.company_name AS firm, sc.status AS detail, sc.initial_posting_date AS dt FROM ours o JOIN fda.shortage_current sc ON sc.package_ndc = o.package_ndc WHERE sc.status = 'Current' UNION ALL SELECT 'oai', p.molecule, p.firm_name, i.inspection_id, i.end_date FROM plants p JOIN lightning.metastore.upstream.upstream_usl.inspection i ON i.fei = p.fei WHERE i.classification = 'OAI' AND i.end_date >= '2023-10-21' UNION ALL SELECT 'action', p.molecule, p.firm_name, ca.action_type, ca.action_date FROM plants p JOIN fda.compliance_actions ca ON ca.fei = p.fei WHERE ca.action_date >= '2023-10-21' UNION ALL SELECT 'import_alert', p.molecule, p.firm_name, ia.alert, ia.date_published FROM plants p JOIN fda.import_alerts ia ON ia.fei = p.fei WHERE ia.date_published >= '2023-10-21'",
+ "columns": [
+  "kind",
+  "molecule",
+  "firm",
+  "detail",
+  "dt"
+ ],
+ "rows": [
+  {
+   "kind": "oai",
+   "molecule": "potassium chloride",
+   "firm": "Baxter Healthcare Corporation",
+   "detail": "1243362",
+   "dt": "2024-08-01"
+  },
+  {
+   "kind": "oai",
+   "molecule": "potassium chloride",
+   "firm": "Baxter Healthcare Corporation",
+   "detail": "1311078",
+   "dt": "2026-04-02"
+  },
+  {
+   "kind": "oai",
+   "molecule": "piperacillin sodium and tazobactam sodium",
+   "firm": "Aurobindo Pharma Limited",
+   "detail": "1286862",
+   "dt": "2025-09-05"
+  },
+  {
+   "kind": "action",
+   "molecule": "potassium chloride",
+   "firm": "Baxter Healthcare Corporation",
+   "detail": "Warning Letter",
+   "dt": "2026-09-29"
+  }
+ ],
+ "ms": 7415,
+ "mode": "replay",
+ "ranAt": "2026-10-22T05:51:45.273Z",
+ "sources": [
+  "lightning.metastore.upstream",
+  "fda.shortage_current",
+  "fda.compliance_actions",
+  "fda.import_alerts"
+ ]
+}

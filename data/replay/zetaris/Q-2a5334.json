@@ -1,0 +1,71 @@
+{
+ "id": "Q-2a5334",
+ "sql": "WITH ours AS (SELECT ndc11, package_ndc, lower(generic_name) AS molecule, spl_set_id FROM lightning.metastore.upstream.upstream_usl.product WHERE ndc11 IN ('71288020050', '71288020011', '63323045201', '00409189001', '00641601910', '75826013005', '23155090641', '55150012316', '68462018805', '00641615010', '82432010301', '62332039031', '50090326600', '83634030704', '23155068941', '33342008411', '71205090790', '71335185209')), plants AS (SELECT o.molecule, st.fei, st.firm_name FROM ours o JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = o.spl_set_id JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns) SELECT 'shortage' AS kind, o.molecule, sc.company_name AS firm, sc.status AS detail, sc.initial_posting_date AS dt FROM ours o JOIN fda.shortage_current sc ON sc.package_ndc = o.package_ndc WHERE sc.status = 'Current' UNION ALL SELECT 'oai', p.molecule, p.firm_name, i.inspection_id, i.end_date FROM plants p JOIN lightning.metastore.upstream.upstream_usl.inspection i ON i.fei = p.fei WHERE i.classification = 'OAI' AND i.end_date >= '2023-10-21' UNION ALL SELECT 'action', p.molecule, p.firm_name, ca.action_type, ca.action_date FROM plants p JOIN fda.compliance_actions ca ON ca.fei = p.fei WHERE ca.action_date >= '2023-10-21' UNION ALL SELECT 'import_alert', p.molecule, p.firm_name, ia.alert, ia.date_published FROM plants p JOIN fda.import_alerts ia ON ia.fei = p.fei WHERE ia.date_published >= '2023-10-21'",
+ "columns": [
+  "kind",
+  "molecule",
+  "firm",
+  "detail",
+  "dt"
+ ],
+ "rows": [
+  {
+   "kind": "shortage",
+   "molecule": "morphine sulfate",
+   "firm": "Hospira, Inc., a Pfizer Company",
+   "detail": "Current",
+   "dt": "2017-10-31"
+  },
+  {
+   "kind": "shortage",
+   "molecule": "morphine sulfate",
+   "firm": "Hikma Pharmaceuticals USA, Inc.",
+   "detail": "Current",
+   "dt": "2017-11-03"
+  },
+  {
+   "kind": "shortage",
+   "molecule": "morphine sulfate",
+   "firm": "Fresenius Kabi USA, LLC",
+   "detail": "Current",
+   "dt": "2017-10-31"
+  },
+  {
+   "kind": "oai",
+   "molecule": "naproxen",
+   "firm": "Glenmark Pharmaceuticals Limited",
+   "detail": "1260403",
+   "dt": "2025-02-14"
+  },
+  {
+   "kind": "oai",
+   "molecule": "octreotide acetate",
+   "firm": "USV Private Limited",
+   "detail": "1321638",
+   "dt": "2026-04-17"
+  },
+  {
+   "kind": "oai",
+   "molecule": "nafcillin sodium",
+   "firm": "Aurobindo Pharma Limited",
+   "detail": "1286862",
+   "dt": "2025-09-05"
+  },
+  {
+   "kind": "action",
+   "molecule": "naproxen",
+   "firm": "Glenmark Pharmaceuticals Limited",
+   "detail": "Warning Letter",
+   "dt": "2025-07-11"
+  }
+ ],
+ "ms": 6875,
+ "mode": "replay",
+ "ranAt": "2026-10-22T05:45:59.015Z",
+ "sources": [
+  "lightning.metastore.upstream",
+  "fda.shortage_current",
+  "fda.compliance_actions",
+  "fda.import_alerts"
+ ]
+}

@@ -1,0 +1,85 @@
+{
+ "id": "Q-a401de",
+ "sql": "WITH ours AS (SELECT ndc11, package_ndc, lower(generic_name) AS molecule, spl_set_id FROM lightning.metastore.upstream.upstream_usl.product WHERE ndc11 IN ('00264959410', '63323048217', '67877041920', '50090450300', '00143914402', '65862003901', '00409198530', '71610025580', '00641600010', '65862020199', '51662135203', '00338035303', '00264757820', '51810050302', '70771162507', '00143926001')), plants AS (SELECT o.molecule, st.fei, st.firm_name FROM ours o JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = o.spl_set_id JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns) SELECT 'shortage' AS kind, o.molecule, sc.company_name AS firm, sc.status AS detail, sc.initial_posting_date AS dt FROM ours o JOIN fda.shortage_current sc ON sc.package_ndc = o.package_ndc WHERE sc.status = 'Current' UNION ALL SELECT 'oai', p.molecule, p.firm_name, i.inspection_id, i.end_date FROM plants p JOIN lightning.metastore.upstream.upstream_usl.inspection i ON i.fei = p.fei WHERE i.classification = 'OAI' AND i.end_date >= '2023-10-21' UNION ALL SELECT 'action', p.molecule, p.firm_name, ca.action_type, ca.action_date FROM plants p JOIN fda.compliance_actions ca ON ca.fei = p.fei WHERE ca.action_date >= '2023-10-21' UNION ALL SELECT 'import_alert', p.molecule, p.firm_name, ia.alert, ia.date_published FROM plants p JOIN fda.import_alerts ia ON ia.fei = p.fei WHERE ia.date_published >= '2023-10-21'",
+ "columns": [
+  "kind",
+  "molecule",
+  "firm",
+  "detail",
+  "dt"
+ ],
+ "rows": [
+  {
+   "kind": "shortage",
+   "molecule": "liraglutide",
+   "firm": "Hikma Pharmaceuticals USA, Inc.",
+   "detail": "Current",
+   "dt": "2023-07-18"
+  },
+  {
+   "kind": "shortage",
+   "molecule": "lidocaine hydrochloride anhydrous and dextrose monohydrate",
+   "firm": "B. Braun Medical Inc.",
+   "detail": "Current",
+   "dt": "2017-10-25"
+  },
+  {
+   "kind": "shortage",
+   "molecule": "lorazepam",
+   "firm": "Hospira, Inc., a Pfizer Company",
+   "detail": "Current",
+   "dt": "2018-05-03"
+  },
+  {
+   "kind": "shortage",
+   "molecule": "lorazepam",
+   "firm": "Hikma Pharmaceuticals USA, Inc.",
+   "detail": "Current",
+   "dt": "2018-09-05"
+  },
+  {
+   "kind": "shortage",
+   "molecule": "lidocaine hydrochloride,epinephrine bitartrate",
+   "firm": "Fresenius Kabi USA, LLC",
+   "detail": "Current",
+   "dt": "2016-10-14"
+  },
+  {
+   "kind": "oai",
+   "molecule": "mannitol",
+   "firm": "Baxter Healthcare Corporation",
+   "detail": "1230544",
+   "dt": "2024-02-09"
+  },
+  {
+   "kind": "oai",
+   "molecule": "mannitol",
+   "firm": "Baxter Healthcare Corporation",
+   "detail": "1243362",
+   "dt": "2024-08-01"
+  },
+  {
+   "kind": "oai",
+   "molecule": "mannitol",
+   "firm": "Baxter Healthcare Corporation",
+   "detail": "1311078",
+   "dt": "2026-04-02"
+  },
+  {
+   "kind": "action",
+   "molecule": "mannitol",
+   "firm": "Baxter Healthcare Corporation",
+   "detail": "Warning Letter",
+   "dt": "2026-09-29"
+  }
+ ],
+ "ms": 6253,
+ "mode": "replay",
+ "ranAt": "2026-10-22T05:45:45.750Z",
+ "sources": [
+  "lightning.metastore.upstream",
+  "fda.shortage_current",
+  "fda.compliance_actions",
+  "fda.import_alerts"
+ ]
+}

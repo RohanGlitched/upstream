@@ -1,0 +1,36 @@
+{
+ "id": "Q-51bcdb",
+ "sql": "WITH ours AS (SELECT ndc11, package_ndc, lower(generic_name) AS molecule, spl_set_id FROM lightning.metastore.upstream.upstream_usl.product WHERE ndc11 IN ('83634030704', '23155068941', '33342008411', '71205090790', '71335185209', '63187025605', '87441008801', '68788406601', '64380079801', '55150012715', '43066001401', '71335218208', '63629210401', '63323001210', '42023011602', '46708062117', '25021025550', '16714083401')), plants AS (SELECT o.molecule, st.fei, st.firm_name FROM ours o JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = o.spl_set_id JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns) SELECT 'shortage' AS kind, o.molecule, sc.company_name AS firm, sc.status AS detail, sc.initial_posting_date AS dt FROM ours o JOIN fda.shortage_current sc ON sc.package_ndc = o.package_ndc WHERE sc.status = 'Current' UNION ALL SELECT 'oai', p.molecule, p.firm_name, i.inspection_id, i.end_date FROM plants p JOIN lightning.metastore.upstream.upstream_usl.inspection i ON i.fei = p.fei WHERE i.classification = 'OAI' AND i.end_date >= '2023-10-21' UNION ALL SELECT 'action', p.molecule, p.firm_name, ca.action_type, ca.action_date FROM plants p JOIN fda.compliance_actions ca ON ca.fei = p.fei WHERE ca.action_date >= '2023-10-21' UNION ALL SELECT 'import_alert', p.molecule, p.firm_name, ia.alert, ia.date_published FROM plants p JOIN fda.import_alerts ia ON ia.fei = p.fei WHERE ia.date_published >= '2023-10-21'",
+ "columns": [
+  "kind",
+  "molecule",
+  "firm",
+  "detail",
+  "dt"
+ ],
+ "rows": [
+  {
+   "kind": "oai",
+   "molecule": "oxacillin sodium",
+   "firm": "Aurobindo Pharma Limited",
+   "detail": "1286862",
+   "dt": "2025-09-05"
+  },
+  {
+   "kind": "oai",
+   "molecule": "octreotide acetate",
+   "firm": "USV Private Limited",
+   "detail": "1321638",
+   "dt": "2026-04-17"
+  }
+ ],
+ "ms": 7479,
+ "mode": "replay",
+ "ranAt": "2026-10-22T05:51:37.852Z",
+ "sources": [
+  "lightning.metastore.upstream",
+  "fda.shortage_current",
+  "fda.compliance_actions",
+  "fda.import_alerts"
+ ]
+}

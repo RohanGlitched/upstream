@@ -1,0 +1,78 @@
+{
+ "id": "Q-2ddb89",
+ "sql": "WITH ours AS (SELECT ndc11, package_ndc, lower(generic_name) AS molecule, spl_set_id FROM lightning.metastore.upstream.upstream_usl.product WHERE ndc11 IN ('43063040505', '65841004110', '00409469924', '00069020910', '23155034542', '63323026970', '71335236909', '63323022905', '65862049101', '00409140101', '00143939210', '67457044560', '63323035120', '51759063011', '62332034791', '51662164101', '00143925010', '00409955805', '25021065282', '83854001425', '63323028821', '43066001510')), plants AS (SELECT o.molecule, st.fei, st.firm_name FROM ours o JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = o.spl_set_id JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns) SELECT 'shortage' AS kind, o.molecule, sc.company_name AS firm, sc.status AS detail, sc.initial_posting_date AS dt FROM ours o JOIN fda.shortage_current sc ON sc.package_ndc = o.package_ndc WHERE sc.status = 'Current' UNION ALL SELECT 'oai', p.molecule, p.firm_name, i.inspection_id, i.end_date FROM plants p JOIN lightning.metastore.upstream.upstream_usl.inspection i ON i.fei = p.fei WHERE i.classification = 'OAI' AND i.end_date >= '2023-10-21' UNION ALL SELECT 'action', p.molecule, p.firm_name, ca.action_type, ca.action_date FROM plants p JOIN fda.compliance_actions ca ON ca.fei = p.fei WHERE ca.action_date >= '2023-10-21' UNION ALL SELECT 'import_alert', p.molecule, p.firm_name, ia.alert, ia.date_published FROM plants p JOIN fda.import_alerts ia ON ia.fei = p.fei WHERE ia.date_published >= '2023-10-21'",
+ "columns": [
+  "kind",
+  "molecule",
+  "firm",
+  "detail",
+  "dt"
+ ],
+ "rows": [
+  {
+   "kind": "shortage",
+   "molecule": "rocuronium bromide",
+   "firm": "Hikma Pharmaceuticals USA, Inc.",
+   "detail": "Current",
+   "dt": "2023-02-15"
+  },
+  {
+   "kind": "shortage",
+   "molecule": "remifentanil hydrochloride",
+   "firm": "Hikma Pharmaceuticals USA, Inc.",
+   "detail": "Current",
+   "dt": "2022-06-28"
+  },
+  {
+   "kind": "shortage",
+   "molecule": "ropivacaine hydrochloride",
+   "firm": "InfoRLife SA",
+   "detail": "Current",
+   "dt": "2018-03-27"
+  },
+  {
+   "kind": "shortage",
+   "molecule": "ropivacaine hydrochloride",
+   "firm": "Caplin Steriles, Ltd.",
+   "detail": "Current",
+   "dt": "2020-12-22"
+  },
+  {
+   "kind": "shortage",
+   "molecule": "ropivacaine hydrochloride",
+   "firm": "Fresenius Kabi USA, LLC",
+   "detail": "Current",
+   "dt": "2018-03-23"
+  },
+  {
+   "kind": "shortage",
+   "molecule": "rifampin",
+   "firm": "Fresenius Kabi USA, LLC",
+   "detail": "Current",
+   "dt": "2021-02-17"
+  },
+  {
+   "kind": "shortage",
+   "molecule": "rifampin",
+   "firm": "Mylan Institutional, a Viatris Company",
+   "detail": "Current",
+   "dt": "2021-02-17"
+  },
+  {
+   "kind": "action",
+   "molecule": "promethazine hydrochloride",
+   "firm": "Zydus Lifesciences Limited",
+   "detail": "Warning Letter",
+   "dt": "2026-06-02"
+  }
+ ],
+ "ms": 6336,
+ "mode": "replay",
+ "ranAt": "2026-10-22T05:46:19.219Z",
+ "sources": [
+  "lightning.metastore.upstream",
+  "fda.shortage_current",
+  "fda.compliance_actions",
+  "fda.import_alerts"
+ ]
+}

@@ -1,0 +1,71 @@
+{
+ "id": "Q-fa0237",
+ "sql": "WITH ours AS (SELECT ndc11, package_ndc, lower(generic_name) AS molecule, spl_set_id FROM lightning.metastore.upstream.upstream_usl.product WHERE ndc11 IN ('71288010610', '25021032104', '68382052506', '00641600710', '00185012801', '00409116501', '00409115901', '31722027532', '00143933510', '00409163110', '80830167202', '00404976410', '72603088701', '60505628201', '00703423901', '16729029512', '71335247403', '65897000401', '00143992390', '00143926225', '00264310511', '00338350841', '00409973510', '00143947810', '00121097610', '63323038510')), plants AS (SELECT o.molecule, st.fei, st.firm_name FROM ours o JOIN lightning.metastore.upstream.upstream_usl.product_site ps ON ps.set_id = o.spl_set_id JOIN lightning.metastore.upstream.upstream_usl.site st ON st.duns = ps.est_duns) SELECT 'shortage' AS kind, o.molecule, sc.company_name AS firm, sc.status AS detail, sc.initial_posting_date AS dt FROM ours o JOIN fda.shortage_current sc ON sc.package_ndc = o.package_ndc WHERE sc.status = 'Current' UNION ALL SELECT 'oai', p.molecule, p.firm_name, i.inspection_id, i.end_date FROM plants p JOIN lightning.metastore.upstream.upstream_usl.inspection i ON i.fei = p.fei WHERE i.classification = 'OAI' AND i.end_date >= '2023-10-21' UNION ALL SELECT 'action', p.molecule, p.firm_name, ca.action_type, ca.action_date FROM plants p JOIN fda.compliance_actions ca ON ca.fei = p.fei WHERE ca.action_date >= '2023-10-21' UNION ALL SELECT 'import_alert', p.molecule, p.firm_name, ia.alert, ia.date_published FROM plants p JOIN fda.import_alerts ia ON ia.fei = p.fei WHERE ia.date_published >= '2023-10-21'",
+ "columns": [
+  "kind",
+  "molecule",
+  "firm",
+  "detail",
+  "dt"
+ ],
+ "rows": [
+  {
+   "kind": "shortage",
+   "molecule": "bupivacaine hydrochloride",
+   "firm": "Hospira, Inc., a Pfizer Company",
+   "detail": "Current",
+   "dt": "2018-02-20"
+  },
+  {
+   "kind": "shortage",
+   "molecule": "bupivacaine hydrochloride",
+   "firm": "Hospira, Inc., a Pfizer Company",
+   "detail": "Current",
+   "dt": "2018-02-20"
+  },
+  {
+   "kind": "shortage",
+   "molecule": "bupivacaine hydrochloride",
+   "firm": "Hospira, Inc., a Pfizer Company",
+   "detail": "Current",
+   "dt": "2018-02-20"
+  },
+  {
+   "kind": "shortage",
+   "molecule": "carboplatin",
+   "firm": "Teva Pharmaceuticals USA, Inc.",
+   "detail": "Current",
+   "dt": "2023-04-28"
+  },
+  {
+   "kind": "shortage",
+   "molecule": "carboplatin",
+   "firm": "Accord Healthcare Inc.",
+   "detail": "Current",
+   "dt": "2023-04-28"
+  },
+  {
+   "kind": "shortage",
+   "molecule": "bupivacaine hydrochloride",
+   "firm": "Aspiro Pharma Limited",
+   "detail": "Current",
+   "dt": "2018-02-20"
+  },
+  {
+   "kind": "action",
+   "molecule": "bumetanide",
+   "firm": "Zydus Lifesciences Limited",
+   "detail": "Warning Letter",
+   "dt": "2026-06-02"
+  }
+ ],
+ "ms": 5932,
+ "mode": "replay",
+ "ranAt": "2026-10-22T05:50:26.623Z",
+ "sources": [
+  "lightning.metastore.upstream",
+  "fda.shortage_current",
+  "fda.compliance_actions",
+  "fda.import_alerts"
+ ]
+}
