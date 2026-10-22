@@ -124,7 +124,8 @@ export interface Explanation {
   state: "confirmed" | "check" | "no_signal";
   headline: string;
   sentences: Sentence[];
-  verifier: { checked: number; rejected: { text: string; reason: string }[] };
+  /** repaired: sentences that failed only on a citation and were re-checked with the one line holding the token */
+  verifier: { checked: number; rejected: { text: string; reason: string }[]; repaired?: number };
   model: string;
 }
 

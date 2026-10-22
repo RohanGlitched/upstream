@@ -94,6 +94,34 @@ function numbersIn(text: string): string[] {
   return [...stripped.matchAll(/(?<![\w.-])(\d{2,}(?:\.\d+)?)(?![\w-])/g)].map((m) => m[1]);
 }
 
+/** Missing dates and numbers: the tokens a sentence uses that its cited lines do not contain. */
+function missingTokens(s: Sentence, c: Case): string[] {
+  const hay = s.cites.filter((id) => c.evidence[id]).map((id) => line(c.evidence[id])).join(" ");
+  const out: string[] = [];
+  for (const d of datesIn(s.text)) {
+    const tok = d.iso ?? d.ym!;
+    if (!hay.includes(tok)) out.push(tok);
+  }
+  for (const n of numbersIn(s.text)) if (!new RegExp(`(?<![\\d.])${n.replace(".", "\\.")}(?![\\d])`).test(hay)) out.push(n);
+  return out;
+}
+
+/** If a sentence fails only because it cited the wrong line, and exactly one line in the pack holds each missing
+ *  token, attach that line and check again. Repairs are counted and shown; nothing is added that the verifier
+ *  would not accept on its own. */
+export function repairCites(s: Sentence, c: Case, pack: Evidence[]): Sentence | null {
+  const missing = missingTokens(s, c);
+  if (!missing.length || s.cites.some((id) => !c.evidence[id])) return null;
+  const add: string[] = [];
+  for (const tok of missing) {
+    const hits = pack.filter((e) => line(e).includes(tok));
+    if (hits.length !== 1) return null;
+    if (!s.cites.includes(hits[0].id) && !add.includes(hits[0].id)) add.push(hits[0].id);
+  }
+  const fixed = { text: s.text, cites: [...s.cites, ...add] };
+  return verifySentence(fixed, c) ? null : fixed;
+}
+
 export function verifySentence(s: Sentence, c: Case): string | null {
   if (!s.cites?.length) return "cites nothing";
   const unknown = s.cites.filter((id) => !c.evidence[id]);
@@ -113,7 +141,8 @@ const SYSTEM = `You write the "why" section of a drug shortage brief for a hospi
 Use only the numbered evidence lines you are given. Every sentence must cite the ids it relies on.
 Write dates exactly as they appear in the evidence (YYYY-MM-DD), and use only numbers that appear in the cited lines.
 Say what FDA's records show and when; do not claim a cause FDA has not stated. Never give dosing or clinical advice.
-The headline says what the record shows, never a cause: for example "FDA's records trace our supply to a plant classified OAI 23 days before the posting", not "the shortage is caused by" or "linked to".
+The headline says what the record shows, never a cause: for example "FDA's records trace our supply to a plant classified OAI <N> days before the posting" (with N taken from a D line), not "the shortage is caused by" or "linked to".
+Day counts and durations are in the D lines: cite the D line whenever you use one.
 Plain sentence case, calm, specific. 4 to 7 sentences. Reply with JSON only:
 {"headline": "...", "headline_cites": ["E1"], "sentences": [{"text": "...", "cites": ["E3", "D2"]}]}`;
 
@@ -134,21 +163,35 @@ export async function explain(c: Case): Promise<Explanation> {
     ? `FDA's records trace this shortage to a plant on our own labels`
     : state === "check" ? "The public record is incomplete; check the flagged links" : "FDA's records show no signal at our plants";
   try {
-    const r = await chat([{ role: "system", content: SYSTEM }, { role: "user", content: ask }], { model: MODELS.reason, maxTokens: 900 });
+    const r = await chat([{ role: "system", content: SYSTEM }, { role: "user", content: ask }], { model: MODELS.reason, maxTokens: 1500 });
     const j = parseJson<{ headline?: string; headline_cites?: string[]; sentences?: Sentence[] }>(r.text);
     const rejected: Explanation["verifier"]["rejected"] = [];
     const kept: Sentence[] = [];
-    for (const s of j.sentences ?? []) {
+    let repaired = 0;
+    const check = (s: Sentence): Sentence | string => {
       const why = verifySentence(s, c);
-      if (why) rejected.push({ text: s.text, reason: why });
-      else kept.push({ text: s.text, cites: s.cites });
+      if (!why) return s;
+      const fixed = repairCites(s, c, ev);
+      if (fixed) {
+        repaired++;
+        return fixed;
+      }
+      return why;
+    };
+    for (const s of j.sentences ?? []) {
+      const res = check({ text: s.text, cites: s.cites ?? [] });
+      if (typeof res === "string") rejected.push({ text: s.text, reason: res });
+      else kept.push(res);
     }
-    const head: Sentence = { text: j.headline ?? fallbackHeadline, cites: j.headline_cites ?? [] };
-    const headBad = j.headline ? verifySentence(head, c) : "no headline";
-    if (headBad && j.headline) rejected.push({ text: j.headline, reason: `headline: ${headBad}` });
+    let headline = fallbackHeadline;
+    if (j.headline) {
+      const res = check({ text: j.headline, cites: j.headline_cites ?? [] });
+      if (typeof res === "string") rejected.push({ text: j.headline, reason: `headline: ${res}` });
+      else headline = res.text;
+    }
     return {
-      state, headline: headBad ? fallbackHeadline : head.text, sentences: kept,
-      verifier: { checked: (j.sentences?.length ?? 0) + (j.headline ? 1 : 0), rejected }, model: r.model,
+      state, headline, sentences: kept,
+      verifier: { checked: (j.sentences?.length ?? 0) + (j.headline ? 1 : 0), rejected, repaired }, model: r.model,
     };
   } catch (e) {
     return { state, headline: fallbackHeadline, sentences: [], verifier: { checked: 0, rejected: [{ text: "", reason: `model unavailable: ${(e as Error).message.slice(0, 120)}` }] }, model: MODELS.reason };
