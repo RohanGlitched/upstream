@@ -1,0 +1,259 @@
+/* The watershed: an engraved survey sheet. Colours come from app/record-tokens.css only. */
+.ws {
+  --ws-sheet: var(--survey);
+  --ws-hi: var(--survey-hi);
+  --ws-bed: var(--survey-lo);
+  --ws-water: var(--water);
+  --ws-pool: var(--water-pale);
+  --ws-silt: var(--silt);
+  --ws-cloud: var(--graphite-2);
+  --ws-mag: var(--magenta);
+  --ws-particle: color-mix(in srgb, var(--paper) 80%, transparent);
+  --ws-particle-silt: color-mix(in srgb, var(--silt-pale) 92%, transparent);
+  container-type: inline-size;
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--sans);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .ws {
+    --ws-hi: var(--paper);
+    --ws-bed: color-mix(in srgb, var(--survey) 72%, var(--graphite-2));
+    --ws-pool: color-mix(in srgb, var(--water) 42%, var(--survey));
+    --ws-mag: color-mix(in srgb, var(--magenta) 55%, var(--bone));
+    --ws-particle: color-mix(in srgb, var(--survey) 78%, transparent);
+    --ws-particle-silt: color-mix(in srgb, var(--night-signal) 70%, transparent);
+  }
+}
+:root[data-theme="dark"] .ws {
+  --ws-hi: var(--paper);
+  --ws-bed: color-mix(in srgb, var(--survey) 72%, var(--graphite-2));
+  --ws-pool: color-mix(in srgb, var(--water) 42%, var(--survey));
+  --ws-mag: color-mix(in srgb, var(--magenta) 55%, var(--bone));
+  --ws-particle: color-mix(in srgb, var(--survey) 78%, transparent);
+  --ws-particle-silt: color-mix(in srgb, var(--night-signal) 70%, transparent);
+}
+
+/* before the browser measures, a container query picks the sheet */
+.ws:not(.ws-live) .ws-tall { display: none; }
+@container (max-width: 759px) {
+  .ws:not(.ws-live) .ws-wide { display: none; }
+  .ws:not(.ws-live) .ws-tall { display: block; }
+}
+
+.ws-sheet {
+  position: relative;
+  border: 1.5px solid var(--ink);
+  padding: 9px;
+  background-color: var(--ws-sheet);
+  background-image:
+    radial-gradient(color-mix(in srgb, var(--ink) 4%, transparent) 1px, transparent 1.2px),
+    radial-gradient(color-mix(in srgb, var(--ink) 3%, transparent) 1px, transparent 1.2px);
+  background-size: 7px 7px, 11px 11px;
+  background-position: 0 0, 3px 5px;
+  box-shadow: var(--shadow-paper);
+}
+.ws-sheet-in { position: relative; border: 0.75px solid var(--ink); }
+.ws-tall .ws-sheet { padding: 0; border-width: 1px; }
+.ws-tall .ws-sheet-in { border: 0; }
+.ws-map { position: relative; width: 100%; overflow: hidden; }
+.ws-layers { position: absolute; inset: 0; }
+.ws-layers > svg, .ws-layers > canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.ws-base, .ws-flow, .ws-over { pointer-events: none; }
+.ws-hits { pointer-events: all; }
+.ws-hits > * { fill: transparent; cursor: pointer; outline: none; }
+.ws-hits > *:focus-visible { stroke: var(--carbon); stroke-width: 2; stroke-dasharray: 3 2; }
+.ws-hits > *:hover { fill: color-mix(in srgb, var(--carbon) 6%, transparent); }
+
+/* engraving */
+.ws-contour { fill: none; stroke: var(--ink); stroke-width: 0.5; opacity: 0.17; }
+.ws-contour-major { stroke-width: 0.85; opacity: 0.27; }
+.ws-hach { fill: none; stroke: var(--ink); opacity: 0.5; stroke-linecap: round; }
+.ws-stipple { fill: none; stroke: var(--graphite-2); opacity: 0.7; stroke-linecap: round; }
+.ws-fogline { fill: none; stroke: var(--graphite); stroke-width: 1; stroke-dasharray: 1 3.2; stroke-linecap: round; }
+.ws-frontier { fill: none; stroke: var(--ink); stroke-width: 1.1; stroke-dasharray: 10 4 2 4; opacity: 0.7; }
+.ws-mud { fill: var(--ws-bed); }
+.ws-mud-dot { fill: var(--graphite-2); opacity: 0.55; }
+.ws-ring14 { fill: none; stroke: var(--graphite); stroke-width: 0.7; stroke-dasharray: 1 2.6; opacity: 0.8; }
+.ws-pool { fill: var(--ws-pool); stroke: var(--water-deep); stroke-width: 1; }
+.ws-wl { fill: none; stroke: var(--water-deep); stroke-width: 0.5; }
+.ws-water { fill: var(--ws-water); }
+.ws-shore { fill: none; stroke: var(--ink); stroke-width: 1.1; stroke-dasharray: 5 2.5; }
+.ws-casing { fill: var(--ws-sheet); stroke: var(--ws-sheet); stroke-width: 3.2; stroke-linejoin: round; }
+.ws-bed { fill: var(--ws-bed); }
+.ws-edge { fill: none; stroke: var(--water-deep); stroke-width: 0.7; }
+.ws-edge-dry { stroke: var(--ink); stroke-dasharray: 4 3; }
+.ws-thread { fill: none; stroke: var(--fda-red); stroke-linecap: round; }
+.ws-canal-edge { fill: none; stroke: var(--ink); stroke-width: 0.8; stroke-dasharray: 4 3; }
+.ws-bridge { fill: none; stroke: var(--ink); stroke-width: 1.2; }
+.ws-gauge { fill: none; stroke: var(--ink); stroke-width: 1.4; }
+.ws-flag { fill: var(--ws-mag); stroke: var(--ws-mag); stroke-width: 1; }
+.ws-staff { fill: var(--ws-hi); stroke: var(--ink); stroke-width: 0.8; }
+.ws-staff-bar { fill: var(--ink); }
+.ws-staff-mark { fill: var(--water-deep); }
+.ws-staff-line { fill: none; stroke: var(--water-deep); stroke-width: 0.8; stroke-dasharray: 2 2; }
+.ws-spring circle { fill: var(--ws-sheet); stroke: var(--water-deep); stroke-width: 1.4; }
+.ws-spring .ws-spring-ring { fill: none; stroke-width: 0.6; }
+.ws-spring .ws-spring-eye { fill: var(--water-deep); stroke: none; }
+.ws-spring-approx circle { stroke-dasharray: 2 2; }
+.ws-spring-approx .ws-spring-eye { stroke-dasharray: none; }
+.ws-seep circle { fill: none; stroke: var(--graphite); stroke-width: 1; stroke-dasharray: 1.5 2; }
+.ws-seep .ws-seep-dot { fill: var(--graphite); stroke: none; }
+.ws-cloud circle { fill: var(--graphite); }
+.ws-ring-oai { fill: none; stroke: var(--fda-red); stroke-width: 1.6; }
+.ws-ring-insp { fill: none; stroke: var(--graphite); stroke-width: 1; stroke-dasharray: 2 2; }
+.ws-ring-vai { fill: none; stroke: var(--caution); stroke-width: 1.4; }
+.ws-wl-mark rect { fill: none; stroke: var(--fda-red); stroke-width: 1.4; }
+.ws-ia-mark path { fill: none; stroke: var(--ws-mag); stroke-width: 1.4; }
+.ws-ia-mark .ws-ia-bar { stroke: var(--ws-mag); }
+.ws-fade { transition: opacity 0.5s ease; }
+
+/* type on the sheet */
+.ws-place { font-family: var(--chart); font-style: italic; fill: var(--ink); }
+.ws-water-t { font-family: var(--chart); font-style: italic; fill: var(--water-deep); }
+.ws-sc { font-family: var(--chart); fill: var(--graphite); letter-spacing: 0.3em; font-variant-caps: small-caps; }
+.ws-data { font-family: var(--figure); font-variation-settings: "wdth" 80; fill: var(--graphite); font-variant-numeric: tabular-nums; }
+.ws-code { font-family: var(--type); fill: var(--graphite); }
+.ws-big { font-family: var(--figure); font-variation-settings: "wdth" 86; font-weight: 500; fill: var(--ink); font-variant-numeric: tabular-nums; }
+.ws-big-unit { font-weight: 400; fill: var(--ink-2); }
+.ws-ink { fill: var(--ink); }
+.ws-muted { fill: var(--graphite); }
+.ws-faint { fill: var(--graphite); opacity: 0.8; }
+.ws-t-red { fill: var(--fda-red); }
+.ws-t-mag { fill: var(--ws-mag); }
+.ws-t-amber { fill: var(--caution); }
+.ws-state.ws-t-red { font-weight: 600; }
+.ws-halo { paint-order: stroke; stroke: var(--ws-sheet); stroke-width: 3.2px; stroke-linejoin: round; }
+
+/* the time strip */
+.ws-strip-bg { fill: var(--ws-sheet); }
+.ws-rule { fill: none; stroke: var(--ink); stroke-width: 0.8; }
+.ws-strip-frame { fill: none; stroke: var(--ink); stroke-width: 0.8; }
+.ws-strip-bar { fill: var(--ink); }
+.ws-listed { fill: none; stroke: var(--ws-mag); stroke-width: 2; }
+.ws-cursor { stroke: var(--ink); stroke-width: 1.4; }
+.ws-cursor-knob { fill: var(--ink); }
+.ws-glyph { --gc: var(--ink); stroke: var(--gc); stroke-width: 1.1; }
+.ws-glyph > :not(.ws-glyph-stem) { fill: var(--ws-sheet); transition: fill 0.25s; }
+.ws-glyph.on > :not(.ws-glyph-stem) { fill: var(--gc); }
+.ws-glyph-stem { stroke-width: 0.7; opacity: 0.7; }
+.ws-g-inspection_oai, .ws-g-warning_letter, .ws-g-recall, .ws-g-injunction, .ws-g-seizure { --gc: var(--fda-red); }
+.ws-g-import_alert, .ws-g-shortage_posted { --gc: var(--ws-mag); }
+.ws-g-inspection_vai { --gc: var(--caution); }
+.ws-g-today { --gc: var(--ink); }
+
+.ws-scrub { position: absolute; bottom: 0; z-index: 4; }
+.ws-scrub input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: ew-resize; margin: 0; }
+.ws-scrub:focus-within { outline: 2px solid var(--carbon); outline-offset: 2px; }
+.ws-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* the cartouche and the record */
+.ws-panel {
+  position: absolute; left: 22px; top: 22px; width: 372px; z-index: 5;
+  display: flex; flex-direction: column; gap: 14px;
+  max-height: calc(100% - 84px); overflow: auto; scrollbar-width: thin;
+}
+.ws-cartouche {
+  background: var(--ws-hi);
+  border: 1px solid var(--ink);
+  outline: 3px double var(--ink);
+  outline-offset: 3px;
+  padding: 16px 18px 15px;
+  margin: 5px;
+}
+.ws-title { font-family: var(--chart); font-style: italic; font-weight: 400; font-size: 27px; line-height: 1.12; margin: 0 0 8px; text-wrap: balance; }
+.ws-lede { margin: 0; font-size: 13.5px; line-height: 1.45; color: var(--ink-2); }
+.ws-legend {
+  display: grid; grid-template-columns: 44px 1fr; gap: 7px 10px; align-items: center;
+  margin-top: 12px; padding-top: 11px; border-top: 1px solid var(--rule);
+  font-size: 12.5px; line-height: 1.3; color: var(--graphite);
+}
+.ws-panel .ws-legend { gap: 5px 10px; }
+.ws-panel .ws-why, .ws-panel .ws-play span { display: none; }
+.ws-panel .ws-lede { font-size: 13px; }
+.ws-panel .ws-title { font-size: 25px; }
+.ws-legend svg { display: block; overflow: visible; }
+.ws-lg-water { fill: none; stroke: var(--ws-water); }
+.ws-lg-bank { fill: none; stroke: var(--ink); stroke-width: 0.8; stroke-dasharray: 4 3; }
+.ws-lg-thread { fill: none; stroke: var(--fda-red); stroke-width: 2; }
+.ws-lg-ia { fill: none; stroke: var(--ws-mag); stroke-width: 1.3; }
+.ws-lg-wl { fill: none; stroke: var(--fda-red); stroke-width: 1.3; }
+.ws-lg-approx { fill: none; stroke: var(--water-deep); stroke-width: 1.2; stroke-dasharray: 2 2; }
+.ws-lg-dot { fill: var(--water-deep); }
+
+.ws-readout { background: var(--ws-hi); border: 1px solid var(--rule); padding: 14px 16px 14px; margin: 0 5px; }
+.ws-when { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.ws-date { font-family: var(--figure); font-size: 34px; line-height: 1; font-weight: 500; font-variation-settings: "wdth" 88; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ws-listed { font-size: 13px; color: var(--graphite); text-align: right; line-height: 1.25; }
+.ws-listed b { display: block; font-family: var(--figure); font-size: 20px; font-weight: 500; color: var(--ws-mag); font-variation-settings: "wdth" 88; }
+.ws-listed b:empty { display: none; }
+.ws-events { list-style: none; margin: 12px 0 0; padding: 8px 0 0; border-top: 1px solid var(--rule); max-height: 150px; overflow: auto; scrollbar-width: thin; }
+.ws-events button {
+  all: unset; box-sizing: border-box; width: 100%; cursor: pointer;
+  display: grid; grid-template-columns: 16px 66px 1fr; gap: 6px; align-items: start;
+  padding: 3px 2px; font-size: 13px; line-height: 1.35; color: var(--graphite);
+  font-family: var(--sans);
+}
+.ws-events .d { font-family: var(--figure); font-variation-settings: "wdth" 82; font-variant-numeric: tabular-nums; }
+.ws-events .ws-ev-g { margin-top: 2px; overflow: visible; }
+.ws-events li:not(.past):not(.now) button { color: color-mix(in srgb, var(--graphite) 78%, var(--ws-hi)); }
+.ws-events li.now button { color: var(--ink); background: color-mix(in srgb, var(--ws-mag) 9%, transparent); }
+.ws-events button:hover { color: var(--ink); }
+.ws-events button:focus-visible { outline: 2px solid var(--carbon); outline-offset: -2px; }
+.ws-play { display: flex; align-items: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+.ws-play button, .ws-btn {
+  font: inherit; font-size: 13.5px; color: var(--ink); background: transparent; cursor: pointer;
+  border: 1px solid var(--ink); border-radius: var(--radius-ui); padding: 7px 12px 7px 10px;
+  display: inline-flex; align-items: center; gap: 8px; min-height: 36px;
+}
+.ws-play button svg path { fill: var(--ink); }
+.ws-play span { font-size: 12.5px; color: var(--graphite); }
+.ws-btn[aria-pressed="true"] { background: var(--water-deep); border-color: var(--water-deep); color: var(--paper); }
+.ws-play button:focus-visible, .ws-btn:focus-visible { outline: 2px solid var(--carbon); outline-offset: 2px; }
+.ws-quiet { margin: 12px 0 0; padding-top: 10px; border-top: 1px solid var(--rule); font-size: 13.5px; color: var(--graphite); line-height: 1.45; }
+.ws-move { margin-top: 12px; padding-top: 10px; border-top: 2px solid var(--ink); }
+.ws-move-t { margin: 0; font-family: var(--serif); font-size: 18px; line-height: 1.25; }
+.ws-move-d { margin: 4px 0 8px; font-size: 13px; line-height: 1.45; color: var(--graphite); }
+
+.ws-note {
+  margin-top: 14px; background: var(--paper); border-left: 3px solid var(--carbon);
+  box-shadow: var(--shadow-paper); padding: 12px 14px 12px;
+}
+.ws-note-h { display: flex; justify-content: space-between; align-items: start; gap: 8px; }
+.ws-note h4 { margin: 0; font-family: var(--serif); font-weight: 600; font-size: 17px; line-height: 1.25; }
+.ws-x { all: unset; cursor: pointer; font-size: 22px; line-height: 1; color: var(--graphite); width: 28px; height: 28px; display: grid; place-items: center; }
+.ws-x:focus-visible { outline: 2px solid var(--carbon); }
+.ws-note p { margin: 6px 0 0; font-size: 13.5px; line-height: 1.45; color: var(--ink-2); }
+.ws-note code, .ws-slip code { font-family: var(--type); font-size: 13px; }
+.ws-note-list { list-style: none; margin: 8px 0 0; padding: 0; font-size: 13px; line-height: 1.4; color: var(--ink-2); }
+.ws-note-list li { padding: 4px 0; border-top: 1px solid var(--rule); }
+.ws-note-list .d { font-family: var(--figure); font-variation-settings: "wdth" 82; color: var(--graphite); margin-right: 4px; }
+.ws-cites { display: flex; flex-wrap: wrap; gap: 6px; }
+.ws-cite-wrap { display: inline; }
+.ws-cite {
+  font-family: var(--type); font-size: 12.5px; color: var(--carbon); background: transparent; cursor: pointer;
+  border: 1px solid color-mix(in srgb, var(--carbon) 40%, transparent); border-radius: 2px; padding: 1px 5px; margin-left: 2px;
+}
+.ws-cite[aria-expanded="true"] { background: var(--carbon); color: var(--paper); }
+.ws-cite-off { color: var(--graphite); border-color: var(--rule); cursor: default; }
+.ws-slip {
+  display: block; margin: 6px 0 2px; padding: 8px 10px; background: var(--onion);
+  border: 1px dashed var(--carbon-soft); font-size: 12.5px; line-height: 1.4; color: var(--ink-2);
+}
+.ws-slip-h { display: block; color: var(--carbon); font-family: var(--type); }
+.ws-slip-l { display: block; margin-top: 3px; }
+.ws-slip-f { display: grid; grid-template-columns: 1fr; gap: 1px; margin-top: 5px; font-family: var(--type); font-size: 11.5px; color: var(--graphite); word-break: break-word; }
+.ws-slip-f i { font-style: normal; color: var(--graphite-2); }
+
+.ws-below { margin-top: 16px; display: grid; gap: 14px; }
+.ws-below-wide { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
+.ws-tall .ws-cartouche { margin: 5px 5px 18px; }
+.ws-tall .ws-title { font-size: 24px; }
+.ws-tall .ws-readout { margin: 0; }
+.ws-tall .ws-events { max-height: 264px; }
+.ws-tall .ws-events button { min-height: 44px; align-items: center; }
+.ws-tall .ws-play button, .ws-tall .ws-btn { min-height: 44px; }
+.ws-tall .ws-cite { min-height: 32px; padding: 4px 8px; }
+@media (prefers-reduced-motion: reduce) {
+  .ws-fade, .ws-glyph > * { transition: none; }
+}

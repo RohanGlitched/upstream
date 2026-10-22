@@ -1,16 +1,13 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Investigation } from "@/components/desk/Investigation";
-import { WatchSummary, WatchList, WatchEngine } from "@/components/desk/Watch";
-import { DrugName, StateBadge } from "@/components/CaseBits";
-import { realCases, isLive } from "@/components/server/data";
-import { fmtDate, fmtDays } from "@/components/lib/format";
-import { tallText } from "@/components/lib/drug";
+import { ReportBody, ReportHead, RunStrip, type WatchRun } from "@/components/desk/Printout";
+import { isLive, readJson, realCases } from "@/components/server/data";
+import { fmtDateLong } from "@/components/lib/format";
 import "./desk.css";
 
 export const metadata: Metadata = {
-  title: "Buyer's desk",
-  description: "The overnight formulary watch, the drugs at risk on our shelves, and the ask box.",
+  title: "The buyer's desk",
+  description: "The overnight formulary watch as a printed report, and the request slip that starts an investigation.",
 };
 
 export const dynamic = "force-dynamic";
@@ -20,108 +17,93 @@ const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", 
 export default async function Desk({ searchParams }: { searchParams: Promise<{ q?: string | string[] }> }) {
   const sp = await searchParams;
   const q = (Array.isArray(sp.q) ? sp.q[0] : sp.q)?.slice(0, 400);
-  const cases = await realCases();
+  const [cases, w] = await Promise.all([realCases(), readJson<WatchRun>("data/watch/latest.json")]);
   const live = isLive();
-  const today = new Date(Date.UTC(2026, 9, 22));
+  const morning = "2026-10-22";
+  const day = DAYS[new Date(morning + "T00:00:00Z").getUTCDay()];
+  const act = w ? w.flagged.filter((f) => f.state === "act") : [];
+  const lowest = [...act].sort((a, b) => (a.minDays ?? 1e9) - (b.minDays ?? 1e9))[0];
 
   return (
     <>
-      <section className="desk-hero" aria-labelledby="desk-title">
-        <div className="wrap desk-hero__grid">
-          <div>
-            <p className="desk-date">
-              {DAYS[today.getUTCDay()]}, {fmtDate("2026-10-22")}
+      <section className="dk-hero" aria-labelledby="dk-h">
+        <div className="dk-in dk-grid">
+          <div className="dk-intro">
+            <p className="dk-date">
+              <b>
+                {day}, {fmtDateLong(morning)}
+              </b>
+              Corvale Health, pharmacy purchasing
             </p>
-            <h1 id="desk-title">The buyer&apos;s desk</h1>
-            <p className="lede desk-lede">What changed overnight across Corvale Health&apos;s formulary, and the drugs to look at first.</p>
+            <h1 id="dk-h">The buyer&apos;s morning</h1>
+            <p className="dk-dek">
+              Overnight, Upstream walked every drug on the formulary against our three hospitals&apos; stock and FDA&apos;s
+              files. The report came off the printer at {w ? w.ranAt.slice(11, 16) : "dawn"}.
+              {lowest ? (
+                <>
+                  {" "}
+                  The shortest shelf is {lowest.display ?? lowest.molecule} at {lowest.hospital}: {lowest.minDays} days.
+                </>
+              ) : null}
+            </p>
+            <a href="#ask" className="dk-jump">
+              File a question
+            </a>
           </div>
-          <div className="desk-hero__brief">
-            <h2 className="sr-only">Overnight watch</h2>
-            <WatchSummary />
-          </div>
-        </div>
-      </section>
-
-      <section className="section desk-ask" aria-label="Ask Upstream">
-        <div className="wrap">
-          <Investigation initial={q} />
-          <p className="small muted desk-mode">
-            <span className={`mode${live ? " mode--live" : ""}`}>
-              {live ? "Live: questions run against Zetaris" : "Replay: this copy streams recorded investigations step by step"}
-            </span>
-          </p>
-        </div>
-      </section>
-
-      <section className="section" aria-labelledby="risk-title">
-        <div className="wrap">
-          <div className="section-head">
-            <h2 id="risk-title">Drugs at risk, by days on hand</h2>
-            <p className="lede">Each one has a full investigation on file: the trace, the evidence and the options.</p>
-          </div>
-          {cases.length ? (
-            <ol className="risk">
-              {cases.map((c) => (
-                <li key={c.slug}>
-                  <Link href={`/case/${c.slug}`} className="risk-card">
-                    <span className="risk-days">
-                      <span className="risk-days__n num">{fmtDays(c.minDays)}</span>
-                      <span className="small muted">days at the shortest shelf</span>
-                    </span>
-                    <span className="risk-main">
-                      <DrugName molecule={c.molecule} className="risk-name" />
-                      <span className="risk-h">{c.headline ? tallText(c.headline) : c.question}</span>
-                      <span className="risk-meta">
-                        <StateBadge state={c.state as "confirmed" | "check" | "no_signal" | null} />
-                        <span className="small muted">
-                          {c.status
-                            ? `FDA: ${c.status}${c.firstPosting ? ` since ${fmtDate(c.firstPosting)}` : ""}`
-                            : c.firstPosting
-                              ? `FDA first posted it ${fmtDate(c.firstPosting)}`
-                              : "Not on FDA's list"}
-                        </span>
-                      </span>
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ol>
+          {w ? (
+            <ReportHead w={w} />
           ) : (
             <div className="notice">
               <span className="notice__mark" aria-hidden="true">i</span>
-              <h3>No investigations on file yet</h3>
-              <p>Ask about a drug above. Each finished investigation is kept here with its evidence.</p>
+              <h3>No overnight watch on this copy yet</h3>
+              <p>The watch walks the formulary each night in chunks and prints its report here after the first run.</p>
             </div>
           )}
         </div>
       </section>
 
-      <section className="section" aria-labelledby="watch-title">
-        <div className="wrap">
-          <div className="section-head">
-            <h2 id="watch-title">Flagged overnight</h2>
-            <p className="lede">
-              The watch checks every drug on the formulary against our stock and FDA&apos;s files. Most are quiet; these
-              are not.
+      <section id="ask" className="dk-sec dk-ask" aria-labelledby="ask-h">
+        <div className="dk-in">
+          <div className="rec-head">
+            <h2 id="ask-h">Ask Upstream</h2>
+            <p>
+              Type the question the way you would say it. Each step is filed as it finishes, then the whole record is laid out on the desk.{" "}
+              <span className={`mode${live ? " mode--live" : ""}`}>{live ? "Live: questions run against Zetaris" : "Replay: this copy streams recorded investigations"}</span>
             </p>
           </div>
-          <WatchList />
         </div>
+        <Investigation initial={q} onFile={cases.length} />
       </section>
 
-      <section className="section" aria-labelledby="engine-title">
-        <div className="wrap">
-          <div className="section-head">
-            <h2 id="engine-title">How the watch ran</h2>
-            <p className="lede">
-              Markovian walks the formulary in fixed-size chunks. The drug list, the cursor and the findings live in the
-              World Model, not in the prompt, so each chunk&apos;s prompt stays the same size however long the list.
-              Scout issues a fresh contract for every chunk.
-            </p>
-          </div>
-          <WatchEngine />
-        </div>
-      </section>
+      {w ? (
+        <>
+          <section className="dk-sec" aria-labelledby="report-h">
+            <div className="dk-in">
+              <div className="rec-head">
+                <h2 id="report-h">The overnight report</h2>
+                <p>
+                  {w.drugs} drugs checked. Most are quiet; these are not. Every line opens the investigation behind it, or asks for one.
+                </p>
+              </div>
+              <ReportBody w={w} cases={new Set(cases.map((c) => c.slug))} />
+            </div>
+          </section>
+
+          <section className="dk-sec" aria-labelledby="run-h">
+            <div className="dk-in">
+              <div className="rec-head">
+                <h2 id="run-h">How the watch ran</h2>
+                <p>
+                  Markovian walks the formulary in fixed-size chunks. The list, the cursor and the findings live in the World
+                  Model, not in the prompt, so each chunk&apos;s prompt stays the same size however long the list. Scout issues a
+                  fresh contract for every chunk.
+                </p>
+              </div>
+              <RunStrip w={w} />
+            </div>
+          </section>
+        </>
+      ) : null}
     </>
   );
 }

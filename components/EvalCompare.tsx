@@ -1,10 +1,13 @@
 "use client";
 
+// Nemotron alone against Upstream, as a graded answer sheet. Two papers answer the same questions about the same
+// products; ground truth comes from separate code over FDA's raw files. Red is the grader's pen on a wrong answer,
+// carbon blue is what Upstream read from FDA. Pass `data` for a complete first paint; without it, /api/eval is fetched.
 import { useState } from "react";
 import { useApi } from "./lib/useApi";
 import { fmtDate, fmtMs } from "./lib/format";
 import { drugTitle } from "./lib/drug";
-import "./eval.css";
+import "./backtest.css";
 
 interface EvalRow {
   drug: string;
@@ -29,6 +32,18 @@ interface Baseline {
   saidConfident?: number;
 }
 
+interface BaselineRow {
+  drug: string;
+  labeler: string;
+  said?: { plant?: string | null; city?: string | null; country?: string | null; fei?: string | null; classification?: string | null; end_date?: string | null; confident?: boolean };
+  plantOk?: boolean;
+  feiOk?: boolean;
+  classOk?: boolean;
+  dateOk?: boolean;
+  inventedDate?: boolean;
+  confident?: boolean;
+}
+
 export interface EvalTrace {
   summary: {
     ranAt?: string;
@@ -42,181 +57,238 @@ export interface EvalTrace {
   baseline?: unknown[];
 }
 
-function isEval(x: unknown): x is EvalTrace {
+export function isEval(x: unknown): x is EvalTrace {
   const o = x as EvalTrace;
   return Boolean(o && o.summary && o.summary.upstream && Array.isArray(o.rows));
 }
 
-/** "52/59 (88%)" -> {n:52, d:59, share:0.88} */
-function ratio(s: string | undefined | null): { n: number; d: number; share: number; text: string } | null {
-  if (!s) return null;
-  const m = /(\d+)\s*\/\s*(\d+)/.exec(s);
-  if (!m) return null;
-  const n = Number(m[1]);
-  const d = Number(m[2]);
-  return { n, d, share: d ? n / d : 0, text: `${n} of ${d}` };
+/** "52/59 (88%)" -> {n:52, d:59} */
+function ratio(s: string | undefined | null): { n: number; d: number } | null {
+  const m = s ? /(\d+)\s*\/\s*(\d+)/.exec(s) : null;
+  return m ? { n: Number(m[1]), d: Number(m[2]) } : null;
 }
 
-function Bar({ r, tone }: { r: ReturnType<typeof ratio>; tone: "up" | "base" }) {
-  if (!r) return <span className="ev-bar ev-bar--na">Not measured yet</span>;
-  return (
-    <span className={`ev-bar ev-bar--${tone}`}>
-      <span className="ev-bar__track" aria-hidden="true">
-        <span style={{ width: `${Math.max(r.share * 100, r.n ? 1.5 : 0)}%` }} />
-      </span>
-      <span className="ev-bar__v num">
-        <strong>{Math.round(r.share * 100)}%</strong> <span className="muted">{r.text}</span>
-      </span>
-    </span>
-  );
-}
-
-function lastText(s: string | null): string {
+function lastText(s: string | null | undefined): string {
   if (!s) return "none on file";
   const m = /^([A-Z]{3})\s+(\d{4}-\d{2}-\d{2})$/.exec(s);
   return m ? `${m[1]}, ${fmtDate(m[2])}` : s;
 }
 
-export function EvalCompare({ full = false }: { full?: boolean }) {
-  const s = useApi<EvalTrace>("/api/eval", isEval);
+function firm(name: string): string {
+  return name === name.toUpperCase() ? name.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase()) : name;
+}
+
+/** A row of grader's marks: one tick or cross per question. */
+function Marks({ r, tone }: { r: { n: number; d: number } | null; tone: "up" | "base" }) {
+  if (!r) return <span className="evg-na">Not measured</span>;
+  const items = [];
+  for (let i = 0; i < r.d; i++) items.push(<i key={i} className={i < r.n ? "ok" : "no"} />);
+  return (
+    <span className={`evg-marks evg-marks--${tone}`} role="img" aria-label={`${r.n} of ${r.d} right`}>
+      {items}
+    </span>
+  );
+}
+
+function Line({ k, r, tone }: { k: string; r: { n: number; d: number } | null; tone: "up" | "base" }) {
+  return (
+    <li className="evg-line">
+      <span className="evg-k">{k}</span>
+      <span className={`evg-score${r && r.n === 0 ? " is-zero" : ""}`}>
+        {r ? (
+          <>
+            <strong>{r.n}</strong>
+            <span>/{r.d}</span>
+          </>
+        ) : (
+          "n/a"
+        )}
+      </span>
+      <Marks r={r} tone={tone} />
+    </li>
+  );
+}
+
+function Sheet({ data, full }: { data: EvalTrace; full: boolean }) {
   const [all, setAll] = useState(false);
-
-  if (s.status === "loading") {
-    return (
-      <div className="evc" aria-busy="true" aria-label="Loading the accuracy check">
-        <div className="evc-grid">
-          {[0, 1].map((i) => (
-            <div className="evc-col" key={i}>
-              <span className="skel" style={{ width: 160, height: 18 }} />
-              {[0, 1, 2, 3].map((j) => (
-                <span key={j} className="skel skel-line" style={{ width: "90%", height: 16, marginTop: 22 }} />
-              ))}
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-  if (s.status !== "ready") {
-    return (
-      <div className={`notice${s.status === "error" ? " notice--error" : ""}`}>
-        <span className="notice__mark" aria-hidden="true">{s.status === "error" ? "!" : "i"}</span>
-        <h3>{s.status === "error" ? "The accuracy check did not load" : "The accuracy check is not on this copy yet"}</h3>
-        <p>
-          {s.status === "error"
-            ? s.message
-            : "It compares Upstream's trace with ground truth computed separately from FDA's raw files, and with the same model answering from memory."}
-        </p>
-      </div>
-    );
-  }
-
-  const { summary, rows } = s.data;
+  const { summary, rows } = data;
   const b = summary.baseline;
   const up = summary.upstream;
   const nFei = rows.filter((r) => r.upstreamFei).length;
-  const feiUp = rows.length ? { n: nFei, d: rows.length, share: nFei / rows.length, text: `${nFei} of ${rows.length}` } : ratio(up.plantFound);
-  const lines: { k: string; up: ReturnType<typeof ratio>; base: ReturnType<typeof ratio> }[] = [
-    { k: "Named the right plant", up: ratio(up.plantFound), base: ratio(b?.plantNamed) },
-    { k: "Gave the plant's FEI number", up: feiUp, base: ratio(b?.feiCorrect) },
-    { k: "Right last inspection classification", up: ratio(up.lastInspectionMatch), base: ratio(b?.classificationCorrect) },
-    { k: "Right inspection date", up: ratio(up.lastInspectionMatch), base: ratio(b?.dateCorrect) },
-  ];
-  const shown = all ? rows : rows.slice(0, 8);
+  const base = (data.baseline ?? []) as BaselineRow[];
+  const byKey = new Map(base.map((x) => [`${x.drug}|${x.labeler}`, x]));
+  const seen = new Set<string>();
+  const paired = rows.filter((r) => {
+    const k = `${r.drug}|${r.labeler}`;
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+  const shown = all ? paired : paired.slice(0, 8);
+  const model = b?.model ? b.model.replace(/^nvidia\//, "") : "nemotron-3-ultra";
 
   return (
-    <div className="evc">
-      <div className="evc-grid">
-        <div className="evc-col evc-col--base">
-          <h3 className="evc-h">
-            {b?.model ? b.model.replace(/^nvidia\//, "") : "Nemotron Ultra"}, answering alone
-          </h3>
-          <p className="evc-sub">The same model, asked which plant makes each product and what FDA found there, with no tools.</p>
-          <ul className="evc-lines">
-            {lines.map((l) => (
-              <li key={l.k}>
-                <span className="evc-k">{l.k}</span>
-                {b ? <Bar r={l.base} tone="base" /> : <span className="ev-bar ev-bar--na">Being run</span>}
-              </li>
-            ))}
+    <div className="evg">
+      <div className="evg-pair">
+        <article className="evg-paper evg-paper--base" aria-labelledby="evg-base">
+          <header className="evg-paper__head">
+            <div>
+              <span className="evg-field">Name</span>
+              <h3 id="evg-base" className="evg-type">
+                {model}
+              </h3>
+            </div>
+            <div>
+              <span className="evg-field">Tools</span>
+              <span className="evg-type">none, answering from memory</span>
+            </div>
+          </header>
+          <ul className="evg-lines">
+            <Line k="Named the right plant" r={ratio(b?.plantNamed)} tone="base" />
+            <Line k="Gave the plant's FEI" r={ratio(b?.feiCorrect)} tone="base" />
+            <Line k="Right last classification" r={ratio(b?.classificationCorrect)} tone="base" />
+            <Line k="Right inspection date" r={ratio(b?.dateCorrect)} tone="base" />
           </ul>
           {b ? (
-            <p className="evc-foot">
-              It said it was confident {b.saidConfident ?? "every"} times out of {b.pairs ?? "every"}
-              {typeof b.inventedDates === "number" ? `, and gave ${b.inventedDates} inspection dates that do not exist` : ""}.
+            <p className="evg-note">
+              Said it was confident {b.saidConfident ?? "every"} times out of {b.pairs ?? "every"}
+              {typeof b.inventedDates === "number" ? `, and gave ${b.inventedDates} inspection dates that are not in FDA's file` : ""}.
             </p>
           ) : (
-            <p className="evc-foot">The no-tools baseline has not been published to this copy yet.</p>
+            <p className="evg-note">The no-tools baseline has not been published to this copy yet.</p>
           )}
-        </div>
-        <div className="evc-col evc-col--up">
-          <h3 className="evc-h">Upstream, reading FDA through Zetaris</h3>
-          <p className="evc-sub">
-            The trace&apos;s own answer for {summary.truthRows} product-plant pairs across {summary.drugs} drugs
-            {summary.zetaris ? `, ${summary.zetaris.queries} queries in ${fmtMs(summary.zetaris.ms)}` : ""}.
-          </p>
-          <ul className="evc-lines">
-            {lines.map((l) => (
-              <li key={l.k}>
-                <span className="evc-k">{l.k}</span>
-                <Bar r={l.up} tone="up" />
-              </li>
-            ))}
+          {b ? (
+            <span className="evg-stamp evg-stamp--red" aria-hidden="true">
+              Not on FDA&apos;s record
+            </span>
+          ) : null}
+        </article>
+
+        <article className="evg-paper evg-paper--up" aria-labelledby="evg-up">
+          <header className="evg-paper__head">
+            <div>
+              <span className="evg-field">Name</span>
+              <h3 id="evg-up" className="evg-type">
+                Upstream
+              </h3>
+            </div>
+            <div>
+              <span className="evg-field">Tools</span>
+              <span className="evg-type">
+                FDA through Zetaris{summary.zetaris ? `, ${summary.zetaris.queries} queries in ${fmtMs(summary.zetaris.ms)}` : ""}
+              </span>
+            </div>
+          </header>
+          <ul className="evg-lines">
+            <Line k="Found the plant on the label" r={ratio(up.plantFound)} tone="up" />
+            <Line k="Placed it by FEI" r={rows.length ? { n: nFei, d: rows.length } : null} tone="up" />
+            <Line k="Right last inspection" r={ratio(up.lastInspectionMatch)} tone="up" />
+            <Line k="Right inspection date" r={ratio(up.lastInspectionMatch)} tone="up" />
           </ul>
-          <p className="evc-foot">Every answer cites the FDA row it came from, so a miss can be checked rather than trusted.</p>
-        </div>
+          <p className="evg-note">
+            {summary.truthRows} product and plant pairs across {summary.drugs} drugs. Every answer cites the FDA row it came
+            from, so a miss can be checked rather than trusted.
+          </p>
+          <span className="evg-stamp evg-stamp--blue" aria-hidden="true">
+            Checked against FDA
+          </span>
+        </article>
       </div>
-      <p className="evc-truth small muted">
+      <p className="evg-truth">
         Ground truth comes from separate Python code over FDA&apos;s raw files, not from Upstream&apos;s queries.
-        {summary.ranAt ? ` Run ${fmtDate(summary.ranAt)}.` : ""}
+        {summary.ranAt ? ` Marked ${fmtDate(summary.ranAt)}.` : ""}
       </p>
 
-      {full && rows.length ? (
-        <div className="evc-rows">
-          <div className="table-wrap">
-            <table className="table">
-              <caption className="sr-only">Upstream against ground truth, product by product</caption>
-              <thead>
-                <tr>
-                  <th scope="col">Drug and labeler</th>
-                  <th scope="col">Plant on the label</th>
-                  <th scope="col">FDA&apos;s last inspection</th>
-                  <th scope="col">Upstream said</th>
-                  <th scope="col">Result</th>
-                </tr>
-              </thead>
-              <tbody>
-                {shown.map((r, i) => (
-                  <tr key={i}>
-                    <td>
-                      <span className="strong">{drugTitle(r.drug.replace(/\s+injection.*$/i, ""))}</span>
-                      <span className="muted small evc-block">{r.labeler}</span>
-                    </td>
-                    <td>
-                      {r.plant}
-                      {r.fei ? <span className="muted small evc-block num">FEI {r.fei}</span> : null}
-                    </td>
-                    <td className="num">{lastText(r.truthLast)}</td>
-                    <td className="num">{r.upstreamFei ? lastText(r.upstreamLast) : "Plant not found"}</td>
-                    <td>
-                      {r.lastMatch ? (
-                        <span className="tag tag--outline">Matches</span>
-                      ) : (
-                        <span className="tag tag--ink">Differs</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      {full && paired.length ? (
+        <div className="evg-sheet">
+          <header className="evg-sheet__head">
+            <h3>The answer sheet, marked</h3>
+            <p>
+              Each product once. Struck through in red: what the model said that FDA&apos;s file does not show. In blue: what
+              Upstream read from FDA.
+            </p>
+          </header>
+          <div className="evg-table" role="table" aria-label="Answers by product">
+            <div className="evg-tr evg-tr--h" role="row">
+              <span role="columnheader">Product and labeler</span>
+              <span role="columnheader">Nemotron, from memory</span>
+              <span role="columnheader">FDA&apos;s record</span>
+              <span role="columnheader">Upstream</span>
+            </div>
+            {shown.map((r, i) => {
+              const s = byKey.get(`${r.drug}|${r.labeler}`);
+              const said = s?.said;
+              return (
+                <div className="evg-tr" role="row" key={i}>
+                  <span role="cell" className="evg-prod">
+                    <strong>{drugTitle(r.drug.replace(/\s+(injection|tablet|capsule|solution).*$/i, ""))}</strong>
+                    <span>{r.labeler}</span>
+                  </span>
+                  <span role="cell" className="evg-said">
+                    {said ? (
+                      <>
+                        <span className={s?.plantOk ? "is-ok" : "is-x"}>{said.plant ? firm(said.plant) : "no plant named"}</span>
+                        <span className={`evg-type ${s?.feiOk ? "is-ok" : "is-x"}`}>FEI {said.fei ?? "none"}</span>
+                        <span className="evg-said__last">
+                          <span className={s?.classOk ? "is-ok" : "is-x"}>{said.classification ?? "?"}</span>,{" "}
+                          <span className={s?.dateOk ? "is-ok" : "is-x"}>{said.end_date ? fmtDate(said.end_date) : "no date"}</span>
+                          {s?.inventedDate ? <em className="evg-margin">no such inspection</em> : null}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="evg-na">Not asked</span>
+                    )}
+                  </span>
+                  <span role="cell" className="evg-truthc">
+                    <span>{firm(r.plant)}</span>
+                    {r.fei ? <span className="evg-type">FEI {r.fei}</span> : null}
+                    <span>{lastText(r.truthLast)}</span>
+                  </span>
+                  <span role="cell" className={`evg-upc${r.lastMatch ? "" : " is-miss"}`}>
+                    <span className="evg-tick" aria-hidden="true" />
+                    <span>{r.upstreamFei ? lastText(r.upstreamLast) : "Plant not found"}</span>
+                    {!r.lastMatch ? <em className="evg-margin">differs</em> : null}
+                  </span>
+                </div>
+              );
+            })}
           </div>
-          {rows.length > 8 ? (
-            <button type="button" className="btn btn--small evc-more" onClick={() => setAll((a) => !a)} aria-expanded={all}>
-              {all ? "Show the first 8" : `Show all ${rows.length} pairs`}
+          {paired.length > 8 ? (
+            <button type="button" className="evg-more" onClick={() => setAll((a) => !a)} aria-expanded={all}>
+              {all ? "Show the first 8" : `Show all ${paired.length} products`}
             </button>
           ) : null}
         </div>
       ) : null}
     </div>
   );
+}
+
+function Fetch({ full }: { full: boolean }) {
+  const s = useApi<EvalTrace>("/api/eval", isEval);
+  if (s.status === "ready") return <Sheet data={s.data} full={full} />;
+  if (s.status === "loading") {
+    return (
+      <div className="evg evg--loading" aria-busy="true" aria-label="Loading the accuracy check">
+        <div className="evg-pair">
+          <div className="evg-paper" />
+          <div className="evg-paper" />
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="evg-missing">
+      <h3>{s.status === "error" ? "The accuracy check did not load" : "The accuracy check is not on this copy yet"}</h3>
+      <p>
+        {s.status === "error"
+          ? s.message
+          : "It compares Upstream's trace with ground truth computed separately from FDA's raw files, and with the same model answering from memory."}
+      </p>
+    </div>
+  );
+}
+
+export function EvalCompare({ full = false, data }: { full?: boolean; data?: EvalTrace | null }) {
+  return data ? <Sheet data={data} full={full} /> : <Fetch full={full} />;
 }

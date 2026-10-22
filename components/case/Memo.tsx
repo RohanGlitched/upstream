@@ -1,9 +1,14 @@
 "use client";
 
-import { useId, useState } from "react";
+// The memo and its approval as a real signature flow: Upstream types the memo on letterhead under its own
+// Scout contract; a named pharmacist signs on the line (the pen follows the name as it is typed); only then
+// is the decision recorded, and the audit trail is typed out underneath.
+import { useId, useState, type CSSProperties } from "react";
 import { postJson } from "../lib/useApi";
 import { fmtDateLong, fmtTime } from "../lib/format";
 import { drugTitle } from "../lib/drug";
+import { Signature } from "../record/Signature";
+import { Stamp } from "../record/bits";
 import "./memo.css";
 
 interface MemoReply {
@@ -38,17 +43,18 @@ function MemoText({ text }: { text: string }) {
     <div className="memo-text">
       {lines.map((l, i) => {
         const m = SECTION.exec(l);
+        const style = { "--i": i } as CSSProperties;
         if (m) {
           const rest = l.slice(m[0].length);
           return (
-            <p key={i}>
-              <strong className="memo-sec">{m[1]}</strong>
+            <p key={i} style={style}>
+              <strong className="memo-sec">{m[1]}.</strong>
               {rest ? <> {rest}</> : null}
             </p>
           );
         }
         return (
-          <p key={i} className={/^\d+[.)]\s/.test(l) ? "memo-item" : undefined}>
+          <p key={i} style={style} className={/^\d+[.)]\s/.test(l) ? "memo-item" : undefined}>
             {l}
           </p>
         );
@@ -77,6 +83,7 @@ export function Memo({
   const [result, setResult] = useState<ApproveReply | null>(null);
   const [approveError, setApproveError] = useState<string | null>(null);
   const ids = useId();
+  const title = drugTitle(molecule);
 
   const draft = async () => {
     setPhase({ k: "drafting" });
@@ -99,100 +106,106 @@ export function Memo({
     setResult(r.data);
   };
 
+  const signed = result?.status === "approved";
+  const name = approver.trim();
+
   return (
     <div className="memo">
-      {phase.k === "idle" ? (
-        <div className="memo-start">
-          <p>
-            Upstream drafts a short memo to the P&amp;T committee from the verified sentences and the ranked options.
-            Drafting runs under its own Scout contract. Nothing is recorded until a named pharmacist approves.
-          </p>
-          <button type="button" className="btn btn--primary" onClick={draft}>
-            Draft the memo
-          </button>
-        </div>
-      ) : null}
-
-      {phase.k === "drafting" ? (
-        <div className="memo-paper" aria-busy="true" aria-label="Drafting the memo">
-          <div className="memo-head">
-            <span className="skel" style={{ width: 220, height: 14 }} />
-            <span className="skel" style={{ width: 160, height: 14, marginTop: 8 }} />
+      <article className={`memo-paper${phase.k === "drafted" ? " is-typed" : ""}`} aria-label="Memo to the P&T committee" aria-busy={phase.k === "drafting"}>
+        <header className="memo-lh">
+          <div>
+            <p className="memo-org">Corvale Health</p>
+            <p className="memo-dept">Department of Pharmacy, purchasing</p>
           </div>
-          {[92, 86, 70, 0, 90, 82, 64, 0, 88, 54].map((w, i) =>
-            w ? <span key={i} className="skel skel-line" style={{ width: `${w}%` }} /> : <span key={i} style={{ display: "block", height: 14 }} />,
-          )}
-          <p className="small muted memo-wait">Drafting from the case&apos;s verified sentences. This takes a few seconds.</p>
-        </div>
-      ) : null}
+          <p className="memo-kind">Memorandum</p>
+        </header>
+        <dl className="memo-head">
+          <div>
+            <dt>To</dt>
+            <dd>Pharmacy and Therapeutics committee</dd>
+          </div>
+          <div>
+            <dt>From</dt>
+            <dd>Pharmacy purchasing, drafted by Upstream</dd>
+          </div>
+          <div>
+            <dt>Re</dt>
+            <dd>{title} shortage</dd>
+          </div>
+          <div>
+            <dt>Date</dt>
+            <dd>{fmtDateLong(asOf)}</dd>
+          </div>
+        </dl>
 
-      {phase.k === "error" ? (
-        <div className={`notice${phase.missing ? "" : " notice--error"}`}>
-          <span className="notice__mark" aria-hidden="true">{phase.missing ? "i" : "!"}</span>
-          <h3>{phase.missing ? "Memo drafting is not on this copy" : "The memo was not drafted"}</h3>
-          <p>
-            {phase.message}{" "}
-            <button type="button" className="btn btn--quiet btn--small" onClick={draft}>
-              Try again
-            </button>
-          </p>
-        </div>
-      ) : null}
+        {phase.k === "idle" ? (
+          <div className="memo-blank">
+            {[94, 88, 72, 0, 90, 84, 60].map((w, i) => (w ? <span key={i} className="memo-rule" style={{ width: `${w}%` }} /> : <span key={i} className="memo-gap" />))}
+            <div className="memo-start">
+              <p>
+                Upstream types this memo from the verified sentences and the ranked options, under a Scout contract of its own.
+                Nothing is recorded until a named pharmacist signs.
+              </p>
+              <button type="button" className="btn btn--primary" onClick={draft}>
+                Type the memo
+              </button>
+            </div>
+          </div>
+        ) : null}
 
-      {phase.k === "refused" ? (
-        <div className="notice notice--error">
-          <span className="notice__mark" aria-hidden="true">!</span>
-          <h3>Scout refused to draft a memo</h3>
-          <p>{phase.reason}</p>
-        </div>
-      ) : null}
+        {phase.k === "drafting" ? (
+          <div className="memo-blank is-typing">
+            {[92, 86, 70, 0, 90, 82, 64, 0, 88, 54].map((w, i) =>
+              w ? <span key={i} className="memo-rule" style={{ width: `${w}%`, animationDelay: `${i * 120}ms` }} /> : <span key={i} className="memo-gap" />,
+            )}
+            <p className="memo-wait">Typing from the case&apos;s verified sentences. This takes a few seconds.</p>
+          </div>
+        ) : null}
 
-      {phase.k === "drafted" ? (
-        <>
-          <article className="memo-paper" aria-label="Memo draft">
-            <dl className="memo-head">
+        {phase.k === "error" ? (
+          <div className={`notice${phase.missing ? "" : " notice--error"}`}>
+            <span className="notice__mark" aria-hidden="true">{phase.missing ? "i" : "!"}</span>
+            <h3>{phase.missing ? "Memo drafting is not on this copy" : "The memo was not typed"}</h3>
+            <p>
+              {phase.message}{" "}
+              <button type="button" className="btn btn--quiet btn--small" onClick={draft}>
+                Type it again
+              </button>
+            </p>
+          </div>
+        ) : null}
+
+        {phase.k === "refused" ? (
+          <div className="notice notice--error">
+            <span className="notice__mark" aria-hidden="true">!</span>
+            <h3>Scout refused to draft a memo</h3>
+            <p>{phase.reason}</p>
+          </div>
+        ) : null}
+
+        {phase.k === "drafted" ? (
+          <>
+            <MemoText text={phase.memo.draft} />
+            <dl className="memo-contract">
               <div>
-                <dt>To</dt>
-                <dd>Pharmacy and Therapeutics committee, Corvale Health</dd>
+                <dt>Contract</dt>
+                <dd>{phase.memo.contractId ?? "none"}</dd>
               </div>
               <div>
-                <dt>From</dt>
-                <dd>Pharmacy purchasing</dd>
+                <dt>Risk</dt>
+                <dd>{phase.memo.risk}</dd>
               </div>
               <div>
-                <dt>Re</dt>
-                <dd>{drugTitle(molecule)} shortage</dd>
-              </div>
-              <div>
-                <dt>Date</dt>
-                <dd>{fmtDateLong(asOf)}</dd>
+                <dt>Needs</dt>
+                <dd>{phase.memo.needs}</dd>
               </div>
             </dl>
-            <MemoText text={phase.memo.draft} />
-            <p className="memo-draftmark">Draft. Not approved.</p>
-          </article>
-          <dl className="memo-contract">
-            <div>
-              <dt>Contract</dt>
-              <dd className="num">{phase.memo.contractId ?? "none"}</dd>
-            </div>
-            <div>
-              <dt>Risk</dt>
-              <dd>{phase.memo.risk}</dd>
-            </div>
-            <div>
-              <dt>Needs</dt>
-              <dd>{phase.memo.needs}</dd>
-            </div>
-          </dl>
 
-          {!result || result.status === "refused" ? (
-            <form className="memo-approve" onSubmit={approve}>
-              <h3>Approve and record the decision</h3>
+            <form className="memo-sign" onSubmit={approve}>
               <div className="memo-fields">
                 <label htmlFor={`${ids}-d`}>
-                  Decision
-                  <select id={`${ids}-d`} value={decision} onChange={(e) => setDecision(e.target.value)}>
+                  <span>Decision to record</span>
+                  <select id={`${ids}-d`} value={decision} onChange={(e) => setDecision(e.target.value)} disabled={signed}>
                     {decisions.map((d) => (
                       <option key={d} value={d}>
                         {d}
@@ -201,17 +214,18 @@ export function Memo({
                   </select>
                 </label>
                 <label htmlFor={`${ids}-a`}>
-                  Approving pharmacist
+                  <span>Approving pharmacist, full name and credential</span>
                   <input
                     id={`${ids}-a`}
                     list={`${ids}-al`}
                     value={approver}
                     onChange={(e) => setApprover(e.target.value)}
-                    placeholder="Full name and credential, for example Jordan Hale, PharmD"
+                    placeholder="for example Jordan Hale, PharmD"
                     autoComplete="off"
                     required
                     minLength={3}
                     maxLength={60}
+                    disabled={signed}
                   />
                   <datalist id={`${ids}-al`}>
                     {approvers.map((a) => (
@@ -220,39 +234,77 @@ export function Memo({
                   </datalist>
                 </label>
               </div>
-              <div className="memo-actions">
-                <button type="submit" className="btn btn--primary" disabled={approving || approver.trim().length < 3}>
-                  {approving ? "Recording" : "Approve and record"}
-                </button>
-                <span className="small muted">Records the decision in H-MEM under this name, with the contract and evidence.</span>
+
+              <div className={`memo-line${signed ? " is-signed" : ""}`}>
+                <div className="memo-line__pen">
+                  {name.length >= 3 ? <Signature key={signed ? "signed" : name} name={name} draw={signed} className={signed ? "" : "is-ghost"} /> : null}
+                </div>
+                <span className="memo-line__x" aria-hidden="true">
+                  X
+                </span>
+                <span className="memo-line__cap">{signed ? `Signed by ${name}` : name.length >= 3 ? `To be signed by ${name}` : "Signature of the approving pharmacist"}</span>
+                {signed ? <Stamp className="memo-stamp" tone="carbon" top={result?.memoryId ?? ""} big="RECORDED" bottom="IN H-MEM, UNDER CONTRACT" w={200} h={96} /> : null}
               </div>
+
+              {!signed ? (
+                <div className="memo-actions">
+                  <button type="submit" className="btn btn--primary" disabled={approving || name.length < 3}>
+                    {approving ? "Recording the signature" : "Sign and record"}
+                  </button>
+                  <span className="memo-hint">Records the decision in H-MEM under this name, with the contract and the evidence.</span>
+                </div>
+              ) : null}
               {approveError ? <p className="memo-err">{approveError}</p> : null}
               {result?.status === "refused" ? <p className="memo-err">Refused: {result.reason}</p> : null}
             </form>
-          ) : null}
+          </>
+        ) : null}
+        <p className="memo-mark">{signed ? "Approved." : "Draft. Not approved."}</p>
+      </article>
 
-          {result && result.audit.length ? (
-            <div className={`memo-audit${result.status === "approved" ? " is-ok" : ""}`}>
-              <h3>{result.status === "approved" ? `Recorded as ${result.memoryId}` : "What happened"}</h3>
-              <ol>
-                {result.audit.map((a, i) => {
-                  const refused = /refused/i.test(a.action);
-                  const allowed = /allowed|approved|stored|verified|issued/i.test(a.action) && !refused;
-                  return (
-                    <li key={i} className={refused ? "is-refused" : allowed ? "is-allowed" : undefined}>
-                      <span className="memo-audit__t num">{fmtTime(a.at)}</span>
-                      <span className="memo-audit__who">{a.actor}</span>
-                      <span className="memo-audit__what">{a.action}</span>
-                    </li>
-                  );
-                })}
-              </ol>
-              {result.decisionContractId ? (
-                <p className="small muted">Approved contract {result.decisionContractId}.</p>
-              ) : null}
-            </div>
-          ) : null}
-        </>
+      {!(result && result.audit.length) ? (
+        <aside className="memo-route" aria-label="Routing slip">
+          <p className="memo-route__h">Routing slip</p>
+          <ol>
+            {[
+              ["Typed by Upstream", "under a memo.draft contract from Scout", phase.k === "drafted"],
+              ["Read and signed", "by a named pharmacist, on the line", signed],
+              ["Recorded in H-MEM", "under a decision.record contract", signed],
+              ["Recalled next time", "when anyone asks about this drug again", false],
+            ].map(([a, b, done], i) => (
+              <li key={i} className={done ? "is-done" : undefined}>
+                <span className="memo-route__box" aria-hidden="true">
+                  {done ? "✓" : ""}
+                </span>
+                <span>
+                  <b>{a as string}</b>
+                  <span>{b as string}</span>
+                </span>
+              </li>
+            ))}
+          </ol>
+          <p className="memo-route__n">The memo informs. It orders nothing, moves no stock and changes no dose.</p>
+        </aside>
+      ) : null}
+
+      {result && result.audit.length ? (
+        <div className={`memo-audit${signed ? " is-ok" : ""}`}>
+          <h3>{signed ? `Audit trail, recorded as ${result.memoryId}` : "What happened"}</h3>
+          <ol>
+            {result.audit.map((a, i) => {
+              const refused = /refused/i.test(a.action);
+              const allowed = /allowed|approved|stored|verified|issued/i.test(a.action) && !refused;
+              return (
+                <li key={i} className={refused ? "is-refused" : allowed ? "is-allowed" : undefined} style={{ "--i": i } as CSSProperties}>
+                  <span className="memo-audit__t">{fmtTime(a.at)}</span>
+                  <span className="memo-audit__who">{a.actor}</span>
+                  <span className="memo-audit__what">{a.action}</span>
+                </li>
+              );
+            })}
+          </ol>
+          {result.decisionContractId ? <p className="memo-audit__c">Approved contract {result.decisionContractId}.</p> : null}
+        </div>
       ) : null}
     </div>
   );

@@ -1,15 +1,17 @@
 "use client";
 
+// The ask box as a typed request slip. While Upstream works, each step it finishes is filed as a card in
+// the open folder; when the answer arrives, the folder is laid out on the desk as the full record.
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import type { Case, Step } from "../../src/agent/types";
-import { EvidenceProvider, Cites } from "../Evidence";
-import { TraceAndRuler } from "../Trace";
-import { buildRuler, buildTrace } from "../lib/trace";
+import { EvidenceProvider } from "../Evidence";
+import { RecordDesk } from "../record/RecordDesk";
+import { buildDesk } from "../record/model";
+import { BoxStamp, Stamp } from "../record/bits";
 import { drugTitle, slugFor, tallText } from "../lib/drug";
 import { fmtMs } from "../lib/format";
 import { EXAMPLES } from "../examples";
-import "../ask.css";
 import "./investigation.css";
 
 type Mode = "live" | "replay";
@@ -19,66 +21,39 @@ interface Decision {
   risk: string;
   reason: string | null;
   clarification: string | null;
+  contractId?: string | null;
 }
 
 type Run =
   | { k: "idle" }
-  | { k: "running"; q: string; decision: Decision | null; steps: Step[]; mode: Mode | null }
-  | { k: "done"; q: string; decision: Decision | null; steps: Step[]; mode: Mode; c: Case }
+  | { k: "running"; q: string; decision: Decision | null; steps: Step[]; mode: Mode | null; t0: number }
+  | { k: "done"; q: string; decision: Decision | null; steps: Step[]; mode: Mode; c: Case; t0: number; t1: number }
   | { k: "refused"; q: string; decision: Decision | null; reason: string }
   | { k: "unrecorded"; q: string; decision: Decision | null; drug: string; reason: string }
   | { k: "error"; q: string; message: string };
 
-const COLUMNS: { key: Step["key"][]; label: string }[] = [
-  { key: ["stock"], label: "Our shelf" },
-  { key: ["chain"], label: "Labels and plants" },
-  { key: ["signals"], label: "What FDA recorded" },
-  { key: ["fda_shortage"], label: "FDA's shortage list" },
-  { key: ["market", "interchange", "data_quality", "memory"], label: "Options and checks" },
-];
-
-const KNOWN = ["carboplatin", "lidocaine", "cisplatin", "methotrexate", "fentanyl"];
-
-function StepCard({ s, i }: { s: Step; i: number }) {
+function StepCard({ s, i, total }: { s: Step; i: number; total: number | null }) {
   return (
-    <li className={`inv-step inv-step--${s.status}`} style={{ animationDelay: "0ms" }}>
-      <span className="inv-step__n num">{i + 1}</span>
-      <div>
-        <h4>{s.title}</h4>
-        <p className="inv-step__f">{tallText(s.finding)}</p>
-        <p className="inv-step__m small muted num">
-          {fmtMs(s.ms)}, {s.rows.toLocaleString("en-US")} rows
-          {s.queryIds.length ? `, ${s.queryIds.join(" ")}` : ""}
-        </p>
+    <li className={`inv-card inv-card--${s.status}`} style={{ "--i": i, "--r": `${((i * 37) % 7) * 0.25 - 0.75}deg` } as CSSProperties}>
+      <div className="inv-card__top">
+        <span className="inv-card__n">
+          {String(i + 1).padStart(2, "0")}
+          {total ? ` of ${total}` : ""}
+        </span>
+        <BoxStamp tone={s.status === "ok" ? "carbon" : "amber"} tilt={-3}>
+          {s.status === "ok" ? "FILED" : s.status.toUpperCase()}
+        </BoxStamp>
       </div>
+      <h4>{s.title}</h4>
+      <p className="inv-card__f">{tallText(s.finding)}</p>
+      <p className="inv-card__m">
+        {fmtMs(s.ms)}, {s.rows.toLocaleString("en-US")} rows{s.queryIds.length ? `, ${s.queryIds.slice(0, 3).join(" ")}` : ""}
+      </p>
     </li>
   );
 }
 
-function Progress({ steps, done }: { steps: Step[]; done: boolean }) {
-  return (
-    <ol className="inv-cols" aria-label="Investigation progress">
-      {COLUMNS.map((col) => {
-        const hits = steps.filter((s) => col.key.includes(s.key));
-        const on = hits.length > 0;
-        return (
-          <li key={col.label} className={`inv-col${on ? " is-on" : ""}`}>
-            <span className="inv-col__l">{col.label}</span>
-            {on ? (
-              <span className="inv-col__f">{tallText(hits[hits.length - 1].finding)}</span>
-            ) : done ? (
-              <span className="inv-col__f muted">Nothing to report</span>
-            ) : (
-              <span className="skel" style={{ height: 12, width: "80%", marginTop: 8 }} />
-            )}
-          </li>
-        );
-      })}
-    </ol>
-  );
-}
-
-export function Investigation({ initial }: { initial?: string }) {
+export function Investigation({ initial, onFile }: { initial?: string; onFile?: number }) {
   const [q, setQ] = useState(initial ?? "");
   const [run, setRun] = useState<Run>({ k: "idle" });
   const ctl = useRef<AbortController | null>(null);
@@ -101,7 +76,8 @@ export function Investigation({ initial }: { initial?: string }) {
     let decision: Decision | null = null;
     const steps: Step[] = [];
     let mode: Mode | null = null;
-    setRun({ k: "running", q: text, decision, steps: [], mode });
+    const t0 = performance.now();
+    setRun({ k: "running", q: text, decision, steps: [], mode, t0 });
     requestAnimationFrame(() => live.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
     try {
       const r = await fetch("/api/investigate", {
@@ -136,17 +112,23 @@ export function Investigation({ initial }: { initial?: string }) {
           }
           switch (m.type) {
             case "decision":
-              decision = { intent: String(m.intent), risk: String(m.risk), reason: (m.reason as string) ?? null, clarification: (m.clarification as string) ?? null };
-              setRun({ k: "running", q: text, decision, steps: [...steps], mode });
+              decision = {
+                intent: String(m.intent),
+                risk: String(m.risk),
+                reason: (m.reason as string) ?? null,
+                clarification: (m.clarification as string) ?? null,
+                contractId: (m.contractId as string) ?? null,
+              };
+              setRun({ k: "running", q: text, decision, steps: [...steps], mode, t0 });
               break;
             case "step":
               steps.push(m.step as Step);
               mode = (m.mode as Mode) ?? mode;
-              setRun({ k: "running", q: text, decision, steps: [...steps], mode });
+              setRun({ k: "running", q: text, decision, steps: [...steps], mode, t0 });
               break;
             case "case":
               finished = true;
-              setRun({ k: "done", q: text, decision, steps: [...steps], mode: (m.mode as Mode) ?? mode ?? "replay", c: m.case as Case });
+              setRun({ k: "done", q: text, decision, steps: [...steps], mode: (m.mode as Mode) ?? mode ?? "replay", c: m.case as Case, t0, t1: performance.now() });
               break;
             case "refused":
               finished = true;
@@ -170,147 +152,122 @@ export function Investigation({ initial }: { initial?: string }) {
     }
   }, []);
 
+  // Start a question that arrived in the address bar. The timer survives React's double-invoked effects in
+  // development: the first is cleared before it fires, the second runs.
   useEffect(() => {
-    if (initial && !started.current) {
+    if (!initial || started.current) return;
+    const t = window.setTimeout(() => {
       started.current = true;
       go(initial);
-    }
-    return () => ctl.current?.abort();
+    }, 0);
+    return () => window.clearTimeout(t);
   }, [initial, go]);
 
   const busy = run.k === "running";
+  const today = "22 OCT 2026";
 
   return (
     <div className="inv">
-      <div className="ask">
-        <h2 className="ask-title" id="desk-ask-title">
-          Ask about a drug on our formulary
-        </h2>
-        <form
-          className="ask-form"
-          aria-labelledby="desk-ask-title"
-          onSubmit={(e) => {
-            e.preventDefault();
-            go(q);
-          }}
-        >
-          <label htmlFor="desk-q" className="sr-only">
-            Your question
-          </label>
-          <input
+      <form
+        className={`inv-slip${run.k === "refused" ? " is-refused" : ""}`}
+        aria-labelledby="inv-slip-h"
+        onSubmit={(e) => {
+          e.preventDefault();
+          go(q);
+        }}
+      >
+        <div className="inv-slip__head">
+          <h2 id="inv-slip-h">Request for investigation</h2>
+          <span className="inv-slip__no">Form UP-2</span>
+        </div>
+        <div className="inv-slip__grid">
+          <div>
+            <span className="inv-fl">From</span>
+            <span className="inv-fv">Pharmacy purchasing</span>
+          </div>
+          <div>
+            <span className="inv-fl">Date</span>
+            <span className="inv-fv">{today}</span>
+          </div>
+          <div>
+            <span className="inv-fl">Answer by</span>
+            <span className="inv-fv">Upstream, with every row cited</span>
+          </div>
+        </div>
+        <label htmlFor="desk-q" className="inv-q">
+          <span className="inv-q__q" aria-hidden="true">
+            Q.
+          </span>
+          <span className="sr-only">Your question</span>
+          <textarea
             id="desk-q"
-            className="ask-input"
             value={q}
+            rows={2}
             onChange={(e) => setQ(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                go(q);
+              }
+            }}
             placeholder="Why is carboplatin short, and what do we do?"
             autoComplete="off"
             maxLength={400}
             required
           />
-          <button type="submit" className="btn btn--primary ask-go" disabled={busy}>
-            {busy ? "Investigating" : "Investigate"}
+        </label>
+        <div className="inv-slip__foot">
+          <button type="submit" className="btn btn--primary" disabled={busy}>
+            {busy ? "Investigating" : "File the request"}
           </button>
-        </form>
-        <div className="ask-examples">
-          <span className="muted small">Recorded on this copy: {KNOWN.map((k) => drugTitle(k)).join(", ")}.</span>
-          <ul>
-            {EXAMPLES.map((x) => (
-              <li key={x}>
-                <a
-                  href={`/desk?q=${encodeURIComponent(x)}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setQ(x);
-                    go(x);
-                  }}
-                >
-                  {x}
-                </a>
-              </li>
-            ))}
-          </ul>
+          <span className="inv-slip__note">Scout reads it first. It answers why and what to do; it refuses orders, stock changes and dosing advice.</span>
         </div>
+        {run.k === "refused" ? <Stamp className="inv-refused" tone="red" big="REFUSED" bottom="NO CONTRACT ISSUED" top="SCOUT" w={190} h={96} /> : null}
+      </form>
+
+      <div className="inv-recent">
+        <p className="inv-recent__h">Requests a buyer filed this week</p>
+        <ul>
+          {EXAMPLES.map((x) => (
+            <li key={x}>
+              <a
+                href={`/desk?q=${encodeURIComponent(x)}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setQ(x);
+                  go(x);
+                }}
+              >
+                {x}
+              </a>
+            </li>
+          ))}
+        </ul>
+        {onFile ? (
+          <p className="inv-recent__n">
+            {onFile} drugs have a recorded investigation on this copy. <Link href="/case">See the cabinet</Link>.
+          </p>
+        ) : null}
       </div>
 
       <div ref={live} className="inv-out" aria-live="polite" aria-busy={busy}>
-        {run.k === "idle" ? (
-          <div className="inv-empty">
-            <p>
-              Ask why a drug is short. Upstream reads our three hospitals and FDA&apos;s files step by step, and each step
-              appears here as it finishes.
-            </p>
-          </div>
-        ) : null}
-
-        {run.k !== "idle" ? (
-          <div className="inv-head">
-            <p className="inv-q">&ldquo;{run.q}&rdquo;</p>
-            <div className="inv-badges">
-              {"decision" in run && run.decision ? (
-                <span className="inv-decision">
-                  Scout read this as <strong>{run.decision.intent}</strong>, {run.decision.risk} risk
-                </span>
-              ) : run.k === "running" ? (
-                <span className="inv-decision muted">Scout is reading the question</span>
-              ) : null}
-              {(run.k === "running" || run.k === "done") && run.mode ? (
-                <span className={`mode${run.mode === "live" ? " mode--live" : ""}`}>
-                  {run.mode === "live" ? "Live: querying Zetaris now" : "Replay of a recorded investigation"}
-                </span>
-              ) : null}
-            </div>
-          </div>
-        ) : null}
-
-        {run.k === "running" || run.k === "done" ? (
-          <>
-            <Progress steps={run.steps} done={run.k === "done"} />
-            {run.k === "done" ? (
-              <details className="more inv-done">
-                <summary>
-                  Show the {run.steps.length} steps ({fmtMs(run.steps.reduce((a, s) => a + s.ms, 0))} of queries)
-                </summary>
-                <ol className="inv-steps">
-                  {run.steps.map((s, i) => (
-                    <StepCard key={i} s={s} i={i} />
-                  ))}
-                </ol>
-              </details>
-            ) : null}
-            <ol className="inv-steps" hidden={run.k === "done"}>
-              {run.k === "running" && run.steps.map((s, i) => (
-                <StepCard key={i} s={s} i={i} />
-              ))}
-              {run.k === "running" ? (
-                <li className="inv-step inv-step--pending" aria-label="Next step running">
-                  <span className="inv-step__n inv-spin" aria-hidden="true" />
-                  <div>
-                    <span className="skel" style={{ height: 14, width: 220 }} />
-                    <span className="skel skel-line" style={{ width: "70%" }} />
-                  </div>
-                </li>
-              ) : null}
-            </ol>
-          </>
-        ) : null}
-
-        {run.k === "done" ? <Result c={run.c} mode={run.mode} /> : null}
-
-        {run.k === "refused" ? (
-          <div className="notice notice--error">
-            <span className="notice__mark" aria-hidden="true">!</span>
-            <h3>Scout refused this request</h3>
-            <p>{run.reason}</p>
-          </div>
-        ) : null}
+        {run.k === "running" || run.k === "done" ? <Folder run={run} /> : null}
 
         {run.k === "unrecorded" ? (
           <div className="notice">
             <span className="notice__mark" aria-hidden="true">i</span>
             <h3>{run.drug ? `No recording for ${drugTitle(run.drug)} on this copy` : "No recording for this question"}</h3>
             <p>
-              {run.reason} Try one of the recorded drugs: {KNOWN.map((k) => drugTitle(k)).join(", ")}.
+              {run.reason} <Link href="/case">See the drugs on file</Link>.
             </p>
+          </div>
+        ) : null}
+
+        {run.k === "refused" ? (
+          <div className="notice notice--error">
+            <span className="notice__mark" aria-hidden="true">!</span>
+            <h3>Scout refused this request</h3>
+            <p>{run.reason}</p>
           </div>
         ) : null}
 
@@ -331,57 +288,75 @@ export function Investigation({ initial }: { initial?: string }) {
   );
 }
 
-function Result({ c, mode }: { c: Case; mode: Mode }) {
-  const trace = buildTrace(c);
-  const ruler = buildRuler(c);
-  const slug = slugFor(c.molecule);
-  const opts = [...c.options].sort((a, b) => a.rank - b.rank).slice(0, 3);
+function Folder({ run }: { run: Extract<Run, { k: "running" } | { k: "done" }> }) {
+  const done = run.k === "done";
+  const total = done ? run.steps.length : null;
+  const model = useMemo(() => (run.k === "done" ? buildDesk(run.c, slugFor(run.c.molecule)) : null), [run]);
+  const ms = run.steps.reduce((a, s) => a + s.ms, 0);
   return (
-    <EvidenceProvider evidence={c.evidence} queries={c.queries}>
-      <div className="inv-result">
-        <div className="inv-result__head">
-          <h3 className="inv-result__title">{c.explanation ? tallText(c.explanation.headline) : `${drugTitle(c.molecule)}: no verified explanation`}</h3>
-          {mode === "replay" && slug ? (
-            <Link href={`/case/${slug}`} className="btn btn--primary">
-              Open the full case
-            </Link>
-          ) : null}
-        </div>
-        <div className="panel inv-trace">
-          <TraceAndRuler trace={trace} ruler={ruler} />
-        </div>
-        <div className="inv-result__grid">
-          {c.explanation ? (
-            <div>
-              <h4 className="inv-sub">Why</h4>
-              <ul className="why">
-                {c.explanation.sentences.slice(0, 4).map((s, i) => (
-                  <li key={i}>
-                    <span>{tallText(s.text)}</span>
-                    <Cites ids={s.cites} />
-                  </li>
-                ))}
-              </ul>
-              {c.explanation.sentences.length > 4 ? (
-                <p className="small muted inv-moretext">
-                  {c.explanation.sentences.length - 4} more verified sentences in the full case.
-                </p>
-              ) : null}
+    <div className={`inv-folder${done ? " is-done" : ""}`}>
+      <div className="inv-folder__tab">
+        <span>{run.q}</span>
+      </div>
+      <div className="inv-folder__body">
+        <div className="inv-folder__head">
+          {run.decision ? (
+            <div className="inv-contract">
+              <BoxStamp tone="carbon" tilt={-2}>
+                CONTRACT ISSUED
+              </BoxStamp>
+              <span>
+                Scout read this as <b>{run.decision.intent}</b>, {run.decision.risk} risk
+                {run.decision.contractId ? <>, contract {run.decision.contractId.slice(-8)}</> : null}
+              </span>
             </div>
+          ) : (
+            <div className="inv-contract is-wait">Scout is reading the request</div>
+          )}
+          {run.mode ? (
+            <span className={`mode${run.mode === "live" ? " mode--live" : ""}`}>{run.mode === "live" ? "Live: querying Zetaris now" : "Replay of a recorded investigation"}</span>
           ) : null}
-          <div>
-            <h4 className="inv-sub">First options</h4>
-            <ol className="inv-opts">
-              {opts.map((o, i) => (
-                <li key={i}>
-                  <span className="strong">{tallText(o.title)}</span>
-                  <span className="small muted">Needs the {o.needs}.</span>
-                </li>
+        </div>
+        {done ? (
+          <details className="inv-filed">
+            <summary>
+              {run.steps.length} documents filed, {fmtMs(ms)} of queries
+            </summary>
+            <ol className="inv-cards">
+              {run.steps.map((s, i) => (
+                <StepCard key={i} s={s} i={i} total={total} />
               ))}
             </ol>
-          </div>
-        </div>
+          </details>
+        ) : (
+          <ol className="inv-cards">
+            {run.steps.map((s, i) => (
+              <StepCard key={i} s={s} i={i} total={null} />
+            ))}
+            <li className="inv-card inv-card--pending" aria-label="The next step is running" style={{ "--i": run.steps.length } as CSSProperties}>
+              <div className="inv-card__top">
+                <span className="inv-card__n">{String(run.steps.length + 1).padStart(2, "0")}</span>
+              </div>
+              <p className="inv-typing">
+                Reading<span className="inv-caret" aria-hidden="true" />
+              </p>
+            </li>
+          </ol>
+        )}
       </div>
-    </EvidenceProvider>
+      {done && model ? (
+        <div className="inv-result">
+          <EvidenceProvider evidence={run.c.evidence} queries={run.c.queries}>
+            <RecordDesk m={model} as="h2" signHref={run.mode === "replay" ? `/case/${model.slug}#memo` : undefined}>
+              {run.mode === "replay" ? (
+                <Link href={`/case/${model.slug}`} className="rd-go">
+                  Open the full file
+                </Link>
+              ) : null}
+            </RecordDesk>
+          </EvidenceProvider>
+        </div>
+      ) : null}
+    </div>
   );
 }

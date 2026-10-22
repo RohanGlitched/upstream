@@ -67,7 +67,7 @@ export const ENTITY_KEYS: Record<EntityType, KeySpec> = {
   Product: { engineType: "product", systems: { "ndc-product": NDC_PRODUCT }, describe: "product NDC labeler-product, e.g. 0409-1234" },
   Package: { engineType: "package", systems: { "ndc-package": NDC_PACKAGE }, describe: "package NDC, e.g. 0409-1234-01" },
   Labeler: { engineType: "labeler", systems: { "ndc-labeler": /^\d{4,5}$/ }, describe: "NDC labeler code (4-5 digits)" },
-  Site: { engineType: "site", systems: { fei: /^\d{7,10}$/, duns: /^\d{9}$/ }, describe: "fei:<FEI number> or duns:<9-digit DUNS>" },
+  Site: { engineType: "site", systems: { fei: /^\d{3,10}$/, duns: /^\d{9}$/ }, describe: "fei:<FEI number> or duns:<9-digit DUNS>" },
   Inspection: { engineType: "inspection", systems: { "fda-inspection": /^\d{3,12}$/ }, describe: "FDA inspection id" },
   WarningLetter: { engineType: "warning-letter", systems: { "fda-warning-letter": SAFE_ID }, describe: "FDA warning letter / MARCS-CMS id" },
   ImportAlert: { engineType: "import-alert", systems: { "fda-import-alert": /^\d{2}-\d{2}$/ }, describe: "import alert number, e.g. 66-40" },

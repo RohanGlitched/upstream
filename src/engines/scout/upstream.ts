@@ -2,6 +2,7 @@
 // profiles and a STRICT capability graph (no placeholder tools: a capability
 // without a registered tool fails routing instead of being invented).
 
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { CapabilityGraph } from "./capabilities.ts";
@@ -11,6 +12,8 @@ import { Scout, type ScoutOptions } from "./index.ts";
 const here = path.dirname(fileURLToPath(import.meta.url));
 export const PHARMACY_REGISTRY = path.join(here, "registry", "pharmacy-intents.json");
 export const MODEL_PROFILES = path.join(here, "registry", "model-profiles.json");
+// Every drug on Corvale's formulary (built from data/cases), so a memo or approval for any recorded case names its drug.
+export const FORMULARY_DRUGS: string[] = JSON.parse(readFileSync(path.join(here, "registry", "formulary.json"), "utf8"));
 export const UPSTREAM_POLICY = ["default", "adversarial-tight", "upstream-pharmacy"];
 
 /** Capability map. Never registered (so never routable): order.place, inventory.write, email.send, formulary.write, clinical.advise. */
@@ -47,7 +50,7 @@ export function createUpstreamScout(opts: Partial<ScoutOptions> & { formulary?: 
     capabilityGraph: upstreamCapabilityGraph(),
     autoRegisterDeclared: false,
     rolePermissions: ROLE_PERMISSIONS,
-    drugLexicon: [...DEFAULT_DRUGS, ...(opts.formulary ?? [])],
+    drugLexicon: [...new Set([...DEFAULT_DRUGS, ...FORMULARY_DRUGS, ...(opts.formulary ?? [])])],
     ...opts,
   });
 }

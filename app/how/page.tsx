@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { EvalCompare } from "@/components/EvalCompare";
+import type { ReactNode } from "react";
+import { EvalCompare, type EvalTrace } from "@/components/EvalCompare";
 import { InlineMd } from "@/components/Code";
 import { readJson, fdaManifest } from "@/components/server/data";
 import { engineReadme, tableAfter, zetarisNotes, isTrap } from "@/components/server/docs";
-import { fmtDate, fmtInt, fmtStamp } from "@/components/lib/format";
+import { fmtDate, fmtInt } from "@/components/lib/format";
 import "./how.css";
 
 export const metadata: Metadata = {
   title: "How it works",
-  description: "Upstream's architecture, the sponsor map from action to engine to spec, conformance results, the Scout eval and the Zetaris traps.",
+  description:
+    "Upstream as a drawing set: the architecture from seven sources through Zetaris to the engines and the verifier, the sponsor map, conformance, the Scout eval and what Zetaris taught us.",
 };
 
 interface Conformance {
@@ -21,7 +23,7 @@ interface Conformance {
 }
 
 interface Metric {
-  value: number;
+  value: number | null;
   n: number;
   d: number;
 }
@@ -33,11 +35,11 @@ interface ScoutEval {
 }
 
 const METRICS: [string, string][] = [
-  ["intent_accuracy", "Intent accuracy"],
-  ["risk_level_accuracy", "Risk-level accuracy"],
   ["block_recall", "Block recall"],
   ["block_precision", "Block precision"],
   ["injection_recall", "Injection recall"],
+  ["intent_accuracy", "Intent accuracy"],
+  ["risk_level_accuracy", "Risk-level accuracy"],
   ["clarification_accuracy", "Clarification accuracy"],
   ["tool_plan_recall", "Tool-plan recall"],
   ["parameter_binding", "Parameter binding"],
@@ -49,428 +51,571 @@ function m(x: unknown): Metric | null {
   return o && typeof o.value === "number" ? o : null;
 }
 
+function isEval(x: unknown): x is EvalTrace {
+  const o = x as EvalTrace;
+  return Boolean(o && o.summary && o.summary.upstream && Array.isArray(o.rows));
+}
+
+/** The title block in each sheet's corner, the way a drawing set carries one. */
+function TitleBlock({ sheet, title, date, of }: { sheet: string; title: string; date: string; of: number }) {
+  return (
+    <dl className="hw-tb" aria-label={`Sheet ${sheet}`}>
+      <div className="hw-tb__proj">
+        <dt>Project</dt>
+        <dd>Upstream</dd>
+      </div>
+      <div className="hw-tb__title">
+        <dt>Drawing</dt>
+        <dd>{title}</dd>
+      </div>
+      <div>
+        <dt>Sheet</dt>
+        <dd className="hw-type">
+          {sheet} of A-{of}
+        </dd>
+      </div>
+      <div>
+        <dt>Date</dt>
+        <dd className="hw-type">{date}</dd>
+      </div>
+    </dl>
+  );
+}
+
+function Sheet({ id, n, title, lede, date, of, children, wide }: { id: string; n: string; title: string; lede?: ReactNode; date: string; of: number; children: ReactNode; wide?: boolean }) {
+  return (
+    <section id={id} className={`hw-sheet${wide ? " hw-sheet--wide" : ""}`} aria-labelledby={`${id}-h`}>
+      <div className="hw-frame">
+        <span className="hw-zone hw-zone--t" aria-hidden="true">
+          <i>1</i>
+          <i>2</i>
+          <i>3</i>
+          <i>4</i>
+        </span>
+        <header className="hw-sheet__head">
+          <span className="hw-sheet__n hw-type">{n}</span>
+          <h2 id={`${id}-h`}>{title}</h2>
+          {lede ? <p>{lede}</p> : null}
+        </header>
+        <div className="hw-sheet__body">{children}</div>
+        <TitleBlock sheet={n} title={title} date={date} of={of} />
+      </div>
+    </section>
+  );
+}
+
+function Balloon({ n }: { n: number }) {
+  return (
+    <span className="hw-balloon" aria-hidden="true">
+      {n}
+    </span>
+  );
+}
+
 export default async function How() {
-  const [readme, conf, scout, notes, manifest] = await Promise.all([
+  const [readme, conf, scout, notes, manifest, rawE] = await Promise.all([
     engineReadme(),
     readJson<Conformance>("conformance.json"),
     readJson<ScoutEval>("src/engines/results/scout-pharmacy-eval.json"),
     zetarisNotes(),
     fdaManifest(),
+    readJson<unknown>("data/eval/trace.json"),
   ]);
+  const ev = isEval(rawE) ? rawE : null;
   const sponsor = tableAfter(readme, "Where each engine is used");
   const hmem = tableAfter(readme, "H-MEM recall");
   const world = tableAfter(readme, "World Model persistence");
   const splits = scout ? (["all", "tuning", "heldout"] as const).filter((k) => scout.metrics[k]) : [];
+  const date = conf ? fmtDate(conf.at) : "22 Oct 2026";
+  const OF = 7;
+  const c = manifest?.counts ?? null;
+  const n = (k: string) => (c && typeof c[k] === "number" ? fmtInt(c[k]) : null);
+  const engines = new Set((sponsor?.rows ?? []).map((r) => r[1]));
+
+  const SOURCES: { k: string; t: string; s: string; who: "h" | "f" }[] = [
+    { k: "1", t: "Corvale General", s: "Postgres, read-only reporting views", who: "h" },
+    { k: "2", t: "Corvale East", s: "Postgres, its own schema", who: "h" },
+    { k: "3", t: "Corvale Lakeside", s: "Nightly CSV cabinet exports", who: "h" },
+    { k: "4", t: "NDC directory and label filings", s: n("ndc_packages") ? `${n("ndc_packages")} packages, ${n("spl_establishments")} label plants` : "Packages and the plants each label names", who: "f" },
+    { k: "5", t: "Establishment registrations", s: n("registrations") ? `${n("registrations")} plants by FEI` : "Every plant by FEI and DUNS", who: "f" },
+    { k: "6", t: "Inspections and enforcement", s: n("inspections") ? `${n("inspections")} inspections, ${n("compliance_actions")} letters, ${n("import_alerts")} import alerts, ${n("recalls")} recalls` : "Inspections, Form 483s, letters, import alerts, recalls", who: "f" },
+    { k: "7", t: "Drug shortage history", s: n("shortage_episodes") ? `${n("shortage_episodes")} episodes, ${n("shortage_current")} current listings` : "Current listings and archived episodes", who: "f" },
+  ];
 
   return (
-    <>
-      <section className="how-hero" aria-labelledby="how-title">
-        <div className="wrap">
-          <h1 id="how-title">How Upstream is built</h1>
-          <p className="lede">
-            One question passes a gate, runs federated queries where the data lives, builds a graph, recalls past
-            decisions, and comes back as sentences that each cite their rows. Here is each part, what it is built on, and
-            what we measured.
-          </p>
-          <nav className="how-toc" aria-label="On this page">
-            <a href="#arch">Architecture</a>
-            <a href="#map">Sponsor map</a>
-            <a href="#accuracy">Accuracy</a>
-            <a href="#conf">Conformance</a>
-            <a href="#scout">Scout eval</a>
-            <a href="#engines">Engine measurements</a>
-            <a href="#traps">Zetaris traps</a>
-            <a href="#run">Run it locally</a>
+    <div className="hw">
+      <section className="hw-cover" aria-labelledby="how-title">
+        <div className="hw-cover__in">
+          <div className="hw-cover__text">
+            <h1 id="how-title">How Upstream is built</h1>
+            <p>
+              One question passes a gate, runs federated queries where the data lives, builds a graph, recalls past decisions,
+              and comes back as sentences that each cite their rows. Seven sheets: what each part is, what it is built on and
+              what we measured.
+            </p>
+          </div>
+          <nav className="hw-index" aria-label="Sheet index">
+            <p className="hw-index__h">Sheet index</p>
+            <ol>
+              {[
+                ["arch", "A-1", "Architecture"],
+                ["map", "A-2", "Sponsor map"],
+                ["conf", "A-3", "Conformance"],
+                ["scout", "A-4", "The Scout eval"],
+                ["accuracy", "A-5", "Accuracy and engine measurements"],
+                ["traps", "A-6", "What Zetaris taught us"],
+                ["run", "A-7", "Run it locally"],
+              ].map(([id, s, t]) => (
+                <li key={id}>
+                  <a href={`#${id}`}>
+                    <span className="hw-type">{s}</span>
+                    <span>{t}</span>
+                  </a>
+                </li>
+              ))}
+            </ol>
           </nav>
         </div>
       </section>
 
-      <section id="arch" className="section" aria-labelledby="arch-h">
-        <div className="wrap">
-          <div className="section-head">
-            <h2 id="arch-h">Architecture</h2>
-            <p className="lede">Top to bottom, the path of one question. Nothing in the hospitals or FDA&apos;s files is copied.</p>
+      <Sheet
+        id="arch"
+        n="A-1"
+        title="Architecture"
+        date={date}
+        of={OF}
+        wide
+        lede="The path of one question, from the sources to the answer. Nothing in the hospitals or FDA's files is copied: every query runs where the data lives."
+      >
+        <div className="hw-sch" role="img" aria-label="Seven sources feed Zetaris and its semantic layer; the Upstream investigator, gated by Scout Intent and backed by World Model, H-MEM and Markovian, reads them; Nemotron writes and a verifier checks; the case goes to a pharmacist for approval.">
+          <div className="hw-col hw-col--src">
+            <p className="hw-col__h">
+              Seven sources <Balloon n={1} />
+            </p>
+            <div className="hw-group">
+              <span className="hw-group__k">Corvale Health, three hospitals</span>
+              {SOURCES.filter((s) => s.who === "h").map((s) => (
+                <div className="hw-box hw-box--src" key={s.k}>
+                  <span className="hw-pin hw-type">S{s.k}</span>
+                  <strong>{s.t}</strong>
+                  <span>{s.s}</span>
+                </div>
+              ))}
+            </div>
+            <div className="hw-group hw-group--fda">
+              <span className="hw-group__k">FDA&apos;s public record, {c ? `${Object.keys(c).length} files` : "12 files"}</span>
+              {SOURCES.filter((s) => s.who === "f").map((s) => (
+                <div className="hw-box hw-box--src" key={s.k}>
+                  <span className="hw-pin hw-type">S{s.k}</span>
+                  <strong>{s.t}</strong>
+                  <span>{s.s}</span>
+                </div>
+              ))}
+            </div>
           </div>
-          <ol className="arch">
-            <li className="arch-row">
-              <span className="arch-k">Buyer</span>
-              <div className="arch-boxes">
-                <div className="arch-box">
-                  <strong>Desk and ask box</strong>
-                  <span>A question in plain words, or the overnight brief</span>
-                </div>
+          <div className="hw-wire" aria-hidden="true" />
+          <div className="hw-col hw-col--zet">
+            <p className="hw-col__h">
+              Federation <Balloon n={2} />
+            </p>
+            <div className="hw-box hw-box--big">
+              <strong>Zetaris</strong>
+              <span>Federated SQL. Each source is queried in place; results come back with a query id (Q-xxxxxx) that every claim cites.</span>
+              <div className="hw-box hw-box--inner">
+                <strong>Unified Semantic Layer</strong>
+                <span className="hw-type hw-tables">product, site, site_fei, product_site, inspection, stock_general, stock_east, stock_lakeside</span>
               </div>
-            </li>
-            <li className="arch-row">
-              <span className="arch-k">Gate</span>
-              <div className="arch-boxes">
-                <div className="arch-box arch-box--ink">
-                  <strong>Scout Intent</strong>
-                  <span>Intent, risk, a signed execution contract; every tool call checked; orders refused</span>
-                </div>
+              <div className="hw-box hw-box--inner hw-box--red">
+                <strong>RUN DQ</strong>
+                <span>Foreign keys become data-quality rules: a Lakeside row whose NDC FDA does not list is reported, not guessed.</span>
               </div>
-            </li>
-            <li className="arch-row">
-              <span className="arch-k">Investigate</span>
-              <div className="arch-boxes arch-boxes--3">
-                <div className="arch-box">
-                  <strong>Zetaris</strong>
-                  <span>
-                    Federated SQL through the Unified Semantic Layer: two hospital Postgres servers, cabinet CSVs,
-                    {manifest ? ` FDA's 12 files (${fmtInt(Object.values(manifest.counts).reduce((a, b) => a + b, 0))} rows)` : " FDA's 12 files"}
-                  </span>
-                </div>
-                <div className="arch-box">
-                  <strong>World Model</strong>
-                  <span>The chain as a graph with provenance on every edge; the explanation may only cite what is in it</span>
-                </div>
-                <div className="arch-box">
-                  <strong>H-MEM</strong>
-                  <span>Past decisions with their approvers; a new one is stored only after a named approval</span>
-                </div>
+            </div>
+          </div>
+          <div className="hw-wire" aria-hidden="true" />
+          <div className="hw-col hw-col--eng">
+            <p className="hw-col__h">
+              Investigation <Balloon n={3} />
+            </p>
+            <div className="hw-box hw-box--gate">
+              <strong>Scout Intent</strong>
+              <span>Intent, risk and a signed execution contract. Every tool call is checked; orders and dosing are refused.</span>
+            </div>
+            <div className="hw-box">
+              <strong>Investigator</strong>
+              <span>Nine fixed steps, from our stock to the plant&apos;s FDA record, FDA&apos;s list, who else makes it, interchanges, data quality and memory.</span>
+            </div>
+            <div className="hw-row3">
+              <div className="hw-box hw-box--sm">
+                <strong>World Model</strong>
+                <span>The chain as a graph, provenance on every edge</span>
               </div>
-            </li>
-            <li className="arch-row">
-              <span className="arch-k">Explain</span>
-              <div className="arch-boxes arch-boxes--2">
-                <div className="arch-box">
-                  <strong>NVIDIA Nemotron Ultra</strong>
-                  <span>Writes sentences from the evidence rows, each with citations</span>
-                </div>
-                <div className="arch-box">
-                  <strong>Deterministic verifier</strong>
-                  <span>Drops any sentence whose dates, numbers or citations are not in the rows it cites</span>
-                </div>
+              <div className="hw-box hw-box--sm">
+                <strong>H-MEM</strong>
+                <span>Past decisions and who approved them</span>
               </div>
-            </li>
-            <li className="arch-row">
-              <span className="arch-k">Answer</span>
-              <div className="arch-boxes arch-boxes--2">
-                <div className="arch-box">
-                  <strong>The case</strong>
-                  <span>Trace, lead-time ruler, options, memo for a named approver</span>
-                </div>
-                <div className="arch-box">
-                  <strong>Markovian watch</strong>
-                  <span>Overnight, the whole formulary in fixed-size chunks, a fresh contract per chunk</span>
-                </div>
+              <div className="hw-box hw-box--sm">
+                <strong>Markovian</strong>
+                <span>The overnight watch, chunk by chunk</span>
               </div>
-            </li>
-          </ol>
+            </div>
+          </div>
+          <div className="hw-wire" aria-hidden="true" />
+          <div className="hw-col hw-col--out">
+            <p className="hw-col__h">
+              Explanation <Balloon n={4} />
+            </p>
+            <div className="hw-box">
+              <strong>NVIDIA Nemotron 3 Ultra</strong>
+              <span>Writes sentences from the evidence rows, each with citations.</span>
+            </div>
+            <div className="hw-box hw-box--blue">
+              <strong>Deterministic verifier</strong>
+              <span>Drops any sentence whose dates, numbers or citations are not in the rows it cites.</span>
+            </div>
+            <div className="hw-box hw-box--doc">
+              <strong>The case</strong>
+              <span>Trace, ruler, options, a memo for a named approver. A decision is stored in H-MEM only after a pharmacist signs.</span>
+            </div>
+          </div>
         </div>
-      </section>
+        <ol className="hw-callouts">
+          <li>
+            <Balloon n={1} />
+            <span>
+              Two hospital Postgres servers through a read-only account that sees only published views, one hospital&apos;s
+              nightly CSV cabinet, and FDA&apos;s public files as tables{c ? `, ${fmtInt(Object.values(c).reduce((a, b) => a + b, 0))} rows` : ""}.
+            </span>
+          </li>
+          <li>
+            <Balloon n={2} />
+            <span>One semantic layer over all of them, so an NDC on a Lakeside shelf joins to the plant on FDA&apos;s label in one query.</span>
+          </li>
+          <li>
+            <Balloon n={3} />
+            <span>
+              The four Meterless engines each do real work{engines.size ? `; ${sponsor?.rows.length} uses are scheduled on sheet A-2` : ""}.
+            </span>
+          </li>
+          <li>
+            <Balloon n={4} />
+            <span>The model never decides a fact. The state (confirmed, check, no signal) is set by rule, and the verifier has the last word.</span>
+          </li>
+        </ol>
+      </Sheet>
 
-      <section id="map" className="section" aria-labelledby="map-h">
-        <div className="wrap">
-          <div className="section-head">
-            <h2 id="map-h">The sponsor map</h2>
-            <p className="lede">Each thing Upstream does, the engine that does it, the call, and the section of the spec it follows.</p>
-          </div>
-          {sponsor ? (
-            <div className="table-wrap how-map">
-              <table className="table">
-                <caption className="sr-only">Upstream action, engine, API call and spec section</caption>
-                <thead>
-                  <tr>
-                    {sponsor.head.map((h) => (
-                      <th key={h} scope="col">
-                        {h}
-                      </th>
+      <Sheet id="map" n="A-2" title="Sponsor map" date={date} of={OF} lede="Each thing Upstream does, the engine that does it, the call, and the section of the spec it follows.">
+        {sponsor ? (
+          <div className="hw-table-wrap" tabIndex={0} role="region" aria-label="Sponsor map table">
+            <table className="hw-table hw-table--map">
+              <caption className="sr-only">Upstream action, engine, API call and spec section</caption>
+              <thead>
+                <tr>
+                  <th scope="col" className="hw-c-n">
+                    Ref
+                  </th>
+                  {sponsor.head.map((h) => (
+                    <th key={h} scope="col">
+                      {h.replace(/\s*\(our module -> engine\)/, "")}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {sponsor.rows.map((r, i) => (
+                  <tr key={i}>
+                    <td className="hw-c-n hw-type">{String(i + 1).padStart(2, "0")}</td>
+                    {r.map((cell, j) => (
+                      <td key={j} className={j === 1 ? "hw-engine" : j === 2 ? "hw-call" : j === 3 ? "hw-spec" : undefined}>
+                        <InlineMd text={cell} />
+                      </td>
                     ))}
                   </tr>
-                </thead>
-                <tbody>
-                  {sponsor.rows.map((r, i) => (
-                    <tr key={i}>
-                      {r.map((c, j) => (
-                        <td key={j} className={j === 1 ? "how-engine" : j === 2 ? "how-call" : undefined}>
-                          <InlineMd text={c} />
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <p className="muted">The engine README is not on this copy.</p>
-          )}
-        </div>
-      </section>
-
-      <section id="accuracy" className="section" aria-labelledby="acc-h">
-        <div className="wrap">
-          <div className="section-head">
-            <h2 id="acc-h">Nemotron alone against Upstream</h2>
-            <p className="lede">The reason for the federated path: a strong model answering from memory, scored on the same questions.</p>
-          </div>
-          <EvalCompare />
-          <p className="how-more">
-            <Link href="/backtest#ev-title">Every pair, row by row</Link>
-          </p>
-        </div>
-      </section>
-
-      <section id="conf" className="section" aria-labelledby="conf-h">
-        <div className="wrap">
-          <div className="section-head">
-            <h2 id="conf-h">Conformance</h2>
-            <p className="lede">
-              The unmodified Meterless suites, run against Upstream&apos;s modules
-              {conf ? ` on ${fmtStamp(conf.at)}, ${conf.platform}, Node ${conf.node.replace(/^v/, "")}` : ""}.
-            </p>
-          </div>
-          {conf ? (
-            <>
-              <ul className="conf">
-                {conf.results.map((r) => (
-                  <li key={r.engine} className="conf-item">
-                    <div className="conf-head">
-                      <h3>{r.engine}</h3>
-                      <span className={`conf-pass${r.pass ? "" : " is-fail"}`}>{r.pass ? "Pass" : "Fail"}</span>
-                    </div>
-                    <p className="conf-sum num">{r.summary}</p>
-                    <p className="small muted">
-                      <code className="ic">{r.module}</code>, {r.ms} ms
-                    </p>
-                    {r.tail ? (
-                      <details className="more">
-                        <summary>Show the runner&apos;s output</summary>
-                        <pre className="conf-tail" tabIndex={0}>
-                          {r.tail}
-                        </pre>
-                      </details>
-                    ) : null}
-                  </li>
                 ))}
-              </ul>
-              <p className="small muted how-note">
-                Vendored engines at commit {conf.vendorCommit.slice(0, 7)}. A Scout pass shows the plumbing is spec-shaped:
-                its corpus repeats its own registry examples, so it is not a quality claim. The pharmacy eval below is.
-              </p>
-            </>
-          ) : (
-            <p className="muted">No conformance run on this copy.</p>
-          )}
-        </div>
-      </section>
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="hw-empty">The engine README is not on this copy.</p>
+        )}
+      </Sheet>
 
-      <section id="scout" className="section" aria-labelledby="scout-h">
-        <div className="wrap">
-          <div className="section-head">
-            <h2 id="scout-h">The Scout eval</h2>
-            <p className="lede">
-              59 pharmacy prompts labelled by hand: paraphrases, disguised orders, injections inside a quoted FDA notice,
-              dosing questions, approval bypasses. 15 were held out before any scorer code existed.
-            </p>
-          </div>
-          {scout && splits.length ? (
-            <div className="table-wrap">
-              <table className="table scout-table">
-                <caption className="sr-only">Scout pharmacy eval by split</caption>
-                <thead>
-                  <tr>
-                    <th scope="col">Metric</th>
-                    {splits.map((s) => (
-                      <th key={s} scope="col" className="r">
-                        {s === "all" ? "All" : s === "tuning" ? "Tuning" : "Held out"}{" "}
-                        <span className="muted">({String(scout.metrics[s].examples)})</span>
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {METRICS.map(([k, label]) => (
-                    <tr key={k} className={k === "block_recall" ? "is-key" : undefined}>
-                      <th scope="row">{label}</th>
-                      {splits.map((s) => {
-                        const v = m(scout.metrics[s][k]);
-                        return (
-                          <td key={s} className="r num">
-                            {v ? (
-                              <>
-                                <strong>{v.value.toFixed(3)}</strong> <span className="muted">{v.n}/{v.d}</span>
-                              </>
-                            ) : (
-                              "n/a"
-                            )}
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <p className="muted">No Scout eval results on this copy.</p>
-          )}
-          <div className="grid-2 scout-notes">
-            <div>
-              <h3>The two misses</h3>
-              <p>
-                A held-out status question containing the word &ldquo;order&rdquo; was refused as an order: a false
-                refusal, the safe direction. &ldquo;Handle the shortage&rdquo; picked the wrong intent but still asked
-                for clarification, so nothing ran.
-              </p>
-            </div>
-            <div>
-              <h3>Limits</h3>
-              <p>
-                One author, 59 prompts, 4 held-out block cases. Treat it as a regression set with a held-out check, not a
-                benchmark.
-                {scout?.selfTest
-                  ? ` Stage-one scan: median ${scout.selfTest.medianMs} ms over ${scout.selfTest.probes} probes.`
-                  : ""}
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="engines" className="section" aria-labelledby="eng-h">
-        <div className="wrap">
-          <div className="section-head">
-            <h2 id="eng-h">Engine measurements</h2>
-            <p className="lede">What we changed in the engines we build on, and the numbers that justified it.</p>
-          </div>
-          <div className="grid-2">
-            {hmem ? (
-              <div>
-                <h3 className="how-h3">H-MEM recall on a labelled fixture</h3>
-                <div className="table-wrap">
-                  <table className="table">
-                    <thead>
-                      <tr>
-                        {hmem.head.map((h) => (
-                          <th key={h} scope="col">
-                            {h}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {hmem.rows.map((r, i) => (
-                        <tr key={i}>
-                          {r.map((c, j) => (
-                            <td key={j} className={j > 0 ? "num" : undefined}>
-                              <InlineMd text={c} />
-                            </td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                <p className="small muted how-note">The threshold was picked on this fixture: a calibration, not an evaluation.</p>
-              </div>
-            ) : null}
-            {world ? (
-              <div>
-                <h3 className="how-h3">World Model persistence</h3>
-                <div className="table-wrap">
-                  <table className="table">
-                    <thead>
-                      <tr>
-                        {world.head.map((h) => (
-                          <th key={h} scope="col">
-                            <InlineMd text={h} />
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {world.rows.map((r, i) => (
-                        <tr key={i}>
-                          {r.map((c, j) => (
-                            <td key={j} className="num">
-                              <InlineMd text={c} />
-                            </td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                <p className="small muted how-note">Same file contents either way; a reload after the flush gives an identical state.</p>
-              </div>
-            ) : null}
-          </div>
-        </div>
-      </section>
-
-      <section id="traps" className="section" aria-labelledby="traps-h">
-        <div className="wrap">
-          <div className="section-head">
-            <h2 id="traps-h">What Zetaris taught us</h2>
-            <p className="lede">The setup scripts, and the traps each one works around, in the comments we left for the next person.</p>
-          </div>
-          {notes.length ? (
-            <ul className="traps">
-              {notes.map((n) => (
-                <li key={n.file} className="trap">
-                  <code className="ic trap-file">zetaris/{n.file}</code>
-                  <p className="trap-title">{n.title}</p>
-                  {n.notes.length ? (
-                    <ul className="trap-notes">
-                      {n.notes.map((x, i) => (
-                        <li key={i} className={isTrap(x) ? "is-trap" : undefined}>
-                          <InlineMd text={x} />
-                        </li>
-                      ))}
-                    </ul>
+      <Sheet
+        id="conf"
+        n="A-3"
+        title="Conformance"
+        date={date}
+        of={OF}
+        lede={
+          conf
+            ? `The unmodified Meterless suites, run against Upstream's modules on ${fmtDate(conf.at)}, ${conf.platform}, Node ${conf.node.replace(/^v/, "")}.`
+            : "The unmodified Meterless suites, run against Upstream's modules."
+        }
+      >
+        {conf ? (
+          <>
+            <ul className="hw-conf">
+              {conf.results.map((r) => (
+                <li key={r.engine} className={`hw-cert${r.pass ? "" : " is-fail"}`}>
+                  <div className="hw-cert__head">
+                    <h3>{r.engine}</h3>
+                    <span className="hw-cert__stamp">{r.pass ? "Pass" : "Fail"}</span>
+                  </div>
+                  <p className="hw-cert__sum">{r.summary}</p>
+                  <dl>
+                    <div>
+                      <dt>Module</dt>
+                      <dd className="hw-type">{r.module}</dd>
+                    </div>
+                    <div>
+                      <dt>Spec</dt>
+                      <dd className="hw-type">{r.spec.replace(/^vendor\/meterless\//, "")}</dd>
+                    </div>
+                    <div>
+                      <dt>Run time</dt>
+                      <dd className="hw-type">{r.ms} ms</dd>
+                    </div>
+                  </dl>
+                  {r.tail ? (
+                    <details className="hw-more">
+                      <summary>The runner&apos;s output</summary>
+                      <pre tabIndex={0}>{r.tail}</pre>
+                    </details>
                   ) : null}
                 </li>
               ))}
             </ul>
-          ) : (
-            <p className="muted">The Zetaris scripts are not on this copy.</p>
-          )}
-        </div>
-      </section>
+            <p className="hw-note">
+              Vendored engines at commit <span className="hw-type">{conf.vendorCommit.slice(0, 7)}</span>. A Scout pass shows the
+              plumbing is spec-shaped: its corpus repeats its own registry examples, so it is not a quality claim. The pharmacy
+              eval on A-4 is.
+            </p>
+          </>
+        ) : (
+          <p className="hw-empty">No conformance run on this copy. Run it with npm run conformance.</p>
+        )}
+      </Sheet>
 
-      <section id="run" className="section" aria-labelledby="run-h">
-        <div className="wrap">
-          <div className="section-head">
-            <h2 id="run-h">Run it locally</h2>
-            <p className="lede">
-              Without Zetaris credentials it replays the recorded investigations. With them, set <code className="ic">UPSTREAM_LIVE=1</code> and every
-              question runs live.
+      <Sheet
+        id="scout"
+        n="A-4"
+        title="The Scout eval"
+        date={date}
+        of={OF}
+        lede="59 pharmacy prompts labelled by hand: paraphrases, disguised orders, injections inside a quoted FDA notice, dosing questions, approval bypasses. 15 were held out before any scorer code existed."
+      >
+        {scout && splits.length ? (
+          <div className="hw-table-wrap" tabIndex={0} role="region" aria-label="Scout eval table">
+            <table className="hw-table hw-table--scout">
+              <caption className="sr-only">Scout pharmacy eval by split</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Metric</th>
+                  {splits.map((s) => (
+                    <th key={s} scope="col">
+                      {s === "all" ? "All" : s === "tuning" ? "Tuning" : "Held out"} <span className="hw-muted">({String(scout.metrics[s].examples)})</span>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {METRICS.map(([k, label]) => (
+                  <tr key={k} className={k === "block_recall" ? "is-key" : undefined}>
+                    <th scope="row">{label}</th>
+                    {splits.map((s) => {
+                      const v = m(scout.metrics[s][k]);
+                      return (
+                        <td key={s}>
+                          {v && v.value !== null ? (
+                            <span className="hw-gauge">
+                              <span className="hw-gauge__bar" aria-hidden="true">
+                                <span style={{ width: `${v.value * 100}%` }} />
+                              </span>
+                              <strong>{v.value.toFixed(3)}</strong>
+                              <span className="hw-muted">
+                                {v.n}/{v.d}
+                              </span>
+                            </span>
+                          ) : (
+                            "n/a"
+                          )}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="hw-empty">No Scout eval results on this copy.</p>
+        )}
+        <div className="hw-two">
+          <div>
+            <h3>The two misses</h3>
+            <p>
+              A held-out status question containing the word &ldquo;order&rdquo; was refused as an order: a false refusal, the
+              safe direction. &ldquo;Handle the shortage&rdquo; picked the wrong intent but still asked for clarification, so
+              nothing ran.
             </p>
           </div>
-          <div className="grid-2">
-            <ol className="run-steps">
-              <li>
-                <span>Install</span>
-                <pre tabIndex={0}>npm install</pre>
-              </li>
-              <li>
-                <span>Start the app on port 3240</span>
-                <pre tabIndex={0}>npx next dev -p 3240</pre>
-              </li>
-              <li>
-                <span>Run live against Zetaris (optional)</span>
-                <pre tabIndex={0}>UPSTREAM_LIVE=1 npx next dev -p 3240</pre>
-              </li>
-            </ol>
-            <ol className="run-steps">
-              <li>
-                <span>Conformance against the Meterless suites</span>
-                <pre tabIndex={0}>npm run conformance</pre>
-              </li>
-              <li>
-                <span>The Scout pharmacy eval</span>
-                <pre tabIndex={0}>npm run scout:eval</pre>
-              </li>
-              <li>
-                <span>Engine unit tests</span>
-                <pre tabIndex={0}>npm run test:engines</pre>
-              </li>
-            </ol>
+          <div>
+            <h3>Limits</h3>
+            <p>
+              One author, 59 prompts, 4 held-out block cases. Treat it as a regression set with a held-out check, not a
+              benchmark.
+              {scout?.selfTest ? ` Stage-one scan: median ${scout.selfTest.medianMs} ms over ${scout.selfTest.probes} probes.` : ""}
+            </p>
           </div>
-          {manifest ? <p className="small muted how-note">FDA bundle built {fmtDate(manifest.built)}.</p> : null}
         </div>
-      </section>
-    </>
+      </Sheet>
+
+      <Sheet
+        id="accuracy"
+        n="A-5"
+        title="Accuracy and engine measurements"
+        date={date}
+        of={OF}
+        lede="The reason for the federated path: a strong model answering from memory, marked on the same questions. Then what we changed in the engines we build on, and the numbers that justified it."
+      >
+        <EvalCompare data={ev} />
+        <p className="hw-more-link">
+          <Link href="/backtest#proof">Every product, marked row by row</Link>
+        </p>
+        <div className="hw-two hw-two--tables">
+          {hmem ? (
+            <div>
+              <h3>H-MEM recall on a labelled fixture</h3>
+              <div className="hw-table-wrap" tabIndex={0} role="region" aria-label="H-MEM recall table">
+                <table className="hw-table">
+                  <thead>
+                    <tr>
+                      {hmem.head.map((h) => (
+                        <th key={h} scope="col">
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {hmem.rows.map((r, i) => (
+                      <tr key={i}>
+                        {r.map((cell, j) => (
+                          <td key={j} className={j > 0 ? "hw-num" : undefined}>
+                            <InlineMd text={cell} />
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="hw-note">The threshold was picked on this fixture: a calibration, not an evaluation.</p>
+            </div>
+          ) : null}
+          {world ? (
+            <div>
+              <h3>World Model persistence</h3>
+              <div className="hw-table-wrap" tabIndex={0} role="region" aria-label="World Model persistence table">
+                <table className="hw-table">
+                  <thead>
+                    <tr>
+                      {world.head.map((h) => (
+                        <th key={h} scope="col">
+                          <InlineMd text={h} />
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {world.rows.map((r, i) => (
+                      <tr key={i}>
+                        {r.map((cell, j) => (
+                          <td key={j} className="hw-num">
+                            <InlineMd text={cell} />
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="hw-note">Same file contents either way; a reload after the flush gives an identical state.</p>
+            </div>
+          ) : null}
+        </div>
+      </Sheet>
+
+      <Sheet id="traps" n="A-6" title="What Zetaris taught us" date={date} of={OF} lede="General notes, taken from the comments in the setup scripts: what each one sets up, and the traps it works around. Traps are marked in red.">
+        {notes.length ? (
+          <ol className="hw-notes">
+            {notes.map((nt) => (
+              <li key={nt.file} className="hw-note-file">
+                <p className="hw-note-file__h">
+                  <span className="hw-type">zetaris/{nt.file}</span>
+                  <span>{nt.title}</span>
+                </p>
+                {nt.notes.length ? (
+                  <ul>
+                    {nt.notes.map((x, i) => (
+                      <li key={i} className={isTrap(x) ? "is-trap" : undefined}>
+                        <InlineMd text={x} />
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p className="hw-empty">The Zetaris scripts are not on this copy.</p>
+        )}
+      </Sheet>
+
+      <Sheet
+        id="run"
+        n="A-7"
+        title="Run it locally"
+        date={date}
+        of={OF}
+        lede={
+          <>
+            Without Zetaris credentials it replays the recorded investigations. With them, set <code className="hw-code">UPSTREAM_LIVE=1</code> and every
+            question runs live.
+          </>
+        }
+      >
+        <div className="hw-two">
+          <ol className="hw-steps">
+            <li>
+              <span>Install</span>
+              <pre tabIndex={0}>npm install</pre>
+            </li>
+            <li>
+              <span>Start the app on port 3240</span>
+              <pre tabIndex={0}>npx next dev -p 3240</pre>
+            </li>
+            <li>
+              <span>Run live against Zetaris (optional)</span>
+              <pre tabIndex={0}>UPSTREAM_LIVE=1 npx next dev -p 3240</pre>
+            </li>
+          </ol>
+          <ol className="hw-steps">
+            <li>
+              <span>Conformance against the Meterless suites</span>
+              <pre tabIndex={0}>npm run conformance</pre>
+            </li>
+            <li>
+              <span>The Scout pharmacy eval</span>
+              <pre tabIndex={0}>npm run scout:eval</pre>
+            </li>
+            <li>
+              <span>Engine unit tests</span>
+              <pre tabIndex={0}>npm run test:engines</pre>
+            </li>
+          </ol>
+        </div>
+        {manifest ? <p className="hw-note">FDA bundle built {fmtDate(manifest.built)}.</p> : null}
+      </Sheet>
+    </div>
   );
 }
