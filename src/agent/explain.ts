@@ -113,6 +113,7 @@ const SYSTEM = `You write the "why" section of a drug shortage brief for a hospi
 Use only the numbered evidence lines you are given. Every sentence must cite the ids it relies on.
 Write dates exactly as they appear in the evidence (YYYY-MM-DD), and use only numbers that appear in the cited lines.
 Say what FDA's records show and when; do not claim a cause FDA has not stated. Never give dosing or clinical advice.
+The headline says what the record shows, never a cause: for example "FDA's records trace our supply to a plant classified OAI 23 days before the posting", not "the shortage is caused by" or "linked to".
 Plain sentence case, calm, specific. 4 to 7 sentences. Reply with JSON only:
 {"headline": "...", "headline_cites": ["E1"], "sentences": [{"text": "...", "cites": ["E3", "D2"]}]}`;
 

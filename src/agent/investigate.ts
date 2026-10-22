@@ -53,6 +53,8 @@ function healthOf(insp: Row[], actions: Row[], alerts: Row[], asOf: string): { h
   const recentAction = actions.some((r) => yearsAgo(str(r.action_date)) <= 3);
   const recentAlert = alerts.some((r) => yearsAgo(str(r.date_published)) <= 3);
   if (recentOai || recentAction || recentAlert) return { health: "signal", last };
+  // A plant whose most recent inspection was OAI has not shown FDA it fixed the problem: never "clear".
+  if (last && last.classification === "OAI") return { health: "watch", last };
   if (last && last.classification === "VAI" && yearsAgo(last.endDate) <= 2) return { health: "watch", last };
   if (last && yearsAgo(last.endDate) <= 4) return { health: "clear", last };
   return { health: "unknown", last };

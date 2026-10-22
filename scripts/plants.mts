@@ -59,7 +59,8 @@ for (const row of r.rows) {
   };
   if (!p.products.some((x) => x.labeler === row.labeler_name && x.molecule === row.molecule)) p.products.push({ labeler: String(row.labeler_name), molecule: String(row.molecule) });
   const sig = Number(row.signals ?? 0);
-  p.health = sig > 0 ? "signal" : row.last_class === "VAI" && yearsAgo(String(row.last_date)) <= 2 ? "watch" : row.last_class && yearsAgo(String(row.last_date)) <= 4 ? "clear" : "unknown";
+  // Same rule as the investigator: recent FDA action -> signal; last inspection OAI, or a recent VAI -> watch.
+  p.health = sig > 0 ? "signal" : row.last_class === "OAI" || (row.last_class === "VAI" && yearsAgo(String(row.last_date)) <= 2) ? "watch" : row.last_class && yearsAgo(String(row.last_date)) <= 4 ? "clear" : "unknown";
   byFei.set(fei, p);
 }
 const plants = [...byFei.values()].sort((a, b) => b.signals - a.signals || a.name.localeCompare(b.name));
